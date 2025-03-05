@@ -1,39 +1,35 @@
 package com.HolosINC.Holos.artist;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.sql.Blob;
+import java.util.Set;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.HolosINC.Holos.Category.ArtistCategory;
 import com.HolosINC.Holos.model.BaseUser;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
 @Table(name = "artists")
-public class Artist{
-
-    @Id
-	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 100)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
-	protected Integer id;
-
-    @OneToOne
-    @JoinColumn(name = "base_user_id", unique = true)
-    private BaseUser baseUser;
+@EqualsAndHashCode(callSuper = true)
+public class Artist extends BaseUser{
 
     @NotNull
     @Min(1)
     private Integer numSlotsOfWork;
-
     
-    private String tableCommisionsPrice;
+    @Lob
+    private Blob tableCommisionsPrice;
+    
+    @OneToMany(mappedBy = "artist")
+    private Set<ArtistCategory> artistCategories;
 }

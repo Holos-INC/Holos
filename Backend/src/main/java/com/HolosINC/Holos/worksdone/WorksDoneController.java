@@ -50,7 +50,7 @@ public class WorksDoneController {
 
     @GetMapping("/artist/{artistId}")
     public ResponseEntity<List<WorksDone>> getWorksDoneByArtist(@PathVariable Long artistId) {
-        Artist artist = artistService.findArtist(artistId.intValue());
+        Artist artist = artistService.findArtist(artistId);
         List<WorksDone> works = worksDoneService.getWorksDoneByArtist(artist);
         return ResponseEntity.ok(works);
     }

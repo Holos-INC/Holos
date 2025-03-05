@@ -1,0 +1,25 @@
+//Copiar y pegar quitando el .example
+//Modificar serviceToStart por el nombre de vuestro servicio de mariadb para ISPP
+
+
+
+# Definir los nombres de los servicios
+$serviceToStop = "MariaDB"
+$serviceToStart = "MariaDB_Holos" 
+
+# Detener MariaDB si está en ejecución
+$service = Get-Service -Name $serviceToStop -ErrorAction SilentlyContinue
+if ($service -and $service.Status -eq "Running") {
+    Write-Output "Deteniendo $serviceToStop..."
+    Stop-Service -Name $serviceToStop -Force
+    Start-Sleep -Seconds 5  # Esperar unos segundos para asegurar que se detuvo
+}
+
+# Iniciar MariaDB_Holos si no está en ejecución
+$service = Get-Service -Name $serviceToStart -ErrorAction SilentlyContinue
+if ($service -and $service.Status -ne "Running") {
+    Write-Output "Iniciando $serviceToStart..."
+    Start-Service -Name $serviceToStart
+}
+
+Write-Output "Proceso completado."

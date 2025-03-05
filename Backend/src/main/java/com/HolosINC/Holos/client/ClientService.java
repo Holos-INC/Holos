@@ -25,7 +25,7 @@ public class ClientService {
 
 
 	@Transactional(readOnly = true)
-	public Client findClient(Integer clientId) {
+	public Client findClient(Long clientId) {
 		return clientRepository.findById(clientId)
 				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", clientId));
 	}

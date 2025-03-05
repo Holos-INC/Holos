@@ -30,7 +30,7 @@ public class CategoryRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Integer id) {
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         return new ResponseEntity<>(categoryService.findCategoryById(id), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.model;
 
+import java.sql.Blob;
 import java.sql.Date;
 
 import javax.validation.constraints.NotNull;
@@ -10,17 +11,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
 
 @Data
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class BaseUser {
 
     @Id
 	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 100)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
-	protected Integer id;
+	protected Long id;
 
     @Size(min = 2, max = 255)
     @Column(name = "first_name")
@@ -43,9 +48,8 @@ public class BaseUser {
     @Column(name = "phone_number")
     protected String phoneNumber;
 
-    @Size(max = 255)
-    @Column(name = "image_profile")
-    protected String imageProfile;
+    @Lob
+    private Blob imageProfile;
 
     @Column(name = "created_user")
     @NotNull

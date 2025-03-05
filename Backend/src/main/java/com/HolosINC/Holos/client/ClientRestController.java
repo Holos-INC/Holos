@@ -23,7 +23,7 @@ class ClientRestController {
 	}
 
 	@GetMapping(value = "{id}")
-	public ResponseEntity<Client> findById(@PathVariable("id") Integer id) {
+	public ResponseEntity<Client> findById(@PathVariable("id") Long id) {
 		return new ResponseEntity<>(clientService.findClient(id), HttpStatus.OK);
 	}
 

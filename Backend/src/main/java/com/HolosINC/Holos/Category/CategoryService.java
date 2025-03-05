@@ -9,10 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final WorkCategoryRepository workCategoryRepository;
+    private final ArtistCategoryRepository artistCategoryRepository;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, WorkCategoryRepository workCategoryRepository, ArtistCategoryRepository artistCategoryRepository) {
         this.categoryRepository = categoryRepository;
+        this.workCategoryRepository = workCategoryRepository;
+        this.artistCategoryRepository = artistCategoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -21,7 +25,19 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Category findCategoryById(Integer id) {
+    public List<Category> findCategoriesByWork(Long workId) {
+        List<Category> categories = workCategoryRepository.findCategoriesOfWork(workId);
+        return categories;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Category> findCategoriesByArtist(Long artistId) {
+        List<Category> categories = artistCategoryRepository.findCategoriesOfArtist(artistId);
+        return categories;
+    }
+
+    @Transactional(readOnly = true)
+    public Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
     }

@@ -25,7 +25,7 @@ public class ArtistService {
 
 
 	@Transactional(readOnly = true)
-	public Artist findArtist(Integer artistId) {
+	public Artist findArtist(Long artistId) {
 		return artistRepository.findById(artistId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 	}

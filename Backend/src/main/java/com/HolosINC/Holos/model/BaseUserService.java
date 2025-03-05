@@ -28,7 +28,7 @@ public class BaseUserService {
         return user.get();
     }
 
-    public BaseUser findById(Integer id) {
+    public BaseUser findById(Long id) {
         return baseUserRepository.findById(id).orElse(null);
     }
 }

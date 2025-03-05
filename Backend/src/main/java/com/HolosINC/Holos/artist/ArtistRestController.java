@@ -23,7 +23,7 @@ class ArtistRestController {
 	}
 
 	@GetMapping(value = "{id}")
-	public ResponseEntity<Artist> findById(@PathVariable("id") Integer id) {
+	public ResponseEntity<Artist> findById(@PathVariable("id") Long id) {
 		return new ResponseEntity<>(artistService.findArtist(id), HttpStatus.OK);
 	}
 
