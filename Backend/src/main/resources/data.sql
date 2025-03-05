@@ -10,7 +10,7 @@ INSERT INTO clients (id, base_user_id) VALUES
 INSERT INTO artists (id, base_user_id, num_slots_of_work, table_commisions_price) VALUES
 (1, 3, 3,'tabla.jpg');
 
-INSERT INTO categories (name, description) VALUES
-('Painting', 'Artworks created using paint on a surface'),
-('Digital Art', 'Artworks made using digital tools'),
-('Sculpture', 'Three-dimensional art made by shaping materials');
+INSERT INTO categories (id, name, description) VALUES
+(1, 'Painting', 'Artworks created using paint on a surface'),
+(2, 'Digital Art', 'Artworks made using digital tools'),
+(3, 'Sculpture', 'Three-dimensional art made by shaping materials');
