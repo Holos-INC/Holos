@@ -172,7 +172,15 @@ export default function WorkDetailScreen() {
               <Text style={styles.messageButtonText}>MANDAR UN MENSAJE</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buyButton}>
+            <TouchableOpacity
+              style={styles.buyButton}
+              onPress={() => {
+                navigation.navigate("Payment", {
+                  workId: work.id,
+                  price: work.price,
+                });
+              }}
+            >
               <Text style={styles.buyButtonText}>COMPRAR</Text>
             </TouchableOpacity>
           </View>
@@ -182,12 +190,12 @@ export default function WorkDetailScreen() {
   );
 }
 
-// Estilos
+// Estilos con paleta pastel
 const styles = StyleSheet.create({
   // Contenedor principal
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF7F9", // Fondo pastel rosado muy suave
   },
 
   // Loader
@@ -195,7 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF7F9",
   },
 
   // Obra no encontrada
@@ -203,7 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF7F9",
   },
   notFoundText: {
     fontSize: 18,
@@ -215,7 +223,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFF7F9",
   },
   backText: {
     fontSize: 16,
@@ -228,19 +236,18 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingBottom: 30,
-    // Espacio entre la imagen y la info en "row"
     alignItems: "flex-start",
   },
 
   // Imagen
   imageContainer: {
     width: "100%", // Para móvil
-    maxWidth: 400, // Límite en desktop
+    maxWidth: 400, // Límite en pantallas grandes
     marginBottom: 20,
   },
   image: {
     width: "100%",
-    aspectRatio: 1.2, // Ajusta la proporción
+    aspectRatio: 1.2,
     resizeMode: "cover",
     borderRadius: 8,
   },
@@ -288,7 +295,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   messageButton: {
-    backgroundColor: "#FFD5EB",
+    backgroundColor: "#FFD5EB", // Rosa pastel
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 6,
@@ -300,7 +307,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   buyButton: {
-    backgroundColor: "#173F8A",
+    backgroundColor: "#173F8A", // Azul fuerte para contraste
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 6,
