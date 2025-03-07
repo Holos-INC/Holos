@@ -1,0 +1,13 @@
+{
+  "messages": [
+    {
+      "id": "1",
+      "text": "Buenas tardes. He recibido una solicitud de comisión suya",
+      "createdAt": "2024-03-06T14:00:00.000Z",
+      "user": {
+        "id": 101,
+        "name": "Macarenaaa"
+      }
+    }
+  ]
+}
