@@ -3,10 +3,8 @@ import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import HomeScreen from "./src/screens/HomeScreen";
 import ExploreScreen from "./src/screens/ExploreScreen/ExploreScreen";
-import WorkDetailScreen from "./src/screens/WorkDetailScreen";
-
+import WorkDetailScreen from "./src/screens/WorkDetailScreen"; // <-- lo importamos
 import SearchIcon from "@/assets/svgs/SearchIcon";
-import PaymentScreen from "./src/screens/PaymentScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -14,7 +12,6 @@ export type RootDrawerParamList = {
   Inicio: undefined;
   Explorar: undefined;
   WorkDetail: { workId: number };
-  Payment: { workId: number; price: number }; 
 };
 
 export default function RootLayout() {
@@ -43,14 +40,6 @@ export default function RootLayout() {
         component={WorkDetailScreen}
         options={{
           // Que no aparezca en el menú
-          drawerLabel: () => null,
-          drawerItemStyle: { height: 0 },
-        }}
-      />
-      <Drawer.Screen
-        name="Payment"
-        component={PaymentScreen}
-        options={{
           drawerLabel: () => null,
           drawerItemStyle: { height: 0 },
         }}
