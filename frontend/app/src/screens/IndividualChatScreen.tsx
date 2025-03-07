@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Button, Image, TouchableOpacity } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
-
+import * as ImagePicker from 'expo-image-picker';
 
 const API_URL = "http://localhost:3000/messages"; // URL del JSON Server
 
- {/* para arrancar el "backend" insertar en la consola de comando json-server --watch db.json --port 3000*/}
-
+ {/* Para activar el backend json-server --watch db.json --port 3000*/}
 
  {/*Variables de imagenes*/}
 const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
@@ -15,9 +14,11 @@ const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-12953
 export default function IndividualChatScreen({ navigation }) {
     
     const [messages, setMessages] = useState<IMessage[]>([]);
-    
-      {/*Obtención del historial del chat*/}
-      useEffect(() => {
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+    const [inputText, setInputText] = useState<string>(""); 
+
+    {/*Obtención del historial del chat*/}
+    useEffect(() => {
         const fetchMessages = async () => {
             try {
                 {/*Solicitud al backend*/}
@@ -34,9 +35,11 @@ export default function IndividualChatScreen({ navigation }) {
                         name: msg.user.name,
                         avatar: msg.user.avatar || artistAvatar,
                     },
+                    image: msg.image || undefined, 
                 })).sort((a: IMessage, b: IMessage) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
                 setMessages(formattedMessages);
+                setSelectedImage(undefined);
             } catch (error) {
                 console.error("Error obteniendo mensajes:", error);
             }
@@ -45,11 +48,12 @@ export default function IndividualChatScreen({ navigation }) {
         fetchMessages();
     }, []);
 
-
+        
+        
     {/*Publicación de los mensajes*/}
     const onSend = useCallback(async (newMessages: IMessage[] = []) => {
 
-        if (newMessages.length === 0) return; 
+        if (newMessages.length === 0 && !selectedImage) return; 
 
         {/*Creación del mensaje*/}
         const message = {
@@ -61,6 +65,7 @@ export default function IndividualChatScreen({ navigation }) {
                 name: "Usuario",
                 avatar: artistAvatar,
             },
+            image: selectedImage || undefined,
         };
 
 
@@ -74,9 +79,10 @@ export default function IndividualChatScreen({ navigation }) {
                 name: message.user.name,
                 avatar: message.user.avatar || artistAvatar,
             },
+            image: selectedImage || undefined, 
         };
     
-        {/*Envia los mensajes al "backend" */}
+        {/*Envío del mensajes al "backend" */}
         try {
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -93,14 +99,26 @@ export default function IndividualChatScreen({ navigation }) {
                 GiftedChat.append(previousMessages, [message])
             );
 
-          
+            setSelectedImage(undefined); 
           
         } catch (error) {
             console.error("Error enviando mensaje:", error);
         }
-    }, []); 
+    }, [selectedImage]); 
 
-  
+     {/*Permite seleccionar imagenes*/}
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled && result.assets.length > 0) {
+            setSelectedImage(result.assets[0].uri); 
+        }
+    };
+
     return (
         <View style={styles.container}>
             <GiftedChat
@@ -108,13 +126,18 @@ export default function IndividualChatScreen({ navigation }) {
                 onSend={(messages: IMessage[]) => onSend(messages)}
                 user={{ _id: 1, name: "Usuario", avatar: artistAvatar }}
                 showUserAvatar={true}
+                text={((selectedImage && inputText !== "📷 ") && inputText.length ===0 ) ? "📷 " : inputText}
+                onInputTextChanged={(text) => setInputText(text)}
                 textInputProps={{
                     placeholder: "Escribe un mensaje...",
                     editable: true,
                 }}
             
             />
-         
+            <View style={styles.imagePickerContainer}>
+                <Button title="Seleccionar Imagen" onPress={pickImage} />
+                {selectedImage && <Image source={{ uri: selectedImage }} style={styles.imagePreview} />}
+            </View>
         </View>
     );
 }
