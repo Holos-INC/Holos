@@ -9,7 +9,7 @@ const API_URL = "http://localhost:3000/messages"; // URL del JSON Server
 
  {/*Variables de imagenes*/}
 const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
-
+const cameraIcon = "📷 "
 
 export default function IndividualChatScreen({ navigation }) {
     
@@ -126,7 +126,7 @@ export default function IndividualChatScreen({ navigation }) {
                 onSend={(messages: IMessage[]) => onSend(messages)}
                 user={{ _id: 1, name: "Usuario", avatar: artistAvatar }}
                 showUserAvatar={true}
-                text={((selectedImage && inputText !== "📷 ") && inputText.length ===0 ) ? "📷 " : inputText}
+                text={((selectedImage && inputText !== cameraIcon ) && inputText.length ===0 ) ? cameraIcon : inputText}
                 onInputTextChanged={(text) => setInputText(text)}
                 textInputProps={{
                     placeholder: "Escribe un mensaje...",
