@@ -9,11 +9,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+//import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 import com.HolosINC.Holos.artist.Artist;
 
@@ -39,7 +38,6 @@ public class StatusKanbanOrder {
     private String description;
 
     @NotNull
-    //@Pattern(regexp = "^#([A-Fa-f0-9]{6})$")
     private String color;
 
     @ManyToOne(optional = false)

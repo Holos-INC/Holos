@@ -6,12 +6,6 @@ INSERT INTO artists (id, first_name, username, password, email, phone_number, im
 (1,'Yellow', 'yellow_doe', 'password789', 'yellow.doe@example.com', '1234567890', NULL, '2025-02-28', 3, NULL);
 
 INSERT INTO categories (id, name, description) VALUES
-(1,'Painting', 'Artworks created using paint on a surface'),
-(2,'Digital Art', 'Artworks made using digital tools'),
-(3,'Sculpture', 'Three-dimensional art made by shaping materials');
-
-
-INSERT INTO categories (id, name, description) VALUES
 (1, 'Painting', 'Artworks created using paint on a surface'),
 (2, 'Digital Art', 'Artworks made using digital tools'),
 (3, 'Sculpture', 'Three-dimensional art made by shaping materials');

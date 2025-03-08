@@ -76,4 +76,16 @@ public class CommisionController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCommision(@PathVariable Long id) {
+        try {
+            commisionService.deleteCommision(id);
+            return ResponseEntity.ok("Comisión eliminada correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
+
 }

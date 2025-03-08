@@ -1,12 +1,10 @@
 package com.HolosINC.Holos.Kanban;
 
-import java.io.ObjectInputFilter.Status;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 

@@ -83,4 +83,10 @@ public class CommisionService {
         commisionRepository.save(commision);
     }
 
+    public Commision deleteCommision(Long id) {
+        Commision commision = commisionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", id));
+        commisionRepository.delete(commision);
+        return commision;
+    }
 }
