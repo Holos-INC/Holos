@@ -1,0 +1,6 @@
+target
+*.jar
+*.war
+*.zip
+*.log
+frontend/node_modules
