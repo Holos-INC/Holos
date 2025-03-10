@@ -7,7 +7,7 @@ WORKDIR /frontend
 COPY frontend/package.json .
 COPY frontend/ .
 RUN npm install
-RUN npx expo run:web
+RUN npm run
 
 # Etapa 2: Construcción del backend (Spring Boot)
 FROM maven:3.8.6-eclipse-temurin-17 AS backend-build
@@ -21,14 +21,6 @@ RUN ./mvnw package -DskipTests
 
 # Etapa 3: Imagen final con backend y frontend juntos
 FROM openjdk:17-jdk-slim
-
-WORKDIR /app
-
-# Copiar el backend al contenedor
-COPY --from=backend-build /app/backend/target/*.jar backend/app.jar
-
-# Copiar el frontend dentro del backend (para servirlo con Spring Boot)
-COPY --from=frontend-build /app/frontend/build backend/src/main/resources/static/
 
 # Exponer el puerto del backend
 EXPOSE 8080
