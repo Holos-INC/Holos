@@ -26,4 +26,4 @@ FROM openjdk:17-jdk-slim
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD ["java", "-jar", "backend/app.jar"]
+CMD ["java", "-jar", "backend/Holos-0.0.1-SNAPSHOT.jar"]
