@@ -1,29 +1,28 @@
-# Etapa 1: Construcción del frontend (React)
-FROM node:18-alpine AS frontend-build
+# Use Maven image to build the application
+FROM maven:3.8.4-openjdk-17 AS build
 
-WORKDIR /frontend
+# Set the working directory inside the container
+WORKDIR /app
 
-# Copiar los archivos del frontend y construir la aplicación
-COPY frontend/package.json .
-COPY frontend/ .
-RUN npm install
-RUN npm run
+# Copy the pom.xml and download dependencies
+COPY Backend/pom.xml .
+RUN mvn dependency:go-offline
 
-# Etapa 2: Construcción del backend (Spring Boot)
-FROM maven:3.8.6-eclipse-temurin-17 AS backend-build
+# Copy the entire Backend source code
+COPY Backend/src ./src
+RUN mvn clean package -DskipTests
 
-WORKDIR /backend
-
-# Copiar los archivos del backend y construir la aplicación
-COPY Backend/ .
-
-RUN ./mvnw package -DskipTests
-
-# Etapa 3: Imagen final con backend y frontend juntos
+# Use a lightweight JDK runtime for running the application
 FROM openjdk:17-jdk-slim
 
-# Exponer el puerto del backend
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the built jar file from the build stage
+COPY --from=build /app/target/Holos-0.0.1-SNAPSHOT.jar .
+
+# Expose the application port
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "backend/Holos-0.0.1-SNAPSHOT.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/Holos-0.0.1-SNAPSHOT.jar"]
