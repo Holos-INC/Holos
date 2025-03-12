@@ -130,7 +130,10 @@ const KanbanBoard: React.FC = () => {
                 <Text style={styles.bannerText}>{columnName.toUpperCase()}</Text>
               </View>
               {columnTasks.map(task => (
-                <View key={task.id} style={styles.taskCard}>
+                <View 
+                  key={task.id} 
+                  style={[styles.taskCard, { backgroundColor: task?.color || "#FFFFFF" }]}
+                >
                   <Text style={styles.taskText}>{task.artist_id}</Text>
 
                   {/* Mostrar detalles de la comisión */}
@@ -149,9 +152,7 @@ const KanbanBoard: React.FC = () => {
                     }} 
                     style={styles.moveButton}
                   >
-                    <Text style={{ color: "white" }}>
-                      {task.order === 3 ? "Archivar" : "Mover"}
-                    </Text>
+                    <Text style={{ color: "white" }}>{ "Mover"}</Text>
                   </TouchableOpacity>
                 </View>
               ))}
