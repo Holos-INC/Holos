@@ -36,7 +36,18 @@ public class SecurityConfig {
         .headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.disable()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-            .anyRequest().permitAll()
+            .requestMatchers("/api/v1/auth/**").permitAll()
+            .requestMatchers("/api/v1/artists/**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/worksdone/**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/works/**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/status-kanban-order/**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/milestones/**").authenticated()
+            .requestMatchers("/api/v1/users/**").hasAuthority("CLIENT")
+            .requestMatchers("/api/v1/commisions/**").authenticated()
+            .requestMatchers("/api/v1/worksdone/**").authenticated()
+            .requestMatchers("/api/v1/categories/**").authenticated()
+            .requestMatchers("/api/v1/search/**").authenticated()
+            .anyRequest().authenticated()
         )
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
 
