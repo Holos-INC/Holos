@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/status-kanban-order";
+const API_URL = "http://localhost:8080/api/v1/status-kanban-order";
 
 // Obtener todas las tareas
 export const getAllTasks = async () => {
   try {
     const response = await axios.get(API_URL);
+    console.log("Datos recibidos de la API:", response.data); // Verifica la respuesta aquí
     return response.data;
   } catch (error) {
     console.error("Error al obtener las tareas", error);
@@ -59,7 +60,7 @@ export const deleteTask = async (id) => {
 export const updateStatusKanbanOrder = async (taskId, newOrder) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/status-kanban-order/${taskId}/updateKanbanOrder`,
+        `${API_URL}/${taskId}/updateKanbanOrder`,
         { id: taskId, order: newOrder }
       );
       return response.data;
@@ -68,4 +69,16 @@ export const updateStatusKanbanOrder = async (taskId, newOrder) => {
       throw error;
     }
   };
-  
+
+export const getStatusKanbanOrderByArtist = async (artistId) => {
+  try {
+    const response = await axios.get(`${API_URL}/artist/${artistId}`, {
+      params: { artistId: artistId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener las tareas del artista:", error);
+    throw error;
+  }
+};
+

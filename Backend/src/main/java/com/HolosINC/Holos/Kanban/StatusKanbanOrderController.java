@@ -72,4 +72,6 @@ public class StatusKanbanOrderController {
     public StatusKanbanOrder getStatusKanbanOrder(@PathVariable Integer id) {
         return statusKanbanOrderService.findStatusKanbanOrder(id);
     }
+
+    
 }

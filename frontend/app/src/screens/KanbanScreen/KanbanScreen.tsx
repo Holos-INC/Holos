@@ -1,25 +1,55 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, Dimensions, ScrollView, StyleSheet } from "react-native";
-import { getAllTasks, updateStatusKanbanOrder } from "../../../services/kanbanService"; // Importar servicio de tareas
+import { getAllTasks, updateStatusKanbanOrder,getStatusKanbanOrderByArtist } from "../../../services/kanbanService"; // Importar servicio de tareas
+import { getCommissionsByKanbanOrderId } from "../../../services/CommisionService"; // Importar servicio de comisiones
+
 
 const KanbanBoard: React.FC = () => {
   const [tasks, setTasks] = useState<{ [key: string]: any[] }>({
     todo: [],
     inProgress: [],
     done: [],
+    completed: [],
+    archived: [],
+    idea: [],
+    sketching: [],
+    coloring: [],
+    finalTouches: [],
+    published: [],
   });
+
+  const [commissions, setCommissions] = useState<{ [key: string]: any }>({});
 
   // Cargar tareas desde el backend
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const fetchedTasks = await getAllTasks();
+        console.log("Tareas obtenidas:", fetchedTasks);
         const categorizedTasks = {
           todo: fetchedTasks.filter((task: any) => task.order === 1),
           inProgress: fetchedTasks.filter((task: any) => task.order === 2),
           done: fetchedTasks.filter((task: any) => task.order === 3),
+          completed: fetchedTasks.filter((task: any) => task.order === 4),
+          archived: fetchedTasks.filter((task: any) => task.order === 5),
+          idea: fetchedTasks.filter((task: any) => task.order === 6),
+          sketching: fetchedTasks.filter((task: any) => task.order === 7),
+          coloring: fetchedTasks.filter((task: any) => task.order === 8),
+          finalTouches: fetchedTasks.filter((task: any) => task.order === 9),
+          published: fetchedTasks.filter((task: any) => task.order === 10),
         };
+        console.log("Tareas categorizadas:", categorizedTasks); // Verifica las tareas después de la categorización
+
         setTasks(categorizedTasks);
+
+        // Obtener comisiones para cada tarea
+        fetchedTasks.forEach(async (task: any) => {
+          const taskCommissions = await getCommissionsByKanbanOrderId(task.id); // Suponemos que `task.id` es `kanbanOrderId`
+          setCommissions(prev => ({
+            ...prev,
+            [task.id]: taskCommissions,
+          }));
+        });
       } catch (error) {
         console.error("Error al cargar tareas", error);
       }
@@ -28,23 +58,34 @@ const KanbanBoard: React.FC = () => {
   }, []);
 
   // Función para obtener el siguiente orden y la columna correspondiente
-  const getNextOrder = (task: any) => {
-    let newOrder = task.order;
-    let targetColumn = "";
-
-    if (task.order === 1) {
-      newOrder = 2;
-      targetColumn = "inProgress";
-    } else if (task.order === 2) {
-      newOrder = 3;
-      targetColumn = "done";
-    } else if (task.order === 3) {
-      newOrder = 3;
-      targetColumn = "done";
+  const getNextOrder = (task: { order: number; id: any; }) => {
+    if (!tasks) return { newOrder: task.order, targetColumn: "" };
+  
+    const orderMapping = [
+      "todo",
+      "inProgress",
+      "done",
+      "completed",
+      "archived",
+      "idea",
+      "sketching",
+      "coloring",
+      "finalTouches",
+      "published",
+    ];
+  
+    const currentIndex = orderMapping.findIndex((col) => tasks[col]?.some((t) => t.id === task.id));
+  
+    if (currentIndex === -1 || currentIndex >= orderMapping.length - 1) {
+      return { newOrder: task.order, targetColumn: "" };
     }
-
+  
+    const newOrder = task.order + 1;
+    const targetColumn = orderMapping[currentIndex + 1];
+  
     return { newOrder, targetColumn };
   };
+  
 
   // Función para mover la tarea entre columnas sin duplicaciones
   const moveTask = async (taskId: number, targetColumn: string, newOrder: number) => {
@@ -91,6 +132,16 @@ const KanbanBoard: React.FC = () => {
               {columnTasks.map(task => (
                 <View key={task.id} style={styles.taskCard}>
                   <Text style={styles.taskText}>{task.artist_id}</Text>
+
+                  {/* Mostrar detalles de la comisión */}
+                  {commissions[task.id] && commissions[task.id].map((commission: any) => (
+                    <View key={commission.id}>
+                      <Text>Nombre: {commission.name}</Text>
+                      <Text>Descripción: {commission.description}</Text>
+                      <Text>Precio: {commission.price}</Text>
+                    </View>
+                  ))}
+
                   <TouchableOpacity 
                     onPress={() => {
                       const { newOrder, targetColumn } = getNextOrder(task);

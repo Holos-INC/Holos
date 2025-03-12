@@ -60,3 +60,12 @@ export const cancelCommision = async (id, clientId) => {
     throw error;
   }
 };
+export const getCommissionsByKanbanOrderId = async (kanbanOrderId) => {
+  try {
+    const response = await axios.get(`${API_URL}/kanban/${kanbanOrderId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching commissions by Kanban Order ID:", error);
+    throw error;
+  }
+};

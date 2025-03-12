@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.commision;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
+import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.client.Client;
@@ -22,12 +26,14 @@ public class CommisionService {
     private final CommisionRepository commisionRepository;
     private final ArtistService artistService;
     private final BaseUserService userService;
+    private final StatusKanbanOrderService statusKanbanOrderService;
 
     @Autowired
-    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService){
+    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService, StatusKanbanOrderService statusKanbanOrderService){
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
         this.userService = userService;
+        this.statusKanbanOrderService = statusKanbanOrderService;
     }
 
     public Commision createCommision(CommisionDTO commisionDTO, Long artistId) {
@@ -99,5 +105,17 @@ public class CommisionService {
         commision.setStatus(StatusCommision.CANCELED);
         commisionRepository.save(commision);
     }
+
+    @Transactional
+    public Collection<Commision> getCommissionsByKanbanOrderId(Long kanbanOrderId) {
+        // Verifica si el kanbanOrderId es nulo para evitar errores en la consulta.
+        if (kanbanOrderId == null) {
+            throw new IllegalArgumentException("Kanban Order ID cannot be null");
+        }
+        // Usar el nombre correcto para el método de repositorio y los parámetros.
+        Collection<Commision> commissions = commisionRepository.findAllCommissionsByStatusKanbanOrder(kanbanOrderId);
+        return commissions != null ? commissions : Collections.emptyList();
+    }
+
 
 }

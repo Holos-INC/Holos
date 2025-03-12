@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.commision;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,5 +86,15 @@ public class CommisionController {
             return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
         }
     }
+
+    @GetMapping("/kanban/{kanbanOrderId}")
+    public ResponseEntity<Collection<Commision>> getCommissionsByKanbanOrderId(@PathVariable Long kanbanOrderId) {
+        Collection<Commision> commissions = commisionService.getCommissionsByKanbanOrderId(kanbanOrderId);
+        if (commissions.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(commissions);
+    }
+    
 
 }
