@@ -15,6 +15,6 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     Optional<StatusKanbanOrder> findByOrderAndArtist(Integer order_client, Integer id);
 
     @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId")
-    List<StatusKanbanOrder> findByArtist(@Param("artistId") Integer artistId);
+    List<StatusKanbanOrder> findByArtist(@Param("artistId") Long artistId);
 }
 
