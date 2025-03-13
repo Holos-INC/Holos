@@ -22,7 +22,7 @@ public class StatusKanbanOrderController {
 
     @PostMapping
     public ResponseEntity<StatusKanbanOrder> addStatusToKanban(@RequestParam String color, @RequestParam String description, 
-    @RequestParam String nombre, @RequestParam Integer artistId) {
+    @RequestParam String nombre, @RequestParam Long artistId) {
         StatusKanbanOrder sk = statusKanbanOrderService.addStatusToKanban(color, description, nombre, artistId);
         return new ResponseEntity<>(sk, HttpStatus.OK);
     }
@@ -59,7 +59,7 @@ public class StatusKanbanOrderController {
     }
 
     @GetMapping("/artist/{artistId}")
-    public List<StatusKanbanOrder> getStatusKanbanOrderByArtist(@PathVariable Integer artistId) {
+    public List<StatusKanbanOrder> getStatusKanbanOrderByArtist(@PathVariable Long artistId) {
         return statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
     }
 

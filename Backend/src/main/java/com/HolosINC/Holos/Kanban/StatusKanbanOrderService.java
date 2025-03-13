@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.model.BaseUser;
+import com.HolosINC.Holos.model.BaseUserService;
 
 @Service
 public class StatusKanbanOrderService {
@@ -14,12 +17,15 @@ public class StatusKanbanOrderService {
 
     private StatusKanbanOrderRepository statusKanbanOrderRepository;
     private ArtistService artistService;
+    private BaseUserService baseUserService;
 
 
     @Autowired
-    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, ArtistService artistService) {
+    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, ArtistService artistService
+        , BaseUserService baseUserService) {
         this.statusKanbanOrderRepository = statusKanbanOrderRepository;
         this.artistService = artistService;
+        this.baseUserService = baseUserService;
     }
 
     @Transactional
@@ -30,7 +36,17 @@ public class StatusKanbanOrderService {
     //Se pone el orden el último. Si no hay nada, el primero por dewfecto
 
     @Transactional
-    public StatusKanbanOrder addStatusToKanban(String color, String description, String nombre, Integer artistId) {
+    public StatusKanbanOrder addStatusToKanban(String color, String description, String nombre, Long artistId) {
+        Artist artist = artistService.findArtist(artistId);
+        if (artist == null) {
+            throw new ResourceNotFoundException("Artist","id", artistId);
+        }
+        BaseUser authenticatedUser = baseUserService.findCurrentUser();
+        Artist authenticatedArtist = artistService.findArtist(authenticatedUser.getId());
+
+        if(artistId != authenticatedArtist.getId() ) {
+            throw new IllegalArgumentException("El artista no tiene permisos.");
+        }
         StatusKanbanOrder statusKanbanOrder = new StatusKanbanOrder();
         statusKanbanOrder.setColor(color);
         statusKanbanOrder.setDescription(description);
@@ -67,7 +83,7 @@ public class StatusKanbanOrderService {
         if(sk.getOrder()==order){
             return statusKanbanOrderRepository.save(sk);
         }else{
-            List<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(sk.getArtist().getId().intValue());
+            List<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(sk.getArtist().getId());
             //Recorro los statuskanban order de cada artista para recolocarlos
             for (StatusKanbanOrder sk2 : list) {
                     if(sk.getOrder()>order){
@@ -102,29 +118,39 @@ public class StatusKanbanOrderService {
 	}
 
     @Transactional(readOnly = true)
-	public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Integer artistId) {
+	public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Long artistId) {
+        Artist artist = artistService.findArtist(artistId);
+        if (artist == null) {
+            throw new ResourceNotFoundException("Artist","id", artistId);
+        }
+        BaseUser authenticatedUser = baseUserService.findCurrentUser();
+        Artist authenticatedArtist = artistService.findArtist(authenticatedUser.getId());
+
+        if(artistId != authenticatedArtist.getId() ) {
+            throw new IllegalArgumentException("El artista no tiene permisos.");
+        }
 		return statusKanbanOrderRepository.findByArtist(artistId);
 	}
 
     @Transactional
-public void deleteStatusKanbanOrder(Integer id) {
-    StatusKanbanOrder statusToDelete = statusKanbanOrderRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
+    public void deleteStatusKanbanOrder(Integer id) {
+        StatusKanbanOrder statusToDelete = statusKanbanOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
 
-    Integer artistId = statusToDelete.getArtist().getId().intValue();
-    Integer orderDeleted = statusToDelete.getOrder();
+        Long artistId = statusToDelete.getArtist().getId();
+        Integer orderDeleted = statusToDelete.getOrder();
 
-    statusKanbanOrderRepository.deleteById(id);
+        statusKanbanOrderRepository.deleteById(id);
 
-    List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtist(artistId);
+        List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtist(artistId);
 
-    for (StatusKanbanOrder status : statusList) {
-        if (status.getOrder() > orderDeleted) {
-            status.setOrder(status.getOrder() - 1);
-            statusKanbanOrderRepository.save(status);
+        for (StatusKanbanOrder status : statusList) {
+            if (status.getOrder() > orderDeleted) {
+                status.setOrder(status.getOrder() - 1);
+                statusKanbanOrderRepository.save(status);
+            }
         }
     }
-}
 
     @Transactional
     public StatusKanbanOrder updateOrder(StatusKanbanOrder statusKanbanOrder) {

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 @Service
 public class WorkService {
@@ -21,7 +22,8 @@ public class WorkService {
     }
 
     public Work getWorkById(Long id) {
-        return workRepository.findById(id).orElse(null);
+        return workRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Work", "id", id));
     }
 
     public List<Work> getWorksByArtist(Artist artist) {
