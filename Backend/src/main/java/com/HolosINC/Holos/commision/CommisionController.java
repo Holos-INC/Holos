@@ -61,9 +61,9 @@ public class CommisionController {
     public ResponseEntity<?> updateCommisionStatus(
             @PathVariable Long id,
             @RequestParam Long artistId,
-            @RequestParam boolean accept) {
+            @RequestParam String status) {  // Cambiado de boolean a String
         try {
-            Commision updatedCommision = commisionService.updateCommisionStatus(id, artistId, accept);
+            Commision updatedCommision = commisionService.updateCommisionStatus(id, artistId, status);
             return ResponseEntity.ok(updatedCommision);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());

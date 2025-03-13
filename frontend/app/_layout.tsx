@@ -31,6 +31,7 @@ export type RootDrawerParamList = {
   ArtistDetail: { artistId: number };
   RequestCommission: { artistId: number };
   Pedidos: { artistId: number };
+  Panel_de_comisiones: { artistId: number };
 };
 
 export default function RootLayout() {
@@ -66,7 +67,7 @@ export default function RootLayout() {
           }}
         />
         <Drawer.Screen
-          name="Panel de comisiones"
+          name="Panel_de_comisiones"
           component={KanbanScreen}
           options={{
             drawerIcon: ({ size }) => <KanbanIcon width={size} height={size} />,
@@ -75,21 +76,10 @@ export default function RootLayout() {
         <Drawer.Screen
           name="Pedidos"
           component={ArtistRequestOrders}
-          // Inicializamos con un artistId dinámico (en este ejemplo se usa 25 para prueba)
-          // En producción, obtén el id del artista logueado (por ejemplo, desde AuthContext)
-          initialParams={{ artistId: 25 }}
           options={{
             drawerIcon: ({ size }) => (
               <RequestIcon width={size} height={size} />
             ),
-          }}
-        />
-        <Drawer.Screen
-          name="Payment"
-          component={PaymentScreen}
-          options={{
-            drawerLabel: () => null,
-            drawerItemStyle: { height: 0 },
           }}
         />
       </Drawer.Navigator>
@@ -117,6 +107,7 @@ function ExploreStack() {
         name="RequestCommission"
         component={RequestCommissionUserScreen}
       />
+      <Stack.Screen name="Payment" component={PaymentScreen} />
     </Stack.Navigator>
   );
 }

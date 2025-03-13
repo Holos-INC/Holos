@@ -54,7 +54,7 @@ public class CommisionService {
     }
 
     @Transactional
-    public Commision updateCommisionStatus(Long commisionId, Long artistId, boolean accept) {
+    public Commision updateCommisionStatus(Long commisionId, Long artistId, String status) {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
 
@@ -64,22 +64,30 @@ public class CommisionService {
             throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
         }
 
-        if (accept) { 
-            commision.setAcceptedDateByArtist(new Date());
-            if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artistId) > 0) {
-                commision.setStatus(StatusCommision.ACCEPTED);
-            } else {
-                commision.setStatus(StatusCommision.IN_WAIT_LIST);
-            }
-        } else { 
-            if (!commision.getStatus().equals(StatusCommision.REQUESTED)) {
-                throw new IllegalStateException("Solo se pueden rechazar comisiones en estado 'REQUESTED'.");
-            }
-            commision.setStatus(StatusCommision.REJECTED);
+        switch (status.toUpperCase()) {
+            case "ACCEPTED":
+                commision.setAcceptedDateByArtist(new Date());
+                if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artistId) > 0) {
+                    commision.setStatus(StatusCommision.ACCEPTED);
+                } else {
+                    commision.setStatus(StatusCommision.IN_WAIT_LIST);
+                }
+                break;
+
+            case "REJECTED":
+                if (!commision.getStatus().equals(StatusCommision.REQUESTED)) {
+                    throw new IllegalStateException("Solo se pueden rechazar comisiones en estado 'REQUESTED'.");
+                }
+                commision.setStatus(StatusCommision.REJECTED);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Estado no válido. Usa 'ACCEPTED' o 'REJECTED'.");
         }
 
         return commisionRepository.save(commision);
     }
+
 
     @Transactional
     public void cancelCommision(Long commisionId, Long clientId) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getAllCommisions, updateCommisionStatus } from "../../../services/CommisionService";
+import { AuthenticationContext } from "@/app/context/AuthContext";
+import { getUserTypeById } from "@/app/services/UserService";
+import { useFocusEffect } from "@react-navigation/native";
 
 // 1. Define la interfaz (o type) que describe tu modelo de Commission:
 interface Commission {
@@ -35,17 +38,20 @@ const isBigScreen = width >= 1024;
 const MOBILE_PROFILE_ICON_SIZE = 40;
 const MOBILE_CARD_PADDING = 12;
 
-export default function ArtistRequestOrders({ route }: any) {
-  const { artistId } = route.params;
-
-  // 3. Tipar el estado como arreglo de Commission
+export default function ArtistRequestOrders() {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
+  const { loggedInUser } = useContext(AuthenticationContext);
 
   const fetchCommissions = async () => {
     try {
+      const userType = await getUserTypeById(loggedInUser.id);
+      if (userType !== "ARTIST") {
+        setCommissions([]);
+        return;
+      }
       const data: Commission[] = await getAllCommisions();
-      const filteredData = data.filter((comm) => comm.artist?.id === artistId);
+      const filteredData = data.filter((comm) => comm.artist?.id === loggedInUser.id);
       setCommissions(filteredData);
     } catch (error) {
       Alert.alert("Error", "Error al obtener las comisiones.");
@@ -58,27 +64,24 @@ export default function ArtistRequestOrders({ route }: any) {
     fetchCommissions();
   }, []);
 
-  const handleUpdateStatus = async (commissionId: number, accept: boolean) => {
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCommissions();
+    }, [loggedInUser])
+  );
+
+  const handleUpdateStatus = async (commissionId: number, status: "ACCEPTED" | "REJECTED") => {
     try {
-      await updateCommisionStatus(commissionId, artistId, accept);
-      Alert.alert("Éxito", `Solicitud ${accept ? "aceptada" : "denegada"}.`);
+      await updateCommisionStatus(commissionId, loggedInUser.id, status);
+      Alert.alert("Éxito", `Solicitud ${status === "ACCEPTED" ? "aceptada" : "denegada"}.`);
       fetchCommissions();
     } catch (error) {
       Alert.alert("Error", "No se pudo actualizar el estado de la comisión.");
     }
   };
 
-  // Filtra según estado
-  // Considera REQUESTED como "nueva solicitud"
-const newRequests = commissions.filter(
-  (comm) => comm.status === "REQUESTED"
-);
-
-// Considera como "respondidas" todo lo que NO sea REQUESTED
-const respondedRequests = commissions.filter(
-  (comm) => comm.status !== "REQUESTED"
-);
-
+  const newRequests = commissions.filter((comm) => comm.status === "REQUESTED");
+  const respondedRequests = commissions.filter((comm) => comm.status !== "REQUESTED");
 
   if (loading) {
     return (
@@ -103,28 +106,24 @@ const respondedRequests = commissions.filter(
             <View key={comm.id} style={styles.card}>
               <Image
                 source={{
-                  uri:
-                    comm.client?.imageProfile ||
-                    "https://via.placeholder.com/60",
+                  uri: comm.client?.imageProfile || "https://via.placeholder.com/60",
                 }}
                 style={styles.profileIcon}
               />
               <View style={styles.textContainer}>
-                <Text style={styles.text}>
-                  {comm.client?.username || "Usuario desconocido"}
-                </Text>
+                <Text style={styles.text}>{comm.client?.username || "Usuario desconocido"}</Text>
                 <Text style={styles.text}>Descripción: {comm.description}</Text>
               </View>
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.acceptButton}
-                  onPress={() => handleUpdateStatus(comm.id, true)}
+                  onPress={() => handleUpdateStatus(comm.id, "ACCEPTED")}
                 >
                   <Ionicons name="checkmark" size={24} color="#183771" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.rejectButton}
-                  onPress={() => handleUpdateStatus(comm.id, false)}
+                  onPress={() => handleUpdateStatus(comm.id, "REJECTED")}
                 >
                   <Ionicons name="close" size={24} color="#183771" />
                 </TouchableOpacity>
@@ -141,23 +140,17 @@ const respondedRequests = commissions.filter(
             <View key={comm.id} style={styles.card}>
               <Image
                 source={{
-                  uri:
-                    comm.client?.imageProfile ||
-                    "https://via.placeholder.com/60",
+                  uri: comm.client?.imageProfile || "https://via.placeholder.com/60",
                 }}
                 style={styles.profileIcon}
               />
               <View style={styles.textContainer}>
-                <Text style={styles.text}>
-                  {comm.client?.username || "Usuario desconocido"}
-                </Text>
+                <Text style={styles.text}>{comm.client?.username || "Usuario desconocido"}</Text>
                 <Text style={styles.text}>Descripción: {comm.description}</Text>
               </View>
               <View style={styles.actions}>
                 <Text style={styles.responseText}>
-                  {comm.status === "ACCEPTED"
-                    ? "Solicitud aceptada"
-                    : "Solicitud denegada"}
+                  {comm.status === "ACCEPTED" ? "Solicitud aceptada" : "Solicitud denegada"}
                 </Text>
               </View>
             </View>
