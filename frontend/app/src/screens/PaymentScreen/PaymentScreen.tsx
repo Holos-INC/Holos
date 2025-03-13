@@ -39,9 +39,6 @@ export default function PaymentScreen() {
     );
     
   };
-  const handleBackToHome = () => {
-    navigation.navigate("Inicio");
-  };
 
   return (
     <View style={styles.container}>
@@ -84,9 +81,6 @@ export default function PaymentScreen() {
       <View style={styles.buttonContainer}>
         <Button title="Pagar" onPress={handlePayment} />
       </View>
-      <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
-        <Text style={styles.backButtonText}>Volver al Inicio</Text>
-      </TouchableOpacity>
     </View>
   );
 }

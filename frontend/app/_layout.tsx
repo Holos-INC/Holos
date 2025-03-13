@@ -85,14 +85,6 @@ export default function RootLayout() {
             ),
           }}
         />
-        <Drawer.Screen
-          name="Payment"
-          component={PaymentScreen}
-          options={{
-            drawerLabel: () => null,
-            drawerItemStyle: { height: 0 },
-          }}
-        />
       </Drawer.Navigator>
     </AuthenticationContextProvider>
   );
@@ -118,6 +110,7 @@ function ExploreStack() {
         name="RequestCommission"
         component={RequestCommissionUserScreen}
       />
+      <Stack.Screen name="Payment" component={PaymentScreen} />
     </Stack.Navigator>
   );
 }
