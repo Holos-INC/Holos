@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity, Dimensions, ScrollView, StyleSheet } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { Text, View, TouchableOpacity, Dimensions, ScrollView, StyleSheet, Alert } from "react-native";
 import { getAllTasks, updateStatusKanbanOrder,getStatusKanbanOrderByArtist } from "../../../services/kanbanService"; // Importar servicio de tareas
 import { getCommissionsByKanbanOrderId } from "../../../services/CommisionService"; // Importar servicio de comisiones
+import { getArtistById } from "@/app/services/ArtistService";
+import { AuthenticationContext } from "@/app/context/AuthContext";
 
-
-const KanbanBoard: React.FC = () => {
+const KanbanBoard= () => {
   const [tasks, setTasks] = useState<{ [key: string]: any[] }>({
     todo: [],
     inProgress: [],
@@ -18,14 +19,34 @@ const KanbanBoard: React.FC = () => {
     published: [],
   });
 
+  const { loggedInUser } = useContext(AuthenticationContext);
   const [commissions, setCommissions] = useState<{ [key: string]: any }>({});
+ 
 
   // Cargar tareas desde el backend
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!loggedInUser) return;
+  
       try {
-        const fetchedTasks = await getAllTasks();
+        const artist = await getArtistById(loggedInUser.id);
+        setTasks({
+          todo: [],
+          inProgress: [],
+          done: [],
+          completed: [],
+          archived: [],
+          idea: [],
+          sketching: [],
+          coloring: [],
+          finalTouches: [],
+          published: [],
+        });
+        setCommissions({});
+  
+        const fetchedTasks = await getStatusKanbanOrderByArtist(artist?.id);
         console.log("Tareas obtenidas:", fetchedTasks);
+  
         const categorizedTasks = {
           todo: fetchedTasks.filter((task: any) => task.order === 1),
           inProgress: fetchedTasks.filter((task: any) => task.order === 2),
@@ -38,24 +59,25 @@ const KanbanBoard: React.FC = () => {
           finalTouches: fetchedTasks.filter((task: any) => task.order === 9),
           published: fetchedTasks.filter((task: any) => task.order === 10),
         };
-        console.log("Tareas categorizadas:", categorizedTasks); // Verifica las tareas después de la categorización
-
+  
         setTasks(categorizedTasks);
-
-        // Obtener comisiones para cada tarea
-        fetchedTasks.forEach(async (task: any) => {
-          const taskCommissions = await getCommissionsByKanbanOrderId(task.id); // Suponemos que `task.id` es `kanbanOrderId`
-          setCommissions(prev => ({
-            ...prev,
-            [task.id]: taskCommissions,
-          }));
-        });
+  
+        const commissionsData: { [key: string]: any } = {};
+        await Promise.all(
+          fetchedTasks.map(async (task: any) => {
+            const taskCommissions = await getCommissionsByKanbanOrderId(task.id);
+            commissionsData[task.id] = taskCommissions;
+          })
+        );
+  
+        setCommissions(commissionsData);
       } catch (error) {
         console.error("Error al cargar tareas", error);
       }
     };
+  
     fetchTasks();
-  }, []);
+  }, [loggedInUser]);
 
   // Función para obtener el siguiente orden y la columna correspondiente
   const getNextOrder = (task: { order: number; id: any; }) => {
@@ -142,6 +164,7 @@ const KanbanBoard: React.FC = () => {
                       <Text>Nombre: {commission.name}</Text>
                       <Text>Descripción: {commission.description}</Text>
                       <Text>Precio: {commission.price}</Text>
+                      <Text>Acuerdo de pago: {commission.paymentArrangement}</Text>
                     </View>
                   ))}
 

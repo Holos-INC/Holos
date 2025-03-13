@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.Kanban;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class StatusKanbanOrderService {
         statusKanbanOrder.setColor(color);
         statusKanbanOrder.setDescription(description);
         statusKanbanOrder.setName(nombre);
-        List<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(artistId);
+        Collection<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(artistId);
         if(list.isEmpty()){
             statusKanbanOrder.setOrder(1);  
         }else{
@@ -67,7 +68,7 @@ public class StatusKanbanOrderService {
         if(sk.getOrder()==order){
             return statusKanbanOrderRepository.save(sk);
         }else{
-            List<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(sk.getArtist().getId().intValue());
+            Collection<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtist(sk.getArtist().getId().intValue());
             //Recorro los statuskanban order de cada artista para recolocarlos
             for (StatusKanbanOrder sk2 : list) {
                     if(sk.getOrder()>order){
@@ -102,7 +103,7 @@ public class StatusKanbanOrderService {
 	}
 
     @Transactional(readOnly = true)
-	public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Integer artistId) {
+	public Collection<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Integer artistId) {
 		return statusKanbanOrderRepository.findByArtist(artistId);
 	}
 
@@ -116,7 +117,7 @@ public void deleteStatusKanbanOrder(Integer id) {
 
     statusKanbanOrderRepository.deleteById(id);
 
-    List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtist(artistId);
+    Collection<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtist(artistId);
 
     for (StatusKanbanOrder status : statusList) {
         if (status.getOrder() > orderDeleted) {

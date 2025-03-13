@@ -1,11 +1,14 @@
 package com.HolosINC.Holos.Kanban;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.HolosINC.Holos.commision.Commision;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -59,8 +62,12 @@ public class StatusKanbanOrderController {
     }
 
     @GetMapping("/artist/{artistId}")
-    public List<StatusKanbanOrder> getStatusKanbanOrderByArtist(@PathVariable Integer artistId) {
-        return statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
+    public ResponseEntity<Collection<StatusKanbanOrder>> getCommissionsByKanbanOrderId(@PathVariable Integer artistId) {
+        Collection<StatusKanbanOrder> statusKanbanOrders = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
+        if (statusKanbanOrders.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(statusKanbanOrders);
     }
 
     @GetMapping

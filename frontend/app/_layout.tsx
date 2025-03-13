@@ -31,6 +31,7 @@ export type RootDrawerParamList = {
   ArtistDetail: { artistId: number };
   RequestCommission: { artistId: number };
   Pedidos: { artistId: number };
+  Panel_de_comisiones: { artistId: number };
 };
 
 export default function RootLayout() {
@@ -66,7 +67,7 @@ export default function RootLayout() {
           }}
         />
         <Drawer.Screen
-          name="Panel de comisiones"
+          name="Panel_de_comisiones"
           component={KanbanScreen}
           options={{
             drawerIcon: ({ size }) => <KanbanIcon width={size} height={size} />,
