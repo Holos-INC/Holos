@@ -3,6 +3,7 @@ import { Text, View, TouchableOpacity, Dimensions, ScrollView, StyleSheet, Alert
 import { getAllTasks, updateStatusKanbanOrder,getStatusKanbanOrderByArtist } from "../../../services/kanbanService"; // Importar servicio de tareas
 import { getCommissionsByKanbanOrderId } from "../../../services/CommisionService"; // Importar servicio de comisiones
 import { getArtistById } from "@/app/services/ArtistService";
+import { getUserTypeById } from "@/app/services/UserService";
 import { AuthenticationContext } from "@/app/context/AuthContext";
 
 const KanbanBoard= () => {
@@ -26,7 +27,21 @@ const KanbanBoard= () => {
   // Cargar tareas desde el backend
   useEffect(() => {
     const fetchTasks = async () => {
-      if (!loggedInUser) return;
+      const userType = await getUserTypeById(loggedInUser.id);
+      if (userType !== "ARTIST" || !loggedInUser) 
+        setTasks({
+          todo: [],
+          inProgress: [],
+          done: [],
+          completed: [],
+          archived: [],
+          idea: [],
+          sketching: [],
+          coloring: [],
+          finalTouches: [],
+          published: [],
+        });
+        setCommissions({});
   
       try {
         const artist = await getArtistById(loggedInUser.id);

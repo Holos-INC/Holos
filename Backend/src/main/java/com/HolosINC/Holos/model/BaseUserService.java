@@ -9,12 +9,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
+
+    @Autowired
+    private ArtistRepository artistRepository;
 
 	@Autowired
 	public BaseUserService(BaseUserRepository baseUserRepository) {
@@ -49,5 +53,13 @@ public class BaseUserService {
         
         return baseUserRepository.findUserByUsername(auth.getName())
             .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
+    }
+
+    public String getUserType(Long userId) {
+        if (artistRepository.existsById(userId)) {
+            return "ARTIST";
+        } else {
+            return "CLIENT";
+        }
     }
 }
