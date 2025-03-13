@@ -11,3 +11,17 @@ export const getUserTypeById = async (id) => {
     throw error;
   }
 };
+
+export const updateUserById = async (id, updatedData) => {
+  try {
+    const response = await axios.post(`${API_URL}/update/${id}`, updatedData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("There was an error updating the user!", error);
+    throw error;
+  }
+};

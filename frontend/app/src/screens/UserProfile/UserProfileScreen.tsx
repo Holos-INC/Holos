@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { getArtistById } from "../../../services/ArtistService";
 import { getClientById } from "../../../services/ClientService";
 import { AuthenticationContext } from "../../../context/AuthContext"; // Ajusta la ruta según tu proyecto
+import { getUserTypeById, updateUserById } from "@/app/services/UserService";
 
 const isWeb = Platform.OS === "web";
 
@@ -56,64 +57,89 @@ interface Artist {
 
 type User = ClientUser | Artist;
 
-const UserProfileScreen = () => {
-  const BASE_URL = "http://localhost:8080";
-  const navigation = useNavigation<any>();
-  const { loggedInUser } = useContext(AuthenticationContext);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (!loggedInUser || !loggedInUser.id) {
-        Alert.alert("Error", "No se encontró el usuario autenticado.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // Intentamos obtener el cliente usando el id del usuario autenticado
-        const client = await getClientById(loggedInUser.id);
-        setUser(client);
-        console.log(loggedInUser.id);
-      } catch (error) {
-        console.warn(
-          "No se encontró cliente, intentando con artista...",
-          error
-        );
-        try {
-          // Si no se obtiene cliente, se intenta obtener el artista usando el id
-          const artist = await getArtistById(loggedInUser.id);
-          setUser(artist);
-        } catch (err) {
-          console.error("Error fetching user:", err);
-          Alert.alert("Error", "No se pudo cargar el usuario.");
+  const UserProfileScreen = () => {
+    const BASE_URL = "http://localhost:8080";
+    const navigation = useNavigation<any>();
+    const { loggedInUser } = useContext(AuthenticationContext);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isEditable, setIsEditable] = useState(false);  
+    const [userType, setUserType] = useState("");
+  
+    // Estados locales para los campos editables
+    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    
+  
+    useEffect(() => {
+      const fetchUser = async () => {
+        if (!loggedInUser || !loggedInUser.id) {
+          Alert.alert("Error", "No se encontró el usuario autenticado.");
+          setLoading(false);
+          return;
         }
-      } finally {
-        setLoading(false);
+    
+        setLoading(true); // Marcar como cargando
+    
+        try {
+          // Obtener el tipo de usuario
+          const userType = await getUserTypeById(loggedInUser.id);
+    
+          // Verificar si el tipo de usuario es un cliente o un artista
+          if (userType === 'CLIENT') {
+            const client = await getClientById(loggedInUser.id);
+            setUser(client);
+          } else if (userType === 'ARTIST') {
+            const artist = await getArtistById(loggedInUser.id);
+            setUser(artist);
+          } else {
+            throw new Error('Tipo de usuario desconocido');
+          }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+        } finally {
+          setLoading(false); // Terminar el estado de carga
+        }
+      };
+    
+      fetchUser();
+    }, [loggedInUser]);
+  
+    useEffect(() => {
+      if (user) {
+        setName(user.name);
+        setUsername(user.username);
+        setEmail(user.email);
+        setPhoneNumber(user.phoneNumber);
       }
+    }, [user]);
+  
+    if (loading) {
+      return <Text>Loading...</Text>;
+    }
+  
+    if (!user) {
+      return <Text>No se pudo cargar el usuario.</Text>;
+    }
+  
+    const isArtist = "tableCommisionsPrice" in user && user.tableCommisionsPrice;
+  
+    const handleEdit = async () => {
+      if (isEditable) {
+        try {
+          const updatedData = { name, username, email, phoneNumber };
+          await updateUserById(loggedInUser.id, updatedData);
+          Alert.alert("Éxito", "Perfil actualizado correctamente.");
+        } catch (error) {
+          Alert.alert("Error", "No se pudo actualizar el perfil.");
+        }
+      }
+      setIsEditable(!isEditable);
     };
 
-    fetchUser();
-  }, [loggedInUser]);
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
-
-  if (!user) {
-    return <Text>No se pudo cargar el usuario.</Text>;
-  }
-
-  // Determinamos si el usuario es artista verificando si tiene tableCommisionsPrice
-  const isArtist = "tableCommisionsPrice" in user && user.tableCommisionsPrice;
-
-  const handleEdit = () => {
-    console.log("Editar perfil");
-    Alert.alert("Editar", "Funcionalidad de edición de perfil");
-  };
-
-  // Para el cliente se navega al historial de pedidos
+    // Para el cliente se navega al historial de pedidos
   const navigateToOrderHistory = () => {
     if ("orders" in user) {
       navigation.navigate("Historial de Pedidos", { orders: user.orders });
@@ -128,36 +154,47 @@ const UserProfileScreen = () => {
       });
     }
   };
-
-  return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        <Text style={styles.title}>{isArtist ? "ARTISTA" : "CLIENTE"}</Text>
-        <Image
-          source={{ uri: `${BASE_URL}${user.imageProfile}` }}
-          style={styles.image}
-        />
-        <Text style={styles.label}>
-          DATOS {isArtist ? "ARTISTA" : "CLIENTE"}
-        </Text>
-        <Text style={styles.fieldLabel}>Nombre:</Text>
-        <TextInput style={styles.input} value={user.name} editable={false} />
-        <Text style={styles.fieldLabel}>Usuario:</Text>
-        <TextInput
-          style={styles.input}
-          value={user.username}
-          editable={false}
-        />
-        <Text style={styles.fieldLabel}>Correo Electrónico:</Text>
-        <TextInput style={styles.input} value={user.email} editable={false} />
-        <Text style={styles.fieldLabel}>Teléfono:</Text>
-        <TextInput
-          style={styles.input}
-          value={user.phoneNumber}
-          editable={false}
-        />
-
-        {isArtist ? (
+  
+    return (
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
+          <Text style={styles.title}>{isArtist ? "ARTISTA" : "CLIENTE"}</Text>
+          <Image source={{ uri: `${BASE_URL}${user.imageProfile}` }} style={styles.image} />
+          <Text style={styles.label}>DATOS {isArtist ? "ARTISTA" : "CLIENTE"}</Text>
+  
+          <Text style={styles.fieldLabel}>Nombre:</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName} // Permite modificar el estado
+            editable={isEditable}
+          />
+  
+          <Text style={styles.fieldLabel}>Usuario:</Text>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={setUsername}
+            editable={isEditable}
+          />
+  
+          <Text style={styles.fieldLabel}>Correo Electrónico:</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            editable={isEditable}
+          />
+  
+          <Text style={styles.fieldLabel}>Teléfono:</Text>
+          <TextInput
+            style={styles.input}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            editable={isEditable}
+          />
+          
+          {isArtist ? (
           <>
             {user.tableCommisionsPrice && (
               <View style={styles.commissionContainer}>
@@ -183,15 +220,19 @@ const UserProfileScreen = () => {
               onPress={navigateToOrderHistory}
               color="#1E3A8A"
             />
-          </View>
+            </View>
         )}
-        <View style={styles.buttonsContainer}>
-          <Button title="EDITAR" onPress={handleEdit} color="#1E3A8A" />
+  
+          <View style={styles.buttonsContainer}>
+            <Button title={isEditable ? "GUARDAR" : "EDITAR"} onPress={handleEdit} color="#1E3A8A" />
+          </View>
         </View>
-      </View>
-    </ScrollView>
-  );
-};
+      </ScrollView>
+    );
+  };
+  
+
+        
 
 const styles = StyleSheet.create({
   container: {

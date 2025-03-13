@@ -50,4 +50,14 @@ public class BaseUserController {
         String userType = baseUserService.getUserType(userId);
         return ResponseEntity.ok(userType);
     }
+
+	@PostMapping("/update/{userId}")
+	public ResponseEntity<?> updateUser(@PathVariable Long userId, @Valid @RequestBody BaseUser baseUser) {
+		try {
+			baseUserService.updateUser(userId, baseUser);
+			return ResponseEntity.ok("Usuario actualizado exitosamente.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al actualizar usuario: " + e.getMessage());
+		}
+	}
 }

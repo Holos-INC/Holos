@@ -62,4 +62,18 @@ public class BaseUserService {
             return "CLIENT";
         }
     }
+
+    @Transactional
+    public void updateUser(Long userId, BaseUser updateRequest) {
+        BaseUser user = baseUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizar los datos del usuario
+        user.setName(updateRequest.getName());
+        user.setUsername(updateRequest.getUsername());
+        user.setEmail(updateRequest.getEmail());
+        user.setPhoneNumber(updateRequest.getPhoneNumber());
+
+        baseUserRepository.save(user);
+    }
 }
