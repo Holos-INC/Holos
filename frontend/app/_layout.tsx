@@ -19,6 +19,7 @@ import RequestIcon from "@/assets/svgs/RequestIcon";
 import KanbanScreen from "./src/screens/KanbanScreen/KanbanScreen";
 import LoginScreen from "./src/screens/Authentication/LoginScreen";
 import AuthenticationContextProvider from "./context/AuthContext";
+import Kanban from "./src/screens/KanbanScreen/Kanban";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -67,8 +68,8 @@ export default function RootLayout() {
           }}
         />
         <Drawer.Screen
-          name="Panel_de_comisiones"
-          component={KanbanScreen}
+          name="kanban"
+          component={Kanban}
           options={{
             drawerIcon: ({ size }) => <KanbanIcon width={size} height={size} />,
           }}

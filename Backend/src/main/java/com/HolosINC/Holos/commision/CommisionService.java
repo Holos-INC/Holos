@@ -4,17 +4,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
-import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.client.Client;
-import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
@@ -26,14 +25,14 @@ public class CommisionService {
     private final CommisionRepository commisionRepository;
     private final ArtistService artistService;
     private final BaseUserService userService;
-    private final StatusKanbanOrderService statusKanbanOrderService;
+    private final BaseUserService baseUserService;
 
     @Autowired
-    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService, StatusKanbanOrderService statusKanbanOrderService){
+    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService, BaseUserService baseUserService){
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
         this.userService = userService;
-        this.statusKanbanOrderService = statusKanbanOrderService;
+        this.baseUserService = baseUserService;
     }
 
     public Commision createCommision(CommisionDTO commisionDTO, Long artistId) {
@@ -60,6 +59,15 @@ public class CommisionService {
     }
 
     @Transactional
+    public List<Commision> getByArtistUsername(String artistUsername) {
+        List<Commision> commissions = commisionRepository.findByArtistUsername(artistUsername);
+        if (commissions.isEmpty()) {
+            throw new ResourceNotFoundException("Commisions", "artist's username", artistUsername);
+        }
+        return commissions;
+    }
+
+    @Transactional
     public Commision updateCommisionStatus(Long commisionId, Long artistId, boolean accept) {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
@@ -75,7 +83,7 @@ public class CommisionService {
             if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artistId) > 0) {
                 commision.setStatus(StatusCommision.ACCEPTED);
             } else {
-                commision.setStatus(StatusCommision.IN_WAIT_LIST);
+                commision.setStatus(StatusCommision.IN_WAITLIST);
             }
         } else { 
             if (!commision.getStatus().equals(StatusCommision.REQUESTED)) {
@@ -97,7 +105,7 @@ public class CommisionService {
         }
 
         if (!(commision.getStatus() == StatusCommision.REQUESTED ||
-            commision.getStatus() == StatusCommision.IN_WAIT_LIST ||
+            commision.getStatus() == StatusCommision.IN_WAITLIST ||
             commision.getStatus() == StatusCommision.ACCEPTED)) {
             throw new IllegalStateException("La comisión no puede ser cancelada en su estado actual.");
         }
@@ -115,6 +123,26 @@ public class CommisionService {
         // Usar el nombre correcto para el método de repositorio y los parámetros.
         Collection<Commision> commissions = commisionRepository.findAllCommissionsByStatusKanbanOrder(kanbanOrderId);
         return commissions != null ? commissions : Collections.emptyList();
+    }
+
+    public Commision moveToNextStage(Commision commission) {
+        BaseUser currentUser = baseUserService.findCurrentUser();
+        Artist artist = artistService.findArtist(currentUser.getId());
+
+        if (!commission.getArtist().getId().equals(artist.getId())) {
+            throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
+        }
+
+        Optional<StatusKanbanOrder> kanban = commisionRepository.findNextStatusKanban(artist.getId(), commission.getStatusKanbanOrder().getOrder() + 1);
+        if (!kanban.isEmpty()) {
+            commission.setStatusKanbanOrder(kanban.get());
+        } else {
+            commission.setStatusKanbanOrder(null);
+            commission.setStatus(StatusCommision.ENDED);
+        }
+
+
+        return commisionRepository.save(commission);
     }
 
 

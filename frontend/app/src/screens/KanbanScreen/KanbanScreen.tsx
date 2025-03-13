@@ -5,20 +5,36 @@ import { getCommissionsByKanbanOrderId } from "../../../services/CommisionServic
 import { getArtistById } from "@/app/services/ArtistService";
 import { getUserTypeById } from "@/app/services/UserService";
 import { AuthenticationContext } from "@/app/context/AuthContext";
+import { styles } from "./KanbanScreen.styles";
+
+const emptyTask = {
+  todo: [],
+  inProgress: [],
+  done: [],
+  completed: [],
+  archived: [],
+  idea: [],
+  sketching: [],
+  coloring: [],
+  finalTouches: [],
+  published: [],
+}
+
+const orderMapping = [
+  "todo",
+  "inProgress",
+  "done",
+  "completed",
+  "archived",
+  "idea",
+  "sketching",
+  "coloring",
+  "finalTouches",
+  "published",
+];
 
 const KanbanBoard= () => {
-  const [tasks, setTasks] = useState<{ [key: string]: any[] }>({
-    todo: [],
-    inProgress: [],
-    done: [],
-    completed: [],
-    archived: [],
-    idea: [],
-    sketching: [],
-    coloring: [],
-    finalTouches: [],
-    published: [],
-  });
+  const [tasks, setTasks] = useState<{ [key: string]: any[] }>( emptyTask );
 
   const { loggedInUser } = useContext(AuthenticationContext);
   const [commissions, setCommissions] = useState<{ [key: string]: any }>({});
@@ -29,34 +45,12 @@ const KanbanBoard= () => {
     const fetchTasks = async () => {
       const userType = await getUserTypeById(loggedInUser.id);
       if (userType !== "ARTIST" || !loggedInUser) 
-        setTasks({
-          todo: [],
-          inProgress: [],
-          done: [],
-          completed: [],
-          archived: [],
-          idea: [],
-          sketching: [],
-          coloring: [],
-          finalTouches: [],
-          published: [],
-        });
+        setTasks(emptyTask);
         setCommissions({});
   
       try {
         const artist = await getArtistById(loggedInUser.id);
-        setTasks({
-          todo: [],
-          inProgress: [],
-          done: [],
-          completed: [],
-          archived: [],
-          idea: [],
-          sketching: [],
-          coloring: [],
-          finalTouches: [],
-          published: [],
-        });
+        setTasks(emptyTask);
         setCommissions({});
   
         const fetchedTasks = await getStatusKanbanOrderByArtist(artist?.id);
@@ -97,19 +91,6 @@ const KanbanBoard= () => {
   // Función para obtener el siguiente orden y la columna correspondiente
   const getNextOrder = (task: { order: number; id: any; }) => {
     if (!tasks) return { newOrder: task.order, targetColumn: "" };
-  
-    const orderMapping = [
-      "todo",
-      "inProgress",
-      "done",
-      "completed",
-      "archived",
-      "idea",
-      "sketching",
-      "coloring",
-      "finalTouches",
-      "published",
-    ];
   
     const currentIndex = orderMapping.findIndex((col) => tasks[col]?.some((t) => t.id === task.id));
   
@@ -203,62 +184,3 @@ const KanbanBoard= () => {
 };
 
 export default KanbanBoard;
-
-const { width } = Dimensions.get("window");
-const isMobile = width < 768;
-const isBigScreen = width >= 1024;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F0F0F0",
-    padding: isBigScreen ? 40 : 20,
-  },
-  banner: {
-    backgroundColor: "#183771",
-    paddingVertical: isBigScreen ? 15 : 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 5,
-  },
-  taskText: {
-    fontSize: isMobile ? 14 : 16,
-  },
-  bannerText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontSize: isBigScreen ? 24 : 18,
-  },
-  kanbanBoard: {
-    flexDirection: "row",
-    justifyContent: isBigScreen ? "space-between" : "flex-start",
-    marginTop: 20,
-    paddingHorizontal: isMobile ? 10 : 0,
-  },
-  kanbanColumn: {
-    flex: isBigScreen ? 1 : 0,
-    margin: isMobile ? 5 : 10,
-    padding: isMobile ? 5 : 15,
-    width: isMobile ? 300 : 400,
-  },
-  taskCard: {
-    backgroundColor: "#FFFFFF",
-    padding: isMobile ? 10 : 15,
-    marginTop: 15,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  moveButton: {
-    backgroundColor: "#183771",
-    padding: 7,
-    marginTop: 10,
-    borderRadius: 5,
-    width: isMobile ? "80%" : "33%",
-    alignItems: "center",
-    alignSelf: "center",
-  },
-});

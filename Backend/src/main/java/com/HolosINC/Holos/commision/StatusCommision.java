@@ -2,7 +2,7 @@ package com.HolosINC.Holos.commision;
 
 public enum StatusCommision {
     REQUESTED,
-    IN_WAIT_LIST,
+    IN_WAITLIST,
     ACCEPTED,
     REJECTED,
     CANCELED,

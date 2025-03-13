@@ -86,13 +86,13 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (68, 25,'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'REQUESTED', 3, '2025-03-01', 'INITIAL', 58),
 (69, 26, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', 4, '2025-03-02', 'FINAL', 59),
 (70, 27, 'Starry Night Replica', 'Inspired by Van Gogh’s Starry Night', 300.0, 6, 'REQUESTED', 5, '2025-03-03', 'FIFTYFIFTY', 60),
-(71, 28, 'Abstract Art', 'A modern abstract composition', 180.0, 7, 'IN_WAIT_LIST', 2, '2025-03-04', 'MODERATOR', 61),
+(71, 28, 'Abstract Art', 'A modern abstract composition', 180.0, 7, 'IN_WAITLIST', 2, '2025-03-04', 'MODERATOR', 61),
 (72, 29, 'Forest Path', 'A peaceful forest pathway', 120.0, 8, 'ENDED', 6, '2025-03-05', 'INITIAL', 62),
 (73, 30, 'Sunset Horizon', 'A stunning view of the horizon at sunset', 250.0, 9, 'REJECTED', 1, '2025-03-06', 'FIFTYFIFTY', 63),
-(74, 31, 'Mountain Landscape', 'A beautiful mountain landscape painting', 350.0, 10, 'CANCELED', 4, '2025-03-07', 'FINAL', 64),
-(75, 32, 'Spring Flowers', 'A vibrant painting of spring flowers', 160.0, 11, 'ENDED', 3, '2025-03-08', 'INITIAL', 65),
-(76, 33, 'Cityscape', 'A modern cityscape in digital format', 400.0, 12, 'ACCEPTED', 5, '2025-03-09', 'FINAL', 66),
-(77, 34, 'Autumn Leaves', 'A peaceful autumn scene with falling leaves', 220.0, 13, 'REQUESTED', 2, '2025-03-10', 'MODERATOR', 67);
+(74, 30, 'Mountain Landscape', 'A beautiful mountain landscape painting', 350.0, 10, 'CANCELED', 4, '2025-03-07', 'FINAL', 62),
+(75, 30, 'Spring Flowers', 'A vibrant painting of spring flowers', 160.0, 11, 'ENDED', 3, '2025-03-08', 'INITIAL', 65),
+(76, 30, 'Cityscape', 'A modern cityscape in digital format', 400.0, 12, 'ACCEPTED', 5, '2025-03-09', 'FINAL', 66),
+(77, 30, 'Autumn Leaves', 'A peaceful autumn scene with falling leaves', 220.0, 13, 'REQUESTED', 2, '2025-03-10', 'MODERATOR', 67);
 
 
 
