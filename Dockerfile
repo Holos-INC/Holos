@@ -22,6 +22,7 @@ COPY --from=build /app/target/Holos-0.0.1-SNAPSHOT.jar .
 
 # Expose the application port
 EXPOSE 8080
+EXPOSE 10000
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "/app/Holos-0.0.1-SNAPSHOT.jar",  "--spring.profiles.active=docker"]
