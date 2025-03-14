@@ -28,7 +28,7 @@ public class OpenApiConfiguration {
                         .version("v0")
                 )
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Generated server url")
+                        new Server().url("/").description("Generated server url")
                 ));
     }
 }
