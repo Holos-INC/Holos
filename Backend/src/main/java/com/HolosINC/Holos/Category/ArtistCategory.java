@@ -1,7 +1,10 @@
 package com.HolosINC.Holos.Category;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.model.BaseEntity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -15,7 +18,12 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(callSuper = false)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "artist_id", "category_id"}))
-public class ArtistCategory extends BaseEntity{
+public class ArtistCategory{
+    
+    @Id
+	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+	protected Long id;
 
     @ManyToOne
     @JoinColumn(name = "artist_id", nullable = false)

@@ -9,18 +9,25 @@ import com.HolosINC.Holos.auth.Authorities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class BaseUser extends BaseEntity {
+public class BaseUser{
+    
+    @Id
+	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+	protected Long id;
 
     @Size(min = 2, max = 255)
     @Column(name = "first_name")

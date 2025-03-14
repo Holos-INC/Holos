@@ -1,6 +1,9 @@
 package com.HolosINC.Holos.Category;
 
-import com.HolosINC.Holos.model.BaseEntity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.Entity;
@@ -16,7 +19,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "work_id", "category_id"}))
-public class WorkCategory extends BaseEntity{
+public class WorkCategory{
+    
+    @Id
+	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+	protected Long id;
 
     @ManyToOne
     @JoinColumn(name = "work_id", nullable = false)

@@ -7,18 +7,24 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 
-import com.HolosINC.Holos.model.BaseEntity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import com.HolosINC.Holos.artist.Artist;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "status_kanban_order", uniqueConstraints = @UniqueConstraint(columnNames = { "artist_id", "order_in_kanban"}))
-public class StatusKanbanOrder extends BaseEntity {
+public class StatusKanbanOrder{
+    
+    @Id
+	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+	protected Long id;
 
     @NotNull
     @Column(nullable = false)

@@ -3,7 +3,10 @@ package com.HolosINC.Holos.milestone;
 import java.util.Date;
 
 import com.HolosINC.Holos.commision.Commision;
-import com.HolosINC.Holos.model.BaseEntity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -18,7 +21,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "milestones")
 @Entity
-public class Milestone extends BaseEntity{
+public class Milestone{
+    
+    @Id
+	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+	protected Long id;
 
     @Size(max = 50)
     private String name;
