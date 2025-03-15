@@ -5,7 +5,10 @@ import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +40,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 @Tag(name = "Authentication", description = "The Authentication API based on JWT")
 public class AuthController {
 
+	private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 	private final AuthenticationManager authenticationManager;
 	private final BaseUserService baseUserService;
 	private final JwtUtils jwtUtils;
@@ -54,24 +59,28 @@ public class AuthController {
 		this.encoder = encoder;
 	}
 
-	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		try{
-			Authentication userPassAuthToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-			Authentication authentication = authenticationManager.authenticate(userPassAuthToken);
+    @PostMapping("/signin")
+    public ResponseEntity authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-				String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-			return ResponseEntity.ok().body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
-		}catch(BadCredentialsException exception){
-			return ResponseEntity.badRequest().body("Bad Credentials!");
-		}
-	}
+            return ResponseEntity.ok().body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+        } catch (BadCredentialsException exception) {
+            logger.error("Bad credentials for user: {}", loginRequest.getUsername(), exception);
+            return ResponseEntity.badRequest().body("Bad Credentials!");
+        } catch (Exception exception) {
+            logger.error("Authentication failed for user: {}", loginRequest.getUsername(), exception);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed!");
+        }
+    }
 
 	@GetMapping("/validate")
 	public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
