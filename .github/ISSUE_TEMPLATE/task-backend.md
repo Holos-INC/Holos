@@ -7,12 +7,12 @@ assignees: ''
 
 ---
 
-**Roles:**
+# **Roles:**
 - Alguien - Eq. Desarrollo
 - Juan Antonio - Coord. Backend & Eq. Tester & QA
 - José María - Project Manager y Eq. Tester & QA
 
-**Descripción tarea:**
+# **Descripción tarea:**
 Realizar las siguientes tareas de cara a cumplir el objetivo:
 1. Crear entidades según el UML, ...
 2. Añadir el repositorio, con los métodos necesarios.
