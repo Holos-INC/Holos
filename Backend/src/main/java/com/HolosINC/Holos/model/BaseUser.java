@@ -12,16 +12,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "base_user")
 public class BaseUser{
     
     @Id
@@ -35,14 +34,14 @@ public class BaseUser{
     protected String name;
 
     @Size(min = 2, max = 255)
-    @Column(unique = true)
+    //@Column(unique = true)
     protected String username;
 
     @Size(min = 2, max = 255)
     protected String password;
 
     @Size(max = 255)
-    @Column(unique = true)
+    //@Column(unique = true)
     @NotNull
     protected String email;
 

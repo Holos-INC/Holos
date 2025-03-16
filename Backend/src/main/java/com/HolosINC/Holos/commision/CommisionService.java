@@ -2,6 +2,7 @@ package com.HolosINC.Holos.commision;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,35 +11,40 @@ import org.springframework.transaction.annotation.Transactional;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.client.Client;
+import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 
 @Service
 public class CommisionService {
     
     private final CommisionRepository commisionRepository;
+    private final ClientRepository clientRepository;
     private final ArtistService artistService;
     private final BaseUserService userService;
 
     @Autowired
-    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService){
+    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService, ClientRepository clientRepository) {
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
         this.userService = userService;
+        this.clientRepository = clientRepository;
     }
 
     public Commision createCommision(CommisionDTO commisionDTO, Long artistId) {
         Commision commision = commisionDTO.createCommision();
         Artist artist = artistService.findArtist(artistId);
-        BaseUser client = userService.findCurrentUser();
+        Optional<Client> client = clientRepository.getClientByUser(userService.findCurrentUser().getId());
+        if (client.isEmpty()) {
+            throw new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId());
+        }
 
-        if (artist == null || !artist.hasAnyAuthority("ARTIST"))
+        if (artist == null || !artist.getBaseUser().hasAnyAuthority("ARTIST"))
             throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
 
         commision.setArtist(artist);
-        commision.setClient((Client) client);
+        commision.setClient(client.get());
         commision.setStatus(StatusCommision.REQUESTED);
 
         return commisionRepository.save(commision);
