@@ -1,7 +1,7 @@
 ---
 name: Task Frontend
 about: Tareas de Frontend
-title: Task N - Nombre tarea
+title: ''
 labels: ''
 assignees: ''
 
@@ -10,8 +10,8 @@ assignees: ''
 # **Roles:**
 - Alguien1 - Eq. Desarrollo
 - Alguien2 - Eq. Desarrollo
-- Julia - Coord. Frontend y Eq. Testing & QA
-- José María - Project Manager y Eq. Testing & QA
+- Julia - Coord. Frontend y Eq. QA
+- José María - Project Manager
 
 # **Descripción tarea:**
 Realizar las siguientes tareas de cara a cumplir el objetivo:

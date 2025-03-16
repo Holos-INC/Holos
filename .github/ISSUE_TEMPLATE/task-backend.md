@@ -1,7 +1,7 @@
 ---
 name: Task Backend
 about: Tareas de Backend
-title: Task N - Nombre tarea
+title: ''
 labels: ''
 assignees: ''
 
@@ -9,8 +9,8 @@ assignees: ''
 
 # **Roles:**
 - Alguien - Eq. Desarrollo
-- Juan Antonio - Coord. Backend & Eq. Tester & QA
-- José María - Project Manager y Eq. Tester & QA
+- Juan Antonio - Coord. Backend & Eq. QA
+- José María - Project Manager
 
 # **Descripción tarea:**
 Realizar las siguientes tareas de cara a cumplir el objetivo:
