@@ -12,6 +12,7 @@ import {
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { RootDrawerParamList } from '@/app/_layout';
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import ProtectedRoute from '@/src/components/ProtectedRoute';
 
 
 
@@ -44,50 +45,52 @@ export default function PaymentScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Pantalla de Pago</Text>
-      <Text style={styles.subtitle}>Obra ID: {workId}</Text>
-      <Text style={styles.subtitle}>Precio: {price} €</Text>
+    <ProtectedRoute allowedRoles={["CLIENT"]}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Pantalla de Pago</Text>
+        <Text style={styles.subtitle}>Obra ID: {workId}</Text>
+        <Text style={styles.subtitle}>Precio: {price} €</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Número de Tarjeta"
-        keyboardType="numeric"
-        value={cardNumber}
-        onChangeText={setCardNumber}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Titular de la Tarjeta"
-        value={cardHolder}
-        onChangeText={setCardHolder}
-      />
-
-      <View style={styles.row}>
         <TextInput
-          style={[styles.input, styles.rowItem]}
-          placeholder="MM/AA"
-          value={expiration}
-          onChangeText={setExpiration}
-        />
-        <TextInput
-          style={[styles.input, styles.rowItem]}
-          placeholder="CVV"
+          style={styles.input}
+          placeholder="Número de Tarjeta"
           keyboardType="numeric"
-          secureTextEntry
-          value={cvv}
-          onChangeText={setCvv}
+          value={cardNumber}
+          onChangeText={setCardNumber}
         />
-      </View>
 
-      <View style={styles.buttonContainer}>
-        <Button title="Pagar" onPress={handlePayment} />
+        <TextInput
+          style={styles.input}
+          placeholder="Titular de la Tarjeta"
+          value={cardHolder}
+          onChangeText={setCardHolder}
+        />
+
+        <View style={styles.row}>
+          <TextInput
+            style={[styles.input, styles.rowItem]}
+            placeholder="MM/AA"
+            value={expiration}
+            onChangeText={setExpiration}
+          />
+          <TextInput
+            style={[styles.input, styles.rowItem]}
+            placeholder="CVV"
+            keyboardType="numeric"
+            secureTextEntry
+            value={cvv}
+            onChangeText={setCvv}
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button title="Pagar" onPress={handlePayment} />
+        </View>
+        <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
+          <Text style={styles.backButtonText}>Volver al Inicio</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
-        <Text style={styles.backButtonText}>Volver al Inicio</Text>
-      </TouchableOpacity>
-    </View>
+    </ProtectedRoute>
   );
 }
 

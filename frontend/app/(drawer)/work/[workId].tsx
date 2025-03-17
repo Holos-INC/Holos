@@ -100,7 +100,7 @@ export default function WorkDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               if (work.artist && work.artist.id) {
-                router.push({ pathname: "/profile/[userId]", params: { userId: String(work.artist.id) } });
+                router.push(`/profile/${work.artist.id}`);
               } else {
                 console.warn("No se encontró el artista");
               }
@@ -128,7 +128,7 @@ export default function WorkDetailScreen() {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={staticStyles.buyButton} onPress={() => navigation.navigate("Payment", { workId: work.id, price: work.price ?? 0 }) } >
+            <TouchableOpacity style={staticStyles.buyButton} onPress={() => navigation.navigate("Payment", { workId: work.id, price: work.price ?? 0 }) } > {/*TODO Change navigation*/}
               <Text style={staticStyles.buyButtonText}>
                 COMPRAR
               </Text>

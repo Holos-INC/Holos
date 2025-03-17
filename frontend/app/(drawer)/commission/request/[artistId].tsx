@@ -6,6 +6,7 @@ import RequestForm from "@/src/components/RequestCommission/RequestForm";
 import { getArtistById } from "@/src/services/ArtistService";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -48,15 +49,17 @@ export default function RequestCommissionUserScreen({ route }: any) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {artist && <UserPanel artist={artist} />}
+    <ProtectedRoute allowedRoles={["CLIENT"]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {artist && <UserPanel artist={artist} />}
 
-      <View style={styles.commissionContainer}>
-        <Text style={styles.commissionTitle}>Commission Prices</Text>
-        <Image source={require(commissionTablePrice)} resizeMode="contain" />
-      </View>
+        <View style={styles.commissionContainer}>
+          <Text style={styles.commissionTitle}>Commission Prices</Text>
+          <Image source={require(commissionTablePrice)} resizeMode="contain" />
+        </View>
 
-      {artist && <RequestForm artist={artist} />}
-    </ScrollView>
+        {artist && <RequestForm artist={artist} />}
+      </ScrollView>
+    </ProtectedRoute>
   );
 }
