@@ -32,17 +32,17 @@ export const createCommision = async (commisionData, artistId) => {
   }
 };
 
-export const updateCommisionStatus = async (id, artistId, accept) => {
+export const updateCommisionStatus = async (id, artistId, status) => {
   try {
     const response = await axios.put(`${API_URL}/${id}/status`, null, {
       params: {
         artistId: artistId,
-        accept: accept,
+        status: status, 
       },
     });
     return response.data;
   } catch (error) {
-    console.error("Error updating commission status:", error);
+    console.error("Error updating commission status:", error?.response?.data || error);
     throw error;
   }
 };
