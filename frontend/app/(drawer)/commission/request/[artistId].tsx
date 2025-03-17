@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  ActivityIndicator,
-  ScrollView,
-} from "react-native";
-import { styles } from "./RequestCommissionUserScreen.styles";
-import UserPanel from "./UserPanel";
-import RequestForm from "./form/RequestForm";
-import { getArtistById } from "@/app/services/ArtistService";
-import { Artist } from "./CommissionTypes";
+import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
+import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
+import UserPanel from "@/src/components/RequestCommission/UserPanel";
+import RequestForm from "@/src/components/RequestCommission/RequestForm";
+import { getArtistById } from "@/src/services/ArtistService";
+import { Artist } from "@/src/constants/CommissionTypes";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 
-const commissionTablePrice = "../../../../assets/images/image.png";
+const commissionTablePrice = "@/assets/images/image.png";
 
 export default function RequestCommissionUserScreen({ route }: any) {
-  const { artistId } = route.params as { artistId: number };
+  const { artistId } = useLocalSearchParams();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (!artistId) {
@@ -38,6 +34,10 @@ export default function RequestCommissionUserScreen({ route }: any) {
 
     fetchData();
   }, [artistId]);
+
+  useEffect(() => {
+      navigation.setOptions({ title: `Commision ${artist?.username}!` });
+    }, [navigation, artist]);
 
   if (loading) {
     return (

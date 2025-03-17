@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getAllCategories } from "../api/CategoryEndpoints";
+import { getAllCategories } from "../services/CategoryEndpoints";
 
 const CategoryContext = createContext();
 

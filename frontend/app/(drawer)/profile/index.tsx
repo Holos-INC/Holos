@@ -1,19 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  Button,
-  StyleSheet,
-  Platform,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, Image, Button, StyleSheet, Platform, ScrollView, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getArtistById } from "../../../services/ArtistService";
-import { getClientById } from "../../../services/ClientService";
-import { AuthenticationContext } from "../../../context/AuthContext"; // Ajusta la ruta según tu proyecto
+import { getArtistById } from "@/src/services/ArtistService";
+import { getClientById } from "@/src/services/ClientService";
+import { AuthenticationContext } from "@/src/contexts/AuthContext";
 
 const isWeb = Platform.OS === "web";
 
@@ -75,7 +65,6 @@ const UserProfileScreen = () => {
         // Intentamos obtener el cliente usando el id del usuario autenticado
         const client = await getClientById(loggedInUser.id);
         setUser(client);
-        console.log(loggedInUser.id);
       } catch (error) {
         console.warn(
           "No se encontró cliente, intentando con artista...",
@@ -96,6 +85,10 @@ const UserProfileScreen = () => {
 
     fetchUser();
   }, [loggedInUser]);
+  
+  useEffect(() => {
+      navigation.setOptions({ title: `${user?.username}'s profile` });
+    }, [navigation, user]);
 
   if (loading) {
     return <Text>Loading...</Text>;

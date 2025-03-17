@@ -1,22 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Text,
-  ScrollView,
-  View,
-  TextInput,
-  Image,
-  TouchableOpacity,
-  LayoutChangeEvent,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
-} from "react-native";
+import { Text, ScrollView, View, TextInput, Image, TouchableOpacity, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import styles from "./ExploreScreen.styles";
-import { RootDrawerParamList } from "../../../_layout";
+import styles from "@/src/styles/ExploreScreen.styles";
+import { RootDrawerParamList } from "@/app/_layout";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { getAllCategories } from "../../../services/categoryService";
-import { getAllWorksDone } from "../../../services/WorksDoneService";
+import { getAllCategories } from "@/src/services/categoryService";
+import { getAllWorksDone } from "@/src/services/WorksDoneService";
+import { useRouter } from "expo-router";
 
 export interface Artist {
   id: number;
@@ -47,6 +38,7 @@ export interface Category {
 export default function ExploreScreen() {
   type ExploreNavProp = DrawerNavigationProp<RootDrawerParamList, "Explorar">;
   const navigation = useNavigation<ExploreNavProp>();
+  const router = useRouter();
 
   const BASE_URL = "http://localhost:8080";
 
@@ -230,12 +222,8 @@ export default function ExploreScreen() {
           if (isBigScreen) {
             const isLastInRow = index % COLUMNS_BIG === COLUMNS_BIG - 1;
             return (
-              <TouchableOpacity
-                key={work.id}
-                onPress={() => {
-                  navigation.navigate("WorkDetail", { workId: work.id });
-                }}
-              >
+              <TouchableOpacity key={work.id} 
+                onPress={() => router.push({ pathname: "/work/[workId]", params: { workId: String(work.id) } })}>
                 <View
                   style={[
                     styles.artistItemBig,
@@ -269,12 +257,8 @@ export default function ExploreScreen() {
             const isLastInRow = index % COLUMNS_MOBILE === COLUMNS_MOBILE - 1;
 
             return (
-              <TouchableOpacity
-                key={work.id}
-                onPress={() => {
-                  navigation.navigate("WorkDetail", { workId: work.id });
-                }}
-              >
+              <TouchableOpacity key={work.id} 
+                onPress={() => router.push({ pathname: "/work/[workId]", params: { workId: String(work.id) } })}>
                 <View
                   style={[
                     styles.artistItemMobile,

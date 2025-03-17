@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, Dimensions, ScrollView, StyleSheet } from "react-native";
-import { getAllTasks, updateStatusKanbanOrder } from "../../../services/kanbanService"; // Importar servicio de tareas
+import { getAllTasks, updateStatusKanbanOrder } from "@/src/services/kanbanService";
+import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 const KanbanBoard: React.FC = () => {
   const [tasks, setTasks] = useState<{ [key: string]: any[] }>({
@@ -77,38 +78,40 @@ const KanbanBoard: React.FC = () => {
   };
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.banner}>
-          <Text style={styles.bannerText}>PROYECTOS PERSONALIZADOS</Text>
-        </View>
-        <ScrollView horizontal contentContainerStyle={styles.kanbanBoard}>
-          {Object.entries(tasks).map(([columnName, columnTasks]) => (
-            <View key={columnName} style={styles.kanbanColumn}>
-              <View style={styles.banner}>
-                <Text style={styles.bannerText}>{columnName.toUpperCase()}</Text>
-              </View>
-              {columnTasks.map(task => (
-                <View key={task.id} style={styles.taskCard}>
-                  <Text style={styles.taskText}>{task.artist_id}</Text>
-                  <TouchableOpacity 
-                    onPress={() => {
-                      const { newOrder, targetColumn } = getNextOrder(task);
-                      moveTask(task.id, targetColumn, newOrder);
-                    }} 
-                    style={styles.moveButton}
-                  >
-                    <Text style={{ color: "white" }}>
-                      {task.order === 3 ? "Archivar" : "Mover"}
-                    </Text>
-                  </TouchableOpacity>
+    <ProtectedRoute allowedRoles={["ARTIST"]}>
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.banner}>
+            <Text style={styles.bannerText}>PROYECTOS PERSONALIZADOS</Text>
+          </View>
+          <ScrollView horizontal contentContainerStyle={styles.kanbanBoard}>
+            {Object.entries(tasks).map(([columnName, columnTasks]) => (
+              <View key={columnName} style={styles.kanbanColumn}>
+                <View style={styles.banner}>
+                  <Text style={styles.bannerText}>{columnName.toUpperCase()}</Text>
                 </View>
-              ))}
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-    </ScrollView>
+                {columnTasks.map(task => (
+                  <View key={task.id} style={styles.taskCard}>
+                    <Text style={styles.taskText}>{task.artist_id}</Text>
+                    <TouchableOpacity 
+                      onPress={() => {
+                        const { newOrder, targetColumn } = getNextOrder(task);
+                        moveTask(task.id, targetColumn, newOrder);
+                      }} 
+                      style={styles.moveButton}
+                    >
+                      <Text style={{ color: "white" }}>
+                        {task.order === 3 ? "Archivar" : "Mover"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
+    </ProtectedRoute>
   );
 };
 

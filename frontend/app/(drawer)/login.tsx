@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import * as yup from "yup";
 import { Formik } from "formik";
-import { AuthenticationContext } from '@/app/context/AuthContext';
+import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { showMessage } from 'react-native-flash-message';
+import { useRouter } from 'expo-router';
 
-export default function LoginScreen ({ navigation }) {
+export default function LoginScreen ({ navigation }:any) {
+    const router = useRouter();
     const { signIn } = useContext(AuthenticationContext)
     const [backendErrors, setBackendErrors] = useState([])
 
@@ -25,17 +27,17 @@ export default function LoginScreen ({ navigation }) {
             // .min(8, ({ min }) => `La contraseña debe tener al menos ${min} caracteres`)
     });
 
-    const handleLogin = (data) => {
+    const handleLogin = (data:any) => {
         setBackendErrors([])
         signIn(data,
-            (loginUser) => {
+            (loginUser:any) => {
                 showMessage({
                     message: `Welcome back ${loginUser.username}`,
                     type: 'success'
                 })
-                navigation.navigate('Inicio')
+                router.replace('/')
             },
-            (errors) => {
+            (errors:any) => {
                 setBackendErrors(errors)
             })
     };

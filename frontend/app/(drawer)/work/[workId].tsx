@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { RootDrawerParamList } from "@/app/_layout";
-import { getWorksDoneById } from "../../../services/WorksDoneService";
-import staticStyles, { createDynamicStyles } from "./WorkDetail.styles";
+import { View, Text, ActivityIndicator, Image, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import { getWorksDoneById } from "@/src/services/WorksDoneService";
+import staticStyles, { createDynamicStyles } from "@/src/styles/WorkDetail.styles";
+import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
 
 export interface Artist {
   id: number;
@@ -36,9 +26,9 @@ export interface Work {
 export default function WorkDetailScreen() {
   const BASE_URL = "http://localhost:8080";
 
-  const route = useRoute();
-  const navigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
-  const { workId } = route.params as { workId: number };
+  const router = useRouter();
+  const navigation = useNavigation();
+  const { workId } = useLocalSearchParams();
 
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +53,10 @@ export default function WorkDetailScreen() {
 
     fetchWork();
   }, [workId]);
+
+  useEffect(() => {
+    navigation.setOptions({ title: `${work?.name}` });
+  }, [navigation, work]);
 
   if (loading) {
     return (
@@ -106,9 +100,7 @@ export default function WorkDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               if (work.artist && work.artist.id) {
-                navigation.navigate("ArtistDetail", {
-                  artistId: work.artist.id,
-                });
+                router.push({ pathname: "/profile/[userId]", params: { userId: String(work.artist.id) } });
               } else {
                 console.warn("No se encontró el artista");
               }
@@ -129,22 +121,19 @@ export default function WorkDetailScreen() {
           </Text>
 
           <View style={staticStyles.buttonRow}>
+            
             <TouchableOpacity style={staticStyles.messageButton}>
               <Text style={staticStyles.messageButtonText}>
                 MANDAR UN MENSAJE
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={staticStyles.buyButton}
-              onPress={() =>
-                navigation.navigate("Payment", {
-                  workId: work.id,
-                  price: work.price ?? 0,
-                })
-              }
-            >
-              <Text style={staticStyles.buyButtonText}>COMPRAR</Text>
+
+            <TouchableOpacity style={staticStyles.buyButton} onPress={() => navigation.navigate("Payment", { workId: work.id, price: work.price ?? 0 }) } >
+              <Text style={staticStyles.buyButtonText}>
+                COMPRAR
+              </Text>
             </TouchableOpacity>
+
           </View>
         </View>
       </View>

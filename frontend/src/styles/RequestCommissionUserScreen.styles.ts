@@ -1,6 +1,10 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  errorText: {
+    color: 'red',
+    marginBottom: 8,
+  },  
   scrollContainer: {
     alignItems: "center",
     padding: 20,

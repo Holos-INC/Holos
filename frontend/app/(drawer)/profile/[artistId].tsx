@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import styles from "./ArtistDetail.styles";
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RootDrawerParamList } from "@/app/_layout";
-import { getArtistById } from "../../../services/ArtistService";
-import { getWorksDoneByArtist } from "../../../services/WorksDoneService";
+import { getArtistById } from "@/src/services/ArtistService";
+import { getWorksDoneByArtist } from "@/src/services/WorksDoneService";
+import styles from "@/src/styles/ArtistDetail.styles";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 interface Artwork {
   id: number;
@@ -36,10 +30,11 @@ interface ArtistDetailScreenProps {
   };
 }
 
-export default function ArtistDetailScreen({ route }: ArtistDetailScreenProps) {
+export default function ArtistDetailScreen() {
   const BASE_URL = "http://localhost:8080";
-  const navigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
-  const { artistId } = route.params;
+  const router = useRouter();
+  const navigation = useNavigation();
+  const { artistId } = useLocalSearchParams<{ artistId: string }>();
 
   const [artist, setArtist] = useState<Artist | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
@@ -47,6 +42,7 @@ export default function ArtistDetailScreen({ route }: ArtistDetailScreenProps) {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log(artistId);
       const artistData: Artist = await getArtistById(artistId);
       setArtist(artistData);
       const worksData: Artwork[] = await getWorksDoneByArtist(artistId);
@@ -55,6 +51,10 @@ export default function ArtistDetailScreen({ route }: ArtistDetailScreenProps) {
     };
     fetchData();
   }, [artistId]);
+
+  useEffect(() => {
+    navigation.setOptions({ title: `${artist?.username}` });
+  }, [navigation, artist]);
 
   if (loading) {
     return (
@@ -83,7 +83,11 @@ export default function ArtistDetailScreen({ route }: ArtistDetailScreenProps) {
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
-            navigation.navigate("RequestCommission", { artistId: artist!.id })
+            router.push({
+              pathname: "/commission/request/[artistId]",
+              params: { artistId: String(artist?.id) },
+            })            
+            // navigation.navigate("RequestCommission", { artistId: artist!.id })
           }
         >
           <Text style={styles.buttonText}>Solicitar trabajo</Text>
@@ -100,10 +104,7 @@ export default function ArtistDetailScreen({ route }: ArtistDetailScreenProps) {
         <View style={styles.artworksList}>
           {works.map((work: Artwork) => (
             <View key={work.id} style={styles.artworkItem}>
-              <Image
-                source={{ uri: `${BASE_URL}${work.image}` }}
-                style={styles.artworkImage}
-              />
+              <Image source={{ uri: `${BASE_URL}${work.image}` }} style={styles.artworkImage} />
               <Text style={styles.artworkTitle}>{work.name}</Text>
             </View>
           ))}
