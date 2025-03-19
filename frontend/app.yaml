@@ -1,0 +1,13 @@
+runtime: nodejs22
+
+handlers:
+  - url: /static
+    static_dir: dist/static
+
+  - url: /(.*\.(js|css|ico|png|jpg|svg|woff|woff2|ttf|json|txt))
+    static_files: dist/\1
+    upload: dist/(.*)
+
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html

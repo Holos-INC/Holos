@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import { View, Text, ActivityIndicator } from "react-native";
 import { useAuth } from "@/src/hooks/useAuth";
+import LoadingScreen from "./LoadingScreen";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,10 +10,12 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles = [] }: ProtectedRouteProps) {
-  const { isAuthenticated, isArtist, isAdmin } = useAuth();
+  const { isAuthenticated, isArtist, isAdmin, loading } = useAuth();
   const router = useRouter();
 
   const userRole = isAdmin ? "ADMIN" : isArtist ? "ARTIST" : "CLIENT";
+
+  if (loading) return <LoadingScreen />;
 
   useEffect(() => {
     if (!isAuthenticated || (allowedRoles.length > 0 && !allowedRoles.includes(userRole))) {

@@ -28,6 +28,7 @@ export default function LoginScreen ({ navigation }:any) {
     });
 
     const handleLogin = (data:any) => {
+        console.log("as");
         setBackendErrors([])
         signIn(data,
             (loginUser:any) => {
@@ -38,6 +39,7 @@ export default function LoginScreen ({ navigation }:any) {
                 router.replace('/')
             },
             (errors:any) => {
+                console.log("Doesn't work!")
                 setBackendErrors(errors)
             })
     };

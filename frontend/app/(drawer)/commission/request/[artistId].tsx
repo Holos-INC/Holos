@@ -3,7 +3,7 @@ import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import UserPanel from "@/src/components/RequestCommission/UserPanel";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
-import { getArtistById } from "@/src/services/ArtistService";
+import { getArtistById } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
@@ -24,7 +24,7 @@ export default function RequestCommissionUserScreen({ route }: any) {
 
     const fetchData = async () => {
       try {
-        const artistData: Artist = await getArtistById(artistId);
+        const artistData: Artist = await getArtistById(Number(artistId));
         setArtist(artistData);
       } catch (error) {
         console.error("Error fetching artist:", error);
@@ -37,6 +37,7 @@ export default function RequestCommissionUserScreen({ route }: any) {
   }, [artistId]);
 
   useEffect(() => {
+    console.log("Artist object:", artist);
       navigation.setOptions({ title: `Commision ${artist?.username}!` });
     }, [navigation, artist]);
 

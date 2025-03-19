@@ -2,6 +2,8 @@
 import { Stack } from "expo-router";
 import AuthenticationContextProvider from "@/src/contexts/AuthContext";
 import { PaperProvider } from "react-native-paper";
+import { Suspense } from "react";
+import LoadingScreen from "@/src/components/LoadingScreen";
 
 
 export type RootDrawerParamList = {
@@ -16,10 +18,12 @@ export type RootDrawerParamList = {
 
 export default function RootLayout() {
   return (
-    <PaperProvider>
-      <AuthenticationContextProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </AuthenticationContextProvider>
-    </PaperProvider>
+    <Suspense fallback={<LoadingScreen />}>
+      <PaperProvider>
+        <AuthenticationContextProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </AuthenticationContextProvider>
+      </PaperProvider>
+    </Suspense>
   );
 }
