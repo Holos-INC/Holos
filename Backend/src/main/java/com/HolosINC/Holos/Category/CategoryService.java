@@ -2,8 +2,13 @@ package com.HolosINC.Holos.Category;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.work.Work;
 
 @Service
 public class CategoryService {
@@ -46,4 +51,53 @@ public class CategoryService {
     public Category saveCategory(Category category) {
         return categoryRepository.save(category);
     }
+
+    @Transactional
+    public Category updateCategory(Long categoryId, Category updatedCategory) {
+        try {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> {
+                        return new ResourceNotFoundException("Category", "id", categoryId);
+                    });
+
+            category.setName(updatedCategory.getName());
+            category.setDescription(updatedCategory.getDescription());
+            category.setImage(updatedCategory.getImage());
+
+            Category savedCategory = categoryRepository.save(category);
+            return savedCategory;
+
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("No se puede actualizar la categoría con ID " + categoryId +
+                                       " debido a restricciones de integridad.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error interno al actualizar la categoría con ID " + categoryId);
+        }
+    }
+
+    @Transactional
+    public void deleteCategory(Long categoryId) {
+        try {
+            List<ArtistCategory> artistCategories = artistCategoryRepository.findAllByCategoryId(categoryId);
+            if (!artistCategories.isEmpty()) {
+                artistCategoryRepository.deleteAll(artistCategories);
+            }
+
+            List<WorkCategory> workCategories = workCategoryRepository.findAllByCategoryId(categoryId);
+            if (!workCategories.isEmpty()) {
+                workCategoryRepository.deleteAll(workCategories);
+            }
+
+            categoryRepository.deleteById(categoryId);
+            
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("No se puede eliminar la categoría con ID " + categoryId + 
+                                       " debido a restricciones de integridad.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error interno al eliminar la categoría con ID " + categoryId);
+        }
+    }
+
 }
