@@ -32,7 +32,7 @@ export default function AdminDashboard() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Acciones Rápidas</Text>
         <Button title="Gestionar Usuarios" onPress={() => router.push("/admin/user-manegement")} />
-        <Button title="Ver Pedidos" />
+        <Button title="Gestionar Categorías" onPress={() => router.push("/admin/category-management")}/>
         <Button title="Configuraciones" />
       </View>
     </ScrollView>
