@@ -2,15 +2,15 @@ package com.HolosINC.Holos.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 @Service
 public class ClientService {
 
-	private ClientRepository clientRepository;
+	private final ClientRepository clientRepository;
 
 	@Autowired
 	public ClientService(ClientRepository clientRepository) {
@@ -26,7 +26,7 @@ public class ClientService {
 
 	@Transactional(readOnly = true)
 	public Client findClient(Long clientId) {
-		return clientRepository.findById(clientId)
+		return clientRepository.getClientByUser(clientId)
 				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", clientId));
 	}
 
