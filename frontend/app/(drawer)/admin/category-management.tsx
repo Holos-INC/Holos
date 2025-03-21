@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image } from "react-native";
+import styles from "./styles";
 
 interface Category {
   id?: number;
@@ -81,8 +82,8 @@ export default function CategoryManagement() {
         onChangeText={handleSearch}
       />
 
-      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-        <Text style={styles.addButtonText}>Añadir Nueva Categoría</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+        <Text style={styles.buttonText}>Añadir Nueva Categoría</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -121,9 +122,9 @@ export default function CategoryManagement() {
 
       {/* Modal para agregar categoría */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.title}>Nueva Categoría</Text>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Nueva Categoría</Text>
             <TextInput
               style={styles.input}
               placeholder="Nombre"
@@ -156,9 +157,9 @@ export default function CategoryManagement() {
 
       {/* Modal para editar categoría */}
       <Modal visible={editModalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.title}>Editar Categoría</Text>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Editar Categoría</Text>
             <TextInput
               style={styles.input}
               placeholder="Nombre"
@@ -192,7 +193,7 @@ export default function CategoryManagement() {
   );
 }
 
-const styles = StyleSheet.create({
+const styless = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5", width: '90%', alignSelf: 'center' },
   title: {
     fontSize: 24,

@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
+import styles from "./styles";
 
 interface BaseUser {
   id: number;
@@ -175,8 +176,8 @@ export default function UserManagement() {
         data={currentUsers}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.userCard}>
-            <View style={styles.userInfo}>
+          <View style={styles.categoryItem}>
+            <View style={styles.categoryInfo}>
               <Image source={{ uri: item.imageProfile || "https://via.placeholder.com/80" }} style={styles.userImage} />
               <View style={styles.userDetails}>
                 <Text style={styles.userName}>{item.name} ({item.authority.authority})</Text>
@@ -199,16 +200,29 @@ export default function UserManagement() {
       />
 
       {/* Paginación */}
-      <View style={styles.pagination}>
-        <Button title="Anterior" onPress={handlePrevPage} disabled={currentPage === 1} />
-        <Text>{`${currentPage} de ${totalPages}`}</Text>
-        <Button title="Siguiente" onPress={handleNextPage} disabled={currentPage === totalPages} />
+      <View style={styles.paginationContainer}>
+        <TouchableOpacity 
+          style={styles.paginationButton} 
+          onPress={handlePrevPage} 
+          disabled={currentPage === 1}
+        >
+          <Text style={styles.paginationButtonText}>Anterior</Text>
+        </TouchableOpacity>
+        <Text style={styles.paginationText}>{`${currentPage} de ${totalPages}`}</Text>
+        <TouchableOpacity 
+          style={styles.paginationButton} 
+          onPress={handleNextPage} 
+          disabled={currentPage === totalPages}
+        >
+          <Text style={styles.paginationButtonText}>Siguiente</Text>
+        </TouchableOpacity>
       </View>
+
 
       {/* Modal para editar usuario */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Editar Usuario</Text>
 
             <TextInput
@@ -236,9 +250,13 @@ export default function UserManagement() {
               onChangeText={(text) => setSelectedUser((prev) => prev ? { ...prev, phoneNumber: text } : prev)}
             />
 
-            <View style={styles.modalButtons}>
-              <Button title="Guardar" onPress={saveChanges} />
-              <Button title="Cancelar" color="gray" onPress={() => setModalVisible(false)} />
+            <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.smallButton} onPress={saveChanges}>
+                <Text style={styles.buttonText}>Guardar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.smallButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -247,27 +265,3 @@ export default function UserManagement() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5", width: '90%', alignSelf: 'center' },
-  title: { fontSize: 30, fontWeight: "700", marginBottom: 20, textAlign: "center" },
-  searchInput: { backgroundColor: "white", padding: 12, borderRadius: 10, fontSize: 18, marginBottom: 15, borderWidth: 1, borderColor: "#ddd" },
-  userCard: { backgroundColor: "white", padding: 15, borderRadius: 15, marginBottom: 15, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 5, elevation: 5 },
-  userInfo: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  userImage: { width: 60, height: 60, borderRadius: 30, marginRight: 15 },
-  userDetails: { flex: 1 },
-  userName: { fontSize: 20, fontWeight: "bold" },
-  userEmail: { fontSize: 16, color: "gray" },
-  userPhone: { fontSize: 16, color: "#555" },
-  userDate: { fontSize: 14, color: "#888" },
-  buttons: { flexDirection: "row", justifyContent: "flex-end", marginTop: 10 }, 
-  editButton: { backgroundColor: "#4CAF50", padding: 8, borderRadius: 8, marginLeft: 10, alignItems: "center" },
-  deleteButton: { backgroundColor: "#E53935", padding: 8, borderRadius: 8,marginLeft: 10, alignItems: "center" },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-  emptyText: { textAlign: "center", fontSize: 20, color: "#666", marginTop: 20 },
-  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContent: { backgroundColor: "white", padding: 25, borderRadius: 15, width: "85%" },
-  modalTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
-  input: { backgroundColor: "#f0f0f0", padding: 12, borderRadius: 10, fontSize: 18, marginBottom: 15 },
-  modalButtons: { flexDirection: "row", justifyContent: "space-between" },
-  pagination: { flexDirection: "row", justifyContent: "center", marginTop: 20 },
-});

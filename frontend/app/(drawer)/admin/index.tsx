@@ -1,4 +1,4 @@
-import { View, Text, Button, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
 // Definir la estructura de un usuario
@@ -31,9 +31,29 @@ export default function AdminDashboard() {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Acciones Rápidas</Text>
-        <Button title="Gestionar Usuarios" onPress={() => router.push("/admin/user-manegement")} />
-        <Button title="Gestionar Categorías" onPress={() => router.push("/admin/category-management")}/>
-        <Button title="Configuraciones" />
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => router.push("/admin/user-manegement")}
+          >
+            <Text style={styles.buttonText}>Gestionar Usuarios</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => router.push("/admin/category-management")}
+          >
+            <Text style={styles.buttonText}>Gestionar Categorías</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={() => router.push("/admin/report-management")}
+          >
+            <Text style={styles.buttonText}>Configuraciones</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -65,5 +85,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row", // Alinea los botones en fila
+    justifyContent: "space-between", // Espacio entre los botones
+    marginTop: 10,
+  },
+  button: {
+    backgroundColor: "#4CAF50", // Color verde para los botones
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1, // Hace que los botones se ajusten para que ocupen el mismo espacio
+    marginHorizontal: 5, // Añade espacio entre los botones
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff", // Texto blanco
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
