@@ -2,7 +2,11 @@ package com.HolosINC.Holos.reports;
 
 import java.util.List;
 
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
+import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -35,7 +41,7 @@ public class ReportController {
     }
 
     // Para el administrador
-    @PostMapping("/admin")
+    @GetMapping("/admin")
     public ResponseEntity<?> getAllReports() {
         try {
             List<Report> reports = reportService.getReports();
@@ -47,26 +53,49 @@ public class ReportController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> addReport(@RequestBody ReportDTO reportDTO) {
-        try {
-            Report newReport = Report.builder()
-                    .name(reportDTO.getName())
-                    .description(reportDTO.getDescription())
-                    .status(ReportStatus.PENDING)
-                    .madeBy(baseUserService.findCurrentUser())
-                    .reportedUser(workService.getWorkById(reportDTO.getWorkId()).getArtist())
-                    .work(workService.getWorkById(reportDTO.getWorkId()))
-                    .reportType(reportService.getReportTypeByType(reportDTO.getReportType()))
-                    .build();
-            Report report = reportService.addReport(newReport);
-            return ResponseEntity.ok(report);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+@PostMapping("/{id}")
+public ResponseEntity<?> addReport(@PathVariable Long id, @RequestBody ReportDTO reportDTO) {
+    try {
+        Work work = workService.getWorkById(id);
+        if (work == null) {
+            return ResponseEntity.badRequest().body("La obra con ID " + id + " no existe.");
         }
+
+        // Verificar si el usuario está autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Usuario no autenticado.");
+        }
+
+        // Obtener el usuario autenticado
+        BaseUser user = baseUserService.findCurrentUser();
+
+        // Obtener el tipo de reporte
+        ReportType reportType = reportService.getReportTypeByType(reportDTO.getReportType());
+
+        // Crear el reporte
+        Report newReport = Report.builder()
+                .name(reportDTO.getName())
+                .description(reportDTO.getDescription())
+                .status(ReportStatus.PENDING)
+                .madeBy(user)
+                .reportedUser(work.getArtist())
+                .work(work)
+                .reportType(reportType)
+                .build();
+
+        Report report = reportService.addReport(newReport);
+        return ResponseEntity.ok(report);
+
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError().body("Error interno al crear el reporte");
     }
+}
+
+
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable Long id) {
@@ -86,9 +115,9 @@ public class ReportController {
             Report acceptedReport = reportService.acceptReport(id);
             return ResponseEntity.ok(acceptedReport);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Error interno al aceptar el reporte");
         }
     }
 

@@ -57,6 +57,5 @@ public class Report {
 
     @ManyToOne
     @Valid
-    @NotNull
     private ReportType reportType;
 }
