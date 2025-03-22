@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image, Alert } from "react-native";
-import styles from "./styles";
+import styles from "@/src/styles/Admin.styles";
+import { createCategory, getAllCategories, updateCategory } from "@/src/services/categoryService";
+import { AuthenticationContext } from "@/src/contexts/AuthContext";
 
 interface Category {
-  id?: number;
+  id: number;
   name: string;
   description: string;
   image?: string;
 }
-
+/*
 export default function CategoryManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState<Category>({ name: "", description: "", image: "" });
@@ -19,22 +21,37 @@ export default function CategoryManagement() {
   const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+*/
+  export default function CategoryManagement() {
+    const { loggedInUser } = useContext(AuthenticationContext);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [searchText, setSearchText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [newCategory, setNewCategory] = useState({
+      name: "",
+      description: "",
+      image: "",
+    });
+  
+    const fetchCategories = async () => {
+      try {
+        const data: Category[] = await getAllCategories();
+        setCategories(data);
+      } catch (error) {
+        Alert.alert("Error", "Error al obtener las categorías.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    setCategories([
-      { id: 1, name: "Pintura", description: "Obras de arte pictóricas", image: "https://images.unsplash.com/photo-1506157786151-b8491531f063" },
-      { id: 2, name: "Escultura", description: "Obras en tres dimensiones", image: "https://via.placeholder.com/100" },
-      { id: 3, name: "Dibujo", description: "Arte de representar imágenes", image: "https://via.placeholder.com/100" },
-      { id: 4, name: "Fotografía", description: "Arte de capturar imágenes", image: "https://via.placeholder.com/100" },
-      { id: 5, name: "Música", description: "Arte de producir sonidos", image: "https://via.placeholder.com/100" },
-      { id: 6, name: "Literatura", description: "Arte de escribir", image: "https://via.placeholder.com/100" },
-      { id: 7, name: "Danza", description: "Arte de moverse al ritmo de la música", image: "https://via.placeholder.com/100" },
-      { id: 8, name: "Teatro", description: "Arte de la actuación", image: "https://via.placeholder.com/100" },
-      { id: 9, name: "Cine", description: "Arte del cine", image: "https://via.placeholder.com/100" },
-      { id: 10, name: "Artesanía", description: "Trabajo artesanal con materiales", image: "https://via.placeholder.com/100" },
-      { id: 11, name: "Arquitectura", description: "Diseño y construcción de edificios", image: "https://via.placeholder.com/100" },
-    ]);
-  }, []);
+    useEffect(() => {
+      fetchCategories();
+    }, []);
 
   // Filtrar las categorías basadas en el texto de búsqueda
   const filteredCategories = categories.filter(category =>
@@ -46,7 +63,7 @@ export default function CategoryManagement() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
+/*
   const handleAddCategory = () => {
     if (!newCategory.name.trim() || !newCategory.description.trim()) return;
     setCategories([...categories, { ...newCategory, id: Date.now() }]);
@@ -59,9 +76,43 @@ export default function CategoryManagement() {
     setCategories(categories.map(cat => (cat.id === editingCategory.id ? editingCategory : cat)));
     setEditModalVisible(false);
   };
+  */
+  const handleAddCategory = async () => {
+    if (!newCategory.name.trim() || !newCategory.description.trim()) {
+      Alert.alert("Error", "El nombre y la descripción son obligatorios.");
+      return;
+    }
+    try {
+      const createdCategory = await createCategory(newCategory);
+      setCategories([...categories, createdCategory]);
+      setNewCategory({ name: "", description: "", image: "" });
+      setModalVisible(false);
+      Alert.alert("Éxito", "Categoría añadida correctamente.");
+      fetchCategories();
+    } catch (error) {
+      Alert.alert("Error", "No se pudo agregar la categoría.");
+    }
+  };
+
+  const handleEditCategory = async () => {
+    if (!editingCategory || !editingCategory.name.trim() || !editingCategory.description.trim()) {
+      Alert.alert("Error", "El nombre y la descripción no pueden estar vacíos.");
+      return;
+    }
+    try {
+      await updateCategory(editingCategory.id, editingCategory);
+      setCategories(categories.map(cat => (cat.id === editingCategory.id ? editingCategory : cat)));
+      setEditModalVisible(false);
+      setEditingCategory(null);
+      Alert.alert("Éxito", "Categoría actualizada correctamente.");
+      fetchCategories();
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar la categoría.");
+    }
+  };
 
   const openEditModal = (category: Category) => {
-    setEditingCategory({ ...category });
+    setEditingCategory(category);
     setEditModalVisible(true);
   };
 
@@ -217,119 +268,3 @@ export default function CategoryManagement() {
     </View>
   );
 }
-
-const styless = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5", width: '90%', alignSelf: 'center' },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  searchInput: { backgroundColor: "white", padding: 12, borderRadius: 10, fontSize: 18, marginBottom: 15, borderWidth: 1, borderColor: "#ddd" },
-  addButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  categoryItem: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  categoryImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 5,
-    marginRight: 15,
-  },
-  categoryInfo: {
-    flex: 1,
-  },
-  categoryText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  categoryDescription: {
-    fontSize: 14,
-    color: "#6c757d",
-  },
-  editButton: {
-    backgroundColor: "#28a745",
-    padding: 8,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ced4da",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  smallButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    flex: 0.8,
-    alignItems: "center",
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: "#dc3545",
-  },
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  paginationButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    margin: 5,
-  },
-  paginationButtonText: {
-    color: "#fff",
-  },
-  paginationText: {
-    fontSize: 16,
-    marginHorizontal: 10,
-  },
-});

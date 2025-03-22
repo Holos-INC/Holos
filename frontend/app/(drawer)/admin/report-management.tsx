@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, FlatList, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import styles from "./styles";
+import styles from "@/src/styles/Admin.styles";
 
 // Definir la estructura de los tipos de datos
 interface Report {

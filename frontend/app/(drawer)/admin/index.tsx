@@ -1,21 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
-// Definir la estructura de un usuario
-interface BaseUser {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber?: string; 
-  imageProfile?: string; 
-  createdUser: string; 
-  authority: {
-    authority: string;
-  };
-}
-
 export default function AdminDashboard() {
   const router = useRouter();
 
@@ -81,21 +66,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonContainer: {
-    flexDirection: "row", // Alinea los botones en fila
-    justifyContent: "space-between", // Espacio entre los botones
+    flexDirection: "row", 
+    justifyContent: "space-between",
     marginTop: 10,
   },
   button: {
-    backgroundColor: "#4CAF50", // Color verde para los botones
+    backgroundColor: "#4CAF50", 
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
-    flex: 1, // Hace que los botones se ajusten para que ocupen el mismo espacio
-    marginHorizontal: 5, // Añade espacio entre los botones
+    flex: 1,
+    marginHorizontal: 5, 
     alignItems: "center",
   },
   buttonText: {
-    color: "#fff", // Texto blanco
+    color: "#fff",
     fontSize: 16,
     fontWeight: "500",
   },
