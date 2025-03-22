@@ -56,10 +56,94 @@ export default function ReportManagement() {
       userReport: { id: 3, name: "Ana López" },
       userReported: { id: 4, name: "Luis Martínez" },
     },
+    {
+      id: 3,
+      title: "Reporte de Ejemplo 3",
+      description: "Descripción del reporte 1",
+      status: "Pending",
+      reportType: { type: "Fraude" },
+      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
+      userReport: { id: 1, name: "Juan Pérez" },
+      userReported: { id: 2, name: "Carlos Gómez" },
+    },
+    {
+      id: 4,
+      title: "Reporte de Ejemplo 4",
+      description: "Descripción del reporte 2",
+      status: "Accepted",
+      reportType: { type: "Acoso" },
+      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
+      userReport: { id: 3, name: "Ana López" },
+      userReported: { id: 4, name: "Luis Martínez" },
+    },
+    {
+      id: 5,
+      title: "Reporte de Ejemplo 5",
+      description: "Descripción del reporte 1",
+      status: "Pending",
+      reportType: { type: "Fraude" },
+      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
+      userReport: { id: 1, name: "Juan Pérez" },
+      userReported: { id: 2, name: "Carlos Gómez" },
+    },
+    {
+      id: 6,
+      title: "Reporte de Ejemplo 6",
+      description: "Descripción del reporte 2",
+      status: "Accepted",
+      reportType: { type: "Acoso" },
+      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
+      userReport: { id: 3, name: "Ana López" },
+      userReported: { id: 4, name: "Luis Martínez" },
+    },
+    {
+      id: 7,
+      title: "Reporte de Ejemplo 7",
+      description: "Descripción del reporte 1",
+      status: "Pending",
+      reportType: { type: "Fraude" },
+      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
+      userReport: { id: 1, name: "Juan Pérez" },
+      userReported: { id: 2, name: "Carlos Gómez" },
+    },
+    {
+      id: 8,
+      title: "Reporte de Ejemplo 8",
+      description: "Descripción del reporte 2",
+      status: "Accepted",
+      reportType: { type: "Acoso" },
+      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
+      userReport: { id: 3, name: "Ana López" },
+      userReported: { id: 4, name: "Luis Martínez" },
+    },
+    {
+      id: 9,
+      title: "Reporte de Ejemplo 9",
+      description: "Descripción del reporte 1",
+      status: "Pending",
+      reportType: { type: "Fraude" },
+      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
+      userReport: { id: 1, name: "Juan Pérez" },
+      userReported: { id: 2, name: "Carlos Gómez" },
+    },
+    {
+      id: 10,
+      title: "Reporte de Ejemplo 10",
+      description: "Descripción del reporte 2",
+      status: "Accepted",
+      reportType: { type: "Acoso" },
+      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
+      userReport: { id: 3, name: "Ana López" },
+      userReported: { id: 4, name: "Luis Martínez" },
+    }
   ]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [status, setStatus] = useState<"Pending" | "Accepted" | "Rejected">("Pending");
+  const [filter, setFilter] = useState<"All" | "Pending" | "Accepted" | "Rejected">("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 8;
+
 
   // Abrir el modal y cargar el reporte seleccionado
   const openModal = (report: Report) => {
@@ -108,6 +192,25 @@ export default function ReportManagement() {
     }
   };
 
+  const filteredReports = reports.filter((report) =>
+    filter === "All" ? true : report.status === filter
+  );
+
+  
+  const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+  const paginatedReports = filteredReports.slice(
+    (currentPage - 1) * reportsPerPage,
+    currentPage * reportsPerPage
+  );
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   // Renderiza cada reporte en el listado
   const renderItem = ({ item }: { item: Report }) => (
     <TouchableOpacity style={styles.reportItem} onPress={() => openModal(item)}>
@@ -121,11 +224,40 @@ export default function ReportManagement() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Gestión de Reportes</Text>
 
+      
+      <View style={styles.filterContainer}>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("All")}>
+          <Text style={styles.filterButtonText}>Todos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Pending")}>
+          <Text style={styles.filterButtonText}>Pendientes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Accepted")}>
+          <Text style={styles.filterButtonText}>Aceptados</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Rejected")}>
+          <Text style={styles.filterButtonText}>Rechazados</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
-        data={reports}
+        data={paginatedReports}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+
+      {/* Paginación */}
+      <View style={styles.paginationContainer}>
+        <TouchableOpacity style={styles.paginationButton} onPress={prevPage} disabled={currentPage === 1}>
+          <Text style={styles.paginationButtonText}>Anterior</Text>
+        </TouchableOpacity>
+        <Text style={styles.paginationText}>
+          Página {currentPage} de {totalPages}
+        </Text>
+        <TouchableOpacity style={styles.paginationButton} onPress={nextPage} disabled={currentPage === totalPages}>
+          <Text style={styles.paginationButtonText}>Siguiente</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Modal para cambiar el estado del reporte */}
       {selectedReport && (

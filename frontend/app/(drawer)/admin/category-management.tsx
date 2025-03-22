@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image, Alert } from "react-native";
 import styles from "./styles";
 
 interface Category {
@@ -70,6 +70,27 @@ export default function CategoryManagement() {
     setCurrentPage(1); // Volver a la primera página al buscar
   };
 
+  const handleDelete = (categoryId: number) => {
+    Alert.alert(
+      "Eliminar Categoría",
+      "¿Estás seguro de que quieres eliminar esta categoría?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          onPress: () => {
+            // Filtrar la categoría eliminada
+            setCategories(categories.filter((category) => category.id !== categoryId));
+          },
+        },
+      ]
+    );
+  };
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Administrar Categorías</Text>
@@ -97,8 +118,12 @@ export default function CategoryManagement() {
               <Text style={styles.categoryDescription}>{item.description}</Text>
             </View>
             <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(item)}>
-              <Text style={styles.buttonText}>Editar</Text>
+              <Text style={styles.buttonText}>✏️ Editar</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id as number)}>
+              <Text style={styles.buttonText}>🗑️ Eliminar</Text>
+            </TouchableOpacity>
+
           </View>
         )}
       />

@@ -236,6 +236,21 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end", 
         marginTop: 10 
     }, 
+      filterContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginVertical: 10,
+      },
+      filterButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        backgroundColor: "#007BFF",
+        borderRadius: 8,
+      },
+      filterButtonText: {
+        color: "#FFF",
+        fontWeight: "bold",
+      },
   });
 
 export default styles;

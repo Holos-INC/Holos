@@ -24,12 +24,6 @@ export default function AdminDashboard() {
       <Text style={styles.title}>Panel de Administración</Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Estadísticas</Text>
-        <Text>Total Usuarios: 1200</Text>
-        <Text>Total Pedidos: 350</Text>
-      </View>
-
-      <View style={styles.card}>
         <Text style={styles.cardTitle}>Acciones Rápidas</Text>
 
         <View style={styles.buttonContainer}>
@@ -51,7 +45,7 @@ export default function AdminDashboard() {
             style={styles.button}
             onPress={() => router.push("/admin/report-management")}
           >
-            <Text style={styles.buttonText}>Configuraciones</Text>
+            <Text style={styles.buttonText}>Gestión de reportes</Text>
           </TouchableOpacity>
         </View>
       </View>
