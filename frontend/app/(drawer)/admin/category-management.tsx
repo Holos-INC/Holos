@@ -10,18 +10,6 @@ interface Category {
   description: string;
   image?: string;
 }
-/*
-export default function CategoryManagement() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [newCategory, setNewCategory] = useState<Category>({ name: "", description: "", image: "" });
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  
-  const [searchText, setSearchText] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-*/
   export default function CategoryManagement() {
     const { loggedInUser } = useContext(AuthenticationContext);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -63,20 +51,7 @@ export default function CategoryManagement() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-/*
-  const handleAddCategory = () => {
-    if (!newCategory.name.trim() || !newCategory.description.trim()) return;
-    setCategories([...categories, { ...newCategory, id: Date.now() }]);
-    setNewCategory({ name: "", description: "", image: "" });
-    setModalVisible(false);
-  };
-
-  const handleEditCategory = () => {
-    if (!editingCategory) return;
-    setCategories(categories.map(cat => (cat.id === editingCategory.id ? editingCategory : cat)));
-    setEditModalVisible(false);
-  };
-  */
+  
   const handleAddCategory = async () => {
     if (!newCategory.name.trim() || !newCategory.description.trim()) {
       Alert.alert("Error", "El nombre y la descripción son obligatorios.");
