@@ -20,5 +20,6 @@ export default function DrawerLayout() {
       <Drawer.Screen name="admin/index" options={{ drawerLabel: "Panel Admin", drawerIcon: SettingsIcon, drawerItemStyle: { display: 'flex', height: 'auto' } }} />
       <Drawer.Screen name="logout" options={{ drawerLabel: "Cerrar sesión", drawerIcon: ProfileIcon, drawerItemStyle: { display: isAuthenticated ? 'flex' : 'none', height: isAuthenticated ? 'auto' : 0 } }} />
     </Drawer>
+
   );
 }

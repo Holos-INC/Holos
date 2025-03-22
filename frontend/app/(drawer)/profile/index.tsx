@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, Image, Button, StyleSheet, Platform, ScrollView, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getArtistById } from "@/src/services/ArtistService";
-import { getClientById } from "@/src/services/ClientService";
+import { getArtistById } from "@/src/services/artistApi";
+import { getClientById } from "@/src/services/clientApi";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
+import { User } from "@/src/constants/CommissionTypes";
+import { API_URL } from "@/src/constants/api";
 
 const isWeb = Platform.OS === "web";
 
@@ -15,42 +17,10 @@ interface Order {
   prize: number;
 }
 
-interface ClientUser {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber: string;
-  imageProfile: string;
-  createdUser: string;
-  orders: Order[];
-}
-
-interface Artist {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber: string;
-  imageProfile: string;
-  createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
-  numSlotsOfWork: number;
-  tableCommisionsPrice?: string;
-}
-
-type User = ClientUser | Artist;
-
 const UserProfileScreen = () => {
-  const BASE_URL = "http://localhost:8080";
   const navigation = useNavigation<any>();
   const { loggedInUser } = useContext(AuthenticationContext);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User|null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -87,10 +57,11 @@ const UserProfileScreen = () => {
   }, [loggedInUser]);
   
   useEffect(() => {
-      navigation.setOptions({ title: `${user?.username}'s profile` });
+      navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
     }, [navigation, user]);
 
   if (loading) {
+    console.log(loggedInUser.id)
     return <Text>Loading...</Text>;
   }
 
@@ -127,26 +98,26 @@ const UserProfileScreen = () => {
       <View style={styles.container}>
         <Text style={styles.title}>{isArtist ? "ARTISTA" : "CLIENTE"}</Text>
         <Image
-          source={{ uri: `${BASE_URL}${user.imageProfile}` }}
+          source={{ uri: `${API_URL}${user.baseUser.imageProfile}` }} // TODO Conseguir static image
           style={styles.image}
         />
         <Text style={styles.label}>
           DATOS {isArtist ? "ARTISTA" : "CLIENTE"}
         </Text>
         <Text style={styles.fieldLabel}>Nombre:</Text>
-        <TextInput style={styles.input} value={user.name} editable={false} />
+        <TextInput style={styles.input} value={user.baseUser.username} editable={false} />
         <Text style={styles.fieldLabel}>Usuario:</Text>
         <TextInput
           style={styles.input}
-          value={user.username}
+          value={user.baseUser.username}
           editable={false}
         />
         <Text style={styles.fieldLabel}>Correo Electrónico:</Text>
-        <TextInput style={styles.input} value={user.email} editable={false} />
+        <TextInput style={styles.input} value={user.baseUser.email} editable={false} />
         <Text style={styles.fieldLabel}>Teléfono:</Text>
         <TextInput
           style={styles.input}
-          value={user.phoneNumber}
+          value={user.baseUser.phoneNumber}
           editable={false}
         />
 
@@ -156,7 +127,7 @@ const UserProfileScreen = () => {
               <View style={styles.commissionContainer}>
                 <Text style={styles.fieldLabel}>Tabla de Comisiones:</Text>
                 <Image
-                  source={{ uri: `${BASE_URL}${user.tableCommisionsPrice}` }}
+                  source={{ uri: `${API_URL}${user.tableCommisionsPrice}` }}
                   style={styles.commissionImage}
                 />
               </View>

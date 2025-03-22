@@ -50,7 +50,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
         paymentArrangement: "INITIAL",
       };
 
-      const createdCommission = await createCommission( artist.id, commissionData, loggedInUser.token );
+      // const createdCommission = await createCommission( artist.id, commissionData, loggedInUser.token );
   
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {

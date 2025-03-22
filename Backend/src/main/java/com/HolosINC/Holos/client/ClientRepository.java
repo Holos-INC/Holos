@@ -12,4 +12,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     @Query("SELECT c FROM Client c WHERE c.baseUser.id = :id")
     Optional<Client> getClientByUser(Long id);
+
+    @Query("SELECT COUNT(c) > 0 FROM Commision c WHERE c.client.id = :clientId AND c.status = 'ACCEPTED'")
+    boolean hasActiveCommisions(Long clientId);
+
 }
