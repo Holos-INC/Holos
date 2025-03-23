@@ -27,4 +27,8 @@ public interface ArtistCategoryRepository extends JpaRepository<ArtistCategory, 
 
     @Query("SELECT ac FROM ArtistCategory ac WHERE ac.category.id = :categoryId")
     List<ArtistCategory> findAllByCategoryId(Long categoryId);
+
+    @Query("SELECT ac FROM ArtistCategory ac WHERE ac.artist.id = :artistId")
+    List<ArtistCategory> findAllByArtistId(Long artistId);
+
 }

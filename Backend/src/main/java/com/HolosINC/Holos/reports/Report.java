@@ -15,18 +15,22 @@ import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "reports")
 public class Report {
     
     @Id
-	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+    @SequenceGenerator(name = "report_seq", sequenceName = "report_sequence", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq")
     protected Long id;
     
     @Size(max = 50)
@@ -40,19 +44,17 @@ public class Report {
     @NotNull
     private ReportStatus status;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @Valid
     @NotNull
     private BaseUser madeBy;
 
-    @OneToOne(optional = true)
+    @ManyToOne(optional = true)
     @Valid
-    @NotNull
     private Artist reportedUser;
 
     @ManyToOne(optional = true)
     @Valid
-    @NotNull
     private Work work;
 
     @ManyToOne

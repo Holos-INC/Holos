@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,8 @@ public class StatusKanbanOrderService {
     private final BaseUserService userService;
 
     @Autowired
-    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, ArtistService artistService, BaseUserService userService, CommisionRepository commisionRepository) {
+    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, @Lazy ArtistService artistService, BaseUserService userService, CommisionRepository commisionRepository) {
+
         this.statusKanbanOrderRepository = statusKanbanOrderRepository;
         this.artistService = artistService;
         this.userService = userService;
@@ -204,5 +206,10 @@ public class StatusKanbanOrderService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(int intValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllStatusKanbanOrderByArtist'");
     }
 }
