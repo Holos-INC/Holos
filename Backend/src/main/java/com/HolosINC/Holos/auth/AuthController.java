@@ -36,8 +36,6 @@ import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.security.authentication.BadCredentialsException;

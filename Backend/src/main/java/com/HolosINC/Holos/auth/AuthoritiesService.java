@@ -68,6 +68,10 @@ public class AuthoritiesService {
 		Authorities role = findByAuthority(strRoles);
 		user.setAuthority(role);
 
+		if(strRoles == "ADMIN") {
+			throw new AccessDeniedException("No puedes crear un usuario con otro rol que no sea artista o cliente");
+		}
+
 		if (strRoles == "ARTIST") {
 			baseUserService.save(user);
 			Artist artist = new Artist();
@@ -78,9 +82,6 @@ public class AuthoritiesService {
 			baseUserService.save(user);
 			client.setBaseUser(user);
 			clientService.saveClient(client);
-		} else {
-			// TODO: Agregar caso del admin
-			baseUserService.save(user);
 		}
 	}
 
@@ -103,7 +104,6 @@ public class AuthoritiesService {
 			Client client = clientService.findClient(user.getId());
 			client.setBaseUser(user);
 		} else {
-			// TODO: Agregar el caso de admin
 			baseUserService.save(user);
 		}
 	}
