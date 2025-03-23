@@ -20,7 +20,7 @@ export default function DrawerLayout() {
         <Drawer.Screen name="explore/index" options={{ drawerLabel: "Explorar", drawerIcon: SearchIcon, drawerItemStyle: { display: 'flex', height: 'auto' } }} />
         <Drawer.Screen name="commission/kanban" options={{ drawerLabel: "Panel de comisiones",title: "🎨 Mis encargos", drawerIcon: KanbanIcon, drawerItemStyle: { display: isArtist ? 'flex' : 'none', height: isArtist ? 'auto' : 0 } }} />
         <Drawer.Screen name="commission/index" options={{ drawerLabel: "Pedidos", drawerIcon: RequestIcon, drawerItemStyle: { display: isArtist ? 'flex' : 'none', height: isArtist ? 'auto' : 0 } }} />
-        <Drawer.Screen name="admin/index" options={{ drawerLabel: "Panel Admin", drawerIcon: SettingsIcon, drawerItemStyle: { display: 'flex', height: 'auto' } }} />
+        <Drawer.Screen name="admin/index" options={{ drawerLabel: "Panel Admin", drawerIcon: SettingsIcon, drawerItemStyle: { display: isAdmin ? 'flex' : 'none', height: isAdmin ? 'auto' : 0 } }} />
         <Drawer.Screen name="logout" options={{ drawerLabel: "Cerrar sesión", drawerIcon: ProfileIcon, drawerItemStyle: { display: isAuthenticated ? 'flex' : 'none', height: isAuthenticated ? 'auto' : 0 } }} />
       </Drawer>
     </Suspense>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,13 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import styles from "@/src/styles/Admin.styles";
+import { getAllUsers, updateUser, deleteUser } from "@/src/services/userApi"; // Asumiendo que las funciones están en userApi
+
+
+interface Authority {
+  id: number;
+  authority: string;
+}
 
 interface BaseUser {
   id: number;
@@ -22,131 +29,70 @@ interface BaseUser {
   phoneNumber?: string;
   imageProfile?: string;
   createdUser: string;
-  authority: {
-    authority: string;
-  };
+  authority: Authority;
 }
 
 export default function UserManagement() {
   const router = useRouter();
+  const [users, setUsers] = useState<BaseUser[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState<BaseUser | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 6;
 
-  const [users, setUsers] = useState<BaseUser[]>([
-    {
-      id: 1,
-      name: "Juan Pérez",
-      username: "juanp",
-      email: "juan@example.com",
-      phoneNumber: "123456789",
-      imageProfile: "https://images.unsplash.com/photo-1506157786151-b8491531f063",
-      createdUser: "2024-03-01",
-      authority: { authority: "CLIENT" },
-    },
-    {
-      id: 2,
-      name: "María López",
-      username: "marial",
-      email: "maria@example.com",
-      phoneNumber: "987654321",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-02-20",
-      authority: { authority: "CLIENT" },
-    },
-    {
-      id: 3,
-      name: "Carlos Sánchez",
-      username: "carloss",
-      email: "carlos@example.com",
-      phoneNumber: "555123456",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-01-15",
-      authority: { authority: "CLIENT" },
-    },
-    {
-      id: 4,
-      name: "Ana García",
-      username: "anag",
-      email: "ana@example.com",
-      phoneNumber: "555987654",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-02-05",
-      authority: { authority: "ARTIST" },
-    },
-    {
-      id: 5,
-      name: "Luis Martínez",
-      username: "luism",
-      email: "luis@example.com",
-      phoneNumber: "555654321",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-03-10",
-      authority: { authority: "ARTIST" },
-    },
-    {
-      id: 6,
-      name: "Clara Ramírez",
-      username: "clarar",
-      email: "clara@example.com",
-      phoneNumber: "555789012",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-01-28",
-      authority: { authority: "ARTIST" },
-    },
-    {
-      id: 7,
-      name: "Pedro Gómez",
-      username: "pedrog",
-      email: "pedro@example.com",
-      phoneNumber: "555321654",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-02-14",
-      authority: { authority: "ARTIST" },
-    },
-    {
-      id: 8,
-      name: "Laura Torres",
-      username: "laurat",
-      email: "laura@example.com",
-      phoneNumber: "555159753",
-      imageProfile: "https://via.placeholder.com/80",
-      createdUser: "2024-03-05",
-      authority: { authority: "ARTIST" },
-    },
-  ]);
+  // Obtener usuarios al cargar la pantalla
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const data = await getAllUsers(); // Llamada a la API para obtener los usuarios
+        setUsers(data);
+      } catch (error) {
+        console.error("Error al obtener usuarios", error);
+      }
+    };
+    getUsers();
+  }, []);
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedUser, setSelectedUser] = useState<BaseUser | null>(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const usersPerPage = 6;
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    const filteredUsers = users.filter(
-        (user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-  const saveChanges = () => {
+  const saveChanges = async () => {
     if (!selectedUser) return;
-    setUsers(users.map((user) => (user.id === selectedUser.id ? selectedUser : user)));
-    setModalVisible(false);
+    try {
+      const updatedUser = await updateUser(selectedUser.id, selectedUser); // Llamada a la API para actualizar el usuario
+      setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Error al guardar los cambios", error);
+    }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     Alert.alert("Eliminar Usuario", "¿Estás seguro de que quieres eliminar este usuario?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Eliminar",
-        onPress: () => setUsers(users.filter((user) => user.id !== id)),
+        onPress: async () => {
+          try {
+            await deleteUser(id); // Llamada a la API para eliminar el usuario
+            setUsers(users.filter((user) => user.id !== id));
+          } catch (error) {
+            console.error("Error al eliminar el usuario", error);
+          }
+        },
       },
     ]);
   };
 
-  // Paginate filtered users
+  // Paginación
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   const handleNextPage = () => {
@@ -218,7 +164,6 @@ export default function UserManagement() {
         </TouchableOpacity>
       </View>
 
-
       {/* Modal para editar usuario */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalBackground}>
@@ -251,7 +196,7 @@ export default function UserManagement() {
             />
 
             <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.smallButton} onPress={saveChanges}>
+              <TouchableOpacity style={styles.smallButton} onPress={saveChanges}>
                 <Text style={styles.buttonText}>Guardar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.smallButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
@@ -264,4 +209,3 @@ export default function UserManagement() {
     </View>
   );
 }
-
