@@ -11,17 +11,17 @@ import com.HolosINC.Holos.auth.AuthoritiesRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 @Service
 public class ArtistService {
 
-	private ArtistRepository artistRepository;
+	private final ArtistRepository artistRepository;
 	private BaseUserRepository baseUserRepository;
 	private AuthoritiesRepository authoritiesRepository;
-
 	@Autowired
 	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository) {
 		this.artistRepository = artistRepository;
@@ -38,7 +38,7 @@ public class ArtistService {
 
 	@Transactional(readOnly = true)
 	public Artist findArtist(Long artistId) {
-		return artistRepository.findById(artistId)
+		return artistRepository.findArtistByUser(artistId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 	}
 

@@ -18,7 +18,10 @@ import com.HolosINC.Holos.artist.Artist;
 
 @Data
 @Entity
-@Table(name = "status_kanban_order", uniqueConstraints = @UniqueConstraint(columnNames = { "artist_id", "order_in_kanban"}))
+@Table(name = "status_kanban_order", uniqueConstraints = {
+    @UniqueConstraint(columnNames = { "artist_id", "order_in_kanban"}),
+    @UniqueConstraint(columnNames = { "artist_id", "name" })
+})
 public class StatusKanbanOrder{
     
     @Id

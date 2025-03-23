@@ -20,10 +20,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+
 @Service
 public class ClientService {
 
-	private ClientRepository clientRepository;
+	private final ClientRepository clientRepository;
 	private BaseUserRepository baseUserRepository;
 	private CommisionRepository commisionRepository;
 	private MilestoneRepository milestoneRepository;
@@ -47,7 +49,7 @@ public class ClientService {
 
 	@Transactional(readOnly = true)
 	public Client findClient(Long clientId) {
-		return clientRepository.findById(clientId)
+		return clientRepository.getClientByUser(clientId)
 				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", clientId));
 	}
 

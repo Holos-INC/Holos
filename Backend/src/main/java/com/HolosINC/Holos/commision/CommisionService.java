@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.client.Client;
@@ -58,34 +59,41 @@ public class CommisionService {
         return commisionRepository.findById(id).orElse(null);
     }
 
+    // TODO - Permitir que el artista pueda cancelar el pedido en el futuro
     @Transactional
-    public Commision updateCommisionStatus(Long commisionId, Long artistId, boolean accept) {
+    public Commision updateCommisionStatus(Long commisionId, boolean accept) {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
 
-        Artist artist = artistService.findArtist(artistId);
+        Artist artist = artistService.findArtist(userService.findCurrentUser().getId());
 
         if (!commision.getArtist().getId().equals(artist.getId())) {
             throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
         }
 
+        if (!commision.getStatus().equals(StatusCommision.REQUESTED))
+            throw new IllegalArgumentException("El estado de la comisión ya no es editable");
+
         if (accept) { 
             commision.setAcceptedDateByArtist(new Date());
-            if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artistId) > 0) {
+            if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artist.getId()) > 0) {
                 commision.setStatus(StatusCommision.ACCEPTED);
+
+                Optional<StatusKanbanOrder> statusKanban = commisionRepository.getFirstStatusKanbanOfArtist(artist.getId());
+                if (statusKanban.isEmpty())
+                    throw new ResourceNotFoundException("Antes de aceptar una comisión, créate un estado en el Kanban");
+                commision.setStatusKanbanOrder(statusKanban.get());
             } else {
                 commision.setStatus(StatusCommision.IN_WAIT_LIST);
             }
-        } else { 
-            if (!commision.getStatus().equals(StatusCommision.REQUESTED)) {
-                throw new IllegalStateException("Solo se pueden rechazar comisiones en estado 'REQUESTED'.");
-            }
+        } else {
             commision.setStatus(StatusCommision.REJECTED);
         }
 
         return commisionRepository.save(commision);
     }
 
+    // TODO - Revisar lógica de negocio para ver la posibilidad de que el artista o cliente cancele a mitad de pedido
     @Transactional
     public void cancelCommision(Long commisionId, Long clientId) {
         Commision commision = commisionRepository.findById(commisionId)

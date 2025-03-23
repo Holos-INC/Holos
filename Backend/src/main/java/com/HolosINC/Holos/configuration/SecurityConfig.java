@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,21 +31,17 @@ public class SecurityConfig {
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
             config.setAllowedHeaders(List.of("*"));
             return config;
-        }))        
-        .csrf(AbstractHttpConfigurer::disable)        
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))            
+        }))
+        .csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.disable()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-            .requestMatchers("/api/v1/artists/administrator/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/clients/administrator/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/users/administrator/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/baseUser/administrator/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/reports/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/status-kanban-order/**").hasAuthority("ARTIST")
+            .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/commisions/**").authenticated()
             .anyRequest().permitAll()
         )
-
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
 
     return http.build();

@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.work.Work;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/search")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Search Controller", description = "API for searching Works and Artists")
 public class SearchController {
 

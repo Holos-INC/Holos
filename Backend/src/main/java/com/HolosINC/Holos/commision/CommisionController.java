@@ -60,10 +60,9 @@ public class CommisionController {
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateCommisionStatus(
             @PathVariable Long id,
-            @RequestParam Long artistId,
             @RequestParam boolean accept) {
         try {
-            Commision updatedCommision = commisionService.updateCommisionStatus(id, artistId, accept);
+            Commision updatedCommision = commisionService.updateCommisionStatus(id, accept);
             return ResponseEntity.ok(updatedCommision);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
