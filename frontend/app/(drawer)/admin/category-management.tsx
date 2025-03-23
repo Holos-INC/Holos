@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image, Alert } from "react-native";
 import styles from "@/src/styles/Admin.styles";
-import { createCategory, getAllCategories, updateCategory } from "@/src/services/categoryService";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
+import {  createCategory, getAllCategories,updateCategory } from "@/src/services/categoryApi";
+import { BASE_URL } from "@/src/constants/api";
 
 interface Category {
   id: number;
   name: string;
-  description: string;
+  description?: string;
   image?: string;
 }
   export default function CategoryManagement() {
@@ -70,7 +71,7 @@ interface Category {
   };
 
   const handleEditCategory = async () => {
-    if (!editingCategory || !editingCategory.name.trim() || !editingCategory.description.trim()) {
+    if (!editingCategory || !editingCategory.name.trim()) {
       Alert.alert("Error", "El nombre y la descripción no pueden estar vacíos.");
       return;
     }
@@ -138,7 +139,10 @@ interface Category {
         keyExtractor={(item) => item.id?.toString() || ""}
         renderItem={({ item }) => (
           <View style={styles.categoryItem}>
-            {item.image && <Image source={{ uri: item.image }} style={styles.categoryImage} />}
+            <Image 
+              source={{ uri: item.image ? (item.image.startsWith("http") ? item.image : `${BASE_URL}${item.image}`) : "https://via.placeholder.com/150" }} 
+              style={styles.categoryImage} 
+            />
             <View style={styles.categoryInfo}>
               <Text style={styles.categoryText}>{item.name}</Text>
               <Text style={styles.categoryDescription}>{item.description}</Text>
