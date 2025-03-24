@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.reports;
 
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.work.Work;
 
@@ -13,16 +14,22 @@ import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "reports")
 @Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "reports")
 public class Report {
     
     @Id
-	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+    @SequenceGenerator(name = "report_seq", sequenceName = "report_sequence", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "report_seq")
     protected Long id;
     
     @Size(max = 50)
@@ -43,16 +50,13 @@ public class Report {
 
     @ManyToOne(optional = true)
     @Valid
-    @NotNull
-    private BaseUser reportedUser;
+    private Artist reportedUser;
 
     @ManyToOne(optional = true)
     @Valid
-    @NotNull
     private Work work;
 
     @ManyToOne
     @Valid
-    @NotNull
     private ReportType reportType;
 }

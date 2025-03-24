@@ -10,6 +10,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
@@ -37,4 +39,10 @@ public class Artist{
 
     @OneToOne(optional = true)
     private BaseUser baseUser;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean banned = false;
+
+    @Column(nullable = true)
+    private LocalDateTime bannedUntil;
 }
