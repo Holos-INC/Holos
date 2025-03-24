@@ -5,6 +5,8 @@ import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,7 +43,7 @@ public class Report {
     @NotNull
     private String description;
 
-    @NotNull
+    @Enumerated(EnumType.STRING)
     private ReportStatus status;
 
     @ManyToOne(optional = false)

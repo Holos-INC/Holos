@@ -1,178 +1,127 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, FlatList, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import { getAllReports, acceptReport, rejectReport, deleteReport } from "@/src/services/reportApi"; 
 import styles from "@/src/styles/Admin.styles";
 
-// Definir la estructura de los tipos de datos
-interface Report {
+export enum ReportStatus {
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  PENDING = 'PENDING',
+}
+
+export interface ReportType {
   id: number;
-  title: string;
-  description: string;
-  status: "Pending" | "Accepted" | "Rejected"; // Estado del reporte
-  reportType: ReportType; // Relación con el tipo de reporte
-  work: Work; // Relación con el trabajo
-  userReport: User; // Usuario que realiza el reporte
-  userReported: User; // Usuario al que se le hace el reporte
+  type: string;
 }
 
-interface ReportType {
-  type: string; // Tipo de reporte (Ejemplo: "Fraude")
+export interface BaseUser {
+  id: number;
+  name: string;
+  username: string;
+  password: string;
+  email: string;
+  phoneNumber?: string;
+  imageProfile?: string;
+  createdUser: string;
+  authority: {
+    id: number;
+    authority: string;
+  };
 }
 
-interface Work {
+export interface Artist {
+  id: number;
+  numSlotsOfWork: number;
+  tableCommissionsPrice: string;
+  baseUser: BaseUser;
+  name: string;
+  username: string;
+  email: string;
+}
+
+export interface Work {
+  id: number;
   name: string;
   description: string;
   price: number;
+  artist: Artist;
 }
 
-interface User {
-  id: number;
+export interface Report {
+  id?: number;
   name: string;
+  description: string;
+  status: ReportStatus;
+  madeBy: BaseUser;
+  reportedUser?: Artist;
+  work?: Work;
+  reportType?: ReportType;
 }
 
 export default function ReportManagement() {
   const router = useRouter();
 
-  // Estado de los reportes y del modal
-  const [reports, setReports] = useState<Report[]>([
-    {
-      id: 1,
-      title: "Reporte de Ejemplo 1",
-      description: "Descripción del reporte 1",
-      status: "Pending",
-      reportType: { type: "Fraude" },
-      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
-      userReport: { id: 1, name: "Juan Pérez" },
-      userReported: { id: 2, name: "Carlos Gómez" },
-    },
-    {
-      id: 2,
-      title: "Reporte de Ejemplo 2",
-      description: "Descripción del reporte 2",
-      status: "Accepted",
-      reportType: { type: "Acoso" },
-      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
-      userReport: { id: 3, name: "Ana López" },
-      userReported: { id: 4, name: "Luis Martínez" },
-    },
-    {
-      id: 3,
-      title: "Reporte de Ejemplo 3",
-      description: "Descripción del reporte 1",
-      status: "Pending",
-      reportType: { type: "Fraude" },
-      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
-      userReport: { id: 1, name: "Juan Pérez" },
-      userReported: { id: 2, name: "Carlos Gómez" },
-    },
-    {
-      id: 4,
-      title: "Reporte de Ejemplo 4",
-      description: "Descripción del reporte 2",
-      status: "Accepted",
-      reportType: { type: "Acoso" },
-      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
-      userReport: { id: 3, name: "Ana López" },
-      userReported: { id: 4, name: "Luis Martínez" },
-    },
-    {
-      id: 5,
-      title: "Reporte de Ejemplo 5",
-      description: "Descripción del reporte 1",
-      status: "Pending",
-      reportType: { type: "Fraude" },
-      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
-      userReport: { id: 1, name: "Juan Pérez" },
-      userReported: { id: 2, name: "Carlos Gómez" },
-    },
-    {
-      id: 6,
-      title: "Reporte de Ejemplo 6",
-      description: "Descripción del reporte 2",
-      status: "Accepted",
-      reportType: { type: "Acoso" },
-      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
-      userReport: { id: 3, name: "Ana López" },
-      userReported: { id: 4, name: "Luis Martínez" },
-    },
-    {
-      id: 7,
-      title: "Reporte de Ejemplo 7",
-      description: "Descripción del reporte 1",
-      status: "Pending",
-      reportType: { type: "Fraude" },
-      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
-      userReport: { id: 1, name: "Juan Pérez" },
-      userReported: { id: 2, name: "Carlos Gómez" },
-    },
-    {
-      id: 8,
-      title: "Reporte de Ejemplo 8",
-      description: "Descripción del reporte 2",
-      status: "Accepted",
-      reportType: { type: "Acoso" },
-      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
-      userReport: { id: 3, name: "Ana López" },
-      userReported: { id: 4, name: "Luis Martínez" },
-    },
-    {
-      id: 9,
-      title: "Reporte de Ejemplo 9",
-      description: "Descripción del reporte 1",
-      status: "Pending",
-      reportType: { type: "Fraude" },
-      work: { name: "Desarrollador Web", description: "Descripción del trabajo", price: 1000 },
-      userReport: { id: 1, name: "Juan Pérez" },
-      userReported: { id: 2, name: "Carlos Gómez" },
-    },
-    {
-      id: 10,
-      title: "Reporte de Ejemplo 10",
-      description: "Descripción del reporte 2",
-      status: "Accepted",
-      reportType: { type: "Acoso" },
-      work: { name: "Diseñador Gráfico", description: "Descripción del trabajo", price: 800 },
-      userReport: { id: 3, name: "Ana López" },
-      userReported: { id: 4, name: "Luis Martínez" },
-    }
-  ]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [status, setStatus] = useState<"Pending" | "Accepted" | "Rejected">("Pending");
-  const [filter, setFilter] = useState<"All" | "Pending" | "Accepted" | "Rejected">("All");
+  const [status, setStatus] = useState<ReportStatus>(ReportStatus.PENDING);
+  const [filter, setFilter] = useState<ReportStatus | "All">("All");
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 8;
 
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const fetchedReports = await getAllReports();
+        setReports(fetchedReports);
+      } catch (error) {
+        console.error("Error al obtener los reportes:", error);
+      }
+    };
+    fetchReports();
+  }, []);
 
-  // Abrir el modal y cargar el reporte seleccionado
   const openModal = (report: Report) => {
     setSelectedReport(report);
     setStatus(report.status);
     setModalVisible(true);
   };
 
-  // Cerrar el modal
   const closeModal = () => {
     setModalVisible(false);
     setSelectedReport(null);
   };
 
-  // Cambiar el estado del reporte
-  const handleStatusChange = (newStatus: "Pending" | "Accepted" | "Rejected") => {
+  const handleStatusChange = async (newStatus: ReportStatus) => {
     if (selectedReport) {
-      selectedReport.status = newStatus;
-      setReports([...reports]);
-      setStatus(newStatus);
+      try {
+        // Aquí llamamos a la API correspondiente para aceptar o rechazar el reporte
+        if (newStatus === ReportStatus.ACCEPTED) {
+          await acceptReport(selectedReport.id!);  // Aceptar el reporte
+        } else if (newStatus === ReportStatus.REJECTED) {
+          await rejectReport(selectedReport.id!);  // Rechazar el reporte
+        }
+        
+        // Actualizamos el estado local para reflejar el cambio en la UI
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report.id === selectedReport.id ? { ...report, status: newStatus } : report
+          )
+        );
+        setStatus(newStatus);
+      } catch (error) {
+        console.error("Error al actualizar el estado del reporte:", error);
+      }
     }
   };
 
-  // Eliminar el trabajo relacionado con el reporte
-  const deleteWork = () => {
+  const handleDeleteReport = async () => {
     if (selectedReport) {
       Alert.alert(
-        "Eliminar Trabajo",
-        "¿Estás seguro de que quieres eliminar el trabajo relacionado?",
+        "Eliminar Reporte",
+        "¿Estás seguro de que quieres eliminar este reporte?",
         [
           {
             text: "Cancelar",
@@ -180,11 +129,16 @@ export default function ReportManagement() {
           },
           {
             text: "Eliminar",
-            onPress: () => {
-              // Eliminar el trabajo (aquí solo se elimina el trabajo de este reporte)
-              selectedReport.work = { name: "", description: "", price: 0 };
-              setReports([...reports]);
-              closeModal();
+            onPress: async () => {
+              try {
+                await deleteReport(selectedReport.id!);  // Eliminar el reporte
+                setReports((prevReports) =>
+                  prevReports.filter((report) => report.id !== selectedReport.id)
+                );
+                closeModal();
+              } catch (error) {
+                console.error("Error al eliminar el reporte:", error);
+              }
             },
           },
         ]
@@ -196,7 +150,6 @@ export default function ReportManagement() {
     filter === "All" ? true : report.status === filter
   );
 
-  
   const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
   const paginatedReports = filteredReports.slice(
     (currentPage - 1) * reportsPerPage,
@@ -211,10 +164,9 @@ export default function ReportManagement() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  // Renderiza cada reporte en el listado
   const renderItem = ({ item }: { item: Report }) => (
     <TouchableOpacity style={styles.reportItem} onPress={() => openModal(item)}>
-      <Text style={styles.reportTitle}>{item.title}</Text>
+      <Text style={styles.reportTitle}>{item.name}</Text>
       <Text style={styles.reportDescription}>{item.description}</Text>
       <Text style={styles.reportStatus}>Estado: {item.status}</Text>
     </TouchableOpacity>
@@ -224,18 +176,17 @@ export default function ReportManagement() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Gestión de Reportes</Text>
 
-      
       <View style={styles.filterContainer}>
         <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("All")}>
           <Text style={styles.filterButtonText}>Todos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Pending")}>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter(ReportStatus.PENDING)}>
           <Text style={styles.filterButtonText}>Pendientes</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Accepted")}>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter(ReportStatus.ACCEPTED)}>
           <Text style={styles.filterButtonText}>Aceptados</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter("Rejected")}>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter(ReportStatus.REJECTED)}>
           <Text style={styles.filterButtonText}>Rechazados</Text>
         </TouchableOpacity>
       </View>
@@ -243,10 +194,9 @@ export default function ReportManagement() {
       <FlatList
         data={paginatedReports}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id?.toString() || ""}
       />
 
-      {/* Paginación */}
       <View style={styles.paginationContainer}>
         <TouchableOpacity style={styles.paginationButton} onPress={prevPage} disabled={currentPage === 1}>
           <Text style={styles.paginationButtonText}>Anterior</Text>
@@ -259,60 +209,37 @@ export default function ReportManagement() {
         </TouchableOpacity>
       </View>
 
-      {/* Modal para cambiar el estado del reporte */}
       {selectedReport && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={closeModal}
-        >
+        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeModal}>
           <View style={styles.modalBackground}>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>Actualizar Estado del Reporte</Text>
 
-              {/* Detalles del reporte en el modal */}
-              <Text style={styles.modalText}>Título: {selectedReport.title}</Text>
+              <Text style={styles.modalText}>Título: {selectedReport.name}</Text>
               <Text style={styles.modalText}>Descripción: {selectedReport.description}</Text>
-              <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType.type}</Text>
-              <Text style={styles.modalText}>Trabajo: {selectedReport.work.name}</Text>
-              <Text style={styles.modalText}>Descripción del Trabajo: {selectedReport.work.description}</Text>
-              <Text style={styles.modalText}>Precio: ${selectedReport.work.price}</Text>
-              <Text style={styles.modalText}>Reportado por: {selectedReport.userReport.name}</Text>
-              <Text style={styles.modalText}>Reportado a: {selectedReport.userReported.name}</Text>
+              <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType?.type}</Text>
+              <Text style={styles.modalText}>Trabajo: {selectedReport.work?.name}</Text>
+              <Text style={styles.modalText}>Descripción del Trabajo: {selectedReport.work?.description}</Text>
+              <Text style={styles.modalText}>Precio: ${selectedReport.work?.price}</Text>
+              <Text style={styles.modalText}>Reportado por: {selectedReport.madeBy.name}</Text>
+              <Text style={styles.modalText}>Reportado a: {selectedReport.reportedUser?.name}</Text>
 
               <Picker
                 selectedValue={status}
                 style={styles.picker}
-                onValueChange={(itemValue: "Pending" | "Accepted" | "Rejected") => handleStatusChange(itemValue)}
+                onValueChange={(itemValue: ReportStatus) => handleStatusChange(itemValue)}
               >
-                <Picker.Item label="Pendiente" value="Pending" />
-                <Picker.Item label="Aceptado" value="Accepted" />
-                <Picker.Item label="Rechazado" value="Rejected" />
+                <Picker.Item label="Pendiente" value={ReportStatus.PENDING} />
+                <Picker.Item label="Aceptado" value={ReportStatus.ACCEPTED} />
+                <Picker.Item label="Rechazado" value={ReportStatus.REJECTED} />
               </Picker>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => {
-                  console.log("Estado del reporte actualizado:", status);
-                  closeModal();
-                }}
-              >
-                <Text style={styles.buttonText}>Actualizar Estado</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={deleteWork}
-              >
-                <Text style={styles.buttonText}>Eliminar Trabajo</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={closeModal}
-              >
+              <TouchableOpacity style={styles.button} onPress={closeModal}>
                 <Text style={styles.buttonText}>Cerrar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.button} onPress={handleDeleteReport}>
+                <Text style={styles.buttonText}>Eliminar Reporte</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -321,4 +248,3 @@ export default function ReportManagement() {
     </ScrollView>
   );
 }
-
