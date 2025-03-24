@@ -34,13 +34,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			Artist artist = artistRepository.findArtistByUser(user.getId())
 					.orElseThrow(() -> new ResourceNotFoundException("Artist", "baseUser.id", user.getId()));
 
-			if (artist.isBanned()) {
-				if (artist.getBannedUntil() != null && artist.getBannedUntil().isBefore(LocalDateTime.now())) {
-					artist.setBanned(false);
-					artist.setBannedUntil(null);
+			if (artist.getBaseUser().getIsBanned()) {
+				if (artist.getBaseUser().getUnbanDate() != null && artist.getBaseUser().getUnbanDate().isBefore(LocalDateTime.now())) {
+					artist.getBaseUser().setIsBanned(false);
+					artist.getBaseUser().setUnbanDate(null);
 					artistRepository.save(artist);
 				} else {
-					throw new UserBannedException("Tu cuenta está temporalmente suspendida hasta " + artist.getBannedUntil());
+					throw new UserBannedException("Tu cuenta está temporalmente suspendida hasta " + artist.getBaseUser().getUnbanDate());
 				}
 			}
 		}

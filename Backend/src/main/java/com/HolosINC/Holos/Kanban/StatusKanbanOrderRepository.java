@@ -20,6 +20,7 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId")
     List<StatusKanbanOrder> findByArtist(@Param("artistId") Integer artistId);
 
+    @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId ORDER BY s.order")
     List<StatusKanbanOrder> findByArtistIdOrderByOrderAsc(Long artistId);
 
     @Query("SELECT new com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO(c.id, c.name, c.description, c.price, c.paymentArrangement, c.statusKanbanOrder.name, c.client.baseUser.username)" +

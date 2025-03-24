@@ -1,14 +1,11 @@
 package com.HolosINC.Holos.artist;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.HolosINC.Holos.Category.ArtistCategory;
 import com.HolosINC.Holos.Category.ArtistCategoryRepository;

@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.exceptions.InvalidReportTypeException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.work.Work;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.work.WorkService;
 
@@ -26,8 +24,6 @@ public class ReportService {
     private final ReportTypeRepository reportTypeRepository;
     private final WorkService worskService;
     private final BaseUserService baseUserService;
-
-    private ArtistService artistService;
 
     @Autowired
     public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
@@ -81,7 +77,7 @@ public class ReportService {
                     .name(reportName)
                     .description(description)
                     .madeBy(reporter)
-                    .reportedUser(artist)
+                    .reportedUser(artist.getBaseUser())
                     .work(work)
                     .status(ReportStatus.PENDING)
                     .reportType(reportType)
@@ -104,13 +100,12 @@ public class ReportService {
     
             report.setStatus(ReportStatus.ACCEPTED);
     
-            Artist artist = report.getReportedUser();
-            if (artist != null) {
-                System.out.println("Baneando artista con ID: " + artist.getId());
+            BaseUser bannedUser = report.getReportedUser();
+            if (bannedUser != null) {
     
-                artist.setBanned(true);
-                artist.setBannedUntil(LocalDateTime.now().plusDays(7));
-                artistService.saveArtist(artist);
+                bannedUser.setIsBanned(true);
+                bannedUser.setUnbanDate(LocalDateTime.now().plusDays(7));
+                baseUserService.save(bannedUser);
             }
     
             return reportRepository.save(report);
@@ -133,7 +128,7 @@ public class ReportService {
         return reportRepository.save(report);
     }
     
-    public void deleteReport(Long reportId) {
+    public Report deleteReport(Long reportId) {
         Report report = getReportByIdOrThrow(reportId);
     
         if (report.getStatus() != ReportStatus.REJECTED) {
@@ -141,6 +136,7 @@ public class ReportService {
         }
     
         reportRepository.delete(report);
+        return report;
     }
     
     private Report getReportByIdOrThrow(Long id) {

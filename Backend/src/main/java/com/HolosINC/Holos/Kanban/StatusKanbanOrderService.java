@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class StatusKanbanOrderService {
     private final BaseUserService userService;
 
     @Autowired
-    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, ArtistService artistService, BaseUserService userService, CommisionRepository commisionRepository) {
+    public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, @Lazy ArtistService artistService, BaseUserService userService, CommisionRepository commisionRepository) {
         this.statusKanbanOrderRepository = statusKanbanOrderRepository;
         this.artistService = artistService;
         this.userService = userService;
@@ -103,15 +104,15 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional(readOnly = true)
-	public StatusKanbanOrder findStatusKanbanOrder(Integer statusKanbanOrderId) {
-		return statusKanbanOrderRepository.findById(statusKanbanOrderId)
-				.orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", statusKanbanOrderId));
-	}
+    public StatusKanbanOrder findStatusKanbanOrder(Integer statusKanbanOrderId) {
+        return statusKanbanOrderRepository.findById(statusKanbanOrderId)
+                .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", statusKanbanOrderId));
+    }
 
     @Transactional(readOnly = true)
-	public List<StatusKanbanOrder> findAllStatusKanbanOrder() {
-		return statusKanbanOrderRepository.findAll();
-	}
+    public List<StatusKanbanOrder> findAllStatusKanbanOrder() {
+        return statusKanbanOrderRepository.findAll();
+    }
 
     @Transactional
     public void deleteStatusKanbanOrder(Integer id) {
@@ -210,5 +211,9 @@ public class StatusKanbanOrderService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Long intValue) {
+        return statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(intValue);
     }
 }

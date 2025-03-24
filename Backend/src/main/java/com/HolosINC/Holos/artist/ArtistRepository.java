@@ -37,7 +37,7 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
    @Query("SELECT a FROM Artist a WHERE a.baseUser.id = :id")
    Optional<Artist> findArtistByUser(Long id);
 
-   @Query("SELECT a FROM Artist a WHERE a.username = :username")
+   @Query("SELECT a FROM Artist a WHERE a.baseUser.username = :username")
    Optional<Artist> findByUsername(String username);
 
    @Query("SELECT a FROM Artist a WHERE a.baseUser.id = :id")

@@ -37,25 +37,4 @@ public class Artist{
 
     @OneToOne(optional = true)
     private BaseUser baseUser;
-
-    // Derivate properties
-    @Size(min = 2, max = 255)
-    @Column(name = "first_name")
-    @NotNull
-    private String name;
-
-    @Size(min = 2, max = 255)
-    //@Column(unique = true)
-    private String username;
-
-    @Size(max = 255)
-    //@Column(unique = true)
-    @NotNull
-    private  String email;
-
-    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean banned = false;
-
-    @Column(nullable = true)
-    private LocalDateTime bannedUntil;
 }

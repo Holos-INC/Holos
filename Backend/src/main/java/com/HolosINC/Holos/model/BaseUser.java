@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.validation.constraints.NotNull;
@@ -61,11 +62,11 @@ public class BaseUser {
     @Column(name = "updated_user")
     protected Date updatedUser;
 
-    @Column(name = "ban_user")
-    protected Date bannedUser;
+    @Column(name = "is_banned")
+    protected Boolean isBanned;
 
-    @Column(name = "ban_time")
-    protected Integer banTime;
+    @Column(name = "unban_date")
+    protected LocalDateTime unbanDate;
 
     @NotNull
     @ManyToOne(optional = false)
