@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.reports;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,5 +23,6 @@ public class ReportType {
     
     @Size(max = 50)
     @NotNull
+    @Column(unique=true)
     private String type;
 }

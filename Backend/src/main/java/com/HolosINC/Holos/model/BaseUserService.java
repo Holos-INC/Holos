@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.auth.Authorities;
 import com.HolosINC.Holos.auth.AuthoritiesRepository;
 import com.HolosINC.Holos.client.Client;
-import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 
@@ -25,15 +21,11 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
     private AuthoritiesRepository authoritiesRepository;
-    private ArtistRepository artistRepository;
-    private ClientRepository clientRepository;
 
 	@Autowired
-	public BaseUserService(BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository, ArtistRepository artistRepository, ClientRepository clientRepository) {
+	public BaseUserService(BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository) {
 		this.baseUserRepository = baseUserRepository;
         this.authoritiesRepository = authoritiesRepository;
-        this.artistRepository = artistRepository;
-        this.clientRepository = clientRepository;
 	}
 
     public BaseUser save(BaseUser baseUser) {
@@ -61,9 +53,27 @@ public class BaseUserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null)
             throw new ResourceNotFoundException("No estás logeado");
-        
+
         return baseUserRepository.findUserByUsername(auth.getName())
-            .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
+    }
+    
+    @Transactional
+    public BaseUser delete(Long id) {
+        BaseUser user = baseUserRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        baseUserRepository.delete(user);
+        return user;
+    }
+
+    public Client findClient(Long id) {
+        return baseUserRepository.findClient(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No hay cliente para este id"));
+    }
+
+    public Artist findArtist(Long id) {
+        return baseUserRepository.findArtist(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No hay cliente para este id"));
     }
 
     @Transactional(readOnly = true)

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,28 +13,58 @@ import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.exceptions.InvalidReportTypeException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.work.Work;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.model.BaseUserService;
+import com.HolosINC.Holos.work.WorkService;
 
 @Service
 public class ReportService {
     
-    private ReportRepository reportRepository;
-
-    private ReportTypeRepository reportTypeRepository;
+    private final ReportRepository reportRepository;
+    private final ReportTypeRepository reportTypeRepository;
+    private final WorkService worskService;
+    private final BaseUserService baseUserService;
 
     private ArtistService artistService;
 
     @Autowired
-    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository,ArtistService artistService) {
+    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
         this.reportRepository = reportRepository;
         this.reportTypeRepository = reportTypeRepository;
-        this.artistService = artistService; 
+        this.worskService = worskService;
+        this.baseUserService = baseUserService;
     }
 
     public List<ReportType> getReportTypes() {
         return reportTypeRepository.findAll();
     }
 
-    public Report addReport(Report report) {
+    public List<Report> getReports() {
+        return reportRepository.findAll();
+    }
+
+    public Report createReport(ReportDTO reportDTO) {
+        Work work = worskService.getWorkById(reportDTO.getWorkId());
+        ReportType reportType = reportTypeRepository
+            .findByType(reportDTO.getReportType())
+            .orElseThrow(() -> new RuntimeException("Invalid report type"));
+        BaseUser baseUser = baseUserService.findCurrentUser();
+
+        boolean alreadyReported = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(baseUser.getId(), work.getId(), reportType.getId());
+
+        if (alreadyReported) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "¡Ya has reportado esta obra!");
+        }
+
+        Report report = reportDTO.createReport(work, reportType);
+
+        report.setStatus(ReportStatus.PENDING);
+        report.setMadeBy(baseUser);
+        report.setReportedUser(work.getArtist().getBaseUser());
+        report.setWork(work);
+    
         return reportRepository.save(report);
     }
 
@@ -60,10 +91,6 @@ public class ReportService {
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar el reporte: " + e.getMessage(), e);
         }
-    }
-
-    public List<Report> getReports() {
-        return reportRepository.findAll();
     }
     
     @Transactional

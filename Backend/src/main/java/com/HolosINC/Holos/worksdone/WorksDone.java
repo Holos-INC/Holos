@@ -13,5 +13,4 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class WorksDone extends Work {
 
-    private String image;
 }

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions
 import { Ionicons } from "@expo/vector-icons";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
-import { getAllCommisions, updateCommisionStatus } from "@/src/services/commisionApi";
+import { getAllRequestedCommisions, updateCommisionStatus } from "@/src/services/commisionApi";
 import { Commission } from "@/src/constants/CommissionTypes";
 
 // 2. Ajusta la pantalla
@@ -21,9 +21,8 @@ export default function ArtistRequestOrders({ route }: any) {
 
   const fetchCommissions = async () => {
     try {
-      const data: Commission[] = await getAllCommisions();
-      const filteredData = data.filter((comm) => comm.artist?.id === loggedInUser.id);
-      setCommissions(filteredData);
+      const data: Commission[] = await getAllRequestedCommisions(loggedInUser.token);
+      setCommissions(data);
     } catch (error) {
       Alert.alert("Error", "Error al obtener las comisiones.");
     } finally {
@@ -37,7 +36,7 @@ export default function ArtistRequestOrders({ route }: any) {
 
   const handleUpdateStatus = async (commissionId: number, accept: boolean) => {
     try {
-      await updateCommisionStatus(commissionId, loggedInUser.id, accept);
+      await updateCommisionStatus(commissionId, loggedInUser.id, accept, loggedInUser.token);
       Alert.alert("Éxito", `Solicitud ${accept ? "aceptada" : "denegada"}.`);
       fetchCommissions();
     } catch (error) {
@@ -79,14 +78,6 @@ const respondedRequests = commissions.filter(
           ) : (
             newRequests.map((comm) => (
               <View key={comm.id} style={styles.card}>
-                <Image
-                  source={{
-                    uri:
-                      comm.client?.baseUser.imageProfile ||
-                      "https://via.placeholder.com/60",
-                  }}
-                  style={styles.profileIcon}
-                />
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
                     {comm.client?.baseUser.username || "Usuario desconocido"}
@@ -117,14 +108,6 @@ const respondedRequests = commissions.filter(
           ) : (
             respondedRequests.map((comm) => (
               <View key={comm.id} style={styles.card}>
-                <Image
-                  source={{
-                    uri:
-                      comm.client?.baseUser.imageProfile ||
-                      "https://via.placeholder.com/60",
-                  }}
-                  style={styles.profileIcon}
-                />
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
                     {comm.client?.baseUser.username || "Usuario desconocido"}

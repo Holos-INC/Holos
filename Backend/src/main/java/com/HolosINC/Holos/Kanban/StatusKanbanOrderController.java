@@ -3,14 +3,21 @@ package com.HolosINC.Holos.Kanban;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanDTO;
+import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO;
+import com.HolosINC.Holos.commision.Commision;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/status-kanban-order")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Status Kanban", description = "API for controlling the usage of the kanban")
 public class StatusKanbanOrderController {
 
@@ -46,9 +53,7 @@ public class StatusKanbanOrderController {
     }
 
     @PutMapping("/{id}/updateKanbanOrder")
-    public ResponseEntity<StatusKanbanOrder> updateOrder(@RequestBody StatusKanbanOrder sk) {
-        Integer id = sk.getId().intValue();
-        Integer order = sk.getOrder();
+    public ResponseEntity<StatusKanbanOrder> updateOrder(@PathVariable Long id, @RequestBody Integer order) {
         StatusKanbanOrder sk2 = statusKanbanOrderService.updateOrder(id, order);
         return new ResponseEntity<>(sk2, HttpStatus.OK);
     }
@@ -58,18 +63,50 @@ public class StatusKanbanOrderController {
         statusKanbanOrderService.deleteStatusKanbanOrder(id);
     }
 
-    @GetMapping("/artist/{artistId}")
-    public List<StatusKanbanOrder> getStatusKanbanOrderByArtist(@PathVariable Integer artistId) {
-        return statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
+    @GetMapping
+    public ResponseEntity<?> getAllStatusKanbanOrder() {
+        try {
+            Pair<List<StatusKanbanDTO>,List<StatusKanbanWithCommisionsDTO>> allStatus = statusKanbanOrderService.getAllStatusFromArtist();
+            return ResponseEntity.ok().body(allStatus);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Something weird happend. See the following:\n" + e.getMessage());
+        }
     }
 
-    @GetMapping
-    public List<StatusKanbanOrder> getAllStatusKanbanOrder() {
-        return statusKanbanOrderService.findAllStatusKanbanOrder();
+    @PutMapping("/{id}/next")
+    public ResponseEntity<?> updateToNextStatusTheCommision(@PathVariable Long id) {
+        try {
+            Commision c = statusKanbanOrderService.nextStatusOfCommision(id);
+            return ResponseEntity.ok().body(c);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Something weird happend. See the following:\n" + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/previous")
+    public ResponseEntity<?> updateToPreviousStatusTheCommision(@PathVariable Long id) {
+        try {
+            Commision c = statusKanbanOrderService.previousStatusOfCommision(id);
+            return ResponseEntity.ok().body(c);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Something weird happend. See the following:\n" + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
-    public StatusKanbanOrder getStatusKanbanOrder(@PathVariable Integer id) {
-        return statusKanbanOrderService.findStatusKanbanOrder(id);
+    public ResponseEntity<?> getStatusKanbanOrder(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok().body(statusKanbanOrderService.findStatusKanbanOrder(id));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Something weird happend. See the following:\n" + e.getMessage());
+        }
     }
 }

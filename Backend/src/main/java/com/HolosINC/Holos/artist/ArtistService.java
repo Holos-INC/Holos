@@ -28,6 +28,7 @@ import com.HolosINC.Holos.model.BaseUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
 public class ArtistService {
 
@@ -56,7 +57,6 @@ public class ArtistService {
 		return artist;
 	}
 
-
 	@Transactional(readOnly = true)
 	public Artist findArtist(Long artistId) {
 		return artistRepository.findById(artistId)
@@ -64,8 +64,9 @@ public class ArtistService {
 	}
 
 	@Transactional(readOnly = true)
-	public Iterable<Artist> findAll() {
-		return artistRepository.findAll();
+	public Artist findArtistByUserId(Long artistId) {
+		return artistRepository.findByUserId(artistId)
+				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 	}
 
 	@Transactional
@@ -77,12 +78,6 @@ public class ArtistService {
                         return new ResourceNotFoundException("Artist", "id", artistId);
                     });
 
-            artist.setName(updatedArtist.getName());
-            artist.setUsername(updatedArtist.getUsername());
-            artist.setEmail(updatedArtist.getEmail());
-			artist.getBaseUser().setName(updatedArtist.getName());
-            artist.getBaseUser().setUsername(updatedArtist.getUsername());
-            artist.getBaseUser().setEmail(updatedArtist.getEmail());
             artist.setNumSlotsOfWork(updatedArtist.getNumSlotsOfWork());
 
             Artist savedArtist = artistRepository.save(artist);
@@ -124,7 +119,7 @@ public class ArtistService {
 
 			commisionRepository.deleteAll(commisions);
 
-			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId.intValue());
+			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
 				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId().intValue());
 			}
@@ -152,14 +147,14 @@ public class ArtistService {
 	@Transactional
 	public Artist createArtist(Artist artist) {
 		try {
-			if (baseUserRepository.findUserByUsername(artist.getUsername()).isPresent()) {
-				throw new IllegalStateException("El usuario con username " + artist.getUsername() + " ya existe.");
+			if (baseUserRepository.findUserByUsername(artist.getBaseUser().getUsername()).isPresent()) {
+				throw new IllegalStateException("El usuario con username " + artist.getBaseUser().getUsername() + " ya existe.");
 			}
 
 			BaseUser baseUser = new BaseUser();
-			baseUser.setName(artist.getName());
-			baseUser.setUsername(artist.getUsername());
-			baseUser.setEmail(artist.getEmail());
+			baseUser.setName(artist.getBaseUser().getName());
+			baseUser.setUsername(artist.getBaseUser().getUsername());
+			baseUser.setEmail(artist.getBaseUser().getEmail());
 			baseUser.setPassword(artist.getBaseUser().getPassword());
 			baseUser.setPhoneNumber(artist.getBaseUser().getPhoneNumber());
 			baseUser.setCreatedUser(new Date());
@@ -189,9 +184,9 @@ public class ArtistService {
     }
 
 	public boolean isBanned(Artist artist) {
-		if (artist == null) return false;
-		return artist.isBanned() && artist.getBannedUntil() != null &&
-			artist.getBannedUntil().isAfter(LocalDateTime.now());
+		if (artist == null)
+			return false;
+		return artist.getBaseUser().getIsBanned();
 	}	
 
 }

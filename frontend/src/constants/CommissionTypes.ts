@@ -54,6 +54,7 @@ export interface Work {
     description: string;
     price: number;
     artist: Artist;
+    image: string;
 }
 
 export interface StatusKanbanOrder {
@@ -67,7 +68,7 @@ export interface StatusKanbanOrder {
 
 export interface Commission extends Work {
     status: StatusCommission;
-    numMilestones: number;
+    milestoneDate: String;
     acceptedDateByArtist: string; // Stored as ISO date string
     paymentArrangement: PaymentArrangement;
     statusKanbanOrder: StatusKanbanOrder;
@@ -75,7 +76,6 @@ export interface Commission extends Work {
 }
 
 export interface WorksDone extends Work {
-    image: string;
 }
 
 export interface Category {

@@ -1,28 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Image, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+
+import React, { useEffect, useState  } from "react";
+import { View, Text, ActivityIndicator, Image, ScrollView, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { getWorksDoneById } from "@/src/services/WorksDoneApi";
 import staticStyles, { createDynamicStyles } from "@/src/styles/WorkDetail.styles";
 import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
+import ReportDropdown from "@/src/components/report/ReportDropDown";
 import { API_URL } from "@/src/constants/api";
+import { BaseUser } from "@/src/constants/ExploreTypes";
+import { WorksDone } from "@/src/constants/CommissionTypes";
 
-export interface Artist {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  tableCommisionsPrice?: string;
-}
-
-export interface Work {
-  id: number;
-  name: string | null;
-  description: string | null;
-  price: number | null;
-  artist: Artist | null;
-  image: string | null;
-}
 
 export default function WorkDetailScreen() {
 
@@ -30,18 +16,21 @@ export default function WorkDetailScreen() {
   const navigation = useNavigation();
   const { workId } = useLocalSearchParams();
 
-  const [work, setWork] = useState<Work | null>(null);
+  const [work, setWork] = useState<WorksDone | null>(null);
   const [loading, setLoading] = useState(true);
 
   const screenWidth = Dimensions.get("window").width;
   const isLargeScreen = screenWidth >= 1024;
 
   const dynamicStyles = createDynamicStyles(isLargeScreen);
+  
+  const [menuVisibleId, setMenuVisibleId] = useState<number| null>(null);
+  
 
   useEffect(() => {
     const fetchWork = async () => {
       try {
-        const data = (await getWorksDoneById(Number(workId))) as Work;
+        const data = (await getWorksDoneById(Number(workId))) as WorksDone;
         setWork(data);
       } catch (error) {
         console.error("Error fetching work details:", error);
@@ -75,27 +64,46 @@ export default function WorkDetailScreen() {
   }
 
   return (
+    <TouchableWithoutFeedback onPress={() => {
+          if (menuVisibleId !== null) {
+            setMenuVisibleId(null); // Cierra el menú al tocar fuera
+          }
+        }}>
+
     <ScrollView
       style={staticStyles.container}
       contentContainerStyle={dynamicStyles.scrollContent}
     >
+
+ 
       <View style={dynamicStyles.contentContainer}>
-        <View style={dynamicStyles.imageContainer}>
+     
+      <View style={[dynamicStyles.imageContainer, { position: "relative" }]}>
+
           {work.image ? (
+
             <Image
               source={{ uri: `${API_URL}${work.image}` }}
               style={dynamicStyles.image}
-            />
+            />       
           ) : (
             <View style={staticStyles.placeholder}>
               <Text style={{ color: "#aaa" }}>Sin imagen</Text>
             </View>
           )}
+           { work.image && (
+        <View style={staticStyles.reportDropdownContatiner}>
+            <ReportDropdown  workId={work.id}  menuVisibleId={menuVisibleId}  setMenuVisibleId={setMenuVisibleId}  isBigScreen={false} />
+            </View>
+        )}
+          
         </View>
+     
         <View style={staticStyles.infoContainer}>
           <Text style={staticStyles.title}>
             {work.name ? work.name.toUpperCase() : "TÍTULO OBRA"}
           </Text>
+
           <Text style={dynamicStyles.label}>ARTISTA:</Text>
           <TouchableOpacity
             onPress={() => {
@@ -107,7 +115,7 @@ export default function WorkDetailScreen() {
             }}
           >
             <Text style={dynamicStyles.artistName}>
-              {work.artist?.username || "Artista desconocido"}
+              {work.artist?.baseUser?.username || "Artista desconocido"}
             </Text>
           </TouchableOpacity>
           <Text style={dynamicStyles.label}>DESCRIPCIÓN:</Text>
@@ -119,24 +127,10 @@ export default function WorkDetailScreen() {
           <Text style={staticStyles.price}>
             {work.price ? `${work.price} €` : "No disponible"}
           </Text>
-
-          <View style={staticStyles.buttonRow}>
-            
-            <TouchableOpacity style={staticStyles.messageButton}>
-              <Text style={staticStyles.messageButtonText}>
-                MANDAR UN MENSAJE
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={staticStyles.buyButton} onPress={() => navigation.navigate("Payment", { workId: work.id, price: work.price ?? 0 }) } > {/*TODO Change navigation*/}
-              <Text style={staticStyles.buyButtonText}>
-                COMPRAR
-              </Text>
-            </TouchableOpacity>
-
-          </View>
         </View>
       </View>
+
     </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }

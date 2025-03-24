@@ -2,6 +2,7 @@ import api from "./axiosInstance";
 
 export const getArtistById = async (id:number) => {
   try {
+    console.log(id);
     const response = await api.get(`/artists/${id}`);
     return response.data;
   } catch (error) {

@@ -89,5 +89,19 @@ class ClientRestController {
             return ResponseEntity.internalServerError().body("Error interno al eliminar el cliente");
         }
     }
+	@GetMapping("/profile")
+	public ResponseEntity<?> profileOfCurrentUser() {
+		try {
+			BaseUser user = baseUserService.findCurrentUser();
+			Object endUser = null;
+			if(user.hasAuthority("CLIENT"))
+				endUser = baseUserService.findClient(user.getId());
+			if(user.hasAuthority("ARTIST"))
+				endUser = baseUserService.findArtist(user.getId());
+			return ResponseEntity.ok().body(endUser);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("No tienes perfil, tienes que loguearte");
+		}
+	}
 
 }

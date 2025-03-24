@@ -52,6 +52,12 @@ public class ClientService {
 	}
 
 	@Transactional(readOnly = true)
+	public Client findClientByUserId(Long userId) {
+		return clientRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("Client", "userId", userId));
+	}
+
+	@Transactional(readOnly = true)
 	public Iterable<Client> findAll() {
 		return clientRepository.findAll();
 	}
@@ -156,6 +162,4 @@ public class ClientService {
             throw new RuntimeException("Error interno al crear el cliente.");
         }
     }
-	
-
 }

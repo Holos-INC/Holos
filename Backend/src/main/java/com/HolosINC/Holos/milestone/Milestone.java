@@ -1,7 +1,5 @@
 package com.HolosINC.Holos.milestone;
 
-import java.util.Date;
-
 import com.HolosINC.Holos.commision.Commision;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,9 +31,6 @@ public class Milestone{
     
     @NotNull
     private Boolean accepted;
-    
-    @NotNull
-    private Date milestoneDate;
 
     @ManyToOne
     @JoinColumn(name = "commision_id")

@@ -5,15 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import java.time.LocalDateTime;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.HolosINC.Holos.model.BaseUser;
 
@@ -33,7 +31,9 @@ public class Artist{
     @Min(1)
     private Integer numSlotsOfWork;
 
-    private String tableCommisionsPrice;
+    @Lob
+    @Column(name = "tableCommisionsPrice", columnDefinition = "LONGBLOB")
+    private byte[] tableCommisionsPrice;
 
     @OneToOne(optional = true)
     private BaseUser baseUser;
