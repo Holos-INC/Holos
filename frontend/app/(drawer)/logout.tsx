@@ -44,7 +44,7 @@ export default function LogoutModal() {
             <Dialog.Actions>
               <Button onPress={hideModal}>Cancelar</Button>
               <Button onPress={handleLogout} mode="contained" buttonColor="#F05A7E">
-                Sí, salir 🖕
+                Sí, salir
               </Button>
             </Dialog.Actions>
           </Dialog>
