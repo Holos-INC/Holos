@@ -19,8 +19,7 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
 
     @Query("SELECT c FROM Commision c WHERE c.client.id = :clientId")
     List<Commision> findAllByClientId(Long clientId);
-
-    @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId AND s.order = (SELECT MIN(s.order) FROM StatusKanbanOrder s)")
+    @Query("SELECT s FROM StatusKanbanOrder s WHERE s.order = (SELECT MIN(s.order) FROM StatusKanbanOrder s)")
     Optional<StatusKanbanOrder> getFirstStatusKanbanOfArtist(Long artistId);
 
     @Query("SELECT c FROM Commision c WHERE c.artist.baseUser.id = :artistId AND c.status IN ('REQUESTED', 'WAITING_ARTIST')")

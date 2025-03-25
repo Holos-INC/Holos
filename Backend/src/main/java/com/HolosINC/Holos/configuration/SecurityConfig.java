@@ -55,7 +55,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilte
             .requestMatchers("/api/v1/commisions/**").authenticated()
             .anyRequest().permitAll()
         )
-        .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
+
 
     return http.build();
 }

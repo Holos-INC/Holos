@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

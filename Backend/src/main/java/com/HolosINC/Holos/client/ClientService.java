@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ClientService {
 
-	private ClientRepository clientRepository;
+	private final ClientRepository clientRepository;
 	private BaseUserRepository baseUserRepository;
 	private CommisionRepository commisionRepository;
 	private MilestoneRepository milestoneRepository;

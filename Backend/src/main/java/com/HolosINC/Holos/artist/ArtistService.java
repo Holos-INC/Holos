@@ -21,7 +21,6 @@ import com.HolosINC.Holos.milestone.Milestone;
 import com.HolosINC.Holos.milestone.MilestoneService;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ArtistService {
 
-	private ArtistRepository artistRepository;
+	private final ArtistRepository artistRepository;
 	private BaseUserRepository baseUserRepository;
 	private AuthoritiesRepository authoritiesRepository;
+
 	private CommisionRepository commisionRepository;
 	private MilestoneService milestoneService;
 	private StatusKanbanOrderService statusKanbanOrderService;
