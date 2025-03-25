@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
@@ -33,4 +34,8 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
     @Query(" SELECT new com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO(c.image, c.name, c.artist.baseUser.username, c.statusKanbanOrder.order,0)"+
         "FROM Commision c WHERE c.client = :client") // Obliga a que el orden sea serializado
     List<ClientCommissionDTO> findAllForClient(Client client);
+
+    @Query("SELECT COUNT(c) > 0 FROM Commision c WHERE c.artist.id = :artistId AND c.status = :status")
+    boolean existsByArtistIdAndStatus(@Param("artistId") Long artistId, @Param("status") StatusCommision status);
+
 }

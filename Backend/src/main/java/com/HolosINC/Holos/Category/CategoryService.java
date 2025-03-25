@@ -98,4 +98,10 @@ public class CategoryService {
         }
     }
 
+    @Transactional
+    public void deleteAllByArtistId(Long artistId) {
+        List<ArtistCategory> categories = artistCategoryRepository.findAllByArtistId(artistId);
+        artistCategoryRepository.deleteAll(categories);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.work;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +31,9 @@ public interface WorkRepository extends JpaRepository<Work, Long>{
 
     @Query(value = "SELECT * FROM works WHERE id = :id", nativeQuery = true)
     Optional<Work> findBaseWorkById(Long id);
+
+    @Query(value = "SELECT w FROM Work w WHERE w.artist.id = :artistId")
+    List<Work> findByArtistId(Long artistId);
 
     
 }

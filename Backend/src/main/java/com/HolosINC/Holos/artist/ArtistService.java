@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import com.HolosINC.Holos.Category.ArtistCategory;
 import com.HolosINC.Holos.Category.ArtistCategoryRepository;
+import com.HolosINC.Holos.Category.CategoryService;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.auth.Authorities;
@@ -21,6 +22,8 @@ import com.HolosINC.Holos.milestone.Milestone;
 import com.HolosINC.Holos.milestone.MilestoneService;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.work.WorkService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +39,11 @@ public class ArtistService {
 	private MilestoneService milestoneService;
 	private StatusKanbanOrderService statusKanbanOrderService;
 	private ArtistCategoryRepository artistCategoryRepository;
+	private final WorkService workService;
+	private final CategoryService categoryService;
 
 	@Autowired
-	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository, CommisionRepository commisionRepository, MilestoneService milestoneService, StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository) {
+	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository, CommisionRepository commisionRepository, MilestoneService milestoneService, StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository, WorkService workService, CategoryService categoryService) {
 		this.artistRepository = artistRepository;
 		this.baseUserRepository = baseUserRepository;
 		this.authoritiesRepository = authoritiesRepository;
@@ -46,6 +51,8 @@ public class ArtistService {
 		this.milestoneService = milestoneService;
 		this.statusKanbanOrderService = statusKanbanOrderService;
 		this.artistCategoryRepository = artistCategoryRepository;
+		this.workService = workService;
+		this.categoryService = categoryService;
 	}
 
 	@Transactional
@@ -91,56 +98,38 @@ public class ArtistService {
     }
 
 	@Transactional
-	public void deleteArtist(Long artistId) {
+	public void deleteArtistIfNoAcceptedCommisions(Long artistId) {
 		try {
 			Artist artist = artistRepository.findById(artistId)
-					.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
+				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 
-			List<Commision> commisions = commisionRepository.findAll().stream()
-					.filter(c -> c.getArtist() != null && artistId.equals(c.getArtist().getId()))
-					.toList();
+			Long userId = artist.getBaseUser().getId();
 
-			boolean hasAccepted = commisions.stream()
-					.anyMatch(c -> c.getStatus() == StatusCommision.ACCEPTED);
+			boolean hasAcceptedCommisions = commisionRepository
+				.existsByArtistIdAndStatus(artistId, StatusCommision.ACCEPTED);
 
-			if (hasAccepted) {
-				throw new IllegalStateException("No se puede eliminar al artista porque tiene comisiones en estado ACCEPTED.");
+			if (hasAcceptedCommisions) {
+				throw new IllegalStateException("El artista tiene comisiones aceptadas y no puede ser eliminado.");
 			}
 
-			for (Commision c : commisions) {
-				List<Milestone> milestones = milestoneService.getByCommisionId(c.getId());
-				for (Milestone m : milestones) {
-					milestoneService.delete(m.getId());
-				}
-			}
+			workService.deleteWorksByArtistId(artistId);
+			statusKanbanOrderService.deleteAllByArtistId(artistId);
+			categoryService.deleteAllByArtistId(artistId);
 
-			commisionRepository.deleteAll(commisions);
-
-			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
-			for (StatusKanbanOrder sk : kanbanStatuses) {
-				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId().intValue());
-			}
-
-			List<ArtistCategory> artistCategories = artistCategoryRepository.findAllByArtistId(artistId);
-			if (!artistCategories.isEmpty()) {
-				artistCategoryRepository.deleteAll(artistCategories);
-			}
-
-			if (artist.getBaseUser() != null) {
-				baseUserRepository.deleteById(artist.getBaseUser().getId());
-			}
-
-			artistRepository.deleteById(artistId);
+			artistRepository.delete(artist);
+			baseUserRepository.deleteById(userId);
 
 		} catch (ResourceNotFoundException e) {
-			throw new ResourceNotFoundException("Error: El artista con ID " + artistId + " no existe.");
+			throw e;
 		} catch (IllegalStateException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new RuntimeException("Error al eliminar el artista con ID " + artistId + ": " + e.getMessage());
+			throw new RuntimeException("Error al intentar eliminar el artista con ID " + artistId, e);
 		}
 	}
 
+
+	
 	@Transactional
 	public Artist createArtist(Artist artist) {
 		try {

@@ -26,9 +26,17 @@ public class OpenApiConfiguration {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("OpenAPI definition")
-                        .version("v0")
-                )
+                        .title("HolosINC API")
+                        .version("1.0")
+                        .description("Documentación de la API de HolosINC"))
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .name("bearerAuth")
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")))
                 .servers(List.of(
                         new Server().url("/").description("Generated server url")
                 ));

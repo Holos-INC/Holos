@@ -40,5 +40,8 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     @Query("SELECT COUNT(s) FROM StatusKanbanOrder s WHERE s.artist.baseUser.username = :username")
     Integer countByArtistUsername(@Param("username") String username);
 
+    @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId")
+    List<StatusKanbanOrder> findByArtistId(Long artistId);
+
 }
 

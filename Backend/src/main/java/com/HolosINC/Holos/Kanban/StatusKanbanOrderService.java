@@ -216,4 +216,10 @@ public class StatusKanbanOrderService {
     public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Long intValue) {
         return statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(intValue);
     }
+
+    @Transactional
+    public void deleteAllByArtistId(Long artistId) {
+        List<StatusKanbanOrder> statuses = statusKanbanOrderRepository.findByArtistId(artistId);
+        statusKanbanOrderRepository.deleteAll(statuses);
+    }
 }

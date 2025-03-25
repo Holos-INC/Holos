@@ -146,7 +146,7 @@ public class AuthoritiesService {
 		}
 		if (user.getAuthority().getAuthority().equals("ARTIST")) {
 			Artist artist = artistService.findArtist(id);
-			artistService.deleteArtist(artist.getId());
+			artistService.deleteArtistIfNoAcceptedCommisions(artist.getId());
 		} else if (user.getAuthority().getAuthority().equals("CLIENT")) {
 			Client client = clientService.findClientByUserId(id);
 			clientService.deleteClient(client.getId());

@@ -84,12 +84,14 @@ class ArtistRestController {
     @DeleteMapping("/administrator/artists/{id}")
     public ResponseEntity<?> deleteArtist(@PathVariable Long id) {
         try {
-            artistService.deleteArtist(id);
-            return ResponseEntity.ok().body("Artista eliminado exitosamente");
+            artistService.deleteArtistIfNoAcceptedCommisions(id);
+            return ResponseEntity.ok("Artista eliminado exitosamente.");
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artista no encontrado.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error interno al eliminar el artista");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el artista.");
         }
     }
 

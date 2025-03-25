@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
 
@@ -31,6 +32,12 @@ public class WorkService {
 
     public Work getBaseWorkById(Long id) {
         return workRepository.findBaseWorkById(id).orElse(null);
+    }
+
+    @Transactional
+    public void deleteWorksByArtistId(Long artistId) {
+        List<Work> works = workRepository.findByArtistId(artistId);
+        workRepository.deleteAll(works);
     }
     
 }
