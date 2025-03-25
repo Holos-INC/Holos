@@ -1,42 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, Image, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import { getWorksDoneById } from "@/src/services/WorksDoneApi";
-import staticStyles, { createDynamicStyles } from "@/src/styles/WorkDetail.styles";
 import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
-import { API_URL } from "@/src/constants/api";
-
-export interface Artist {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  tableCommisionsPrice?: string;
-}
-
-export interface Work {
-  id: number;
-  name: string | null;
-  description: string | null;
-  price: number | null;
-  artist: Artist | null;
-  image: string | null;
-}
+import { BASE_URL } from "@/src/constants/api";
+import { useFonts } from "expo-font";
+import { Work } from "@/src/constants/WorkTypes";
+import { mobileStyles, desktopStyles } from "@/src/styles/WorkInfo.styles";
 
 export default function WorkDetailScreen() {
-
   const router = useRouter();
   const navigation = useNavigation();
   const { workId } = useLocalSearchParams();
-
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
+  const { width } = useWindowDimensions();
+  const styles = width > 768 ? desktopStyles : mobileStyles;
 
-  const screenWidth = Dimensions.get("window").width;
-  const isLargeScreen = screenWidth >= 1024;
-
-  const dynamicStyles = createDynamicStyles(isLargeScreen);
+  const [fontsLoaded] = useFonts({
+    "Merriweather-Regular": require("../../../assets/fonts/Merriweather_24pt-Regular.ttf"),
+    "Merriweather-Italic": require("../../../assets/fonts/Merriweather_24pt-Italic.ttf"),
+    "Merriweather-Bold": require("../../../assets/fonts/Merriweather_24pt-Bold.ttf"),
+    "Merriweather-BoldItalic": require("../../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
+  });
 
   useEffect(() => {
     const fetchWork = async () => {
@@ -55,12 +48,12 @@ export default function WorkDetailScreen() {
   }, [workId]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${work?.name}` });
+    navigation.setOptions({ title: work?.name || "Detalle de obra" });
   }, [navigation, work]);
 
   if (loading) {
     return (
-      <View style={staticStyles.loaderContainer}>
+      <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#333" />
       </View>
     );
@@ -68,36 +61,42 @@ export default function WorkDetailScreen() {
 
   if (!work) {
     return (
-      <View style={staticStyles.notFoundContainer}>
-        <Text style={staticStyles.notFoundText}>No se encontró la obra</Text>
+      <View style={styles.notFoundContainer}>
+        <Text>No se encontró la obra</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={staticStyles.container}
-      contentContainerStyle={dynamicStyles.scrollContent}
-    >
-      <View style={dynamicStyles.contentContainer}>
-        <View style={dynamicStyles.imageContainer}>
-          {work.image ? (
-            <Image
-              source={{ uri: `${API_URL}${work.image}` }}
-              style={dynamicStyles.image}
-            />
-          ) : (
-            <View style={staticStyles.placeholder}>
-              <Text style={{ color: "#aaa" }}>Sin imagen</Text>
-            </View>
-          )}
-        </View>
-        <View style={staticStyles.infoContainer}>
-          <Text style={staticStyles.title}>
+    <View style={styles.container}>
+      <View style={styles.leftColumn}>
+        {work.image ? (
+          <Image
+            source={{ uri: `${BASE_URL}${work.image}` }}
+            style={styles.imageStyle}
+          />
+        ) : (
+          <View style={styles.placeholderContainer}>
+            <Text>Sin imagen</Text>
+          </View>
+        )}
+      </View>
+
+      <ScrollView style={styles.rightColumn}>
+        <TouchableOpacity
+          onPress={() => router.push(`/explore`)}
+          style={styles.backButton}
+        >
+          <Text style={styles.backArrow}>←</Text>
+          <Text style={styles.backText}>ATRÁS</Text>
+        </TouchableOpacity>
+
+        <View style={styles.informationContainer}>
+          <Text style={styles.title}>
             {work.name ? work.name.toUpperCase() : "TÍTULO OBRA"}
           </Text>
-          <Text style={dynamicStyles.label}>ARTISTA:</Text>
-          <TouchableOpacity
+
+          <Text
             onPress={() => {
               if (work.artist && work.artist.id) {
                 router.push(`/profile/${work.artist.id}`);
@@ -105,38 +104,21 @@ export default function WorkDetailScreen() {
                 console.warn("No se encontró el artista");
               }
             }}
+            style={styles.artistText}
           >
-            <Text style={dynamicStyles.artistName}>
-              {work.artist?.username || "Artista desconocido"}
-            </Text>
-          </TouchableOpacity>
-          <Text style={dynamicStyles.label}>DESCRIPCIÓN:</Text>
-          <Text style={dynamicStyles.description}>
+            {work.artist?.username || "Artista desconocido"}
+          </Text>
+
+          <Text style={styles.infoText}>
             {work.description || "Sin descripción disponible"}
           </Text>
-          <Text style={staticStyles.label}>PRECIO:</Text>
 
-          <Text style={staticStyles.price}>
+          <View style={styles.separator} />
+          <Text style={styles.price}>
             {work.price ? `${work.price} €` : "No disponible"}
           </Text>
-
-          <View style={staticStyles.buttonRow}>
-            
-            <TouchableOpacity style={staticStyles.messageButton}>
-              <Text style={staticStyles.messageButtonText}>
-                MANDAR UN MENSAJE
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={staticStyles.buyButton} onPress={() => navigation.navigate("Payment", { workId: work.id, price: work.price ?? 0 }) } > {/*TODO Change navigation*/}
-              <Text style={staticStyles.buyButtonText}>
-                COMPRAR
-              </Text>
-            </TouchableOpacity>
-
-          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

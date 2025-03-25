@@ -13,7 +13,7 @@ import { useFonts } from "expo-font";
 
 import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
 import { BASE_URL } from "@/src/constants/api";
-import { Work } from "../../../src/constants/ExploreTypes";
+import { Work } from "../../../src/constants/WorkTypes";
 
 import {
   fetchWorksAndTransform,
