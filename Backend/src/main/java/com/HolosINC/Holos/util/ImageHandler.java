@@ -10,9 +10,9 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 @Component
 public class ImageHandler {
     
-    public byte[] getBytes(MultipartFile imageProfile) {
+    public byte[] getBytes(MultipartFile image) {
         try {
-            return imageProfile.getBytes();
+            return image.getBytes();
         } catch (IOException e) {
             throw new ResourceNotFoundException("Error al obtener la imagen");
         }

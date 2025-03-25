@@ -40,11 +40,11 @@ INSERT INTO base_user (id, first_name, username, password, email, phone_number, 
 (35,'Gurutze', 'churros','$2a$10$tk9XOUj.3AiCREPRF70xUOp4ExXn4AGpF5yad5ewzCuuug7IGJuqO', 'gurutze.contact@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
 (36,'Damaris', 'damaris','$2a$10$rhUAtnuv7WqW4ufo/a.wkeOzHco2GFWXsvx6WBC.fZdi0swbCERf6', 'damaris.narvaezjimenez@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
 (37,'Sofia', 'rata','$2a$10$4sJMWhxkUDrI4M.uAQ228OM8vYf/wBcJCctAqA.nZXRMgygH02mAy', 'already.dead.baby@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
-(38,'Daniel', 'daniel_artist','$2a$10$x5PArdGNz86t6sqYpM.URevvy/.wE4OYgnGcmcKdmclTf3myUXnGu', 'megamagolas@gmail.com', '663522963', '/images/nobita.jpg', '2025-03-06', 3),
-(39,'Rafael', 'rafaelduque_artist','$2a$10$QP6LWLpPFKowv.s67KpaM.w2w0g.hiz3UfW2QcQyqlI7ovWxDr1XK', 'rafduqcol@alum.us.es', '722675760','/images/nobita.jpg', '2025-03-06', 3),
-(40,'Rafael', 'rafaelcastillo_artist','$2a$10$KHEzZb0ioIjGoAYqvUX6G.5q6apcUxxMCY.dLXpnTgZnuFjkMLfdG', 'rafaelcastillocebolla@gmail.com', '671168164','/images/nobita.jpg', '2025-03-06', 3),
-(41,'Mohamed', 'mohamed_artist','$2a$10$/xzsXNtwVMPX4eIu1coLYeBWvN7DDMiuzAE39B3M3fCt1SvVPo73u', 'mohmmedabourihhh@gmail.com', '602171961','/images/nobita.jpg', '2025-03-06', 3),
-(42,'Enrique', 'enrique_artist','$2a$10$tbDdopmXHspY4l2iTHMJl.wFf/btZGataJBHRRdenrDHRSsHh/GlC', 'kiquegaraba@gmail.com', '600619217','/images/nobita.jpg', '2025-03-06', 3),
+(38,'Daniel', 'daniel_artist','$2a$10$x5PArdGNz86t6sqYpM.URevvy/.wE4OYgnGcmcKdmclTf3myUXnGu', 'megamagolas2@gmail.com', '663522963', '/images/nobita.jpg', '2025-03-06', 3),
+(39,'Rafael', 'rafaelduque_artist','$2a$10$QP6LWLpPFKowv.s67KpaM.w2w0g.hiz3UfW2QcQyqlI7ovWxDr1XK', 'rafduqcol2@alum.us.es', '722675760','/images/nobita.jpg', '2025-03-06', 3),
+(40,'Rafael', 'rafaelcastillo_artist','$2a$10$KHEzZb0ioIjGoAYqvUX6G.5q6apcUxxMCY.dLXpnTgZnuFjkMLfdG', 'rafaelcastillocebolla2@gmail.com', '671168164','/images/nobita.jpg', '2025-03-06', 3),
+(41,'Mohamed', 'mohamed_artist','$2a$10$/xzsXNtwVMPX4eIu1coLYeBWvN7DDMiuzAE39B3M3fCt1SvVPo73u', 'mohmmedabourihhh2@gmail.com', '602171961','/images/nobita.jpg', '2025-03-06', 3),
+(42,'Enrique', 'enrique_artist','$2a$10$tbDdopmXHspY4l2iTHMJl.wFf/btZGataJBHRRdenrDHRSsHh/GlC', 'kiquegaraba2@gmail.com', '600619217','/images/nobita.jpg', '2025-03-06', 3),
 (43, 'admin1', 'admin1', '$2b$10$OHjdYNE5IRkwWb5R1NtPGeIyb2l8xShgxjIZHG7bZn1WI3jfIntRi', 'admin1@gmail.com', '600619217', NULL, '2025-03-06', 1);
 
 INSERT INTO clients (id, base_user_id) VALUES

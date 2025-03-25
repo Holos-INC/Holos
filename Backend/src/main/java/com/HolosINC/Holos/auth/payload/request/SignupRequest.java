@@ -28,4 +28,7 @@ public class SignupRequest {
 
 	@NotBlank
 	private MultipartFile imageProfile;
+
+	@NotBlank
+	private MultipartFile tableCommissionsPrice;
 }
