@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.work;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,5 +27,9 @@ public interface WorkRepository extends JpaRepository<Work, Long>{
        "AND (:minPrice IS NULL OR w.price >= :minPrice) " +
        "AND (:maxPrice IS NULL OR w.price <= :maxPrice)")
     Page<Work> searchByTitleAndPrice(String query, Double minPrice, Double maxPrice, Pageable pageable);
+
+    @Query(value = "SELECT * FROM works WHERE id = :id", nativeQuery = true)
+    Optional<Work> findBaseWorkById(Long id);
+
     
 }

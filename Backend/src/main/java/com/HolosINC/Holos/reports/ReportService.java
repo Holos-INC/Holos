@@ -42,20 +42,26 @@ public class ReportService {
     }
 
     public Report createReport(ReportDTO reportDTO) {
-        Work work = worskService.getWorkById(reportDTO.getWorkId());
-        ReportType reportType = reportTypeRepository
-            .findByType(reportDTO.getReportType())
-            .orElseThrow(() -> new RuntimeException("Invalid report type"));
+        Work work = worskService.getBaseWorkById(reportDTO.getWorkId());
+        
+        List<ReportType> matches = reportTypeRepository.findAllByType(reportDTO.getReportType());
+        if (matches.isEmpty()) {
+            throw new RuntimeException("Tipo de reporte inválido.");
+        } else if (matches.size() > 1) {
+            throw new RuntimeException("Error: se han encontrado múltiples tipos de reporte con el mismo nombre. Contacta con soporte.");
+        }
+        ReportType reportType = matches.get(0);
+    
         BaseUser baseUser = baseUserService.findCurrentUser();
-
-        boolean alreadyReported = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(baseUser.getId(), work.getId(), reportType.getId());
-
+    
+        boolean alreadyReported = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(
+            baseUser.getId(), work.getId(), reportType.getId());
+    
         if (alreadyReported) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "¡Ya has reportado esta obra!");
         }
-
+    
         Report report = reportDTO.createReport(work, reportType);
-
         report.setStatus(ReportStatus.PENDING);
         report.setMadeBy(baseUser);
         report.setReportedUser(work.getArtist().getBaseUser());
@@ -63,16 +69,21 @@ public class ReportService {
     
         return reportRepository.save(report);
     }
-
+    
     public Report reportWorkAndArtist(String reportName, String description, BaseUser reporter, Artist artist, Work work, String typeName) {
         try {
             if (typeName == null || typeName.trim().isEmpty()) {
                 throw new InvalidReportTypeException("Debes seleccionar un tipo de reporte existente.");
             }
-
-            ReportType reportType = reportTypeRepository.findByType(typeName)
-                    .orElseThrow(() -> new InvalidReportTypeException("El tipo de reporte '" + typeName + "' no existe."));
-
+    
+            List<ReportType> matches = reportTypeRepository.findAllByType(typeName);
+            if (matches.isEmpty()) {
+                throw new InvalidReportTypeException("El tipo de reporte '" + typeName + "' no existe.");
+            } else if (matches.size() > 1) {
+                throw new RuntimeException("Error: se han encontrado múltiples tipos de reporte con el mismo nombre. Contacta con soporte.");
+            }
+            ReportType reportType = matches.get(0);
+    
             Report report = Report.builder()
                     .name(reportName)
                     .description(description)
@@ -82,12 +93,13 @@ public class ReportService {
                     .status(ReportStatus.PENDING)
                     .reportType(reportType)
                     .build();
-
+    
             return reportRepository.save(report);
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar el reporte: " + e.getMessage(), e);
         }
     }
+    
     
     @Transactional
     public Report acceptReport(Long reportId) {

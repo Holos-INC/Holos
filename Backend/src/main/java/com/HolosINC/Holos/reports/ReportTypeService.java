@@ -20,7 +20,7 @@ public class ReportTypeService {
             throw new InvalidReportTypeException("El nombre del tipo de reporte no puede estar vacío.");
         }
 
-        boolean exists = reportTypeRepository.findByType(typeName).isPresent();
+        boolean exists = reportTypeRepository.findAllByType(typeName).isEmpty();
         if (exists) {
             throw new InvalidReportTypeException("El tipo de reporte ya existe.");
         }
@@ -42,11 +42,12 @@ public class ReportTypeService {
             throw new InvalidReportTypeException("El nuevo nombre no puede estar vacío.");
         }
 
-        reportTypeRepository.findByType(newTypeName).ifPresent(existing -> {
+        List<ReportType> existingTypes = reportTypeRepository.findAllByType(newTypeName);
+        for (ReportType existing : existingTypes) {
             if (!existing.getId().equals(id)) {
                 throw new InvalidReportTypeException("Ya existe un tipo de reporte con ese nombre.");
             }
-        });
+        }
 
         reportType.setType(newTypeName.trim());
         return reportTypeRepository.save(reportType);

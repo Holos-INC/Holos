@@ -45,7 +45,11 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilte
         .headers(headers ->  headers.frameOptions((frameOptions) -> frameOptions.disable()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-            .requestMatchers("**/administrator/**", "**/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/artists/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/users/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/reports/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/report-types/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/status-kanban-order/**").hasAuthority("ARTIST")
             .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/commisions/**").authenticated()

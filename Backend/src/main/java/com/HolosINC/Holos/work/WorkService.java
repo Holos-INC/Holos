@@ -28,4 +28,9 @@ public class WorkService {
         return workRepository.findAll().stream().filter(work -> work.getArtist().equals(artist))
                 .collect(Collectors.toList());
     }
+
+    public Work getBaseWorkById(Long id) {
+        return workRepository.findBaseWorkById(id).orElse(null);
+    }
+    
 }
