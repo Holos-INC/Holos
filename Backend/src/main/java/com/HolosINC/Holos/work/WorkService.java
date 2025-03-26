@@ -1,12 +1,14 @@
 package com.HolosINC.Holos.work;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.reports.ReportType;
 
 @Service
 public class WorkService {
@@ -39,5 +41,11 @@ public class WorkService {
         List<Work> works = workRepository.findByArtistId(artistId);
         workRepository.deleteAll(works);
     }
+
+    @Transactional(readOnly = true)
+    public Optional<Work> findById(Long id) {
+        return workRepository.findById(id);
+    }
+
     
 }

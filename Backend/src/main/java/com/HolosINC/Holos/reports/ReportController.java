@@ -41,36 +41,6 @@ public class ReportController {
         this.workService = workService;
     }
 
-    @PostMapping("/report")
-    public ResponseEntity<?> reportWorkAndArtist(
-            @RequestParam String reportName,
-            @RequestParam String description,
-            @RequestParam Long workId,
-            @RequestParam(required = false) String type) {
-        try {
-            if (workId == null) {
-                return ResponseEntity.badRequest().body("El ID del trabajo no puede ser nulo.");
-            }
-
-            BaseUser reporter = baseUserService.findCurrentUser();
-            Work work = workService.getWorkById(workId);
-            if (work == null) {
-                return ResponseEntity.badRequest().body("Trabajo no encontrado con ID: " + workId);
-            }
-
-            Report report = reportService.reportWorkAndArtist(
-                    reportName, description, reporter, work.getArtist(), work, type
-            );
-
-            return ResponseEntity.status(201).body(report);
-
-        } catch (InvalidReportTypeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error al procesar el reporte: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/admin/allReports")
     public ResponseEntity<?> getAllReports() {
         try {
@@ -79,14 +49,14 @@ public class ReportController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Error interno: " + e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createReport(@Valid @RequestBody ReportDTO reportDTO) {
+    public ResponseEntity<?> createReportDTO(@Valid @RequestBody ReportDTO reportDTO) {
         try {
-            Report report = reportService.createReport(reportDTO);
+            Report report = reportService.createReportDTO(reportDTO);
             return ResponseEntity.ok(report);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -96,6 +66,25 @@ public class ReportController {
             return ResponseEntity.internalServerError().body("Ha ocurrido un error inesperado.");
         }
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createReport(
+        @RequestParam String name,
+        @RequestParam String description,
+        @RequestParam Long workId,
+        @RequestParam Long reportTypeId
+    ) {
+        try {
+            Report report = reportService.createReport(name, description, workId, reportTypeId);
+            return ResponseEntity.status(201).body(report);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error interno al crear el reporte.");
+        }
+    }
+
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable Long id) {
@@ -124,14 +113,15 @@ public class ReportController {
     @PutMapping("/admin/reject/{id}")
     public ResponseEntity<?> rejectReport(@PathVariable Long id) {
         try {
-            Report accepted = reportService.rejectReport(id);
-            return ResponseEntity.ok(accepted);
+            Report rejected = reportService.rejectReport(id);
+            return ResponseEntity.ok(rejected);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error interno al rechazar el reporte");
         }
     }
+
 
     @DeleteMapping("/admin/delete/{id}")
     public ResponseEntity<?> deleteRejectedReport(@PathVariable Long id) {

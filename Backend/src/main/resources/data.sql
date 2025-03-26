@@ -519,3 +519,8 @@ INSERT INTO report_types(id ,type) VALUES
 (3, 'COPYRIGHT_VIOLATION'),
 (4, 'AI_GENERATED'),
 (5, 'OTHER');
+
+INSERT INTO works (id, artist_id, description, image, name, price) VALUES 
+(1, 1, 'Descripción de prueba', 'imagen.png', 'Nombre de prueba', 100.0),
+(2, 3, 'Descripción ', 'imagen.png', 'Nombre de prueba', 100.0),
+(3, 2, 'Prueba', 'imagen.png', 'Nombre de prueba', 100.0);

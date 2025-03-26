@@ -22,14 +22,14 @@ public class ReportService {
     
     private final ReportRepository reportRepository;
     private final ReportTypeRepository reportTypeRepository;
-    private final WorkService worskService;
+    private final WorkService workService;
     private final BaseUserService baseUserService;
 
     @Autowired
-    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
+    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService workService, BaseUserService baseUserService) {
         this.reportRepository = reportRepository;
         this.reportTypeRepository = reportTypeRepository;
-        this.worskService = worskService;
+        this.workService = workService;
         this.baseUserService = baseUserService;
     }
 
@@ -41,8 +41,9 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-    public Report createReport(ReportDTO reportDTO) {
-        Work work = worskService.getBaseWorkById(reportDTO.getWorkId());
+    @Transactional
+    public Report createReportDTO(ReportDTO reportDTO) {
+        Work work = workService.getBaseWorkById(reportDTO.getWorkId());
         
         List<ReportType> matches = reportTypeRepository.findAllByType(reportDTO.getReportType());
         if (matches.isEmpty()) {
@@ -70,37 +71,46 @@ public class ReportService {
         return reportRepository.save(report);
     }
     
-    public Report reportWorkAndArtist(String reportName, String description, BaseUser reporter, Artist artist, Work work, String typeName) {
-        try {
-            if (typeName == null || typeName.trim().isEmpty()) {
-                throw new InvalidReportTypeException("Debes seleccionar un tipo de reporte existente.");
-            }
-    
-            List<ReportType> matches = reportTypeRepository.findAllByType(typeName);
-            if (matches.isEmpty()) {
-                throw new InvalidReportTypeException("El tipo de reporte '" + typeName + "' no existe.");
-            } else if (matches.size() > 1) {
-                throw new RuntimeException("Error: se han encontrado múltiples tipos de reporte con el mismo nombre. Contacta con soporte.");
-            }
-            ReportType reportType = matches.get(0);
-    
-            Report report = Report.builder()
-                    .name(reportName)
-                    .description(description)
-                    .madeBy(reporter)
-                    .reportedUser(artist.getBaseUser())
-                    .work(work)
-                    .status(ReportStatus.PENDING)
-                    .reportType(reportType)
-                    .build();
-    
-            return reportRepository.save(report);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al guardar el reporte: " + e.getMessage(), e);
+    @Transactional
+public Report createReport(String name, String description, Long workId, Long reportTypeId) {
+    try {
+        BaseUser currentUser = baseUserService.findCurrentUser();
+
+        Work work = workService.getBaseWorkById(workId);
+        if (work == null) {
+            throw new IllegalArgumentException("El trabajo especificado no existe.");
         }
+
+        ReportType reportType = reportTypeRepository.findById(reportTypeId)
+            .orElseThrow(() -> new IllegalArgumentException("Tipo de reporte no encontrado."));
+
+        boolean exists = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(
+            currentUser.getId(), workId, reportTypeId);
+
+        if (exists) {
+            throw new IllegalStateException("Ya has enviado un reporte de este tipo para este trabajo.");
+        }
+
+        Report report = Report.builder()
+            .name(name)
+            .description(description)
+            .status(ReportStatus.PENDING)
+            .madeBy(currentUser)
+            .reportedUser(work.getArtist().getBaseUser())
+            .work(work)
+            .reportType(reportType)
+            .build();
+
+        return reportRepository.save(report);
+
+    } catch (ResponseStatusException e) {
+        throw e;
+    } catch (Exception e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno al crear el reporte.");
     }
-    
-    
+}
+
+
     @Transactional
     public Report acceptReport(Long reportId) {
         try {
@@ -127,18 +137,22 @@ public class ReportService {
             throw new RuntimeException("Fallo interno al aceptar el reporte");
         }
     }
-    
-    
+
+    @Transactional
     public Report rejectReport(Long reportId) {
-        Report report = getReportByIdOrThrow(reportId);
-    
+        Report report = reportRepository.findById(reportId)
+            .orElseThrow(() -> new IllegalArgumentException("Reporte no encontrado con ID: " + reportId));
+
         if (report.getStatus() != ReportStatus.PENDING) {
             throw new IllegalStateException("Solo se pueden rechazar reportes en estado PENDING.");
         }
-    
+
         report.setStatus(ReportStatus.REJECTED);
+
         return reportRepository.save(report);
     }
+
+    
     
     public Report deleteReport(Long reportId) {
         Report report = getReportByIdOrThrow(reportId);

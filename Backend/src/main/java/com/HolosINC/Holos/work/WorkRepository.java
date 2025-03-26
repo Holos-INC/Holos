@@ -29,11 +29,10 @@ public interface WorkRepository extends JpaRepository<Work, Long>{
        "AND (:maxPrice IS NULL OR w.price <= :maxPrice)")
     Page<Work> searchByTitleAndPrice(String query, Double minPrice, Double maxPrice, Pageable pageable);
 
-    @Query(value = "SELECT * FROM works WHERE id = :id", nativeQuery = true)
+    @Query("SELECT w FROM Work w WHERE TYPE(w) = Work AND w.id = :id")
     Optional<Work> findBaseWorkById(Long id);
 
     @Query(value = "SELECT w FROM Work w WHERE w.artist.id = :artistId")
     List<Work> findByArtistId(Long artistId);
 
-    
 }

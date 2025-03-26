@@ -29,12 +29,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		BaseUser user = userRepository.findUserByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-
+/*
 		if (user.hasAuthority("ARTIST")) {
 			Artist artist = artistRepository.findArtistByUser(user.getId())
 					.orElseThrow(() -> new ResourceNotFoundException("Artist", "baseUser.id", user.getId()));
 
-			if (artist.getBaseUser().getIsBanned()) {
+			/*if (artist.getBaseUser().getIsBanned()) {
 				if (artist.getBaseUser().getUnbanDate() != null && artist.getBaseUser().getUnbanDate().isBefore(LocalDateTime.now())) {
 					artist.getBaseUser().setIsBanned(false);
 					artist.getBaseUser().setUnbanDate(null);
@@ -44,7 +44,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				}
 			}
 		}
-
+*/
 		return UserDetailsImpl.build(user);
 	}
 }

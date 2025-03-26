@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.reports;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,4 +14,5 @@ public interface ReportRepository extends JpaRepository<Report, Long>{
     boolean isReportTypeInUse(@Param("reportTypeId") Long reportTypeId);
 
     boolean existsByMadeByIdAndWorkIdAndReportTypeId(Long madeById, Long workId, Long reportTypeId);
+
 }
