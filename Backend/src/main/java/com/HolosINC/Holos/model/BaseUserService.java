@@ -13,15 +13,14 @@ import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
-
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
 
-	@Autowired
-	public BaseUserService(BaseUserRepository baseUserRepository) {
-		this.baseUserRepository = baseUserRepository;
-	}
+    @Autowired
+    public BaseUserService(BaseUserRepository baseUserRepository) {
+        this.baseUserRepository = baseUserRepository;
+    }
 
     public BaseUser save(BaseUser baseUser) {
         return baseUserRepository.save(baseUser);
@@ -39,8 +38,9 @@ public class BaseUserService {
         return baseUserRepository.findUserByUsername(username).isPresent();
     }
 
-    public BaseUser findById(Long id) {
-        return baseUserRepository.findById(id).orElse(null);
+    public BaseUser findUserById(Long id) {
+        return baseUserRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +52,7 @@ public class BaseUserService {
         return baseUserRepository.findUserByUsername(auth.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
     }
-    
+
     @Transactional
     public BaseUser delete(Long id) {
         BaseUser user = baseUserRepository.findById(id)
