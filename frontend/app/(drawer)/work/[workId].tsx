@@ -99,14 +99,14 @@ export default function WorkDetailScreen() {
           <Text
             onPress={() => {
               if (work.artist && work.artist.id) {
-                router.push(`/profile/${work.artist.id}`);
+                router.push(`/profile/${work.artist.baseUser?.id}`);
               } else {
                 console.warn("No se encontró el artista");
               }
             }}
             style={styles.artistText}
           >
-            {work.artist?.username || "Artista desconocido"}
+            {work.artist.baseUser?.username || "Artista desconocido"}
           </Text>
 
           <Text style={styles.infoText}>
