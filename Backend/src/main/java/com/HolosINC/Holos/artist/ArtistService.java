@@ -180,7 +180,6 @@ public class ArtistService {
 		Artist artist = artistRepository.findByUserId(artistId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 
-		// Verifica si el artista tiene trabajos asociados
 		List<Work> works = workService.getWorksByArtist(artist);
 		if (!works.isEmpty()) {
 			throw new IllegalStateException("No se puede eliminar el artista porque tiene trabajos asociados.");
@@ -193,13 +192,10 @@ public class ArtistService {
 				throw new IllegalStateException("El artista tiene comisiones aceptadas y no puede ser eliminado.");
 			}
 	
-		// Elimina asociaciones de categorías del artista (si se desea)
 		categoryService.deleteAllByArtistId(artistId);
 	
-		// Elimina estados Kanban relacionados
 		statusKanbanOrderService.deleteAllByArtistId(artistId);
 	
-		// Finalmente, elimina el artista
 		artistRepository.delete(artist);
 	}
 	
