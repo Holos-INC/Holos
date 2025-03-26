@@ -114,12 +114,13 @@ export default function ExploreScreen() {
               <TouchableOpacity
                 key={artist.id}
                 style={styles.artistCard}
-                onPress={() =>
-                  router.push({
-                    pathname: "/profile/[artistId]",
-                    params: { artistId: String(artist.id) },
-                  })
-                }
+                onPress={() => {
+                  if (artist && artist.id) {
+                    router.push(`/profile/${artist.baseUser?.id}`);
+                  } else {
+                    console.warn("No se encontró el artista");
+                  }
+                }}
               >
                 <Image
                   source={{
@@ -128,7 +129,9 @@ export default function ExploreScreen() {
                   style={styles.artistImage}
                 />
                 <View style={styles.artistTextContainer}>
-                  <Text style={styles.artistName}>{artist.username}</Text>
+                  <Text style={styles.artistName}>
+                    {artist.baseUser?.username}
+                  </Text>
                   <Text style={styles.artistLocation}>Painter, Amsterdam</Text>
                 </View>
               </TouchableOpacity>
