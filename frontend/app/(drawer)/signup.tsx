@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity,
-  Alert, StyleSheet, Image, Linking
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, Linking } from 'react-native';
 import { useNavigation, useRouter } from 'expo-router';
 import { API_URL } from "@/src/constants/api";
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RootDrawerParamList } from '../_layout';
 import { ScrollView } from 'react-native-gesture-handler';
-import * as ImagePicker from 'expo-image-picker'
+import * as ImagePicker from 'expo-image-picker';
 
 type SignupScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, "Signup">;
 
@@ -167,7 +164,7 @@ export default function SignupScreen() {
   return (
     <ScrollView style={styles.screenBackground}>
       <Image
-        source={require('../(drawer)/logo/logo.png')} // Ajusta la ruta según tu estructura
+        source={require('@/assets/images/logo.png')}
         style={styles.logo}
       />
 

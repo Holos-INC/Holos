@@ -10,3 +10,13 @@ export const getArtistById = async (id:number) => {
     throw error;
   }
 };
+
+export const getArtistByUsername = async (username:string) => {
+  try {
+    const response = await api.get(`/artists/username/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error("There was an error fetching the artist!", error);
+    throw error;
+  }
+};

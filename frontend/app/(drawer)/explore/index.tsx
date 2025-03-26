@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Text, ScrollView, View, TextInput, Image, TouchableOpacity, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent, TouchableWithoutFeedback, useWindowDimensions   } from "react-native";
+import { Text, ScrollView, View, TextInput, Image, TouchableOpacity, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent, TouchableWithoutFeedback   } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import ReportDropdown from "@/src/components/report/ReportDropDown";
 import { useFonts } from "expo-font";6
 
-import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
+import { styles } from "@/src/styles/Explore.styles";
 import { BASE_URL } from "@/src/constants/api";
 import { Work } from "../../../src/constants/ExploreTypes";
 
@@ -21,9 +21,9 @@ export default function ExploreScreen() {
   const [works, setWorks] = useState<Work[]>([]);
   const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isDesktop = width > 768;
-  const styles = isDesktop ? desktopStyles : mobileStyles;
+  // const { width } = useWindowDimensions();
+  // const isDesktop = width > 768;
+  // const styles = desktopStyles;
 
   const [fontsLoaded] = useFonts({
     "Merriweather-Regular": require("../../../assets/fonts/Merriweather_24pt-Regular.ttf"),

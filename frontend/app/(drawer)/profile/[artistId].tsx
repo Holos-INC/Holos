@@ -39,7 +39,7 @@ export default function ArtistDetailScreen() {
   }, [artistId]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${artist?.username}` });
+    navigation.setOptions({ title: `${artist?.baseUser.username}` });
   }, [navigation, artist]);
 
   if (loading) {
@@ -70,13 +70,7 @@ export default function ArtistDetailScreen() {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() =>
-            router.push({
-              pathname: "/commission/request/[artistId]",
-              params: { artistId: String(artist?.id) },
-            })            
-            // navigation.navigate("RequestCommission", { artistId: artist!.id })
-          }
+          onPress={() => router.push(`/commissions/request/${artist?.baseUser.username}`)}
         >
           <Text style={styles.buttonText}>Solicitar trabajo</Text>
         </TouchableOpacity>

@@ -4,8 +4,7 @@ import { useRouter } from "expo-router";
 import { BASE_URL } from "@/src/constants/api";
 import ReportDropdown from "@/src/components/report/ReportDropDown";
 import { Work } from "@/src/constants/ExploreTypes";
-import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
-import { useWindowDimensions } from "react-native";
+import { styles } from "@/src/styles/Explore.styles";
 
 type Props = {
   work: Work;
@@ -15,9 +14,9 @@ type Props = {
 
 const WorkCard = ({ work, menuVisibleId, setMenuVisibleId }: Props) => {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const isDesktop = width > 768;
-  const styles = isDesktop ? desktopStyles : mobileStyles;
+  // const { width } = useWindowDimensions();
+  // const isDesktop = width > 768;
+  // const styles = isDesktop ? desktopStyles : mobileStyles;
 
   return (
     <View style={styles.cardWrapper}>

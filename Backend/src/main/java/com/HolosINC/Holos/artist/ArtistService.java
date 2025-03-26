@@ -74,6 +74,12 @@ public class ArtistService {
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 	}
 
+	@Transactional(readOnly = true)
+	public Artist findArtistByUsername(String username) {
+		return artistRepository.findByUsername(username)
+				.orElseThrow(() -> new ResourceNotFoundException("Artist", "username", username));
+	}
+
 	@Transactional
     public Artist updateArtist(Long artistId, Artist updatedArtist) {
         try {
