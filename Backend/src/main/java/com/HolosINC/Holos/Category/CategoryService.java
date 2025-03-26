@@ -22,6 +22,19 @@ public class CategoryService {
         this.artistCategoryRepository = artistCategoryRepository;
     }
 
+    private void validateImage(byte[] image) {
+        if (image == null || image.length == 0) return;
+    
+        try {
+            if (javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(image)) == null) {
+                throw new IllegalArgumentException("Formato de imagen no válido.");
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error al procesar la imagen: no es válida.");
+        }
+    }
+    
+
     @Transactional(readOnly = true)
     public List<Category> findAllCategories() {
         return categoryRepository.findAll();
@@ -47,6 +60,7 @@ public class CategoryService {
     
     @Transactional
     public Category saveCategory(Category category) {
+        validateImage(category.getImage());
         return categoryRepository.save(category);
     }
 
@@ -54,19 +68,20 @@ public class CategoryService {
     public Category updateCategory(Long categoryId, Category updatedCategory) {
         try {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> {
-                        return new ResourceNotFoundException("Category", "id", categoryId);
-                    });
-
+                    .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
+    
+            validateImage(updatedCategory.getImage());
+    
             category.setName(updatedCategory.getName());
             category.setDescription(updatedCategory.getDescription());
             category.setImage(updatedCategory.getImage());
-
-            Category savedCategory = categoryRepository.save(category);
-            return savedCategory;
-
+    
+            return categoryRepository.save(category);
+    
         } catch (ResourceNotFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw e; // será capturado en el controlador
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("No se puede actualizar la categoría con ID " + categoryId +
                                        " debido a restricciones de integridad.");
@@ -74,29 +89,32 @@ public class CategoryService {
             throw new RuntimeException("Error interno al actualizar la categoría con ID " + categoryId);
         }
     }
+    
 
     @Transactional
     public void deleteCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new IllegalStateException("La categoría con ID " + categoryId + " no existe."));
+    
         try {
+            boolean hasWorkRelations = workCategoryRepository.existsByCategoryId(categoryId);
+            if (hasWorkRelations) {
+                throw new IllegalStateException("La categoría con ID " + categoryId + " no se puede eliminar porque está asociada a uno o más trabajos.");
+            }
+    
             List<ArtistCategory> artistCategories = artistCategoryRepository.findAllByCategoryId(categoryId);
             if (!artistCategories.isEmpty()) {
                 artistCategoryRepository.deleteAll(artistCategories);
             }
-
-            List<WorkCategory> workCategories = workCategoryRepository.findAllByCategoryId(categoryId);
-            if (!workCategories.isEmpty()) {
-                workCategoryRepository.deleteAll(workCategories);
-            }
-
+    
             categoryRepository.deleteById(categoryId);
-            
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("No se puede eliminar la categoría con ID " + categoryId + 
-                                       " debido a restricciones de integridad.");
+    
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error interno al eliminar la categoría con ID " + categoryId);
+            throw new RuntimeException("Error interno al eliminar la categoría con ID " + categoryId + ": " + e.getMessage(), e);
         }
-    }
+    }     
 
     @Transactional
     public void deleteAllByArtistId(Long artistId) {

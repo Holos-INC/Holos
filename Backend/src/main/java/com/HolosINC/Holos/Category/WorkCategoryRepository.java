@@ -26,4 +26,7 @@ public interface WorkCategoryRepository extends JpaRepository<WorkCategory, Long
 
     @Query("SELECT wc FROM WorkCategory wc WHERE wc.category.id = :categoryId")
     List<WorkCategory> findAllByCategoryId(Long categoryId);
+
+    @Query("SELECT COUNT(wc) > 0 FROM WorkCategory wc WHERE wc.category.id = :categoryId")
+    boolean existsByCategoryId(Long categoryId);
 }

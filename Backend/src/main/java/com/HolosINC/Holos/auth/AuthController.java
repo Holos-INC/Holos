@@ -126,7 +126,6 @@ public class AuthController {
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace(); // Para ver el error en consola
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(new MessageResponse("Error during registration: " + e.getMessage()));
 		}

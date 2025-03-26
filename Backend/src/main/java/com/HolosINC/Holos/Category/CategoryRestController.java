@@ -16,6 +16,8 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
@@ -47,36 +49,45 @@ public class CategoryRestController {
     }
 
     @PostMapping("/administrator/categories")
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
         try {
             Category newCategory = categoryService.saveCategory(category);
             return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: Imagen no válida.");
+        } catch (HttpMessageNotReadableException e) {
+            return ResponseEntity.badRequest().body("Error: No se pudo leer la imagen proporcionada.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().body("Error interno al crear la categoría.");
         }
     }
 
     @PutMapping("/administrator/categories/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory) {
         try {
             Category category = categoryService.updateCategory(id, updatedCategory);
             return ResponseEntity.ok(category);
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(404).body("Categoría no encontrada.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: Imagen no válida.");
+        } catch (HttpMessageNotReadableException e) {
+            return ResponseEntity.badRequest().body("Error: No se pudo leer la imagen proporcionada.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().body("Error interno al actualizar la categoría.");
         }
     }
 
     @DeleteMapping("/administrator/categories/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         try {
             categoryService.deleteCategory(id);
-            return ResponseEntity.ok().body("Categoría eliminada exitosamente");
+            return ResponseEntity.ok("Categoría eliminada exitosamente");
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error interno al eliminar la categoría");
         }
     }
+    
 }

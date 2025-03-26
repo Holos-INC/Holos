@@ -72,43 +72,43 @@ public class ReportService {
     }
     
     @Transactional
-public Report createReport(String name, String description, Long workId, Long reportTypeId) {
-    try {
-        BaseUser currentUser = baseUserService.findCurrentUser();
+    public Report createReport(String name, String description, Long workId, Long reportTypeId) {
+        try {
+            BaseUser currentUser = baseUserService.findCurrentUser();
 
-        Work work = workService.getBaseWorkById(workId);
-        if (work == null) {
-            throw new IllegalArgumentException("El trabajo especificado no existe.");
+            Work work = workService.getBaseWorkById(workId);
+            if (work == null) {
+                throw new IllegalArgumentException("El trabajo especificado no existe.");
+            }
+
+            ReportType reportType = reportTypeRepository.findById(reportTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Tipo de reporte no encontrado."));
+
+            boolean exists = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(
+                currentUser.getId(), workId, reportTypeId);
+
+            if (exists) {
+                throw new IllegalStateException("Ya has enviado un reporte de este tipo para este trabajo.");
+            }
+
+            Report report = Report.builder()
+                .name(name)
+                .description(description)
+                .status(ReportStatus.PENDING)
+                .madeBy(currentUser)
+                .reportedUser(work.getArtist().getBaseUser())
+                .work(work)
+                .reportType(reportType)
+                .build();
+
+            return reportRepository.save(report);
+
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno al crear el reporte.");
         }
-
-        ReportType reportType = reportTypeRepository.findById(reportTypeId)
-            .orElseThrow(() -> new IllegalArgumentException("Tipo de reporte no encontrado."));
-
-        boolean exists = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(
-            currentUser.getId(), workId, reportTypeId);
-
-        if (exists) {
-            throw new IllegalStateException("Ya has enviado un reporte de este tipo para este trabajo.");
-        }
-
-        Report report = Report.builder()
-            .name(name)
-            .description(description)
-            .status(ReportStatus.PENDING)
-            .madeBy(currentUser)
-            .reportedUser(work.getArtist().getBaseUser())
-            .work(work)
-            .reportType(reportType)
-            .build();
-
-        return reportRepository.save(report);
-
-    } catch (ResponseStatusException e) {
-        throw e;
-    } catch (Exception e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno al crear el reporte.");
     }
-}
 
 
     @Transactional
@@ -132,8 +132,7 @@ public Report createReport(String name, String description, Long workId, Long re
     
             return reportRepository.save(report);
     
-        } catch (Exception e) {
-            e.printStackTrace(); 
+        } catch (Exception e) { 
             throw new RuntimeException("Fallo interno al aceptar el reporte");
         }
     }
