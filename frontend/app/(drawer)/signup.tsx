@@ -7,18 +7,11 @@ import { useNavigation, useRouter } from 'expo-router';
 import { API_URL } from "@/src/constants/api";
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RootDrawerParamList } from '../_layout';
-import { RouteProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker'
-import { Platform } from 'react-native';
 
 type SignupScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, "Signup">;
-type SignupScreenRouteProp = RouteProp<RootDrawerParamList, "Signup">;
 
-type SignupScreenProps = {
-  navigation: SignupScreenNavigationProp;
-  route: SignupScreenRouteProp;
-};
 
 export default function SignupScreen() {
   // Estados compartidos
