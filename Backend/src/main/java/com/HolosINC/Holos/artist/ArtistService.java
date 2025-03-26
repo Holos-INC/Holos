@@ -22,6 +22,7 @@ import com.HolosINC.Holos.milestone.Milestone;
 import com.HolosINC.Holos.milestone.MilestoneService;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
 
 import org.springframework.stereotype.Service;
@@ -100,7 +101,7 @@ public class ArtistService {
 	@Transactional
 	public void deleteArtistIfNoAcceptedCommisions(Long artistId) {
 		try {
-			Artist artist = artistRepository.findById(artistId)
+			Artist artist = artistRepository.findByUserId(artistId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
 
 			Long userId = artist.getBaseUser().getId();
@@ -127,8 +128,6 @@ public class ArtistService {
 			throw new RuntimeException("Error al intentar eliminar el artista con ID " + artistId, e);
 		}
 	}
-
-
 	
 	@Transactional
 	public Artist createArtist(Artist artist) {
@@ -173,6 +172,36 @@ public class ArtistService {
 		if (artist == null)
 			return false;
 		return artist.getBaseUser().getIsBanned();
-	}	
+	}
+	
+	
+	public void deleteArtistIfPossible(Long artistId) {
+		
+		Artist artist = artistRepository.findByUserId(artistId)
+				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", artistId));
+
+		// Verifica si el artista tiene trabajos asociados
+		List<Work> works = workService.getWorksByArtist(artist);
+		if (!works.isEmpty()) {
+			throw new IllegalStateException("No se puede eliminar el artista porque tiene trabajos asociados.");
+		}
+	
+		boolean hasAcceptedCommisions = commisionRepository
+				.existsByArtistIdAndStatus(artistId, StatusCommision.ACCEPTED);
+
+			if (hasAcceptedCommisions) {
+				throw new IllegalStateException("El artista tiene comisiones aceptadas y no puede ser eliminado.");
+			}
+	
+		// Elimina asociaciones de categorías del artista (si se desea)
+		categoryService.deleteAllByArtistId(artistId);
+	
+		// Elimina estados Kanban relacionados
+		statusKanbanOrderService.deleteAllByArtistId(artistId);
+	
+		// Finalmente, elimina el artista
+		artistRepository.delete(artist);
+	}
+	
 
 }

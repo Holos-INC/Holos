@@ -60,7 +60,7 @@ class ArtistRestController {
     }
 
 	@PostMapping("/administrator/artists/{id}")
-    public ResponseEntity<?> createArtist(@RequestBody Artist artist) {
+    public ResponseEntity<Object> createArtist(@RequestBody Artist artist) {
         try {
             Artist createdArtist = artistService.createArtist(artist);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdArtist);
@@ -81,18 +81,19 @@ class ArtistRestController {
         }
     }
     
-    @DeleteMapping("/administrator/artists/{id}")
-    public ResponseEntity<?> deleteArtist(@PathVariable Long id) {
-        try {
-            artistService.deleteArtistIfNoAcceptedCommisions(id);
-            return ResponseEntity.ok("Artista eliminado exitosamente.");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artista no encontrado.");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el artista.");
-        }
+@DeleteMapping("/administrator/artists/{id}")
+public ResponseEntity<String> deleteArtist(@PathVariable Long id) {
+    try {
+        artistService.deleteArtistIfPossible(id);
+        return ResponseEntity.ok("Artista eliminado exitosamente.");
+    } catch (ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Artista no encontrado.");
+    } catch (IllegalStateException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el artista.");
     }
+}
+
 
 }
