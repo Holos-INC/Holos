@@ -46,5 +46,15 @@ class ClientRestController {
 			return ResponseEntity.badRequest().body("No tienes perfil, tienes que loguearte");
 		}
 	}
+	@GetMapping("/byBaseUser/{baseUserId}")
+public ResponseEntity<Client> getClientByBaseUser(@PathVariable Long baseUserId) {
+    Client client = clientService.findClientByUserId(baseUserId);
+    if(client == null) {
+        return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(client);
+}
+
+
 
 }

@@ -519,3 +519,6 @@ INSERT INTO report_types(id ,type) VALUES
 (3, 'COPYRIGHT_VIOLATION'),
 (4, 'AI_GENERATED'),
 (5, 'OTHER');
+
+INSERT INTO chat_messages (id, creation_date, text, image, from_user, to_user)
+VALUES (1, NOW(), 'Hola, ¿cómo estás?', NULL, 25, 23);

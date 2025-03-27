@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.artist;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -45,4 +47,9 @@ public class ArtistService {
 	public void deleteArtist(Long artistId) {
 		artistRepository.deleteById(artistId);
 	}
+	
+	@Transactional
+	public Optional<Artist> findByBaseUserId(Long baseUserId) {
+        return artistRepository.findByUserId(baseUserId);
+    }
 }
