@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
-import { getAllRequestedCommisions, updateCommisionStatus } from "@/src/services/commisionApi";
+import { getAllRequestedCommissions, updateCommissionStatus } from "@/src/services/commisionApi";
 import { Commission } from "@/src/constants/CommissionTypes";
 
-// 2. Ajusta la pantalla
+// Ajuste de pantalla
 const { width } = Dimensions.get("window");
 const isBigScreen = width >= 1024;
 const MOBILE_PROFILE_ICON_SIZE = 40;
@@ -15,13 +15,12 @@ const MOBILE_CARD_PADDING = 12;
 export default function ArtistRequestOrders({ route }: any) {
   const { loggedInUser } = useContext(AuthenticationContext);
 
-  // 3. Tipar el estado como arreglo de Commission
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCommissions = async () => {
     try {
-      const data: Commission[] = await getAllRequestedCommisions(loggedInUser.token);
+      const data: Commission[] = await getAllRequestedCommissions();
       setCommissions(data);
     } catch (error) {
       Alert.alert("Error", "Error al obtener las comisiones.");
@@ -36,7 +35,7 @@ export default function ArtistRequestOrders({ route }: any) {
 
   const handleUpdateStatus = async (commissionId: number, accept: boolean) => {
     try {
-      await updateCommisionStatus(commissionId, loggedInUser.id, accept, loggedInUser.token);
+      await updateCommissionStatus(commissionId, loggedInUser.id, accept, loggedInUser.token);
       Alert.alert("Éxito", `Solicitud ${accept ? "aceptada" : "denegada"}.`);
       fetchCommissions();
     } catch (error) {
@@ -44,17 +43,13 @@ export default function ArtistRequestOrders({ route }: any) {
     }
   };
 
-  // Filtra según estado
-  // Considera REQUESTED como "nueva solicitud"
   const newRequests = commissions.filter(
     (comm) => comm.status === "REQUESTED"
   );
 
-  // Considera como "respondidas" todo lo que NO sea REQUESTED
   const respondedRequests = commissions.filter(
-    (comm) => comm.status !== "REQUESTED"
+    (comm) => comm.status !== "REQUESTED" && comm.client?.baseUser?.username
   );
-
 
   if (loading) {
     return (
@@ -80,7 +75,7 @@ export default function ArtistRequestOrders({ route }: any) {
               <View key={comm.id} style={styles.card}>
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
-                    {comm.client?.baseUser.username || "Usuario desconocido"}
+                    {comm.client?.baseUser?.username ?? "Usuario desconocido"}
                   </Text>
                   <Text style={styles.text}>Descripción: {comm.description}</Text>
                 </View>
@@ -110,7 +105,7 @@ export default function ArtistRequestOrders({ route }: any) {
               <View key={comm.id} style={styles.card}>
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
-                    {comm.client?.baseUser.username || "Usuario desconocido"}
+                    {comm.client?.baseUser?.username ?? "Usuario desconocido"}
                   </Text>
                   <Text style={styles.text}>Descripción: {comm.description}</Text>
                 </View>
