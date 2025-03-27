@@ -1,16 +1,30 @@
-import { API_URL } from "../constants/api";
-import { User } from "../constants/CommissionTypes";
-import { handleError } from "../utils/handleError";
-import api from "./axiosInstance";
+import api from "./axiosInstance"; // Assuming you have an axios instance set up
+import { BaseUser, User } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
+import { API_URL } from "@/src/constants/api";
 
-const COMMISION_URL = `${API_URL}/users`;
+const USER_URL = `${API_URL}/baseUser`;
+const ADMINISTRATOR_USER_URL = `${API_URL}/baseUser/administrator/users`;
+
+export const getAllUsers = async (token:string): Promise<BaseUser[]> => {
+  const response = await api.get(ADMINISTRATOR_USER_URL, { headers: { Authorization: `Bearer ${token}`}});
+  return response.data;
+};
+
+export const getUserById = async (id: number, token:string): Promise<BaseUser> => {
+  const response = await api.get(`${ADMINISTRATOR_USER_URL}/${id}`, { headers: { Authorization: `Bearer ${token}`}});
+  return response.data;
+};
 
 export const getUser = async (token:string): Promise<User> => {
-    try {
-        const response = await api.get(`${COMMISION_URL}/profile`, {headers: { Authorization: `Bearer ${token}`}});
-        return response.data;
-    } catch (error) {
-        handleError(error, "Error fetching commissions");
-        throw error;
-}
+  const response = await api.get(`${API_URL}/users/profile`, { headers: { Authorization: `Bearer ${token}`}});
+  return response.data;
+};
+
+export const updateUser = async (id: number, user: Partial<BaseUser>, token:string): Promise<BaseUser> => {
+  const response = await api.put(`${ADMINISTRATOR_USER_URL}/${id}`, user, { headers: { Authorization: `Bearer ${token}`}});
+  return response.data;
+};
+
+export const deleteUser = async (id: number, token:string): Promise<void> => {
+  await api.delete(`${ADMINISTRATOR_USER_URL}/${id}`, { headers: { Authorization: `Bearer ${token}`}});
 };

@@ -31,4 +31,7 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
     @Query(" SELECT new com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO(c.image, c.name, c.artist.baseUser.username, c.statusKanbanOrder.order,0)"+
         "FROM Commision c WHERE c.client = :client") // Obliga a que el orden sea serializado
     List<ClientCommissionDTO> findAllForClient(Client client);
+
+    @Query("SELECT c FROM Commision c WHERE c.client.id = :clientId")
+    List<Commision> findAllByClientId(Long clientId);
 }

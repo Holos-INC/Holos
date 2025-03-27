@@ -46,14 +46,14 @@ export default function ArtistRequestOrders({ route }: any) {
 
   // Filtra según estado
   // Considera REQUESTED como "nueva solicitud"
-const newRequests = commissions.filter(
-  (comm) => comm.status === "REQUESTED"
-);
+  const newRequests = commissions.filter(
+    (comm) => comm.status === "REQUESTED"
+  );
 
-// Considera como "respondidas" todo lo que NO sea REQUESTED
-const respondedRequests = commissions.filter(
-  (comm) => comm.status !== "REQUESTED"
-);
+  // Considera como "respondidas" todo lo que NO sea REQUESTED
+  const respondedRequests = commissions.filter(
+    (comm) => comm.status !== "REQUESTED"
+  );
 
 
   if (loading) {

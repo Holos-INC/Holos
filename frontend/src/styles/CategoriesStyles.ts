@@ -1,8 +1,4 @@
 import { StyleSheet } from "react-native";
-import { useWindowDimensions } from "react-native";
-
-const { width } = useWindowDimensions();
-const isBigScreen = width >= 1024;
 
 const styles = StyleSheet.create({
     loadingContainer: {
@@ -24,7 +20,7 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: "#F0F0F0",
-      padding: isBigScreen ? 40 : 0,
+      // padding: isBigScreen ? 40 : 0,
     },
     banner: {
       backgroundColor: "#183771",

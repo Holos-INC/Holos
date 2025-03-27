@@ -32,7 +32,7 @@ public class ReportController {
     }
 
     // Para el administrador
-    @PostMapping("/admin")
+    @GetMapping("/admin")
     public ResponseEntity<?> getAllReports() {
         try {
             List<Report> reports = reportService.getReports();
@@ -58,39 +58,40 @@ public class ReportController {
         }
     }
 
-    @DeleteMapping("/admin/{id}")
-    public ResponseEntity<?> deleteReport(@PathVariable Long id) {
-        try {
-            Report deletedReport = reportService.deleteReport(id);
-            return ResponseEntity.ok(deletedReport);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-    }
-
+    
     @PutMapping("/admin/accept/{id}")
     public ResponseEntity<?> acceptReport(@PathVariable Long id) {
         try {
-            Report acceptedReport = reportService.acceptReport(id);
-            return ResponseEntity.ok(acceptedReport);
-        } catch (IllegalArgumentException e) {
+            Report accepted = reportService.acceptReport(id);
+            return ResponseEntity.ok(accepted);
+        } catch (IllegalStateException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Error interno al aceptar el reporte");
         }
     }
 
     @PutMapping("/admin/reject/{id}")
     public ResponseEntity<?> rejectReport(@PathVariable Long id) {
         try {
-            Report rejectedReport = reportService.rejectReport(id);
-            return ResponseEntity.ok(rejectedReport);
-        } catch (IllegalArgumentException e) {
+            Report accepted = reportService.rejectReport(id);
+            return ResponseEntity.ok(accepted);
+        } catch (IllegalStateException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body("Error interno al rechazar el reporte");
+        }
+    }
+
+    @DeleteMapping("/admin/delete/{id}")
+    public ResponseEntity<?> deleteRejectedReport(@PathVariable Long id) {
+        try {
+            reportService.deleteReport(id);
+            return ResponseEntity.ok("Reporte eliminado correctamente.");
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error interno al eliminar el reporte");
         }
     }
 

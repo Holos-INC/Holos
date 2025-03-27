@@ -3,28 +3,29 @@ import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import UserPanel from "@/src/components/RequestCommission/UserPanel";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
-import { getArtistById } from "@/src/services/artistApi";
+import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
-export default function RequestCommissionUserScreen({ route }: any) {
-  const { artistId } = useLocalSearchParams();
+export default function RequestCommissionUserScreen() {
+  const { artistUsername } = useLocalSearchParams();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const toStringParam = (param: string | string[]) => typeof param === 'string' ? param : param[0];
 
   useEffect(() => {
-    if (!artistId) {
+    if (!artistUsername) {
       console.error("Artist ID is undefined!");
       return;
     }
 
     const fetchData = async () => {
       try {
-        const artistData: Artist = await getArtistById(Number(artistId));
+        const artistData: Artist = await getArtistByUsername(toStringParam(artistUsername));
         setArtist(artistData);
       } catch (error) {
         console.error("Error fetching artist:", error);
@@ -34,11 +35,10 @@ export default function RequestCommissionUserScreen({ route }: any) {
     };
 
     fetchData();
-  }, [artistId]);
+  }, [artistUsername]);
 
   useEffect(() => {
-    console.log("Artist object:", artist);
-      navigation.setOptions({ title: `Commision ${artist?.username}!` });
+    navigation.setOptions({ title: `Commision ${artist?.baseUser.username}!` });
     }, [navigation, artist]);
 
   if (loading) {

@@ -3,7 +3,7 @@ import { View, Text, TextInput, Image, Button, StyleSheet, Platform, ScrollView,
 import { useNavigation } from "@react-navigation/native";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { User } from "@/src/constants/CommissionTypes";
-import { API_URL } from "@/src/constants/api";
+import { API_URL, BASE_URL } from "@/src/constants/api";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { getUser } from "@/src/services/userApi";
 
@@ -12,23 +12,23 @@ const isWeb = Platform.OS === "web";
 const UserProfileScreen = () => {
   const navigation = useNavigation<any>();
   const { loggedInUser } = useContext(AuthenticationContext);
-  const [user, setUser] = useState<User|null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const user = await getUser(loggedInUser.token);
-        setUser(user);
+        const usuario = await getUser(loggedInUser.token);
+        setUser(usuario);
       } catch (error) {
         console.error('Failed to fetch user:', error);
       }
     };
     fetchUser();
-  }, [loggedInUser?.id]);  
-  
+  }, [user?.id]);  
+
   useEffect(() => {
-      navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
-    }, [navigation, user]);
+    navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
+  }, [navigation, user]);
 
   if (!user) {
     return <LoadingScreen />;
@@ -42,7 +42,12 @@ const UserProfileScreen = () => {
       <View style={styles.container}>
         <Text style={styles.title}>{isArtist ? "ARTISTA" : "CLIENTE"}</Text>
         <Image
-          source={{ uri: `${API_URL}${user.baseUser.imageProfile}` }} // TODO Conseguir static image
+          source={
+            user?.baseUser?.imageProfile
+              ? { uri: `${BASE_URL}${atob(user.baseUser.imageProfile)}` }
+              : undefined
+          }
+          // TODO Conseguir de imagenes estáticas
           style={styles.image}
         />
         <Text style={styles.label}>

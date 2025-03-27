@@ -35,14 +35,14 @@ public class BaseUser {
     protected String name;
 
     @Size(min = 2, max = 255)
-    // @Column(unique = true)
+    @Column(unique = true)
     protected String username;
 
     @Size(min = 2, max = 255)
     protected String password;
 
     @Size(max = 255)
-    // @Column(unique = true)
+    @Column(unique = true)
     @NotNull
     protected String email;
 
@@ -53,6 +53,10 @@ public class BaseUser {
     @Lob
     @Column(name = "image_profile", columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
+
+    @Lob
+    @Column(name = "table_commissions", columnDefinition = "LONGBLOB")
+    private byte[] tableCommissionsPrice;
 
     @Column(name = "created_user")
     @NotNull

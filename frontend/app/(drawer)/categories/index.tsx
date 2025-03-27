@@ -47,9 +47,9 @@ export default function AdminCategories() {
   const handleSave = async () => {
     try {
       if (editingCategory) {
-        await updateCategory(editingCategory.id, newCategory);
+        await updateCategory(editingCategory.id, newCategory, loggedInUser.token);
       } else {
-        await createCategory(newCategory);
+        await createCategory(newCategory, loggedInUser.token);
       }
       Alert.alert("Éxito", "Categoría guardada correctamente.");
       setModalVisible(false);

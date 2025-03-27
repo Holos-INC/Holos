@@ -17,4 +17,9 @@ export const getClientById = async (id: number): Promise<Client> => {
     }
     throw error;
   }
+  
+};
+
+export const deleteClient = async (id: number, token:string): Promise<void> => {
+  await api.delete(`${CLIENT_URL}/administrator/clients/${id}`, { headers: { Authorization: `Bearer ${token}`}});
 };

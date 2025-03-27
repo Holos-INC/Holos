@@ -28,9 +28,14 @@ export default function UserPanel({ artist }: UserPanelProps) {
     >
       {artist.baseUser.imageProfile ? (
         <Image
-          source={{uri:BASE_URL+artist.baseUser.imageProfile}} // TODO Connect with static resources
+          source={
+            artist.baseUser.imageProfile
+              ? { uri: `${BASE_URL}${atob(artist.baseUser.imageProfile)}` }
+              : undefined
+          }
           style={{ width: 80, height: 80, borderRadius: 40, marginBottom: 10 }}
         />
+
       ) : (
         <Text>No profile image</Text>
       )}

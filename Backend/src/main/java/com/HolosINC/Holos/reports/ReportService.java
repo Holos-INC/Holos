@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.reports;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ReportService {
@@ -67,31 +71,50 @@ public class ReportService {
         return reportTypeRepository.save(reportType);
     }
 
-    public Report deleteReport(Long id) {
-        Report report = reportRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid report id"));
-        reportRepository.delete(report);
-        return report;
+    @Transactional
+    public Report acceptReport(Long reportId) {
+        try {
+            Report report = getReportByIdOrThrow(reportId);
+    
+            if (report.getStatus() != ReportStatus.PENDING) {
+                throw new IllegalStateException("Solo se pueden aceptar reportes en estado PENDING.");
+            }
+    
+            report.setStatus(ReportStatus.ACCEPTED);
+    
+            return reportRepository.save(report);
+    
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            throw new RuntimeException("Fallo interno al aceptar el reporte");
+        }
     }
     
-    public Report acceptReport(Long id) {
-        Report report = reportRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Report not found"));
-        if (report.getStatus() == ReportStatus.ACCEPTED) {
-            throw new IllegalArgumentException("Report already accepted");
+    
+    public Report rejectReport(Long reportId) {
+        Report report = getReportByIdOrThrow(reportId);
+    
+        if (report.getStatus() != ReportStatus.PENDING) {
+            throw new IllegalStateException("Solo se pueden rechazar reportes en estado PENDING.");
         }
-        report.setStatus(ReportStatus.ACCEPTED);
-        return reportRepository.save(report);
-    }
-
-    public Report rejectReport(Long id) {
-        Report report = reportRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Report not found"));
-        if (report.getStatus() == ReportStatus.REJECTED) {
-            throw new IllegalArgumentException("Report already rejected");
-        }
+    
         report.setStatus(ReportStatus.REJECTED);
         return reportRepository.save(report);
+    }
+    
+    public void deleteReport(Long reportId) {
+        Report report = getReportByIdOrThrow(reportId);
+    
+        if (report.getStatus() != ReportStatus.REJECTED) {
+            throw new IllegalStateException("Solo se pueden eliminar reportes que hayan sido rechazados.");
+        }
+    
+        reportRepository.delete(report);
+    }
+    
+    private Report getReportByIdOrThrow(Long id) {
+        return reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reporte no encontrado con ID: " + id));
     }
 
     public ReportType getReportTypeByType(String type) {

@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity,
-  Alert, StyleSheet, Image
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, Linking } from 'react-native';
 import { useNavigation, useRouter } from 'expo-router';
 import { API_URL } from "@/src/constants/api";
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { RootDrawerParamList } from '../_layout';
 import { RouteProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import * as ImagePicker from 'expo-image-picker'
-import { Platform } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 type SignupScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, "Signup">;
 type SignupScreenRouteProp = RouteProp<RootDrawerParamList, "Signup">;
@@ -31,10 +27,11 @@ export default function SignupScreen() {
   const [imageProfile, setImageProfile] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
   const [role, setRole] = useState('client');
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   // Estados específicos para artistas
   const [numSlotsOfWork, setNumSlotsOfWork] = useState('');
-  const [tableCommisionsPrice, setTableCommisionsPrice] = useState('');
+  const [tableCommissionsPrice, setTableCommissionsPrice] = useState('');
 
   const router = useRouter();
   const navigation = useNavigation<SignupScreenNavigationProp>();
@@ -50,19 +47,30 @@ export default function SignupScreen() {
 
 
   const handleSignup = async () => {
+    {if (!acceptTerms) {
+      console.log("Error: Términos y condiciones no aceptados");
+      alert("Debes aceptar los Términos y Condiciones");
+      
+    }
+
     if (passwordError) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
-      return;
+      alert("Las contraseñas no coinciden");
+      
     }
 
     if (!password || !confirmPassword) {
-      Alert.alert("Error", "Debes ingresar y confirmar la contraseña");
-      return;
+      alert("Debes ingresar y confirmar la contraseña");
+      
     }
 
     if (!selectedImage) {
-      Alert.alert("Falta imagen", "Selecciona una foto de perfil");
-      return;
+      alert("Selecciona una foto de perfil");
+      
+    }}
+
+    if (role === 'artist' && !tableCommissionsPrice) {
+      alert("Selecciona una imagen para el precio del tablero de comisiones");
+      
     }
 
     const userPayload = {
@@ -71,27 +79,36 @@ export default function SignupScreen() {
       email,
       password,
       authority: role.toUpperCase(),
-      phoneNumber: "123456789"
+      phoneNumber: "123456789",
+      numSlotsOfWork: role === 'artist' ? numSlotsOfWork : undefined,
     };
 
     const formData = new FormData();
     formData.append("user", JSON.stringify(userPayload));
 
-    const uriParts = selectedImage.split("/");
-    const fileName = uriParts[uriParts.length - 1];
-    const fileExtension = fileName?.split(".").pop() || "jpg";
-    const mimeType = `image/${fileExtension}`;
+    // Foto de perfil
+    const profileUriParts = selectedImage.split("/");
+    const profileFileName = profileUriParts[profileUriParts.length - 1];
+    const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
+    const profileMimeType = `image/${profileFileExtension}`;
 
-    if (Platform.OS === "web") {
-      const response = await fetch(selectedImage);
-      const blob = await response.blob();
-      const file = new File([blob], fileName, { type: mimeType });
-      formData.append("imageProfile", file);
-    } else {
-      formData.append("imageProfile", {
-        uri: selectedImage,
-        name: fileName,
-        type: mimeType,
+    formData.append("imageProfile", {
+      uri: selectedImage,
+      name: profileFileName,
+      type: profileMimeType,
+    } as any);
+
+    // Imagen del precio del tablero de comisiones
+    if (role === 'artist') {
+      const tableUriParts = tableCommissionsPrice.split("/");
+      const tableFileName = tableUriParts[tableUriParts.length - 1];
+      const tableFileExtension = tableFileName?.split(".").pop() || "jpg";
+      const tableMimeType = `image/${tableFileExtension}`;
+
+      formData.append("tableCommissionsPrice", {
+        uri: tableCommissionsPrice,
+        name: tableFileName,
+        type: tableMimeType,
       } as any);
     }
 
@@ -136,11 +153,24 @@ export default function SignupScreen() {
     }
   };
 
+  const pickTableCommissionsPrice = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setTableCommissionsPrice(uri); // Actualiza el estado con el URI de la imagen seleccionada
+    }
+  };
 
   return (
     <ScrollView style={styles.screenBackground}>
       <Image
-        source={require('../(drawer)/logo/logo.png')} // Ajusta la ruta según tu estructura
+        source={require('@/assets/images/logo.png')}
         style={styles.logo}
       />
 
@@ -258,14 +288,27 @@ export default function SignupScreen() {
                   keyboardType="numeric"
                 />
               </View>
-              {/* Precio del tablero */}
+            </View>
+
+            <View style={styles.formRow}>
+              {/* Precio del tablero de comisiones */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Precio del tablero de comisiones</Text>
-                <TextInput
-                  style={styles.input}
-                  value={tableCommisionsPrice}
-                  onChangeText={setTableCommisionsPrice}
-                />
+                <TouchableOpacity
+                  onPress={pickTableCommissionsPrice}
+                  style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}
+                >
+                  <Text style={{ color: '#888' }}>
+                    {tableCommissionsPrice ? "Imagen seleccionada" : "Seleccionar imagen"}
+                  </Text>
+                </TouchableOpacity>
+
+                {tableCommissionsPrice && (
+                  <Image
+                    source={{ uri: tableCommissionsPrice }}
+                    style={{ width: 100, height: 100, marginTop: 10, borderRadius: 8 }}
+                  />
+                )}
               </View>
             </View>
           </>
@@ -293,6 +336,27 @@ export default function SignupScreen() {
               <Text style={styles.roleButtonText}>ARTIST</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        <View style={styles.checkboxContainer}>
+          <TouchableOpacity
+            style={styles.checkboxRow}
+            onPress={() => setAcceptTerms(!acceptTerms)}
+          >
+            <View style={[styles.checkbox, acceptTerms && styles.checkboxChecked]} />
+            <Text style={styles.checkboxLabel}>
+              Acepto los{" "}
+              <Text
+                style={styles.link}
+                onPress={() => {
+                  // Abrir la URL de los términos y condiciones
+                  Linking.openURL("https://holos-doc.vercel.app/docs/Documentacion/S2/Terminos%20y%20Condiciones");
+                }}
+              >
+                Términos y Condiciones
+              </Text>
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.createButton} onPress={handleSignup}>
@@ -399,5 +463,34 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  checkboxContainer: {
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: "#C68FA2",
+    borderRadius: 4,
+    marginRight: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  checkboxChecked: {
+    backgroundColor: "#C68FA2",
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    color: "#403568",
+  },
+  link: {
+    color: "#C68FA2",
+    textDecorationLine: "underline",
   },
 });

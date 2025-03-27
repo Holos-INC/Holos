@@ -1,14 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import axios from 'axios';
 import { createContext, useEffect, useState } from 'react';
 import { login } from "@/src/services/AuthEndpoints";
 import { Platform } from 'react-native';
+import api, { setAuthToken } from '../services/axiosInstance';
+import axios from 'axios';
 
 const AuthenticationContext = createContext();
 
-export default function AuthenticationContextProvider (props) {
-    const [loggedInUser, setLoggedInUser] = useState(null)
+export default function AuthenticationContextProvider(props) {
+    const [loggedInUser, setLoggedInUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const signOut = async (onSuccess = null, onError = null) => {
@@ -16,41 +17,38 @@ export default function AuthenticationContextProvider (props) {
             await axios.post('/logout').catch(console.log);
 
             setLoggedInUser(null);
+            setAuthToken(null);
+            console.log("Auth header after signOut:", api.defaults.headers.common['Authorization']);
 
             if (Platform.OS === 'ios' || Platform.OS === 'android') {
                 await SecureStore.deleteItemAsync('user');
             } else {
                 await AsyncStorage.removeItem('user');
+                const stillStored = await SecureStore.getItemAsync('user');
+                console.log("Storage after delete:", stillStored); // should be null
             }
 
-            setLoggedInUser(null);
-            delete axios.defaults.headers.common['Authorization'];
-
-            if (onSuccess) { onSuccess() }
+            if (onSuccess) onSuccess();
         } catch (error) {
-            console.log(error)
-            if (onError) { onError() }
+            if (onError) onError();
         }
-    }
+    };
 
     const signIn = async (data, onSuccess = null, onError = null) => {
         try {
-            console.log("Before fetching data")
             const user = await login(data);
-            axios.defaults.headers.common = { Authorization: `bearer ${user.token}`}
-            console.log("Has fetched data.")
-            setLoggedInUser(user)
+            setAuthToken(user.token);
+            setLoggedInUser(user);
 
             if (Platform.OS === 'ios' || Platform.OS === 'android') {
-                SecureStore.setItemAsync('user', JSON.stringify(user))
+                await SecureStore.setItemAsync('user', JSON.stringify(user));
             } else {
-                AsyncStorage.setItem('user', JSON.stringify(user))
+                await AsyncStorage.setItem('user', JSON.stringify(user));
             }
 
-            if (onSuccess) { console.log("Login successful!"); onSuccess(user) }
+            if (onSuccess) onSuccess(user);
         } catch (error) {
-            console.log(error)
-            if (onError) { console.log("Something happened :("); onError(error) }
+            if (onError) onError(error);
         }
     };
 
@@ -64,12 +62,10 @@ export default function AuthenticationContextProvider (props) {
                 if (storedUser) {
                     const parsedUser = JSON.parse(storedUser);
                     setLoggedInUser(parsedUser);
-                    axios.defaults.headers.common = { Authorization: `Bearer ${parsedUser.token}` };
+                    setAuthToken(parsedUser.token);
                 }
-            } catch (error) {
-                console.error("Error loading user:", error);
             } finally {
-                setLoading(false);  // ✅ Now we indicate that loading is complete!
+                setLoading(false);
             }
         };
 
@@ -78,15 +74,15 @@ export default function AuthenticationContextProvider (props) {
 
     return (
         <AuthenticationContext.Provider value={{
-            loggedInUser: loggedInUser,
+            loggedInUser,
             isAuthenticated: !!loggedInUser,
             loading,
-            signIn: signIn,
-            signOut: signOut
+            signIn,
+            signOut
         }}>
             {props.children}
         </AuthenticationContext.Provider>
     );
 };
 
-export { AuthenticationContext }
+export { AuthenticationContext };

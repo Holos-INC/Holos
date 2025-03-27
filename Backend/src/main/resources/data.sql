@@ -40,11 +40,11 @@ INSERT INTO base_user (id, first_name, username, password, email, phone_number, 
 (35,'Gurutze', 'churros','$2a$10$tk9XOUj.3AiCREPRF70xUOp4ExXn4AGpF5yad5ewzCuuug7IGJuqO', 'gurutze.contact@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
 (36,'Damaris', 'damaris','$2a$10$rhUAtnuv7WqW4ufo/a.wkeOzHco2GFWXsvx6WBC.fZdi0swbCERf6', 'damaris.narvaezjimenez@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
 (37,'Sofia', 'rata','$2a$10$4sJMWhxkUDrI4M.uAQ228OM8vYf/wBcJCctAqA.nZXRMgygH02mAy', 'already.dead.baby@gmail.com', '1234567890','/images/nobita.jpg', '2025-03-06', 3),
-(38,'Daniel', 'daniel_artist','$2a$10$x5PArdGNz86t6sqYpM.URevvy/.wE4OYgnGcmcKdmclTf3myUXnGu', 'megamagolas@gmail.com', '663522963', '/images/nobita.jpg', '2025-03-06', 3),
-(39,'Rafael', 'rafaelduque_artist','$2a$10$QP6LWLpPFKowv.s67KpaM.w2w0g.hiz3UfW2QcQyqlI7ovWxDr1XK', 'rafduqcol@alum.us.es', '722675760','/images/nobita.jpg', '2025-03-06', 3),
-(40,'Rafael', 'rafaelcastillo_artist','$2a$10$KHEzZb0ioIjGoAYqvUX6G.5q6apcUxxMCY.dLXpnTgZnuFjkMLfdG', 'rafaelcastillocebolla@gmail.com', '671168164','/images/nobita.jpg', '2025-03-06', 3),
-(41,'Mohamed', 'mohamed_artist','$2a$10$/xzsXNtwVMPX4eIu1coLYeBWvN7DDMiuzAE39B3M3fCt1SvVPo73u', 'mohmmedabourihhh@gmail.com', '602171961','/images/nobita.jpg', '2025-03-06', 3),
-(42,'Enrique', 'enrique_artist','$2a$10$tbDdopmXHspY4l2iTHMJl.wFf/btZGataJBHRRdenrDHRSsHh/GlC', 'kiquegaraba@gmail.com', '600619217','/images/nobita.jpg', '2025-03-06', 3),
+(38,'Daniel', 'daniel_artist','$2a$10$x5PArdGNz86t6sqYpM.URevvy/.wE4OYgnGcmcKdmclTf3myUXnGu', 'megamagolas2@gmail.com', '663522963', '/images/nobita.jpg', '2025-03-06', 3),
+(39,'Rafael', 'rafaelduque_artist','$2a$10$QP6LWLpPFKowv.s67KpaM.w2w0g.hiz3UfW2QcQyqlI7ovWxDr1XK', 'rafduqcol2@alum.us.es', '722675760','/images/nobita.jpg', '2025-03-06', 3),
+(40,'Rafael', 'rafaelcastillo_artist','$2a$10$KHEzZb0ioIjGoAYqvUX6G.5q6apcUxxMCY.dLXpnTgZnuFjkMLfdG', 'rafaelcastillocebolla2@gmail.com', '671168164','/images/nobita.jpg', '2025-03-06', 3),
+(41,'Mohamed', 'mohamed_artist','$2a$10$/xzsXNtwVMPX4eIu1coLYeBWvN7DDMiuzAE39B3M3fCt1SvVPo73u', 'mohmmedabourihhh2@gmail.com', '602171961','/images/nobita.jpg', '2025-03-06', 3),
+(42,'Enrique', 'enrique_artist','$2a$10$tbDdopmXHspY4l2iTHMJl.wFf/btZGataJBHRRdenrDHRSsHh/GlC', 'kiquegaraba2@gmail.com', '600619217','/images/nobita.jpg', '2025-03-06', 3),
 (43, 'admin1', 'admin1', '$2b$10$OHjdYNE5IRkwWb5R1NtPGeIyb2l8xShgxjIZHG7bZn1WI3jfIntRi', 'admin1@gmail.com', '600619217', NULL, '2025-03-06', 1);
 
 INSERT INTO clients (id, base_user_id) VALUES
@@ -120,11 +120,11 @@ INSERT INTO categories (id, name, description, image) VALUES
 
 
 INSERT INTO works_done(id, artist_id, name, description, price, image) VALUES 
-(1, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
-(2, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
-(3, 1, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
-(4, 1, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
-(5, 1, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg');
+(25, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
+(26, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
+(27, 1, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
+(28, 1, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
+(29, 1, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg');
 
 INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, description, color) VALUES 
 (1, 1, 'To Do', 1, 'Tasks that need to be started', '#FF5733'),
@@ -513,9 +513,39 @@ INSERT INTO work_category(id,category_id,work_id) VALUES
 (4, 4, 4),
 (5, 5, 5);
 
-INSERT INTO report_types(id ,type) VALUES
-(1, 'SPAM'),
-(2, 'INAPPROPRIATE_CONTENT'),
-(3, 'COPYRIGHT_VIOLATION'),
-(4, 'AI_GENERATED'),
-(5, 'OTHER');
+INSERT INTO report_types (id, type) VALUES (500, 'Financial Report');
+INSERT INTO report_types (id, type) VALUES (501, 'Marketing Analysis');
+INSERT INTO report_types (id, type) VALUES (502, 'Customer Feedback');
+INSERT INTO report_types (id, type) VALUES (503, 'Technical Review');
+INSERT INTO report_types (id, type) VALUES (504, 'Annual Summary');
+
+INSERT INTO works (id, name, description, price, artist_id) 
+VALUES (500, 'Sunset Painting', 'A beautiful sunset painting', 150.00, 1);
+
+INSERT INTO works (id, name, description, price, artist_id) 
+VALUES (501, 'Abstract Vibes', 'Modern abstract artwork', 200.50, 2);
+
+INSERT INTO works (id, name, description, price, artist_id) 
+VALUES (502, 'Cityscape', 'A detailed cityscape at night', 300.00, 3);
+
+INSERT INTO works (id, name, description, price, artist_id) 
+VALUES (503, 'Portrait of a Woman', 'Realistic portrait painting', 250.75, 1);
+
+INSERT INTO works (id, name, description, price, artist_id) 
+VALUES (504, 'Sculpture: The Thinker', 'Bronze sculpture inspired by Rodin', 500.00, 4);
+
+
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
+VALUES (1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 2, 500, 501);
+
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
+VALUES (2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 4, 501, 502);
+
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
+VALUES (3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 6, 503, 503);
+
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
+VALUES (4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 7, 504, 504);
+
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
+VALUES (5, 'Spam Content', 'The artwork description contains promotional links.', 'REJECTED', 8, 9, 502, 500);

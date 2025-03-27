@@ -54,32 +54,62 @@ public class AuthoritiesService {
 	}
 
 	@Transactional
-	public void createUser(@Valid SignupRequest request) {
+	public void createUser(@Valid SignupRequest request) throws IllegalArgumentException, Exception {
 
-		BaseUser user = new BaseUser();
-		user.setUsername(request.getUsername());
-		user.setName(request.getFirstName());
-		user.setCreatedUser(Date.from(Instant.now()));
-		user.setPassword(encoder.encode(request.getPassword()));
-		user.setEmail(request.getEmail());
-		user.setPhoneNumber(request.getPhoneNumber());
-		user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
-		String strRoles = request.getAuthority().toUpperCase();
-		Authorities role = findByAuthority(strRoles);
-		user.setAuthority(role);
-
-		if (strRoles == "ARTIST") {
-			baseUserService.save(user);
-			Artist artist = new Artist();
-			artist.setBaseUser(user);
-			artistService.saveArtist(artist);
-		} else if (strRoles == "CLIENT") {
-			Client client = new Client();
-			baseUserService.save(user);
-			client.setBaseUser(user);
-			clientService.saveClient(client);
-		} else {
-			baseUserService.save(user);
+		try {
+			if(authoritiesRepository.existsBaseUserByUsername(request.getUsername()))
+			throw new IllegalArgumentException("Nombre de usuario ya existente en la base de datos.");
+			if(authoritiesRepository.existsBaseUserByUsername(request.getEmail()))
+			throw new IllegalArgumentException("Email ya existente en la base de datos.");
+			
+			// Crear el usuario base
+			BaseUser user = new BaseUser();
+			user.setUsername(request.getUsername());
+			user.setName(request.getFirstName());
+			user.setCreatedUser(Date.from(Instant.now()));
+			user.setPassword(encoder.encode(request.getPassword()));
+			user.setEmail(request.getEmail());
+			user.setPhoneNumber(request.getPhoneNumber());
+	
+			// Procesar la imagen de perfil
+			if (request.getImageProfile() != null) {
+				user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
+			}
+	
+			// Asignar el rol al usuario
+			String strRoles = request.getAuthority().toUpperCase();
+			Authorities role = findByAuthority(strRoles);
+			user.setAuthority(role);
+	
+			// Si el rol es ARTIST, crear un artista asociado
+			if (strRoles.equals("ARTIST")) {
+				baseUserService.save(user);
+	
+				Artist artist = new Artist();
+				artist.setBaseUser(user);
+	
+				// Procesar la imagen del precio del tablero de comisiones
+				if (request.getTableCommissionsPrice() != null) {
+					artist.setTableCommisionsPrice(imageHandler.getBytes(request.getTableCommissionsPrice()));
+				}
+	
+				artistService.saveArtist(artist);
+	
+			} else if (strRoles.equals("CLIENT")) {
+				// Si el rol es CLIENT, crear un cliente asociado
+				Client client = new Client();
+				baseUserService.save(user);
+				client.setBaseUser(user);
+				clientService.saveClient(client);
+	
+			} else {
+				// Guardar el usuario base si no es ARTIST ni CLIENT
+				baseUserService.save(user);
+			}
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (Exception e) {
+			throw e;
 		}
 	}
 

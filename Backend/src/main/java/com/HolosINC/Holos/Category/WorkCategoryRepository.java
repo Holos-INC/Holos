@@ -23,4 +23,7 @@ public interface WorkCategoryRepository extends JpaRepository<WorkCategory, Long
 
     @Query("SELECT wc FROM WorkCategory wc WHERE wc.work.id = :workId AND wc.category.id = :categoryId")
     Optional<WorkCategory> findByWorkAndCategory(Long workId, Long categoryId);
+    
+    @Query("SELECT wc FROM WorkCategory wc WHERE wc.category.id = :categoryId")
+    List<WorkCategory> findAllByCategoryId(Long categoryId);
 }

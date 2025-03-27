@@ -1,5 +1,8 @@
 package com.HolosINC.Holos.auth;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,27 +99,32 @@ public class AuthController {
 	}
 
 	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<MessageResponse> registerUser(
+	public ResponseEntity<?> registerUser(
 			@RequestPart("user") String signupRequestJson,
-			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile) {
+			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
+			@RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
 
 		try {
 			// Convertir el JSON plano a objeto Java
 			ObjectMapper objectMapper = new ObjectMapper();
 			SignupRequest signupRequest = objectMapper.readValue(signupRequestJson, SignupRequest.class);
 
-			// Asignar la imagen al DTO (si se ha enviado)
-			signupRequest.setImageProfile(imageProfile);
+			// Validar y asignar la imagen de perfil
+			if (imageProfile != null && !imageProfile.isEmpty()) {
+				signupRequest.setImageProfile(imageProfile);
+			}
 
-			// Validar si ya existe el usuario
-			if (baseUserService.existsUser(signupRequest.getUsername())) {
-				return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+			// Validar y asignar la imagen del precio del tablero de comisiones
+			if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty()) {
+				signupRequest.setTableCommissionsPrice(tableCommissionsPrice);
 			}
 
 			// Registrar usuario
 			authService.createUser(signupRequest);
 			return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace(); // Para ver el error en consola
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
