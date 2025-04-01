@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, ScrollView, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { CommissionCard } from "@/src/components/requestedCommissions/CommissionCard";
-import { getClientCommissions } from "@/src/services/commisionApi";
+import { getAllCommissions } from "@/src/services/commisionApi";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
@@ -21,7 +21,7 @@ export default function ClientCommissionsScreen() {
   const { loggedInUser } = useContext(AuthenticationContext);
 
   useEffect(() => {
-    getClientCommissions(loggedInUser.token)
+    getAllCommissions(loggedInUser.token)
       .then(setCommissions)
       .catch((err:string) => {
         console.error("Failed to fetch commissions", err);

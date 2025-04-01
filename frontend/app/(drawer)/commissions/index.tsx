@@ -44,6 +44,32 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     }
   };
 
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "REQUESTED":
+        return "Solicitud recibida";
+      case "WAITING_CLIENT":
+        return "Esperando cliente";
+      case "ACCEPTED":
+        return "Solicitud aceptada";
+      case "REJECTED":
+        return "Solicitud rechazada";
+      case "CANCELED":
+        return "Solicitud cancelada";
+      case "WAITING_ARTIST":
+        return "Esperando artista";
+      case "NOT_PAID_YET":
+        return "No pagado aún";
+      case "IN_WAIT_LIST":
+        return "En lista de espera";
+      case "ENDED":
+        return "Finalizado";
+      default:
+        return "Estado desconocido";
+    }
+  };
+
   // Filtra según estado
   // Considera REQUESTED como "nueva solicitud"
   const newRequests = commissions.requested;
@@ -75,13 +101,11 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
         <ScrollView style={styles.content}>
 
         <Text style={styles.sectionTitle}>EN CURSO</Text>
-          {respondedRequests.length === 0 ? (
+          {commissions.accepted.length === 0 ? (
             <Text style={styles.noRequestsText}>No hay trabajos en curso.</Text>
           ) : (
-            respondedRequests.map((comm) => (
-              <View key={comm.id} style={styles.card}>
-
-              </View>
+            commissions.accepted.map((comm) => (
+          
             ))
           )}
 
@@ -127,6 +151,13 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
           ) : (
             respondedRequests.map((comm) => (
               <View key={comm.id} style={styles.card}>
+                <View style={styles.profileContainer}>
+                  {/* Imagen redonda del usuario */}
+                  <Image 
+                    source={{ uri: comm.imageProfile || "URL_DE_IMAGEN_POR_DEFECTO" }} 
+                    style={styles.profileImage} 
+                  />
+                </View>
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
                     {comm.clientUsername || "Usuario desconocido"}
@@ -135,9 +166,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                 </View>
                 <View style={styles.actions}>
                   <Text style={styles.responseText}>
-                    {comm.status === "ACCEPTED"
-                      ? "Solicitud aceptada"
-                      : "Solicitud denegada"}
+                  {getStatusText(comm.status)}
                   </Text>
                 </View>
               </View>
