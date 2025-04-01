@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { getAllRequestedCommissions, updateCommissionStatus } from "@/src/services/commisionApi";
-import { Commission, HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
+import { Commission, HistoryCommisionsDTO, StatusCommission } from "@/src/constants/CommissionTypes";
+import ClientCommissionsScreen from "./requested";
 
 // 2. Ajusta la pantalla
 const { width } = Dimensions.get("window");
@@ -101,13 +102,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
         <ScrollView style={styles.content}>
 
         <Text style={styles.sectionTitle}>EN CURSO</Text>
-          {commissions.accepted.length === 0 ? (
-            <Text style={styles.noRequestsText}>No hay trabajos en curso.</Text>
-          ) : (
-            commissions.accepted.map((comm) => (
-          
-            ))
-          )}
+          <ClientCommissionsScreen commissions={commissions.accepted}/>
 
           <View style={styles.separator} />
           
@@ -166,7 +161,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                 </View>
                 <View style={styles.actions}>
                   <Text style={styles.responseText}>
-                  {getStatusText(comm.status)}
+                    {getStatusText(comm.status)}
                   </Text>
                 </View>
               </View>

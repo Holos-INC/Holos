@@ -41,7 +41,7 @@ export enum StatusCommission {
     WAITING_ARTIST = "WAITING_ARTIST",
     NOT_PAID_YET = "NOT_PAID_YET",
     IN_WAIT_LIST = "IN_WAIT_LIST",
-    ENDED = "ENDED"
+    ENDED = "Finalizado"
 }
 
 export enum PaymentArrangement {
