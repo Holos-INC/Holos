@@ -3,7 +3,7 @@ package com.HolosINC.Holos.commision;
 import java.util.Date;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
-import com.HolosINC.Holos.client.Client;
+import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.CascadeType;
@@ -42,5 +42,5 @@ public class Commision extends Work{
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
-    private Client client;
+    private BaseUser client;
 }

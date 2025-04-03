@@ -1,7 +1,5 @@
 package com.HolosINC.Holos.Profile;
 
-import com.HolosINC.Holos.client.Client;
-import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.model.BaseUser;
@@ -21,40 +19,32 @@ public class ProfileService {
     @Autowired
     private ArtistService artistService;
 
-    @Autowired
-    private ClientService clientService;
-
     @Transactional
     public BaseUserDTO updateProfile(BaseUserDTO baseUserDTO) {
-        // Verificamos que el usuario que está haciendo la solicitud sea el usuario
-        // actual
         BaseUser currentUser = baseUserService.findCurrentUser();
 
         Artist artist = artistService.findArtist(currentUser.getId());
         if (artist != null) {
-            // Si encontramos al artista, actualizamos los datos del artista
             artist.getBaseUser().setName(baseUserDTO.getName());
             artist.getBaseUser().setEmail(baseUserDTO.getEmail());
             artist.getBaseUser().setPhoneNumber(baseUserDTO.getPhoneNumber());
             artist.getBaseUser().setImageProfile(baseUserDTO.getImageProfile());
-
             artistService.saveArtist(artist);
-            return EntityToDTOMapper.toArtistDTO(
-                    artist);
+            
+            return EntityToDTOMapper.toArtistDTO(artist);
         }
 
         // Si no es un artista, intentamos encontrarlo como cliente
-        Client client = clientService.findClient(currentUser.getId());
+        BaseUser client = baseUserService.findCurrentUser();
         if (client != null) {
             // Si encontramos al cliente, actualizamos los datos del cliente
-            client.getBaseUser().setName(baseUserDTO.getName());
-            client.getBaseUser().setEmail(baseUserDTO.getEmail());
-            client.getBaseUser().setPhoneNumber(baseUserDTO.getPhoneNumber());
-            client.getBaseUser().setImageProfile(baseUserDTO.getImageProfile());
+            client.setName(baseUserDTO.getName());
+            client.setEmail(baseUserDTO.getEmail());
+            client.setPhoneNumber(baseUserDTO.getPhoneNumber());
+            client.setImageProfile(baseUserDTO.getImageProfile());
 
-            clientService.saveClient(client);
-            return EntityToDTOMapper.toClientDTO(
-                    client);
+            baseUserService.save(client);
+            return EntityToDTOMapper.toBaseUserDTO(client);
         }
 
         throw new RuntimeException("User type is not recognized.");

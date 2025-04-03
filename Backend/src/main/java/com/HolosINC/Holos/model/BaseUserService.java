@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.auth.Authorities;
 import com.HolosINC.Holos.auth.AuthoritiesRepository;
-import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 
@@ -63,11 +62,6 @@ public class BaseUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
         baseUserRepository.delete(user);
         return user;
-    }
-
-    public Client findClient(Long id) {
-        return baseUserRepository.findClient(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No hay cliente para este id"));
     }
 
     public Artist findArtist(Long id) {

@@ -13,9 +13,6 @@ import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
-import com.HolosINC.Holos.client.Client;
-import com.HolosINC.Holos.client.ClientRepository;
-import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
@@ -28,20 +25,15 @@ import com.HolosINC.Holos.model.BaseUserService;
 public class CommisionService {
     
     private final CommisionRepository commisionRepository;
-    private final ClientRepository clientRepository;
     private final ArtistService artistService;
-    private final BaseUserService userService;
-    @SuppressWarnings("unused")
-    private final ClientService clientService;
+    private final BaseUserService baseUserService;
     private final StatusKanbanOrderService statusKanbanOrderService;
 
     @Autowired
-    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService userService, ClientRepository clientRepository, ClientService clientService, StatusKanbanOrderService statusKanbanOrderService) {
+    public CommisionService(CommisionRepository commisionRepository, ArtistService artistService, BaseUserService baseUserService, StatusKanbanOrderService statusKanbanOrderService) {
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
-        this.userService = userService;
-        this.clientRepository = clientRepository;
-        this.clientService = clientService;
+        this.baseUserService = baseUserService;
         this.statusKanbanOrderService = statusKanbanOrderService;
     }
 
@@ -49,16 +41,13 @@ public class CommisionService {
         try {
             Commision commision = commisionDTO.createCommision();
             Artist artist = artistService.findArtist(artistId);
-            Optional<Client> client = clientRepository.findById(userService.findCurrentUser().getId());
-            if (client.isEmpty()) {
-                throw new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId());
-            }
+            BaseUser client = baseUserService.findCurrentUser();
     
             if (artist == null || !artist.getBaseUser().hasAnyAuthority("ARTIST"))
                 throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
     
             commision.setArtist(artist);
-            commision.setClient(client.get());
+            commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
     
             return commisionRepository.save(commision);
@@ -70,15 +59,13 @@ public class CommisionService {
     @Transactional
     public Commision requestChangesCommision(CommisionDTO commisionDTO, Long commisionId) throws Exception {
         try {
-            BaseUser user = userService.findCurrentUser();
+            BaseUser user = baseUserService.findCurrentUser();
             Commision commisionUpdated = commisionDTO.createCommision();
             Commision commisionInBDD = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe la comisión que se quiere cambiar"));
             
-            if (!(user.getId().equals(commisionInBDD.getClient().getBaseUser().getId()) || 
-                  user.getId().equals(commisionInBDD.getArtist().getBaseUser().getId())))
+            if (!(user.getId().equals(commisionInBDD.getClient().getId()) || user.getId().equals(commisionInBDD.getClient().getId())))
                   throw new IllegalArgumentException("No puedes editar una comisión que no te pertenece");
-
             if (user.hasAuthority("ARTIST"))
                 commisionUpdated.setStatus(StatusCommision.WAITING_CLIENT);
             if (user.hasAuthority("CLIENT"))
@@ -105,7 +92,7 @@ public class CommisionService {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
 
-        Artist artist = artistService.findArtistByUserId(userService.findCurrentUser().getId());
+        Artist artist = artistService.findArtistByUserId(baseUserService.findCurrentUser().getId());
 
         if (!commision.getArtist().getId().equals(artist.getId())) {
             throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
@@ -155,7 +142,7 @@ public class CommisionService {
     @Transactional(readOnly = true)
     public HistoryCommisionsDTO getHistoryOfCommissions() throws Exception {
         try {
-            BaseUser user = userService.findCurrentUser();
+            BaseUser user = baseUserService.findCurrentUser();
             HistoryCommisionsDTO historyCommisionsDTO = new HistoryCommisionsDTO();
 
             if(user.hasAuthority("ARTIST"))

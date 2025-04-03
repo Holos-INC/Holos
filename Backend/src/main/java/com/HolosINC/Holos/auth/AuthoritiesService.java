@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.auth.payload.request.SignupRequest;
-import com.HolosINC.Holos.client.Client;
-import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
@@ -28,19 +26,16 @@ public class AuthoritiesService {
 	private final PasswordEncoder encoder;
 	private final BaseUserService baseUserService;
 	private final ArtistService artistService;
-	private final ClientService clientService;
 	private final AuthoritiesRepository authoritiesRepository;
 
 	@Autowired
 	private ImageHandler imageHandler;
 
 	@Autowired
-	public AuthoritiesService(PasswordEncoder encoder, BaseUserService baseUserService, ArtistService artistService,
-			ClientService clientService, AuthoritiesRepository authoritiesRepository) {
+	public AuthoritiesService(PasswordEncoder encoder, BaseUserService baseUserService, ArtistService artistService, AuthoritiesRepository authoritiesRepository) {
 		this.encoder = encoder;
 		this.baseUserService = baseUserService;
 		this.artistService = artistService;
-		this.clientService = clientService;
 		this.authoritiesRepository = authoritiesRepository;
 	}
 
@@ -62,7 +57,6 @@ public class AuthoritiesService {
 			if(authoritiesRepository.existsBaseUserByUsername(request.getEmail()))
 			throw new IllegalArgumentException("Email ya existente en la base de datos.");
 			
-			// Crear el usuario base
 			BaseUser user = new BaseUser();
 			user.setUsername(request.getUsername());
 			user.setName(request.getFirstName());
@@ -71,39 +65,25 @@ public class AuthoritiesService {
 			user.setEmail(request.getEmail());
 			user.setPhoneNumber(request.getPhoneNumber());
 	
-			// Procesar la imagen de perfil
 			if (request.getImageProfile() != null) {
 				user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
 			}
 	
-			// Asignar el rol al usuario
 			String strRoles = request.getAuthority().toUpperCase();
 			Authorities role = findByAuthority(strRoles);
 			user.setAuthority(role);
 	
-			// Si el rol es ARTIST, crear un artista asociado
 			if (strRoles.equals("ARTIST")) {
 				baseUserService.save(user);
-	
 				Artist artist = new Artist();
 				artist.setBaseUser(user);
-	
-				// Procesar la imagen del precio del tablero de comisiones
 				if (request.getTableCommissionsPrice() != null) {
 					artist.setTableCommisionsPrice(imageHandler.getBytes(request.getTableCommissionsPrice()));
 				}
 	
 				artistService.saveArtist(artist);
 	
-			} else if (strRoles.equals("CLIENT")) {
-				// Si el rol es CLIENT, crear un cliente asociado
-				Client client = new Client();
-				baseUserService.save(user);
-				client.setBaseUser(user);
-				clientService.saveClient(client);
-	
 			} else {
-				// Guardar el usuario base si no es ARTIST ni CLIENT
 				baseUserService.save(user);
 			}
 		} catch (IllegalArgumentException e) {
@@ -128,9 +108,6 @@ public class AuthoritiesService {
 			Artist artist = artistService.findArtist(user.getId());
 			artist.setBaseUser(user);
 			artistService.saveArtist(artist);
-		} else if (request.getAuthority().toUpperCase() == "CLIENT") {
-			Client client = clientService.findClient(user.getId());
-			client.setBaseUser(user);
 		} else {
 			baseUserService.save(user);
 		}
@@ -147,9 +124,6 @@ public class AuthoritiesService {
 		if (user.getAuthority().getAuthority().equals("ARTIST")) {
 			Artist artist = artistService.findArtist(id);
 			artistService.deleteArtist(artist.getId());
-		} else if (user.getAuthority().getAuthority().equals("CLIENT")) {
-			Client client = clientService.findClientByUserId(id);
-			clientService.deleteClient(client.getId());
 		}
 		baseUserService.delete(id);
 	}
