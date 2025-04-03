@@ -1,14 +1,14 @@
 package com.HolosINC.Holos.model;
 
-
 import javax.validation.constraints.Size;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 public class BaseUserDTO {
-    
+
     @Size(min = 2, max = 255)
     protected String name;
 
@@ -21,10 +21,8 @@ public class BaseUserDTO {
     @Size(max = 15)
     protected String phoneNumber;
 
-    
     private byte[] imageProfile;
 
     private byte[] tableCommissionsPrice;
-
 
 }

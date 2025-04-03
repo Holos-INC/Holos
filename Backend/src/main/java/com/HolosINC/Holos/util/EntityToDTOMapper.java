@@ -1,7 +1,9 @@
 package com.HolosINC.Holos.util;
 
-import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.artist.ArtistDTO;
+import com.HolosINC.Holos.artist
+.Artist;
+import com.HolosINC.Holos.artist
+.ArtistDTO;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientDTO;
 import com.HolosINC.Holos.model.BaseUser;
