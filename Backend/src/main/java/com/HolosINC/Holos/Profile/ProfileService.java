@@ -19,6 +19,14 @@ public class ProfileService {
     @Autowired
     private ArtistService artistService;
 
+    public BaseUserDTO getProfile() {
+        BaseUser currentUser = baseUserService.findCurrentUser();
+        if (currentUser == null) {
+            throw new RuntimeException("User not found.");
+        }
+        return EntityToDTOMapper.toBaseUserDTO(currentUser);
+    }
+
     @Transactional
     public BaseUserDTO updateProfile(BaseUserDTO baseUserDTO) {
         BaseUser currentUser = baseUserService.findCurrentUser();
@@ -33,11 +41,8 @@ public class ProfileService {
             
             return EntityToDTOMapper.toArtistDTO(artist);
         }
-
-        // Si no es un artista, intentamos encontrarlo como cliente
         BaseUser client = baseUserService.findCurrentUser();
         if (client != null) {
-            // Si encontramos al cliente, actualizamos los datos del cliente
             client.setName(baseUserDTO.getName());
             client.setEmail(baseUserDTO.getEmail());
             client.setPhoneNumber(baseUserDTO.getPhoneNumber());
@@ -46,7 +51,6 @@ public class ProfileService {
             baseUserService.save(client);
             return EntityToDTOMapper.toBaseUserDTO(client);
         }
-
         throw new RuntimeException("User type is not recognized.");
     }
 }

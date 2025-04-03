@@ -22,7 +22,8 @@ public class BaseUserService {
     private AuthoritiesRepository authoritiesRepository;
 
 	@Autowired
-	public BaseUserService(BaseUserRepository baseUserRepository) {
+	public BaseUserService(BaseUserRepository baseUserRepository, AuthoritiesRepository authoritiesRepository) {
+        this.authoritiesRepository = authoritiesRepository;
 		this.baseUserRepository = baseUserRepository;
 	}
 

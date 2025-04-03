@@ -138,7 +138,7 @@ public class AuthController {
 		return ResponseEntity.ok(new MessageResponse("User updated successfully!"));
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/logout/{id}")
 	public ResponseEntity<MessageResponse> deleteUser(@RequestParam Long id) {
 		authService.deleteUser(id);
 		return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));

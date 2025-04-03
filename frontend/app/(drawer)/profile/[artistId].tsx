@@ -26,8 +26,6 @@ export default function ArtistDetailScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
 
-  const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
-
   useEffect(() => {
     const fetchData = async () => {
       const artistData: Artist = await getArtistById(Number(artistId));

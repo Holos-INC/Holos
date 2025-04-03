@@ -41,6 +41,6 @@ public class Commision extends Work{
     private StatusKanbanOrder statusKanbanOrder;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
-    private BaseUser client;
+    @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
+    private BaseUser baseUser;
 }

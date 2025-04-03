@@ -2,6 +2,7 @@ package com.HolosINC.Holos.Profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +27,27 @@ public class ProfileController {
         summary = "Actualizar perfil",
         description = "Permite actualizar los datos del perfil del usuario a un DTO para usa mas facil en Front. El usuario debe estar autenticado, y asi usamos el finduser."
     )
-    public ResponseEntity<BaseUserDTO> updateProfile(@RequestBody @Parameter(description = "DTO con los nuevos datos del usuario") BaseUserDTO baseUserDTO) {
-        // Llamamos al servicio para actualizar el perfil y usamos findCurrentUser() para obtener el id
-        BaseUserDTO updatedUser = profileService.updateProfile(baseUserDTO);  
-        // Devolvemos el resultado de la actualización
-        return ResponseEntity.ok(updatedUser);
-}
+    public ResponseEntity<BaseUserDTO> updateProfile(
+            @RequestBody @Parameter(description = "DTO con los nuevos datos del usuario") BaseUserDTO baseUserDTO) {
+        try {
+            BaseUserDTO updatedUser = profileService.updateProfile(baseUserDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+    
+    @GetMapping()
+    @Operation(
+        summary = "Obtener perfil",
+        description = "Permite obtener los datos del perfil del usuario a un DTO para usa mas facil en Front. El usuario debe estar autenticado, y asi usamos el finduser."
+    )
+    public ResponseEntity<BaseUserDTO> getProfile() {
+        try {
+            BaseUserDTO user = profileService.getProfile();
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
 }

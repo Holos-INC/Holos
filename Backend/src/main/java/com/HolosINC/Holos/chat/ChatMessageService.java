@@ -47,7 +47,7 @@ public class ChatMessageService {
         if (commision == null) {
             throw new ResourceNotFoundException("Commision", "id", commisionId);
         }
-        if (commision.getArtist().getBaseUser().getId() != user.getId() && commision.getClient().getId() != user.getId()) {
+        if (commision.getArtist().getBaseUser().getId() != user.getId() && commision.getBaseUser().getId() != user.getId()) {
             throw new AccessDeniedException("You don't have access to this commision");
         }
         return chatMessageRepository.findConversationByCommisionId(commisionId);

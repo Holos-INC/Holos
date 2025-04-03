@@ -47,7 +47,7 @@ public class CommisionService {
                 throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
     
             commision.setArtist(artist);
-            commision.setClient(client);
+            commision.setBaseUser(client);
             commision.setStatus(StatusCommision.REQUESTED);
     
             return commisionRepository.save(commision);
@@ -64,7 +64,7 @@ public class CommisionService {
             Commision commisionInBDD = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe la comisión que se quiere cambiar"));
             
-            if (!(user.getId().equals(commisionInBDD.getClient().getId()) || user.getId().equals(commisionInBDD.getClient().getId())))
+            if (!(user.getId().equals(commisionInBDD.getBaseUser().getId()) || user.getId().equals(commisionInBDD.getBaseUser().getId())))
                   throw new IllegalArgumentException("No puedes editar una comisión que no te pertenece");
             if (user.hasAuthority("ARTIST"))
                 commisionUpdated.setStatus(StatusCommision.WAITING_CLIENT);
@@ -125,7 +125,7 @@ public class CommisionService {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
 
-        if (!commision.getClient().getId().equals(clientId)) {
+        if (!commision.getBaseUser().getId().equals(clientId)) {
             throw new IllegalArgumentException("El cliente no tiene permisos para cancelar esta comisión.");
         }
 
