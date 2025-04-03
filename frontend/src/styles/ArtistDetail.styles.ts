@@ -64,16 +64,24 @@ export default StyleSheet.create({
     artworkItem: {
       width: "48%",
       marginBottom: 20,
+      
     },
     artworkImage: {
       width: "100%",
       height: 120,
       borderRadius: 8,
+   
     },
     artworkTitle: {
       textAlign: "center",
       marginTop: 8,
       fontSize: 14,
     },
+
+    reportDropDownContainer: {
+      paddingRight: 25,
+      right:-20,
+      position:"absolute"
+    }
   });
   

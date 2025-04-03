@@ -1,34 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, TouchableWithoutFeedback } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { RootDrawerParamList } from "@/app/_layout";
 import { getArtistById } from "@/src/services/artistApi";
 import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
 import styles from "@/src/styles/ArtistDetail.styles";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { API_URL } from "@/src/constants/api";
+import ReportDropdown from "@/src/components/report/ReportDropDown";
+import { API_URL, BASE_URL } from "@/src/constants/api";
+import { Artist } from "@/src/constants/CommissionTypes";
+import LoadingScreen from "@/src/components/LoadingScreen";
 
 interface Artwork {
   id: number;
   name: string;
   image: string;
-}
-
-interface Artist {
-  id: number;
-  username: string;
-  image: string;
-  description: string;
-  artworks: Artwork[];
-}
-
-interface ArtistDetailScreenProps {
-  route: {
-    params: {
-      artistId: number;
-    };
-  };
 }
 
 export default function ArtistDetailScreen() {
@@ -39,10 +24,11 @@ export default function ArtistDetailScreen() {
   const [artist, setArtist] = useState<Artist | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(artistId);
       const artistData: Artist = await getArtistById(Number(artistId));
       setArtist(artistData);
       const worksData: Artwork[] = await getWorksDoneByArtist(Number(artistId));
@@ -53,63 +39,73 @@ export default function ArtistDetailScreen() {
   }, [artistId]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${artist?.username}` });
+    navigation.setOptions({ title: `${artist?.baseUser.username}` });
   }, [navigation, artist]);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
+      <LoadingScreen />
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Información del artista */}
-      <View style={styles.header}>
-        <Image
-          source={{ uri: `${API_URL}${artist?.image}` }} // TODO Conseguir de imagenes estáticas
-          style={styles.artistImage}
-        />
-        <View style={styles.artistDetails}>
-          <Text style={styles.artistName}>{artist?.username}</Text>
-          <Text style={styles.artistDescription}>{artist?.description}</Text>
+    <TouchableWithoutFeedback onPress={() => {
+      if (menuVisibleId !== null) {
+        setMenuVisibleId(null);
+      } // Cierra el menú al tocar fuera
+    }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Información del artista */}
+        <View style={styles.header}>
+          <Image
+            source={
+              artist?.baseUser?.imageProfile
+                ? { uri: `${BASE_URL}${atob(artist.baseUser.imageProfile)}` }
+                : undefined
+            }
+            // TODO Conseguir de imagenes estáticas
+            style={styles.artistImage}
+          />
+          <View style={styles.artistDetails}>
+            <Text style={styles.artistName}>{artist?.baseUser?.username}</Text>
+            <Text style={styles.artistDescription}>@{artist?.baseUser?.username}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Botones de acción */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            router.push({
-              pathname: "/commission/request/[artistId]",
-              params: { artistId: String(artist?.id) },
-            })            
-            // navigation.navigate("RequestCommission", { artistId: artist!.id })
-          }
-        >
-          <Text style={styles.buttonText}>Solicitar trabajo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Añadir a favoritos</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Obras del artista */}
-      <View style={styles.artworksContainer}>
-        <Text style={styles.artworksTitle}>Obras del artista</Text>
-        <View style={styles.artworksList}>
-          {works.map((work: Artwork) => (
-            <View key={work.id} style={styles.artworkItem}>
-              <Image source={{ uri: `https://holos-s2.onrender.com/${work.image}` }} style={styles.artworkImage} />
-              <Text style={styles.artworkTitle}>{work.name}</Text>
-            </View>
-          ))}
+        {/* Botones de acción */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push(`/commissions/request/${artist?.baseUser.username}`)}
+          >
+            <Text style={styles.buttonText}>Solicitar trabajo</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+
+        {/* Obras del artista */}
+        <View style={styles.artworksContainer}>
+          <Text style={styles.artworksTitle}>Obras del artista</Text>
+          <View style={styles.artworksList}>
+            {works.map((work: Artwork) => (
+              <View key={work.id} style={styles.artworkItem}>
+
+                <Image
+                  source={
+                    work.image
+                      ? { uri: `${BASE_URL}${atob(work.image)}` }
+                      : undefined
+                  }
+                  style={styles.artworkImage}
+                />
+                <Text style={styles.artworkTitle}>{work.name}</Text>
+                <View style={styles.reportDropDownContainer}>
+                  <ReportDropdown workId={work.id} menuVisibleId={menuVisibleId} setMenuVisibleId={setMenuVisibleId} isBigScreen={false} />
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }

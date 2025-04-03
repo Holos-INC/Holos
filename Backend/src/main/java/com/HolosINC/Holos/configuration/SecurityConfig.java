@@ -37,9 +37,18 @@ public class SecurityConfig {
         .headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.disable()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+            .requestMatchers("/api/v1/baseUser/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/artists/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/clients/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/report/admin/**").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/report-types/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/status-kanban-order/**").hasAuthority("ARTIST")
             .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/commisions/**").authenticated()
+            .requestMatchers("/api/v1/payment/{paymentIntentId}", "/api/v1/payment/all").hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/stripe-account/**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/payment/**").authenticated()
             .anyRequest().permitAll()
         )
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter

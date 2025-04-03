@@ -16,31 +16,40 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
         {columns.map((column, index) => (
             <View key={column.status.name} style={styles.column}>
                 <Text style={styles.columnTitle}>{column.status.name}</Text>
-
-                {column.commissions.map(commission => (
-                    <CommissionCard
-                        key={commission.id}
-                        commission={commission}
-                        statusIndex={index}
-                        maxIndex={columns.length - 1}
-                        onMoveBack={() => onMoveBack(commission.id)}
-                        onMoveForward={() => onMoveForward(commission.id)}
-                    />
-                ))}
+                <ScrollView style={styles.columnScroll} contentContainerStyle={styles.cardList}>
+                  {column.commissions.map(commission => (
+                      <CommissionCard
+                          key={commission.id}
+                          commission={commission}
+                          statusIndex={index}
+                          maxIndex={columns.length - 1}
+                          onMoveBack={() => onMoveBack(commission.id)}
+                          onMoveForward={() => onMoveForward(commission.id)}
+                      />
+                  ))}
+                </ScrollView>
             </View>
         ))}
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({  
+  columnScroll: {
+    flex: 1,
+    maxHeight: '90%',
+  },
+  cardList: {
+    paddingVertical: 8,
+    gap: 8,
+  },  
   board: {
     paddingHorizontal: 12,
     justifyContent: 'center',
   },
   column: {
     width: 280,
-    marginRight: 16,
+    marginHorizontal: 16,
   },
   columnTitle: {
     fontSize: 16,

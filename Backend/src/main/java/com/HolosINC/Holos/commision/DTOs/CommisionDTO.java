@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.commision.DTOs;
 
+import java.util.Date;
+
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.EnumPaymentArrangement;
 
@@ -16,17 +18,20 @@ public class CommisionDTO {
 
     public Double price;
 
-    public Integer numMilestones;
-
     public EnumPaymentArrangement paymentArrangement;
+    
+    public byte[] image;
+
+    public Date milestoneDate;
 
     public Commision createCommision() {
         Commision commision = new Commision();
         commision.setName(this.getName());
         commision.setDescription(this.getDescription());
         commision.setPrice(this.getPrice());
-        commision.setNumMilestones(this.getNumMilestones());
         commision.setPaymentArrangement(this.getPaymentArrangement());
+        commision.setImage(this.getImage());
+        commision.setMilestoneDate(this.getMilestoneDate());
         return commision;
     }
 }

@@ -5,10 +5,12 @@ import { Formik } from "formik";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { showMessage } from 'react-native-flash-message';
 import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from "expo-router";
 
 export default function LoginScreen ({ navigation }:any) {
     const router = useRouter();
     const { signIn } = useContext(AuthenticationContext)
+    const { reportId } = useLocalSearchParams();
     const [backendErrors, setBackendErrors] = useState<string[]>([]);
 
     const loginValidationSchema = yup.object().shape({
@@ -27,6 +29,7 @@ export default function LoginScreen ({ navigation }:any) {
             // .min(8, ({ min }) => `La contraseña debe tener al menos ${min} caracteres`)
     });
 
+
     const handleLogin = (data: any) => {
         
         setBackendErrors([]); 
@@ -34,11 +37,19 @@ export default function LoginScreen ({ navigation }:any) {
         signIn(
             data,
             (loginUser: any) => {
-                showMessage({
-                    message: `Welcome back ${loginUser.username}`,
-                    type: "success",
-                });
-                router.replace("/");
+                if (!reportId) {
+                    showMessage({
+                      message: `Welcome back ${loginUser.username}`,
+                      type: 'success'
+                    })
+                    
+                    router.replace('/')
+                  } else {
+                    router.push({
+                        pathname: "/report/[reportId]",
+                        params: { reportId: String(reportId) },
+                      });
+                  }
             },
             (errors: any) => {
                 const errorMessage = errors.response?.data || "Credenciales incorrectas, intenta de nuevo.";

@@ -1,6 +1,17 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  dateButton: {
+    padding: 12,
+    backgroundColor: "#EEE",
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  dateButtonText: {
+    fontSize: 14,
+    color: "#333",
+  },  
   errorText: {
     color: 'red',
     marginBottom: 8,

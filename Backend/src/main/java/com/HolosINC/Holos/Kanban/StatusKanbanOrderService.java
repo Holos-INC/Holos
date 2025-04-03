@@ -2,7 +2,6 @@ package com.HolosINC.Holos.Kanban;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -115,6 +114,7 @@ public class StatusKanbanOrderService {
 	public List<StatusKanbanOrder> findAllStatusKanbanOrder() {
 		return statusKanbanOrderRepository.findAll();
 	}
+    
 
     @Transactional
     public void deleteStatusKanbanOrder(Integer id) {
@@ -153,6 +153,19 @@ public class StatusKanbanOrderService {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Transactional
+    public Integer countByArtistUsername(String username) {
+        try {
+            return statusKanbanOrderRepository.countByArtistUsername(username);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    
+    public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Long intValue) {
+        return statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(intValue);
     }
 
     @Transactional

@@ -4,17 +4,20 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
-
-import org.springframework.web.bind.annotation.RequestBody;
+import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
+import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +37,7 @@ public class CommisionController {
     }
 
     @PostMapping("/{artistId}")
-    public ResponseEntity<?> createCommision(@Valid @RequestBody CommisionDTO commision, @PathVariable Long artistId) {
+    public ResponseEntity<?> createCommision(@Valid @RequestBody CommisionRequestDTO commision, @PathVariable Long artistId) {
         try {
             Commision createdCommision = commisionService.createCommision(commision, artistId);
             return ResponseEntity.ok(createdCommision);
@@ -45,10 +48,28 @@ public class CommisionController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<Commision>> getAllCommisions() {
-        List<Commision> commisions = commisionService.getAllCommisions();
-        return ResponseEntity.ok(commisions);
+    @PutMapping("/{commisionId}/requestChanges")
+    public ResponseEntity<?> changeRequestedCommision(@Valid @RequestBody CommisionDTO commision, @PathVariable Long commisionId) {
+        try {
+            Commision createdCommision = commisionService.requestChangesCommision(commision, commisionId);
+            return ResponseEntity.ok(createdCommision);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/historyOfCommisions")
+    public ResponseEntity<HistoryCommisionsDTO> getClientCommissions() throws Exception {
+        try {
+            HistoryCommisionsDTO commissions = commisionService.getHistoryOfCommissions();
+            return ResponseEntity.ok(commissions);
+        } catch (Exception e) {
+            HistoryCommisionsDTO withError = new HistoryCommisionsDTO();
+            withError.setError(e.getMessage());
+            return ResponseEntity.internalServerError().body(withError);
+        }
     }
 
     @GetMapping("/{id}")

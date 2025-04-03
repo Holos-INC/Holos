@@ -1,25 +1,21 @@
+
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { View, Text, ActivityIndicator, Image, ScrollView, Dimensions, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions} from "react-native";
 import { getWorksDoneById } from "@/src/services/WorksDoneApi";
 import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
 import { BASE_URL } from "@/src/constants/api";
 import { useFonts } from "expo-font";
 import { Work } from "@/src/constants/WorkTypes";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkInfo.styles";
+import ReportDropdown from "@/src/components/report/ReportDropDown";
+import { BaseUser } from "@/src/constants/ExploreTypes";
+import { WorksDone } from "@/src/constants/CommissionTypes";
 
 export default function WorkDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { workId } = useLocalSearchParams();
-  const [work, setWork] = useState<Work | null>(null);
+  const [work, setWork] = useState<WorksDone | null>(null);
   const [loading, setLoading] = useState(true);
   const { width } = useWindowDimensions();
   const styles = width > 768 ? desktopStyles : mobileStyles;
@@ -31,10 +27,13 @@ export default function WorkDetailScreen() {
     "Merriweather-BoldItalic": require("../../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
   });
 
+  const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
+
+
   useEffect(() => {
     const fetchWork = async () => {
       try {
-        const data = (await getWorksDoneById(Number(workId))) as Work;
+        const data = (await getWorksDoneById(Number(workId))) as WorksDone;
         setWork(data);
       } catch (error) {
         console.error("Error fetching work details:", error);
@@ -68,57 +67,73 @@ export default function WorkDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.leftColumn}>
-        {work.image ? (
-          <Image
-            source={{ uri: `${BASE_URL}${work.image}` }}
-            style={styles.imageStyle}
-          />
-        ) : (
-          <View style={styles.placeholderContainer}>
-            <Text>Sin imagen</Text>
+    <TouchableWithoutFeedback onPress={() => {
+      if (menuVisibleId !== null) {
+        setMenuVisibleId(null); // Cierra el menú al tocar fuera
+      }
+    }}>
+
+      <ScrollView
+        style={staticStyles.container}
+        contentContainerStyle={dynamicStyles.scrollContent}
+      >
+
+
+        <View style={dynamicStyles.contentContainer}>
+
+          <View style={[dynamicStyles.imageContainer, { position: "relative" }]}>
+
+            {work.image ? (
+
+              <Image
+                source={{ uri: `${BASE_URL}${atob(work.image)}` }}
+                style={dynamicStyles.image}
+              />
+            ) : (
+              <View style={staticStyles.placeholder}>
+                <Text style={{ color: "#aaa" }}>Sin imagen</Text>
+              </View>
+            )}
+            {work.image && (
+              <View style={staticStyles.reportDropdownContatiner}>
+                <ReportDropdown workId={work.id} menuVisibleId={menuVisibleId} setMenuVisibleId={setMenuVisibleId} isBigScreen={false} />
+              </View>
+            )}
+
           </View>
-        )}
-      </View>
 
-      <ScrollView style={styles.rightColumn}>
-        <TouchableOpacity
-          onPress={() => router.push(`/explore`)}
-          style={styles.backButton}
-        >
-          <Text style={styles.backArrow}>←</Text>
-          <Text style={styles.backText}>ATRÁS</Text>
-        </TouchableOpacity>
+          <View style={staticStyles.infoContainer}>
+            <Text style={staticStyles.title}>
+              {work.name ? work.name.toUpperCase() : "TÍTULO OBRA"}
+            </Text>
 
-        <View style={styles.informationContainer}>
-          <Text style={styles.title}>
-            {work.name ? work.name.toUpperCase() : "TÍTULO OBRA"}
-          </Text>
+            <Text style={dynamicStyles.label}>ARTISTA:</Text>
+            <TouchableOpacity
+              onPress={() => {
+                if (work.artist && work.artist.id) {
+                  router.push(`/profile/${work.artist.id}`);
+                } else {
+                  console.warn("No se encontró el artista");
+                }
+              }}
+            >
+              <Text style={dynamicStyles.artistName}>
+                {work.artist?.baseUser?.username || "Artista desconocido"}
+              </Text>
+            </TouchableOpacity>
+            <Text style={dynamicStyles.label}>DESCRIPCIÓN:</Text>
+            <Text style={dynamicStyles.description}>
+              {work.description || "Sin descripción disponible"}
+            </Text>
+            <Text style={staticStyles.label}>PRECIO:</Text>
 
-          <Text
-            onPress={() => {
-              if (work.artist && work.artist.id) {
-                router.push(`/profile/${work.artist.baseUser?.id}`);
-              } else {
-                console.warn("No se encontró el artista");
-              }
-            }}
-            style={styles.artistText}
-          >
-            {work.artist.baseUser?.username || "Artista desconocido"}
-          </Text>
-
-          <Text style={styles.infoText}>
-            {work.description || "Sin descripción disponible"}
-          </Text>
-
-          <View style={styles.separator} />
-          <Text style={styles.price}>
-            {work.price ? `${work.price} €` : "No disponible"}
-          </Text>
+            <Text style={staticStyles.price}>
+              {work.price ? `${work.price} €` : "No disponible"}
+            </Text>
+          </View>
         </View>
+
       </ScrollView>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }

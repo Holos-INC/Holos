@@ -49,6 +49,6 @@ jobs:
       - name: Run frontend analysis with SonarCloud
         run: |
           cd ./frontend
-          npx sonar-scanner  -Dsonar.organization=holos-inc -Dsonar.projectKey=holos-inc_Holos_frontend -Dsonar.sources=app -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          npx sonar-scanner  -Dsonar.organization=holos-inc -Dsonar.projectKey=holos-inc_Holos_frontend -Dsonar.sources=app -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
         

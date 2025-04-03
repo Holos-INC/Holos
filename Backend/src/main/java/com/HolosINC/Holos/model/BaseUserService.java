@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.model;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.AuthoritiesRepository;
+import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
+    private AuthoritiesRepository authoritiesRepository;
 
 	@Autowired
 	public BaseUserService(BaseUserRepository baseUserRepository) {
@@ -46,8 +52,60 @@ public class BaseUserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null)
             throw new ResourceNotFoundException("No estás logeado");
-        
+
         return baseUserRepository.findUserByUsername(auth.getName())
-            .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", auth.getName()));
+    }
+    
+    @Transactional
+    public BaseUser delete(Long id) {
+        BaseUser user = baseUserRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        baseUserRepository.delete(user);
+        return user;
+    }
+
+    public Client findClient(Long id) {
+        return baseUserRepository.findClient(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No hay cliente para este id"));
+    }
+
+    public Artist findArtist(Long id) {
+        return baseUserRepository.findArtist(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No hay cliente para este id"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<BaseUser> getAllUsers() {
+        return baseUserRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseUser getUserById(Long id) {
+        return baseUserRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+
+    @Transactional
+    public BaseUser updateUser(Long id, BaseUser updatedUser) {
+        return baseUserRepository.findById(id).map(user -> {
+            user.setName(updatedUser.getName());
+            user.setUsername(updatedUser.getUsername());
+            user.setEmail(updatedUser.getEmail());
+            user.setPhoneNumber(updatedUser.getPhoneNumber());
+            return baseUserRepository.save(user);
+        }).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+    
+    @Transactional
+    public BaseUser changeUserRole(Long id, String newRole) {
+        BaseUser user = baseUserRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        Authorities authority = authoritiesRepository.findByName(newRole)
+            .orElseThrow(() -> new ResourceNotFoundException("Authority", "name", newRole));
+
+        user.setAuthority(authority);
+        return baseUserRepository.save(user);
     }
 }

@@ -1,104 +1,54 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, Image, Button, StyleSheet, Platform, ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, Image, Button, StyleSheet, Platform, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getArtistById } from "@/src/services/artistApi";
-import { getClientById } from "@/src/services/clientApi";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { User } from "@/src/constants/CommissionTypes";
-import { API_URL } from "@/src/constants/api";
+import { API_URL, BASE_URL } from "@/src/constants/api";
+import LoadingScreen from "@/src/components/LoadingScreen";
+import { getUser } from "@/src/services/userApi";
+import colors from "@/src/constants/colors";
 
 const isWeb = Platform.OS === "web";
-
-// Tipos propios
-interface Order {
-  id: number;
-  name: string;
-  description: string;
-  prize: number;
-}
 
 const UserProfileScreen = () => {
   const navigation = useNavigation<any>();
   const { loggedInUser } = useContext(AuthenticationContext);
-  const [user, setUser] = useState<User|null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!loggedInUser || !loggedInUser.id) {
-        Alert.alert("Error", "No se encontró el usuario autenticado.");
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Intentamos obtener el cliente usando el id del usuario autenticado
-        const client = await getClientById(loggedInUser.id);
-        setUser(client);
+        const usuario = await getUser(loggedInUser.token);
+        setUser(usuario);
       } catch (error) {
-        console.warn(
-          "No se encontró cliente, intentando con artista...",
-          error
-        );
-        try {
-          // Si no se obtiene cliente, se intenta obtener el artista usando el id
-          const artist = await getArtistById(loggedInUser.id);
-          setUser(artist);
-        } catch (err) {
-          console.error("Error fetching user:", err);
-          Alert.alert("Error", "No se pudo cargar el usuario.");
-        }
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch user:', error);
       }
     };
-
     fetchUser();
-  }, [loggedInUser]);
-  
-  useEffect(() => {
-      navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
-    }, [navigation, user]);
+  }, [user?.id]);  
 
-  if (loading) {
-    console.log(loggedInUser.id)
-    return <Text>Loading...</Text>;
-  }
+  useEffect(() => {
+    navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
+  }, [navigation, user]);
 
   if (!user) {
-    return <Text>No se pudo cargar el usuario.</Text>;
+    return <LoadingScreen />;
   }
 
   // Determinamos si el usuario es artista verificando si tiene tableCommisionsPrice
   const isArtist = "tableCommisionsPrice" in user && user.tableCommisionsPrice;
-
-  const handleEdit = () => {
-    console.log("Editar perfil");
-    Alert.alert("Editar", "Funcionalidad de edición de perfil");
-  };
-
-  // Para el cliente se navega al historial de pedidos
-  const navigateToOrderHistory = () => {
-    if ("orders" in user) {
-      navigation.navigate("Historial de Pedidos", { orders: user.orders });
-    }
-  };
-
-  // Para el artista se navega a la pantalla que muestra la tabla de comisiones
-  const navigateToCommissionTable = () => {
-    if (isArtist) {
-      navigation.navigate("Tabla de Comisiones", {
-        image: user.tableCommisionsPrice,
-      });
-    }
-  };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <Text style={styles.title}>{isArtist ? "ARTISTA" : "CLIENTE"}</Text>
         <Image
-          source={{ uri: `${API_URL}${user.baseUser.imageProfile}` }} // TODO Conseguir static image
+          source={
+            user?.baseUser?.imageProfile
+              ? { uri: `${BASE_URL}${atob(user.baseUser.imageProfile)}` }
+              : undefined
+          }
+          // TODO Conseguir de imagenes estáticas
           style={styles.image}
         />
         <Text style={styles.label}>
@@ -115,43 +65,11 @@ const UserProfileScreen = () => {
         <Text style={styles.fieldLabel}>Correo Electrónico:</Text>
         <TextInput style={styles.input} value={user.baseUser.email} editable={false} />
         <Text style={styles.fieldLabel}>Teléfono:</Text>
-        <TextInput
-          style={styles.input}
-          value={user.baseUser.phoneNumber}
-          editable={false}
-        />
+        <TextInput style={styles.input} value={user.baseUser.phoneNumber} editable={false}/>
 
-        {isArtist ? (
-          <>
-            {user.tableCommisionsPrice && (
-              <View style={styles.commissionContainer}>
-                <Text style={styles.fieldLabel}>Tabla de Comisiones:</Text>
-                <Image
-                  source={{ uri: `${API_URL}${user.tableCommisionsPrice}` }}
-                  style={styles.commissionImage}
-                />
-              </View>
-            )}
-            <View style={styles.buttonsContainer}>
-              <Button
-                title="Ver Tabla de Comisiones"
-                onPress={navigateToCommissionTable}
-                color="#1E3A8A"
-              />
-            </View>
-          </>
-        ) : (
-          <View style={styles.buttonsContainer}>
-            <Button
-              title="Ver Historial de Pedidos"
-              onPress={navigateToOrderHistory}
-              color="#1E3A8A"
-            />
-          </View>
-        )}
-        <View style={styles.buttonsContainer}>
-          <Button title="EDITAR" onPress={handleEdit} color="#1E3A8A" />
-        </View>
+        {isArtist ? <TouchableOpacity onPress={() => navigation.navigate("profile/stripe-setup")} style={styles.stripeButton}>
+            <Text style={styles.stripeButtonText}>Conectar Stripe</Text>
+          </TouchableOpacity>:<></>}
       </View>
     </ScrollView>
   );
@@ -222,6 +140,20 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderRadius: 5,
   },
+  stripeButton: {
+    backgroundColor: colors.brandPrimary,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 24,
+    padding:12,
+  },
+  stripeButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  
 });
 
 export default UserProfileScreen;

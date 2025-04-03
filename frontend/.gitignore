@@ -36,4 +36,4 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
-node_modules
+node_modules/

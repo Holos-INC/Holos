@@ -5,13 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.HolosINC.Holos.model.BaseUser;
 
@@ -31,23 +31,12 @@ public class Artist{
     @Min(1)
     private Integer numSlotsOfWork;
 
-    private String tableCommisionsPrice;
+    private String sellerAccountId;
+
+    @Lob
+    @Column(name = "tableCommisionsPrice", columnDefinition = "LONGBLOB")
+    private byte[] tableCommisionsPrice;
 
     @OneToOne(optional = true)
     private BaseUser baseUser;
-
-    // Derivate properties
-    @Size(min = 2, max = 255)
-    @Column(name = "first_name")
-    @NotNull
-    private String name;
-
-    @Size(min = 2, max = 255)
-    //@Column(unique = true)
-    private String username;
-
-    @Size(max = 255)
-    //@Column(unique = true)
-    @NotNull
-    private  String email;
 }

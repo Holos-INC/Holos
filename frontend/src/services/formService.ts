@@ -15,11 +15,7 @@ const showAlert = (msg: string) => {
   }
 };
 
-export const createCommission = async (
-  artistId: number,
-  commissionData: Partial<Commission>,
-  token: string
-): Promise<Commission> => {
+export const createCommission = async ( artistId: number, commissionData: Partial<Commission>, token: string ): Promise<Commission> => {
   try {
     const response = await api.post(`${COMMISION_URL}/${artistId}`, commissionData, {
       headers: {
@@ -27,7 +23,7 @@ export const createCommission = async (
       },
     });
 
-    showAlert("Commission created successfully!");
+    showAlert("¡Encargo creado! Te llevamos al pago...");
     return response.data;
   } catch (error) {
     handleError(error, "Failed to create commission.");

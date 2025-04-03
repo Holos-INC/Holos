@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -21,12 +22,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "base_user")
-public class BaseUser{
-    
+public class BaseUser {
+
     @Id
-	@SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
-	protected Long id;
+    @SequenceGenerator(name = "entity_seq", sequenceName = "entity_sequence", initialValue = 500)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
+    protected Long id;
 
     @Size(min = 2, max = 255)
     @Column(name = "first_name")
@@ -34,14 +35,14 @@ public class BaseUser{
     protected String name;
 
     @Size(min = 2, max = 255)
-    //@Column(unique = true)
+    @Column(unique = true)
     protected String username;
 
     @Size(min = 2, max = 255)
     protected String password;
 
     @Size(max = 255)
-    //@Column(unique = true)
+    @Column(unique = true)
     @NotNull
     protected String email;
 
@@ -49,11 +50,26 @@ public class BaseUser{
     @Column(name = "phone_number")
     protected String phoneNumber;
 
-    private String imageProfile;
+    @Lob
+    @Column(name = "image_profile", columnDefinition = "LONGBLOB")
+    private byte[] imageProfile;
+
+    @Lob
+    @Column(name = "table_commissions", columnDefinition = "LONGBLOB")
+    private byte[] tableCommissionsPrice;
 
     @Column(name = "created_user")
     @NotNull
     protected Date createdUser;
+
+    @Column(name = "updated_user")
+    protected Date updatedUser;
+
+    @Column(name = "ban_user")
+    protected Date bannedUser;
+
+    @Column(name = "ban_time")
+    protected Integer banTime;
 
     @NotNull
     @ManyToOne(optional = false)

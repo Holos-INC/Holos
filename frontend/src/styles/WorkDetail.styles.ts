@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import ReportDropdown from "../components/report/ReportDropDown";
 
 // Estilos estáticos
 const staticStyles = StyleSheet.create({
@@ -106,6 +107,10 @@ const staticStyles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  reportDropdownContatiner: {
+    paddingRight: 25,
+     right:-20,
+      position:"absolute"}
 });
 
 export default staticStyles;
@@ -224,5 +229,5 @@ export const createDynamicStyles = (isLargeScreen: boolean) =>
       fontSize: isLargeScreen ? 16 : 14,
       fontWeight: "700",
       textAlign: "center",
-    },
+    }
   });

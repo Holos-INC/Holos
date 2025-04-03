@@ -1,11 +1,6 @@
 package com.HolosINC.Holos.Kanban.DTOs;
 
-import java.util.List;
-
-import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.commision.EnumPaymentArrangement;
-import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,7 +16,7 @@ public class StatusKanbanWithCommisionsDTO {
     
     private Double price;
     
-    private Integer numMilestones;
+    // private Integer numMilestones;
     
     private EnumPaymentArrangement paymentArrangement;
 
