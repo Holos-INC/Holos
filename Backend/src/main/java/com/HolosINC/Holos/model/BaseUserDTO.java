@@ -3,8 +3,6 @@ package com.HolosINC.Holos.model;
 import javax.validation.constraints.Size;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 public class BaseUserDTO {
