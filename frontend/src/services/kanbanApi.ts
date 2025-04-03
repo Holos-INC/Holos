@@ -1,4 +1,4 @@
-import { StatusKanbanDTO, StatusKanbanWithCommissionsDTO, StatusWithCommissions } from "@/src/constants/kanbanTypes";
+import { StatusKanbanDTO, StatusKanbanWithCommissionsDTO, StatusWithCommissions, StatusKanbanUpdateDTO  } from "@/src/constants/kanbanTypes";
 import api from "./axiosInstance";
 
 export async function fetchStatusesWithCommissions(token:string): Promise<StatusWithCommissions[]> {
@@ -13,8 +13,12 @@ export async function fetchStatusesWithCommissions(token:string): Promise<Status
   
     return grouped;
   }
-  
-export async function moveCommissionForward(id: number, token:string) {
+
+export async function updateStatusColumn( dto: StatusKanbanUpdateDTO, token: string ) {
+  await api.put('/status-kanban-order/update', dto, { headers: { Authorization: `Bearer ${token}` } });
+}    
+
+  export async function moveCommissionForward(id: number, token:string) {
   await api.put(`/status-kanban-order/${id}/next`, null, { headers: { Authorization: `Bearer ${token}`}});
 }
 

@@ -21,3 +21,10 @@ export type StatusWithCommissions = {
     status: StatusKanbanDTO;
     commissions: StatusKanbanWithCommissionsDTO[];
 };
+
+export type StatusKanbanUpdateDTO = {
+    id: number;
+    nombre: string;
+    color: string;
+    description: string;
+}
