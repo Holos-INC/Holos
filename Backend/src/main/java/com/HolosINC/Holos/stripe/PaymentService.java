@@ -3,7 +3,6 @@ package com.HolosINC.Holos.stripe;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
-import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionService;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;

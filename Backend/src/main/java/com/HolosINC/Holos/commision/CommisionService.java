@@ -245,9 +245,9 @@ public class CommisionService {
     public void cancelCommission(Long commisionId) {
         Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        BaseUser id = baseUserService.findCurrentUser();
-        if (!commision.getBaseUser().getId().equals(id) &&
-                !commision.getArtist().getBaseUser().getId().equals(id)) {
+        BaseUser user = baseUserService.findCurrentUser();
+        if (!commision.getBaseUser().getId().equals(user.getId()) &&
+                !commision.getArtist().getBaseUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Usted no tiene permisos para cancelar esta comisión.");
         }
         if (!(commision.getStatus() == StatusCommision.IN_WAIT_LIST ||
