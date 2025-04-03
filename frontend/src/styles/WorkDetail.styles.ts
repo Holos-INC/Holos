@@ -1,233 +1,205 @@
 import { StyleSheet } from "react-native";
-import ReportDropdown from "../components/report/ReportDropDown";
 
-// Estilos estáticos
-const staticStyles = StyleSheet.create({
+export const desktopStyles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: "row",
+  },
+  leftColumn: {
+    flex: 1,
+    paddingTop: 100,
+    alignItems: "center",
+    paddingBottom: 150,
+    paddingLeft: 50,
+  },
+  imageStyle: {
+    width: "80%",
+    height: "80%",
+    resizeMode: "contain",
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  placeholderContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rightColumn: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: "#fff",
+    paddingLeft: 100,
+    paddingTop: 150,
+  },
+  informationContainer: {
+    flex: 1,
+    width: 400,
+    justifyContent: "center",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  backArrow: {
+    fontSize: 15,
+    marginRight: 5,
+    transform: [{ translateY: -3 }],
+  },
+  backText: {
+    fontFamily: "Merriweather-Regular",
+    fontSize: 15,
+    marginLeft: 5,
+  },
+  title: {
+    fontSize: 38,
+    fontFamily: "Merriweather-Regular",
+    marginBottom: 10,
+  },
+  infoText: {
+    marginBottom: 8,
+    fontFamily: "Merriweather-Regular",
+    color: "#878582",
+  },
+  infoLabel: {
+    fontWeight: "bold",
+  },
+  artistText: {
+    fontFamily: "Merriweather-Regular",
+    marginBottom: 45,
+    fontSize: 18,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFF7F9",
   },
   notFoundContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFF7F9",
   },
-  notFoundText: {
-    fontSize: 18,
-    color: "#666",
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
-    backgroundColor: "#FFF7F9",
-  },
-  backText: {
-    fontSize: 16,
-    color: "#173F8A",
-    fontWeight: "600",
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-    alignItems: "flex-start",
-  },
-  imageContainer: {
-    width: "100%",
-    maxWidth: 400,
-    marginBottom: 20,
-  },
-  image: {
-    width: "100%",
-    aspectRatio: 1.2,
-    resizeMode: "cover",
-    borderRadius: 8,
-  },
-  placeholder: {
-    backgroundColor: "#eee",
-    width: "100%",
-    aspectRatio: 1.2,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#173F8A",
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#173F8A",
-    marginTop: 14,
-    marginBottom: 4,
+  separator: {
+    height: 0.5,
+    backgroundColor: "#A3A19F",
+    marginVertical: 20,
   },
   price: {
+    fontFamily: "Merriweather-Bold",
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginTop: 6,
+    color: "#000",
+    marginTop: 10,
   },
-  buttonRow: {
-    flexDirection: "row",
-    marginTop: 20,
+
+  reportContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
   },
-  messageButton: {
-    backgroundColor: "#FFD5EB",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  messageButtonText: {
-    color: "#173F8A",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  buyButton: {
-    backgroundColor: "#173F8A",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 6,
-  },
-  buyButtonText: {
-    color: "#FFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  reportDropdownContatiner: {
-    paddingRight: 25,
-     right:-20,
-      position:"absolute"}
 });
 
-export default staticStyles;
+export const mobileStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    backgroundColor: "#fff",
+    padding: 5,
+  },
+  leftColumn: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  imageStyle: {
+    width: "90%",
+    height: 300,
+    resizeMode: "contain",
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  placeholderContainer: {
+    width: "90%",
+    height: 300,
+    marginVertical: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rightColumn: {
+    flex: 1,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  informationContainer: {
+    marginVertical: 10,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  backArrow: {
+    fontSize: 14,
+    marginRight: 5,
+    transform: [{ translateY: -2 }],
+  },
+  backText: {
+    fontFamily: "Merriweather-Regular",
+    fontSize: 14,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "Merriweather-Regular",
+    marginBottom: 10,
+  },
+  artistText: {
+    fontFamily: "Merriweather-Regular",
+    marginBottom: 25,
+    fontSize: 16,
+  },
+  infoText: {
+    fontSize: 14,
+    marginBottom: 8,
+    fontFamily: "Merriweather-Regular",
+    color: "#878582",
+  },
+  separator: {
+    height: 0.5,
+    backgroundColor: "#A3A19F",
+    marginVertical: 15,
+  },
+  price: {
+    fontFamily: "Merriweather-Bold",
+    fontSize: 16,
+    color: "#000",
+    marginTop: 10,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-export const createDynamicStyles = (isLargeScreen: boolean) =>
-  StyleSheet.create({
-    scrollContent: {
-      flexGrow: 1,
-      paddingVertical: isLargeScreen ? 30 : 20,
-    },
-    contentContainer: {
-      flexDirection: isLargeScreen ? "row" : "column",
-      alignItems: "flex-start",
-      justifyContent: "flex-start",
-      paddingHorizontal: isLargeScreen ? 80 : 20,
-      paddingTop: isLargeScreen ? 10 : 0,
-      paddingBottom: 40,
-    },
-    imageContainer: {
-      width: isLargeScreen ? 700 : "100%",
-      height: isLargeScreen ? 700 : 300,
-      backgroundColor: "#FFF",
-      borderRadius: 12,
-      marginRight: isLargeScreen ? 40 : 0,
-      marginBottom: isLargeScreen ? 0 : 20,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 5 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 6,
-      overflow: "hidden",
-      marginTop: isLargeScreen ? 0 : 20,
-      alignSelf: "center",
-    },
-    image: {
-      width: "100%",
-      height: "100%",
-      resizeMode: "cover",
-    },
-    infoContainer: {
-      flex: 1,
-      justifyContent: "flex-start",
-      marginLeft: isLargeScreen ? 60 : 0,
-      width: isLargeScreen ? "auto" : "100%",
-      alignSelf: "center",
-      marginTop: isLargeScreen ? 0 : 10,
-    },
-    title: {
-      fontSize: isLargeScreen ? 32 : 24,
-      fontWeight: "700",
-      color: "#173F8A",
-      marginBottom: isLargeScreen ? 40 : 10,
-      textAlign: "left",
-    },
-    label: {
-      fontSize: isLargeScreen ? 20 : 16,
-      fontWeight: "700",
-      color: "#173F8A",
-      marginTop: isLargeScreen ? 30 : 20,
-      marginBottom: 6,
-      textAlign: "left",
-    },
-    description: {
-      fontSize: isLargeScreen ? 18 : 16,
-      color: "#4A4A4A",
-      lineHeight: isLargeScreen ? 26 : 22,
-      marginBottom: 16,
-      textAlign: "left",
-    },
-    price: {
-      fontSize: isLargeScreen ? 22 : 18,
-      fontWeight: "700",
-      color: "#000",
-      marginTop: 6,
-      marginBottom: isLargeScreen ? 30 : 20,
-      textAlign: "left",
-    },
-    artistName: {
-      fontSize: isLargeScreen ? 18 : 14,
-      fontWeight: "700",
-      color: "#173F8A",
-      marginTop: 10,
-      textAlign: "left",
-    },
-    messageButton: {
-      width: isLargeScreen ? 350 : "100%",
-      backgroundColor: "#FFD5EB",
-      paddingVertical: 14,
-      borderRadius: 8,
-      marginBottom: 16,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.2,
-      shadowRadius: 5,
-      elevation: 5,
-    },
-    messageButtonText: {
-      color: "#173F8A",
-      fontSize: isLargeScreen ? 16 : 14,
-      fontWeight: "700",
-      textAlign: "center",
-    },
-    buyButton: {
-      width: isLargeScreen ? 350 : "100%",
-      backgroundColor: "#173F8A",
-      paddingVertical: 14,
-      borderRadius: 8,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.2,
-      shadowRadius: 5,
-      elevation: 5,
-    },
-    buyButtonText: {
-      color: "#FFF",
-      fontSize: isLargeScreen ? 16 : 14,
-      fontWeight: "700",
-      textAlign: "center",
-    }
-  });
+  reportContainer: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+  },
+});

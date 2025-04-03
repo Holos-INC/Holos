@@ -136,3 +136,17 @@ export interface CommissionInProgress {
 
     totalSteps: number;
 }
+
+export interface CommissionDTO {
+    id: number,
+    name: string,
+    description: string,
+    price: number,
+    status: StatusCommission,
+    paymentArrangement:PaymentArrangement,
+    milestoneDate: Date,
+    artistUsername: string,
+    clientUsername: string,
+    image: string,
+    imageProfile: string
+}

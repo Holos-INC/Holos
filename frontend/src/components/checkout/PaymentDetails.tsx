@@ -1,10 +1,10 @@
-import { Commission } from '@/src/constants/CommissionTypes';
+import { Commission, CommissionDTO } from '@/src/constants/CommissionTypes';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import colors from '@/src/constants/colors';
 
 type Props = {
-  commission: Commission;
+  commission: CommissionDTO;
 };
 
 const PaymentDetails = ({ commission }: Props) => {
@@ -14,7 +14,7 @@ const PaymentDetails = ({ commission }: Props) => {
       <View style={styles.separator} />
 
       <View style={styles.row}><Text style={styles.label}>Título:</Text><View style={styles.dots} /><Text style={styles.value}>{commission.name}</Text></View>
-      <View style={styles.row}><Text style={styles.label}>Artista:</Text><View style={styles.dots} /><Text style={styles.value}>{commission.artist.baseUser.username}</Text></View>
+      <View style={styles.row}><Text style={styles.label}>Artista:</Text><View style={styles.dots} /><Text style={styles.value}>{commission.artistUsername}</Text></View>
 
       <View style={styles.separator} />
 

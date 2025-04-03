@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity, Image, Alert } from "react-native";
 import styles from "@/src/styles/Admin.styles";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
@@ -25,6 +25,7 @@ interface Category {
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const itemsPerPage = 10;
     const [editModalVisible, setEditModalVisible] = useState(false);
+      const flatListRef = useRef<FlatList<Category>>(null);
     const [newCategory, setNewCategory] = useState({
       name: "",
       description: "",
@@ -56,6 +57,9 @@ interface Category {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
   
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
@@ -98,6 +102,7 @@ interface Category {
   const openEditModal = (category: Category) => {
     setEditingCategory(category);
     setEditModalVisible(true);
+    setEditError(null)
   };
 
   const handleSearch = (text: string) => {
@@ -115,6 +120,19 @@ interface Category {
       setDeleteError("Error al eliminar la categoría.");
     }
   };
+
+  const goToPreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
+  
+  const goToNextPage = () => {
+    setCurrentPage((prevPage) =>
+      Math.min(prevPage + 1, Math.ceil(filteredCategories.length / itemsPerPage))
+    );
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
+  
 
 
   return (
@@ -134,6 +152,7 @@ interface Category {
         <Text style={styles.buttonText}>Añadir Nueva Categoría</Text>
       </TouchableOpacity>
       <FlatList
+        ref={flatListRef}
         data={currentCategories}
         keyExtractor={(item) => item.id?.toString() || ""}
         renderItem={({ item }) => (
@@ -158,19 +177,21 @@ interface Category {
 
       {/* Paginación */}
       <View style={styles.paginationContainer}>
+          <TouchableOpacity 
+            style={styles.paginationButton} 
+            onPress={goToPreviousPage} 
+            disabled={currentPage === 1}
+          >
+            <Text style={styles.paginationButtonText}>Anterior</Text>
+          </TouchableOpacity>
+        <Text style={styles.paginationText}>{`${currentPage} de ${totalPages}`}</Text>
         <TouchableOpacity 
-          style={styles.paginationButton} 
-          onPress={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-        >
-          <Text style={styles.paginationButtonText}>Anterior</Text>
-        </TouchableOpacity>
-        <Text style={styles.paginationText}>Página {currentPage}</Text>
-        <TouchableOpacity 
-          style={styles.paginationButton} 
-          onPress={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(filteredCategories.length / itemsPerPage)))}
-        >
-          <Text style={styles.paginationButtonText}>Siguiente</Text>
-        </TouchableOpacity>
+            style={styles.paginationButton} 
+            onPress={goToNextPage} 
+            disabled={currentPage === totalPages}
+          >
+            <Text style={styles.paginationButtonText}>Siguiente</Text>
+          </TouchableOpacity>
       </View>
 
       {/* Modal para agregar categoría */}

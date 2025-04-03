@@ -264,6 +264,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         alignItems: "center",
       },
+      buttonContainerReport: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+        gap: 10,
+      },
   });
 
 export default styles;

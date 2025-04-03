@@ -3,12 +3,12 @@ import { TouchableOpacity, Image, View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { BASE_URL } from "@/src/constants/api";
 import ReportDropdown from "@/src/components/report/ReportDropDown";
-import { Work } from "@/src/constants/ExploreTypes";
+import { Work, WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { styles } from "@/src/styles/Explore.styles";
 
 
 type Props = {
-  work: Work;
+  work: WorksDoneDTO;
   menuVisibleId: number | null;
   setMenuVisibleId: (id: number | null) => void;
 };
@@ -26,7 +26,7 @@ const WorkCard = ({ work, menuVisibleId, setMenuVisibleId }: Props) => {
         onPress={() => router.push({ pathname: "/work/[workId]", params: { workId: String(work.id) } })}
       >
         <Image
-          source={{ uri: `${BASE_URL}${atob(work.image)}` }}
+          source={{ uri: `${BASE_URL}${atob(work?.image)}` }}
           style={styles.image}
           resizeMode="cover"
           onError={() => console.log("Error cargando imagen:", atob(work.image))}
@@ -35,7 +35,7 @@ const WorkCard = ({ work, menuVisibleId, setMenuVisibleId }: Props) => {
 
         <View style={styles.textContainer}>
           <Text style={styles.title}>{work.name}</Text>
-          <Text style={styles.artist}>by @{work.artist?.baseUser?.username ?? "Artista desconocido"} </Text>
+          {/* <Text style={styles.artist}>by @{work.artist?.baseUser?.username ?? "Artista desconocido"} </Text> */}
           <Text style={styles.description}>{work.description}</Text>
         </View>
       </TouchableOpacity>
@@ -53,4 +53,3 @@ const WorkCard = ({ work, menuVisibleId, setMenuVisibleId }: Props) => {
 };
 
 export default WorkCard;
-

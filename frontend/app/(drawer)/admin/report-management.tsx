@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, FlatList, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
@@ -74,6 +74,7 @@ export default function ReportManagement() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 8;
+  const flatListRef = useRef<FlatList<Report>>(null);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -91,6 +92,7 @@ export default function ReportManagement() {
     setSelectedReport(report);
     setStatus(report.status);
     setModalVisible(true);
+    setErrorMessage(null);
   };
 
   const closeModal = () => {
@@ -115,12 +117,24 @@ export default function ReportManagement() {
       );
       setStatus(newStatus);
       setErrorMessage(null); // Limpiar error si la acción es exitosa
-    } catch (error) {
-      setErrorMessage(
-        newStatus === ReportStatus.ACCEPTED
-          ? "Error al aceptar el reporte."
-          : "Error al rechazar el reporte."
-      );
+    } catch (error: any) {
+      let formattedMessage = "Error al actualizar el estado del reporte. Inténtalo de nuevo.";
+  
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          formattedMessage = errorData.includes(":")
+            ? errorData.split(":")[1].trim()
+            : errorData;
+        } else if (typeof errorData === "object" && errorData.message) {
+          formattedMessage = errorData.message.includes(":")
+            ? errorData.message.split(":")[1].trim()
+            : errorData.message;
+        }
+      }
+  
+      setErrorMessage(formattedMessage);
+      console.error("Error al actualizar el estado del reporte:", error);
     }
   };
   
@@ -133,21 +147,26 @@ export default function ReportManagement() {
       setReports((prevReports) => prevReports.filter((report) => report.id !== selectedReport.id));
       setErrorMessage(null); // Limpiar error si la eliminación es exitosa
       closeModal();
-    } catch (error) {
-      setErrorMessage("Error al eliminar el reporte.");
+    } catch (error: any) {
+      let formattedMessage = "Error al eliminar el reporte. Inténtalo de nuevo.";
+  
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          formattedMessage = errorData.includes(":")
+            ? errorData.split(":")[1].trim()
+            : errorData;
+        } else if (typeof errorData === "object" && errorData.message) {
+          formattedMessage = errorData.message.includes(":")
+            ? errorData.message.split(":")[1].trim()
+            : errorData.message;
+        }
+      }
+  
+      setErrorMessage(formattedMessage);
+      console.error("Error al eliminar el reporte:", error);
     }
   };
-  
-  const ErrorMessage = ({ message }: { message: string | null }) => {
-    if (!message) return null;
-  
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{message}</Text>
-      </View>
-    );
-  };
-  
 
   const filteredReports = reports.filter((report) =>
     filter === "All" ? true : report.status === filter
@@ -161,10 +180,12 @@ export default function ReportManagement() {
 
   const nextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
   };
 
   const prevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
   };
 
   const renderItem = ({ item }: { item: Report }) => (
@@ -196,6 +217,7 @@ export default function ReportManagement() {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={paginatedReports}
         renderItem={renderItem}
         keyExtractor={(item) => item.id?.toString() || ""}
@@ -214,42 +236,45 @@ export default function ReportManagement() {
       </View>
 
       {selectedReport && (
-        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeModal}>
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Actualizar Estado del Reporte</Text>
-              <ErrorMessage message={errorMessage} />
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeModal}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Detalles del Reporte</Text>
+            <Text style={styles.errorText}>{errorMessage}</Text>
 
-              <Text style={styles.modalText}>Título: {selectedReport.name}</Text>
-              <Text style={styles.modalText}>Descripción: {selectedReport.description}</Text>
-              <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType?.type}</Text>
-              <Text style={styles.modalText}>Trabajo: {selectedReport.work?.name}</Text>
-              <Text style={styles.modalText}>Descripción del Trabajo: {selectedReport.work?.description}</Text>
-              <Text style={styles.modalText}>Precio: ${selectedReport.work?.price}</Text>
-              <Text style={styles.modalText}>Reportado por: {selectedReport.madeBy.name}</Text>
-              <Text style={styles.modalText}>Reportado a: {selectedReport.reportedUser?.name}</Text>
+            <Text style={styles.modalText}>Título: {selectedReport.name}</Text>
+            <Text style={styles.modalText}>Descripción: {selectedReport.description}</Text>
+            <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType?.type}</Text>
+            <Text style={styles.modalText}>Trabajo: {selectedReport.work?.name}</Text>
+            <Text style={styles.modalText}>Descripción del Trabajo: {selectedReport.work?.description}</Text>
+            <Text style={styles.modalText}>Precio: ${selectedReport.work?.price}</Text>
+            <Text style={styles.modalText}>Reportado por: {selectedReport.madeBy.name}</Text>
+            <Text style={styles.modalText}>Reportado a: {selectedReport.reportedUser?.name}</Text>
 
-              <Picker
-                selectedValue={status}
-                style={styles.picker}
-                onValueChange={(itemValue: ReportStatus) => handleStatusChange(itemValue)}
-              >
-                <Picker.Item label="Pendiente" value={ReportStatus.PENDING} />
-                <Picker.Item label="Aceptado" value={ReportStatus.ACCEPTED} />
-                <Picker.Item label="Rechazado" value={ReportStatus.REJECTED} />
-              </Picker>
+            {selectedReport.status === ReportStatus.PENDING && (
+              <View style={styles.buttonContainerReport}>
+                <TouchableOpacity style={styles.editButton} onPress={() => handleStatusChange(ReportStatus.ACCEPTED)}>
+                  <Text style={styles.buttonText}>✅ Aceptar</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={closeModal}>
-                <Text style={styles.buttonText}>Cerrar</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleStatusChange(ReportStatus.REJECTED)}>
+                  <Text style={styles.buttonText}>❌ Rechazar</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-              <TouchableOpacity style={styles.button} onPress={handleDeleteReport}>
-                <Text style={styles.buttonText}>Eliminar Reporte</Text>
-              </TouchableOpacity>
-            </View>
+
+            <TouchableOpacity style={styles.button} onPress={closeModal}>
+              <Text style={styles.buttonText}>Cerrar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={handleDeleteReport}>
+              <Text style={styles.buttonText}>Eliminar Reporte</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
+        </View>
+      </Modal>
+    )}
     </ScrollView>
     </ProtectedRoute>
   );

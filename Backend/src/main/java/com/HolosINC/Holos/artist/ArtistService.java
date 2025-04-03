@@ -2,17 +2,12 @@ package com.HolosINC.Holos.artist;
 
 import java.util.Optional;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-
 import com.HolosINC.Holos.Category.ArtistCategory;
 import com.HolosINC.Holos.Category.ArtistCategoryRepository;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
-import com.HolosINC.Holos.auth.Authorities;
 import com.HolosINC.Holos.auth.AuthoritiesRepository;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionRepository;
@@ -20,7 +15,6 @@ import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.milestone.Milestone;
 import com.HolosINC.Holos.milestone.MilestoneService;
-import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +28,11 @@ public class ArtistService {
 
 	private final ArtistRepository artistRepository;
 	private BaseUserRepository baseUserRepository;
-	private AuthoritiesRepository authoritiesRepository;
 
 	private CommisionRepository commisionRepository;
 	private MilestoneService milestoneService;
+	@SuppressWarnings("unused")
+	private AuthoritiesRepository authoritiesRepository;
 	private StatusKanbanOrderService statusKanbanOrderService;
 	private ArtistCategoryRepository artistCategoryRepository;
 
@@ -74,6 +69,11 @@ public class ArtistService {
 	public Artist findArtistByUsername(String username) {
 		return artistRepository.findByUsername(username)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "username", username));
+	}
+
+	@Transactional(readOnly = true)
+	public boolean isArtist(Long userId) {
+		return !(artistRepository.findByUserId(userId).isEmpty());
 	}
 
 	@Transactional
@@ -131,4 +131,9 @@ public class ArtistService {
 			throw new RuntimeException("Error al eliminar el artista con ID " + userId + ": " + e.getMessage());
 		}
 	}
+	
+	@Transactional
+	public Optional<Artist> findByBaseUserId(Long baseUserId) {
+        return artistRepository.findByUserId(baseUserId);
+    }
 }

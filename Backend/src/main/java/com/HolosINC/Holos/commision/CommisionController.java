@@ -1,10 +1,7 @@
 package com.HolosINC.Holos.commision;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
-import com.HolosINC.Holos.commision.DTOs.CommisionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
+import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,7 +34,7 @@ public class CommisionController {
     @PostMapping("/{artistId}")
     public ResponseEntity<?> createCommision(@Valid @RequestBody CommisionRequestDTO commision, @PathVariable Long artistId) {
         try {
-            Commision createdCommision = commisionService.createCommision(commision, artistId);
+            CommissionDTO createdCommision = commisionService.createCommision(commision, artistId);
             return ResponseEntity.ok(createdCommision);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -49,10 +44,10 @@ public class CommisionController {
     }
 
     @PutMapping("/{commisionId}/requestChanges")
-    public ResponseEntity<?> changeRequestedCommision(@Valid @RequestBody CommisionDTO commision, @PathVariable Long commisionId) {
+    public ResponseEntity<?> changeRequestedCommision(@Valid @RequestBody CommissionDTO commision, @PathVariable Long commisionId) {
         try {
-            Commision createdCommision = commisionService.requestChangesCommision(commision, commisionId);
-            return ResponseEntity.ok(createdCommision);
+            commisionService.requestChangesCommision(commision, commisionId);
+            return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -73,31 +68,68 @@ public class CommisionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Commision> getCommisionById(@PathVariable Long id) {
-        Commision commision = commisionService.getCommisionById(id);
+    public ResponseEntity<CommissionDTO> getCommisionById(@PathVariable Long id) {
+        CommissionDTO commision = commisionService.getCommisionById(id);
         return commision != null ? ResponseEntity.ok(commision) : ResponseEntity.notFound().build();
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateCommisionStatus(
-            @PathVariable Long id,
-            @RequestParam boolean accept) {
+    @PutMapping("/{commissionId}/waiting")
+    public ResponseEntity<?> waitingCommission(
+            @PathVariable Long commissionId) {
         try {
-            Commision updatedCommision = commisionService.updateCommisionStatus(id, accept);
-            return ResponseEntity.ok(updatedCommision);
-        } catch (IllegalStateException e) {
+            commisionService.waitingCommission(commissionId);
+            return ResponseEntity.ok("En espera de confirmación del precio.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
         }
     }
 
-    @PutMapping("/cancel/{id}")
-    public ResponseEntity<?> cancelCommision(
-            @PathVariable Long id,
-            @RequestParam Long clientId) {
+    @PutMapping("/{commissionId}/toPay")
+    public ResponseEntity<?> toPayCommission(
+            @PathVariable Long commissionId) {
         try {
-            commisionService.cancelCommision(id, clientId);
+            commisionService.toPayCommission(commissionId);
+            return ResponseEntity.ok("Se aceptó el precio correctamente.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{commissionId}/reject")
+    public ResponseEntity<?> rejectCommission(
+            @PathVariable Long commissionId) {
+        try {
+            commisionService.rejectCommission(commissionId);
+            return ResponseEntity.ok("Comisión rechazada correctamente.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{commissionId}/accept")
+    public ResponseEntity<?> acceptCommission(
+            @PathVariable Long commissionId) {
+        try {
+            commisionService.acceptCommission(commissionId);
+            return ResponseEntity.ok("Comisión pagada correctamente.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{commissionId}/cancel")
+    public ResponseEntity<?> cancelCommision(
+            @PathVariable Long commissionId) {
+        try {
+            commisionService.cancelCommission(commissionId);
             return ResponseEntity.ok("Comisión cancelada correctamente.");
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());

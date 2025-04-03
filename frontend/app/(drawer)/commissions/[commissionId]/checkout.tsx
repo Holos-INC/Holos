@@ -3,7 +3,7 @@ import PaymentForm from "@/src/components/checkout/PaymentForm";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import WIPPlaceholder from "@/src/components/WorkInProgress";
-import { Commission } from "@/src/constants/CommissionTypes";
+import { Commission, CommissionDTO } from "@/src/constants/CommissionTypes";
 import { getCommissionById } from "@/src/services/commisionApi";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -16,7 +16,7 @@ const public_pk =  "pk_test_51R5yBhPEFPLFpq6fet8cJiv4MeVyAS06kdbP7nU1ct0oV9o237n
 
 export default function Checkout () {
     const { commissionId } = useLocalSearchParams();
-    const [commission, setCommission] = useState<Commission|null>(null);
+    const [commission, setCommission] = useState<CommissionDTO|null>(null);
     const stripePromise = loadStripe(public_pk);
     const navigation = useNavigation();
 
