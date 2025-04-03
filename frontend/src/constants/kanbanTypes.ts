@@ -28,3 +28,9 @@ export type StatusKanbanUpdateDTO = {
     color: string;
     description: string;
 }
+
+export type StatusKanbanCreateDTO = {
+    nombre: string;
+    color: string;
+    description: string;
+}

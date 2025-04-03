@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CommissionCard } from './CommissionCard';
-import { StatusKanbanUpdateDTO, StatusWithCommissions } from '@/src/constants/kanbanTypes';
+import { StatusKanbanCreateDTO, StatusKanbanUpdateDTO, StatusWithCommissions } from '@/src/constants/kanbanTypes';
 import { ScrollView } from 'react-native-gesture-handler';
 import { DropdownMenu } from '../DropdownMenu';
 import { updateStatusColumn, deleteStatusColumn } from '@/src/services/kanbanApi';
@@ -15,12 +15,15 @@ interface KanbanBoardProps {
     token: string;
     onDeleteColumn: (deletedId: number) => void
     onUpdateColumn: (updated: StatusKanbanUpdateDTO) => void
+    onAddColumn: (created: StatusKanbanCreateDTO) => void
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, onMoveForward, token, onDeleteColumn, onUpdateColumn }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, onMoveForward, token, onDeleteColumn, onUpdateColumn, onAddColumn }) => {
   const [columnIdToDelete, setColumnIdToDelete] = useState<number | null>(null)
   const [editingColumn, setEditingColumn] = useState<StatusWithCommissions | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
+  const [creatingColumn, setCreatingColumn] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   const handleConfirmDeleteColumn = async () => {
     if (columnIdToDelete === null) return
@@ -49,9 +52,26 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
     }
   }
 
-  const handleCancelEdit = () => {
-    setEditError(null)
+  const handleCancel = () => {
+    if (editingColumn) setEditError(null)
+    if (creatingColumn) setCreateError(null)
     setEditingColumn(null)
+    setCreatingColumn(false)
+  }  
+
+  const handleCreateColumn = async ({ name, description, color }: { name: string; description: string; color: string }) => {
+    setCreateError(null);
+    try {
+      await onAddColumn({ nombre: name, description, color })
+      setCreatingColumn(false)
+    } catch (err: any) {
+      const raw = err?.response?.data;
+      const message = typeof raw === 'string'
+        ? raw
+        : raw?.message || 'No se pudo crear la columna 😿'
+      console.error('Create column failed:', message)
+      setCreateError(message)
+    }
   }  
 
   const getDropdownActions = (column: StatusWithCommissions) => [
@@ -60,13 +80,16 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
   ]  
 
   return (
-    <>
       <ScrollView horizontal contentContainerStyle={styles.board}>
         {columns.map((column, index) => (
           <View key={column.status.name} style={[styles.column, { backgroundColor: column.status.color ?? '#f5f5f5' }]}>
             <View style={styles.columnHeader}>
-              <Text style={styles.columnTitle}>{column.status.name}</Text>
-              {column.status.description && ( <Text style={styles.columnDescription}>{column.status.description}</Text> )}
+              <Text numberOfLines={1} ellipsizeMode="tail" style={styles.columnTitle}>
+                {column.status.name}
+              </Text>
+              <Text numberOfLines={2} ellipsizeMode="tail" style={styles.columnDescription}>
+                {column.status.description || ' '}
+              </Text>
               <DropdownMenu actions={getDropdownActions(column)} />
             </View>
           
@@ -85,40 +108,49 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
               </ScrollView>
             </View>
           </View>
-        
         ))}
+
+        <TouchableOpacity onPress={() => setCreatingColumn(true)} style={styles.addColumnButton}>
+          <Text style={styles.plusIcon}>+</Text>
+        </TouchableOpacity>
+
+        {/* Dialogs */}
+        <EditStatusDialog
+          visible={editingColumn !== null}
+          initialName={editingColumn?.status.name ?? ''}
+          initialDescription={editingColumn?.status.description ?? ''}
+          initialColor={editingColumn?.status.color ?? '#cccccc'}
+          onCancel={handleCancel}
+          onSave={handleConfirmEditColumn}
+          error={editError}
+        />
+        <DeleteConfirmationDialog
+          visible={columnIdToDelete !== null}
+          onCancel={() => setColumnIdToDelete(null)}
+          onConfirm={handleConfirmDeleteColumn}
+        />
+        <EditStatusDialog
+          visible={creatingColumn}
+          initialName=""
+          initialDescription=""
+          initialColor="#cccccc"
+          onCancel={handleCancel}
+          onSave={handleCreateColumn}
+          error={createError}
+        />
       </ScrollView>
-  
-      {/* Dialogs */}
-      <EditStatusDialog
-        visible={editingColumn !== null}
-        initialName={editingColumn?.status.name ?? ''}
-        initialDescription={editingColumn?.status.description ?? ''}
-        initialColor={editingColumn?.status.color ?? '#cccccc'}
-        onCancel={handleCancelEdit}
-        onSave={handleConfirmEditColumn}
-        error={editError}
-      />
-      <DeleteConfirmationDialog
-        visible={columnIdToDelete !== null}
-        onCancel={() => setColumnIdToDelete(null)}
-        onConfirm={handleConfirmDeleteColumn}
-      />
-    </>
   );
-  
 };
 
 const styles = StyleSheet.create({
   board: {
     flexGrow: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 12,
     gap: 16,
     height: '100%'
-  },  
+  }, 
   column: {
     width: 280,
     height: '95%',
@@ -143,15 +175,21 @@ const styles = StyleSheet.create({
   columnTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: 4,
     color: '#444',
+    lineHeight: 20,
+    height: 20,
+    overflow: 'hidden',
   },
   columnDescription: {
     fontSize: 13,
     color: '#666',
     marginBottom: 8,
     fontStyle: 'italic',
-  },
+    lineHeight: 16,
+    height: 32,
+    overflow: 'hidden',
+  },  
   columnHeader: {
     backgroundColor: 'white',
     padding: 12,
@@ -160,5 +198,26 @@ const styles = StyleSheet.create({
   columnBody: {
     padding: 12,
     flex: 1,
+  },
+  addColumnButton: {
+    height: 40,
+    width: 40,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    alignSelf:'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    marginRight: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  plusIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#888',
+    fontFamily: 'monospace'
   }
 });
