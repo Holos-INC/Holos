@@ -29,7 +29,7 @@ public class PaymentController {
 
     @GetMapping("/{paymentIntentId}")
     public ResponseEntity<String> getPaymentById(@PathVariable("paymentIntentId") String paymentIntentId) throws StripeException{
-        PaymentIntent paymentIntent= paymentService.getById(paymentIntentId);
+        PaymentIntent paymentIntent= PaymentIntent.retrieve(paymentIntentId);
         String paymentStr = paymentIntent.toJson();
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
@@ -41,15 +41,16 @@ public class PaymentController {
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
 
-    @PostMapping("/create/{artistId}")
-    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long artistId, @RequestParam String clientEmail) throws StripeException {
-        String paymentIntent = paymentService.createPayment(paymentDTO, artistId, clientEmail);
+    @PostMapping("/create/{commisionId}")
+    public ResponseEntity<String> createPayment(@PathVariable("commisionId") long commisionId) throws StripeException {
+        String paymentIntent = paymentService.createPayment(commisionId);
         return new ResponseEntity<String>(paymentIntent, HttpStatus.OK);
     }
 
     @PostMapping("/confirm")
     public ResponseEntity<String> confirmPayment(@RequestParam String paymentIntentId, @RequestParam String paymentMethod) throws StripeException {
-        PaymentIntent paymentIntent = paymentService.confirmPayment(paymentIntentId, paymentMethod);
+        //PaymentIntent paymentIntent = paymentService.confirmPayment(paymentIntentId, paymentMethod);
+        PaymentIntent paymentIntent = paymentService.capturePayment(paymentIntentId, 1, paymentMethod);
         String paymentStr = paymentIntent.toJson();
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
@@ -57,6 +58,13 @@ public class PaymentController {
     @PostMapping("/cancel")
     public ResponseEntity<String> cancelPayment(@RequestParam String paymentIntentId) throws StripeException {
         PaymentIntent paymentIntent = paymentService.cancelPayment(paymentIntentId);
+        String paymentStr = paymentIntent.toJson();
+        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
+    }
+
+    @PostMapping("/capture")
+    public ResponseEntity<String> capturePayment(@RequestParam String paymentIntentId, @RequestParam double retrievePercentaje, @RequestParam String paymentMethod) throws StripeException {
+        PaymentIntent paymentIntent = paymentService.capturePayment(paymentIntentId, retrievePercentaje, paymentMethod);
         String paymentStr = paymentIntent.toJson();
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
