@@ -20,4 +20,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     @Query("SELECT c FROM Client c WHERE c.baseUser.id = :id")
    Optional<Artist> findClientByUser(Long id);
+
+    //Puede que esta query quede obsoleta después de actualizar el webhook
+    @Query("SELECT c FROM Client c WHERE c.baseUser.email = :email")
+    Optional<Client> getClientByEmail(String email);
 }

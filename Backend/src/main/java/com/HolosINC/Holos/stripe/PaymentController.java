@@ -4,11 +4,8 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
 
-import org.springframework.web.bind.annotation.RequestBody;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,16 +34,16 @@ public class PaymentController {
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<String> getAllPayments() throws StripeException{
-        PaymentIntentCollection paymentIntents = paymentService.getAll();
+    @GetMapping("/pending-payments/{artistId}/{clientId}")
+    public ResponseEntity<String> getPendingPayments(@PathVariable("artistId") long artistId, @PathVariable("clientId") long clientId) throws StripeException{
+        PaymentIntentCollection paymentIntents = paymentService.getPendingPayments(artistId, clientId);
         String paymentStr = paymentIntents.toJson();
         return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
     }
 
-    @PostMapping("/create/{commissionId}")
-    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) throws StripeException {
-        String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
+    @PostMapping("/create/{artistId}")
+    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long artistId, @RequestParam String clientEmail) throws StripeException {
+        String paymentIntent = paymentService.createPayment(paymentDTO, artistId, clientEmail);
         return new ResponseEntity<String>(paymentIntent, HttpStatus.OK);
     }
 

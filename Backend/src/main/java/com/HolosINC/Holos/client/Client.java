@@ -27,4 +27,6 @@ public class Client {
     
     @OneToOne(optional = true)
     private BaseUser baseUser;
+
+    private String customerId;
 }

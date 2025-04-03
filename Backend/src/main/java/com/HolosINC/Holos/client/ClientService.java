@@ -53,6 +53,13 @@ public class ClientService {
 				.orElseThrow(() -> new ResourceNotFoundException("Client", "userId", userId));
 	}
 
+	//Puede que esta función quede obsoleta después de actualizar el webhook
+	@Transactional(readOnly = true)
+	public Client findClientByEmail(String email) {
+		return clientRepository.getClientByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("Client", "email", email));
+	}
+
 	@Transactional(readOnly = true)
 	public Iterable<Client> findAll() {
 		return clientRepository.findAll();
