@@ -172,18 +172,38 @@ public class StatusKanbanOrderService {
     public Commision nextStatusOfCommision(Long id) {
         try {
             Long artistId = userService.findCurrentUser().getId();
-            Commision c = commisionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
-            if (artistId.equals(c.getArtist().getId()))
+            Commision c = commisionRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
+
+            if (!artistId.equals(c.getArtist().getId())) {
                 throw new AccessDeniedException("No tienes permisos para cambiar esta comisión");
+            }
 
             StatusKanbanOrder thisStatus = statusKanbanOrderRepository.actualStatusKanban(id);
-            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.nextStatusKanban(thisStatus.getArtist().getId(),
-                                                                                                     thisStatus.getOrder() + 1);
+            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.nextStatusKanban(
+                    thisStatus.getArtist().getId(),
+                    thisStatus.getOrder() + 1
+            );
+
             if (nextStatus.isEmpty()) {
+                // Si no hay un siguiente estado, establecer el estado en null y finalizar la comisión
                 c.setStatusKanbanOrder(null);
                 c.setStatus(StatusCommision.ENDED);
-            } else 
+
+                // Buscar la comisión más antigua en IN_WAIT_LIST
+                Optional<Commision> oldestInWaitList = commisionRepository
+                        .findFirstByStatusOrderByCreatedDateAsc(StatusCommision.IN_WAIT_LIST);
+
+                // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
+                if (oldestInWaitList.isPresent()) {
+                    Commision oldestCommision = oldestInWaitList.get();
+                    oldestCommision.setStatus(StatusCommision.ACCEPTED);
+                    commisionRepository.save(oldestCommision);
+                }
+            } else {
+                // Avanzar al siguiente estado
                 c.setStatusKanbanOrder(nextStatus.get());
+            }
 
             commisionRepository.save(c);
             return c;

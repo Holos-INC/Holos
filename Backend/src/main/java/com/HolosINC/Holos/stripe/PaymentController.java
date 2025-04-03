@@ -52,9 +52,19 @@ public class PaymentController {
 
     @PostMapping("/confirm")
     public ResponseEntity<String> confirmPayment(@RequestParam String paymentIntentId, @RequestParam String paymentMethod) throws StripeException {
+        // Confirmar el pago
         PaymentIntent paymentIntent = paymentService.confirmPayment(paymentIntentId, paymentMethod);
+
+        // Obtener la comisión asociada al pago
+        Long commissionId = paymentService.getCommissionIdByPaymentIntent(paymentIntentId);
+        if (commissionId != null) {
+            // Procesar el cambio de estado de la comisión y registrar el historial de pagos
+            paymentService.processPayment(commissionId, paymentIntent);
+        }
+
+        // Devolver la respuesta
         String paymentStr = paymentIntent.toJson();
-        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
+        return new ResponseEntity<>(paymentStr, HttpStatus.OK);
     }
 
     @PostMapping("/cancel")
