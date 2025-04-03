@@ -2,16 +2,12 @@ package com.HolosINC.Holos.model;
 
 
 import javax.validation.constraints.Size;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Entity
-@Table(name = "base_user")
+@Getter
+@Setter
 public class BaseUserDTO {
-
-    //creo que estos atributos son los correctos para manetener
     
     @Size(min = 2, max = 255)
     protected String name;
