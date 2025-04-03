@@ -14,11 +14,16 @@ export async function fetchStatusesWithCommissions(token:string): Promise<Status
     return grouped;
   }
   
-  export async function moveCommissionForward(id: number, token:string) {
-    await api.put(`/status-kanban-order/${id}/next`, null, { headers: { Authorization: `Bearer ${token}`}});
-  }
-  
-  export async function moveCommissionBack(id: number, token:string) {
-    await api.put(`/status-kanban-order/${id}/previous`, null, { headers: { Authorization: `Bearer ${token}`}});
-  }
-  
+export async function moveCommissionForward(id: number, token:string) {
+  await api.put(`/status-kanban-order/${id}/next`, null, { headers: { Authorization: `Bearer ${token}`}});
+}
+
+export async function moveCommissionBack(id: number, token:string) {
+  await api.put(`/status-kanban-order/${id}/previous`, null, { headers: { Authorization: `Bearer ${token}`}});
+}
+
+export async function deleteStatusColumn(id: number, token: string) {
+  await api.delete(`/status-kanban-order/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}

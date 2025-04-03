@@ -72,6 +72,10 @@ const KanbanScreen: React.FC = () => {
           columns={columns}
           onMoveBack={handleMoveBack}
           onMoveForward={handleMoveForward}
+          token={loggedInUser.token}
+          onDeleteColumn={(deletedId) => {
+            setColumns(prev => prev.filter(c => c.status.id !== deletedId))
+          }}
         />
       </View>
     </ProtectedRoute>

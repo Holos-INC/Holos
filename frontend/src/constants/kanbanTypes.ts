@@ -1,4 +1,5 @@
 export type StatusKanbanDTO = {
+    id: number,
     name: string;
     order: number;
     description: string;
