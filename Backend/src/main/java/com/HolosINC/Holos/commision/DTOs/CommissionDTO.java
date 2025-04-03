@@ -4,6 +4,7 @@ import com.HolosINC.Holos.commision.StatusCommision;
 
 import java.util.Date;
 
+import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.EnumPaymentArrangement;
 
 import lombok.AllArgsConstructor;
@@ -36,4 +37,18 @@ public class CommissionDTO {
     private byte[] image;
 
     private byte[] imageProfile;
+
+    public CommissionDTO(Commision commision){
+        this.id = commision.getId();
+        this.name = commision.getName();
+        this.description = commision.getDescription();
+        this.price = commision.getPrice();
+        this.status = commision.getStatus();
+        this.paymentArrangement = commision.getPaymentArrangement();
+        this.milestoneDate = commision.getMilestoneDate();
+        this.artistUsername = commision.getArtist().getBaseUser().getUsername();
+        this.clientUsername = commision.getBaseUser().getUsername();
+        this.image = commision.getImage();
+        this.imageProfile = commision.getArtist().getBaseUser().getImageProfile();
+    }
 }
