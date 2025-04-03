@@ -2,10 +2,9 @@ import { StatusKanbanDTO, StatusKanbanWithCommissionsDTO, StatusWithCommissions 
 import api from "./axiosInstance";
 
 export async function fetchStatusesWithCommissions(token:string): Promise<StatusWithCommissions[]> {
-  console.log(token)
     const res = await api.get('/status-kanban-order', { headers: { Authorization: `Bearer ${token}`}});
-    const statuses: StatusKanbanDTO[] = res.data.first;
-    const commissions: StatusKanbanWithCommissionsDTO[] = res.data.second;
+    const statuses: StatusKanbanDTO[] = res.data.statuses;
+    const commissions: StatusKanbanWithCommissionsDTO[] = res.data.commissions;
   
     const grouped: StatusWithCommissions[] = statuses.map(status => ({
       status,
@@ -22,3 +21,4 @@ export async function fetchStatusesWithCommissions(token:string): Promise<Status
   export async function moveCommissionBack(id: number, token:string) {
     await api.put(`/status-kanban-order/${id}/previous`, null, { headers: { Authorization: `Bearer ${token}`}});
   }
+  

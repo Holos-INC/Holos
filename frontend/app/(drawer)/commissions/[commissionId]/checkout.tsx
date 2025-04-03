@@ -27,7 +27,6 @@ export default function Checkout () {
     const isTwoColumn = width >= 768;
 
     useEffect(() => {
-      console.log(commissionId)
       if (!commissionId) return;
       const fetchCommission = async () => {
         try {
