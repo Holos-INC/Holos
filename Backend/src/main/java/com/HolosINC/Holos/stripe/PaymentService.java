@@ -84,8 +84,8 @@ public class PaymentService {
 
         return pendingCollection;
     }
-
-    @Transactional
+    //Esto es para que cree el pago el artista
+/*     @Transactional
     public String createPayment(long commisionId) throws StripeException {
         Stripe.apiKey = secretKey;
         BaseUser activeUser = userService.findCurrentUser();
@@ -144,6 +144,69 @@ public class PaymentService {
             .build();
         PaymentIntent paymentIntent = PaymentIntent.create(params);
         commision.setPaymentIntentId(paymentIntent.getId());
+        commisionRepository.save(commision)
+        return paymentIntent.getClientSecret();
+    }
+        */
+    
+    @Transactional
+    public String createPayment(long commisionId) throws StripeException {
+        Stripe.apiKey = secretKey;
+        Commision commision = commisionRepository.findById(commisionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Commison", "id", commisionId));;
+        BaseUser activeUser = userService.findCurrentUser();
+        Artist artist = commision.getArtist();
+        Client client = commision.getClient();
+        Customer customer = null;
+
+        if (commision.getPrice() == null || commision.getPrice() <= 0) {
+            throw new ResourceNotFoundException("La cantidad del pago no puede ser nulo o 0");
+        }
+
+        if (commision.getClient()==null || !client.getBaseUser().equals(activeUser)){
+                throw new AccessDeniedException("No puedes acceder a este recurso");
+        }
+        
+        if (commision.getPaymentIntentId()!=null){
+            throw new IllegalArgumentException("Esta comisión ya tiene un pago asociado");
+        }
+
+        if (artist==null){
+            throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
+        }
+
+        if (client.getCustomerId()==null){
+            CustomerCreateParams customerParams = CustomerCreateParams.builder()
+                .setEmail(client.getBaseUser().getEmail())
+                .build();
+            customer = Customer.create(customerParams);
+            client.setCustomerId(customer.getId());
+            clientRepository.save(client);
+        }
+        else {
+            customer = Customer.retrieve(client.getCustomerId());
+        }
+
+        long totalAmount = Math.round(commision.getPrice() * 100);
+        long commissionAmount = Math.round(totalAmount * commisionPercentage);
+
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+            .setAmount(totalAmount) 
+            .setDescription(commision.getDescription())
+            .setCurrency(currency)
+            .setReceiptEmail(activeUser.getEmail())
+            .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
+            .setCustomer(customer.getId())
+            .setApplicationFeeAmount(commissionAmount) //Comisión de nuestra aplicación
+            .setTransferData(
+                        PaymentIntentCreateParams.TransferData.builder()
+                            .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
+                            .build())
+            .build();
+
+        PaymentIntent paymentIntent = PaymentIntent.create(params);
+        commision.setPaymentIntentId(paymentIntent.getId());
+        commisionRepository.save(commision);
         return paymentIntent.getClientSecret();
     }
     
@@ -155,7 +218,7 @@ public class PaymentService {
                 .setReturnUrl(returnUrl) 
                 .build();
         return paymentIntent.confirm(params);
-    }
+    } 
 
     //Método para que el artista cancele el pago 
     @Transactional
