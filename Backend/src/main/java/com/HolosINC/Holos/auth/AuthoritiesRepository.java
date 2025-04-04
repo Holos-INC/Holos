@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface AuthoritiesRepository extends  CrudRepository<Authorities, String>{
 	
-	@Query("SELECT DISTINCT auth FROM Authorities auth WHERE auth.authority LIKE :authority%")
+	@Query("SELECT DISTINCT auth FROM Authorities auth WHERE auth.authority = :authority")
 	Optional<Authorities> findByName(String authority);
 	
 	@Query("SELECT COUNT(*) > 0 FROM BaseUser b WHERE b.username = :username")
