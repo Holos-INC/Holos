@@ -203,7 +203,6 @@ public class PaymentService {
 
             paymentIntent.capture(captureParams);
         }
-        System.out.println(paymentIntent.getAmountCapturable());
         return paymentIntent;
     }
 

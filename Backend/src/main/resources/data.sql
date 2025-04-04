@@ -49,8 +49,8 @@ INSERT INTO base_user (id, first_name, username, password, email, phone_number, 
 (43, 'admin1', 'admin1', '$2b$10$OHjdYNE5IRkwWb5R1NtPGeIyb2l8xShgxjIZHG7bZn1WI3jfIntRi', 'admin1@gmail.com', '600619217', NULL, '2025-03-06', 1);
 
 INSERT INTO clients (id, base_user_id, customer_id) VALUES
-(1, 1, "cus_S3hC6r7w1YKpFE"),
-(2, 2, "cus_S3gvB5mIBpb25L"),
+(1, 1, null),
+(2, 2, null),
 (3, 3, null),
 (4, 4, null),
 (5, 5, null),

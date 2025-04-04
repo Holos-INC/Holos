@@ -59,8 +59,6 @@ public class StripeConnectService {
         BaseUser activeUser = userService.findCurrentUser();
         Artist artist = artistService.findArtistByUserId(activeUser.getId());
 
-        System.out.println(activeUser.getUsername());
-
         if (artist.getSellerAccountId() != null) {
             return artist.getSellerAccountId();
         } 

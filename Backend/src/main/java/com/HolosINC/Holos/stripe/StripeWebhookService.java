@@ -30,9 +30,9 @@ public class StripeWebhookService {
     public void handleSubscriptionDeleted(String subscriptionId) {
         Optional<Artist> artistOpt = artistRepository.findBySubscriptionId(subscriptionId);
         if (artistOpt.isEmpty()) {
-            System.out.println("No se encontró el artista con el subscriptionId: " + subscriptionId);
-            return;
+            throw new ResourceNotFoundException("Artist not found");
         }
+        
         Artist artist = artistOpt.get();     
         BaseUser user = artist.getBaseUser();
         Authorities auth = authoritiesRepository.findByName("ARTIST")
