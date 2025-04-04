@@ -1,4 +1,4 @@
-package com.HolosINC.Holos.Profile;
+package com.HolosINC.Holos.profile;
 
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientService;

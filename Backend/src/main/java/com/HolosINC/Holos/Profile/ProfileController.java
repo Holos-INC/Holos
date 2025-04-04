@@ -1,4 +1,4 @@
-package com.HolosINC.Holos.Profile;
+package com.HolosINC.Holos.profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
