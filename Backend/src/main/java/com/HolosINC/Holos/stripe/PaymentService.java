@@ -59,40 +59,49 @@ public class PaymentService {
     }
 
     @Transactional
-    public String createPayment(PaymentDTO paymentDTO, long commisionId) throws StripeException {
+    public String createPayment(PaymentDTO paymentDTO, long commisionId) throws StripeException, Exception {
         Stripe.apiKey = secretKey;
-        CommissionDTO commision = commisionService.getCommisionById(commisionId);
-        BaseUser activeUser = userService.findCurrentUser();
-        String email = activeUser.getEmail();
-        
+        try {
+            CommissionDTO commision = commisionService.getCommisionById(commisionId);
+            if (commision==null){
+                throw new ResourceNotFoundException("Commision", "id", commisionId);
+            }
+                BaseUser activeUser = userService.findCurrentUser();
+                String email = activeUser.getEmail();
+            Artist artist = artistService.findArtistByUsername(commision.getArtistUsername());
+            if (artist==null){
+                throw new ResourceNotFoundException("Artist not found");
+            }
 
-        if (commision==null){
-            throw new ResourceNotFoundException("Commision", "id", commisionId);
-        }
-        Artist artist = artistService.findArtistByUsername(commision.getArtistUsername());
-        if (artist==null){
-            throw new ResourceNotFoundException("Artist not found");
-        }
+            if (paymentDTO.getAmount() == null || paymentDTO.getAmount() <= 0) {
+                throw new ResourceNotFoundException("Payment amount can't be empty or 0");
+            }
+            
+            long commissionAmount = Math.round(paymentDTO.getAmount() * commisionPercentage);
 
-        if (paymentDTO.getAmount() == null || paymentDTO.getAmount() <= 0) {
-            throw new ResourceNotFoundException("Payment amount can't be empty or 0");
-        }
-        
-        long commissionAmount = Math.round(paymentDTO.getAmount() * commisionPercentage);
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount(paymentDTO.getAmount()) 
+                .setCurrency(currency)
+                .setReceiptEmail(email)
+                .setApplicationFeeAmount(commissionAmount) //Comisión de nuestra aplicación
+                .setTransferData(
+                            PaymentIntentCreateParams.TransferData.builder()
+                                .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
+                                .build())
+                .build();
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            
+            return paymentIntent.getClientSecret();
 
-        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-            .setAmount(paymentDTO.getAmount()) 
-            .setCurrency(currency)
-            .setReceiptEmail(email)
-            .setApplicationFeeAmount(commissionAmount) //Comisión de nuestra aplicación
-            .setTransferData(
-                        PaymentIntentCreateParams.TransferData.builder()
-                            .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
-                            .build())
-            .build();
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
-        
-        return paymentIntent.getClientSecret();
+        } catch (ResourceNotFoundException e) {
+            
+            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
+        } catch (StripeException e) {
+            
+            throw new RuntimeException("Error al procesar el pago: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new Exception("Error inesperado al crear el pago: " + e.getMessage());
+        }
     }
     
 

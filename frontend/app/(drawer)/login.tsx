@@ -18,7 +18,7 @@ export default function LoginScreen() {
     username: yup
       .string()
       .required('Nombre de usuario obligatorio')
-      .min(5, ({ min }) => `El nombre de usuario debe ser de mínimo ${min} caracteres`),
+      .min(3, ({ min }) => `El nombre de usuario debe ser de mínimo ${min} caracteres`),
     password: yup
       .string()
       .required('Contraseña obligatoria'),

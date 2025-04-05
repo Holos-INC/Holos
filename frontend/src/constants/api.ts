@@ -9,7 +9,7 @@ if (__DEV__) {
     BASE_URL = "http://10.0.2.2:8080";
   }
 } else {
-  BASE_URL = "https://holos-s2.onrender.com";
+  BASE_URL = "https://holos.onrender.com";
 }
 
 export const API_URL: string = `${BASE_URL}/api/v1`;

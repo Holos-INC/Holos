@@ -56,7 +56,7 @@ export default function Checkout () {
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={[styles.container, isTwoColumn && styles.row]}>
               <View style={[styles.column, isTwoColumn && styles.column]}>
-                <PaymentForm amount={commission.price} commissionId={commission.id} description={commission.description} />
+                <PaymentForm amount={Math.round(commission.price * 1.06 * 100) / 100} commissionId={commission.id} description={commission.description} status={commission.status} />
               </View>
               <View style={[styles.column, isTwoColumn && styles.column]}>
                 <PaymentDetails commission={commission} />

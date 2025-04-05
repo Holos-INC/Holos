@@ -10,9 +10,10 @@ interface PaymentFormProps {
   amount: number;
   commissionId: number;
   description: string;
+  status: string;
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, description }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, description,status }) => {
   const stripe = useStripe();
   const router = useRouter();
   const [success, setSuccess] = useState(false);
@@ -25,6 +26,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, descrip
 
     if (!stripe) {
       setError("Stripe aún no está listo 😿");
+      return;
+    }
+    if (status != "NOT_PAID_YET" ) {
+      setError("Esta comisión ya fue pagada o no está disponible para pago.");
       return;
     }
 
@@ -40,13 +45,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, descrip
         setError(result.error.message || "Ocurrió un error 😿");
       } else if (result.paymentIntent?.status === "succeeded") {
         setSuccess(true);
-        setTimeout(() => router.replace("/"), 2000);
+        setTimeout(() => router.replace("/"), 2500);
       }
     } catch (e) {
       setError("No se pudo completar el pago 😿");
     }
   };
-
+  
   return (
     <PaymentFormLayout
       title="Tarjetas aceptadas:"

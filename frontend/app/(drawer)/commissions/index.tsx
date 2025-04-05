@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions
 import { Ionicons } from "@expo/vector-icons";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
-import { getAllRequestedCommissions, updateCommissionStatus } from "@/src/services/commisionApi";
 import { Commission, HistoryCommisionsDTO, StatusCommission } from "@/src/constants/CommissionTypes";
 import ClientCommissionsScreen from "./requested";
 import { useRouter } from "expo-router";  
+import { getAllRequestedCommissions } from "@/src/services/commisionApi";
 
 // 2. Ajusta la pantalla
 const { width } = Dimensions.get("window");
@@ -21,6 +21,8 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   // 3. Tipar el estado como arreglo de Commission
   const [commissions, setCommissions] = useState<HistoryCommisionsDTO>({requested: [], accepted: [], history: [], error: ""});
   const [loading, setLoading] = useState(true);
+  const isArtist = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("ARTIST");
+  const isClient = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
 
   const fetchCommissions = async () => {
     try {
@@ -35,17 +37,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
 
   useEffect(() => {
     fetchCommissions();
-  }, []);
-
-  const handleUpdateStatus = async (commissionId: number, accept: boolean) => {
-    try {
-      await updateCommissionStatus(commissionId, loggedInUser.id, accept, loggedInUser.token);
-      Alert.alert("Éxito", `Solicitud ${accept ? "aceptada" : "denegada"}.`);
-      fetchCommissions();
-    } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar el estado de la comisión.");
-    }
-  };
+  }, [loggedInUser]);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -94,7 +86,6 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
             <Text style={styles.backButtonText}>ATRÁS</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.separator} />
 
         <ScrollView style={styles.content}>
@@ -102,8 +93,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
           <ClientCommissionsScreen commissions={commissions.accepted}/>
 
           <View style={styles.separator} />
-          
-          <Text style={styles.sectionTitle}>NUEVAS SOLICITUDES</Text>
+          <Text style={styles.sectionTitle}>
+            {isArtist ? "NUEVAS SOLICITUDES" : "PAGOS PENDIENTES"}
+          </Text>
           {newRequests.length === 0 ? (
             <Text style={styles.noRequestsText}>No hay nuevas solicitudes.</Text>
           ) : (
@@ -116,18 +108,28 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                   />
                 </View>
                 <View style={styles.textContainer}>
-                  <Text style={styles.textName}>
-                    {comm.clientUsername || "Usuario desconocido"}
-                  </Text>
+                <Text style={styles.textName}>
+                  {isClient ? comm.artistUsername || "Artista desconocido" : comm.clientUsername || "Cliente desconocido"}
+                </Text>
                   <Text style={styles.text}>{comm.description}</Text>
                 </View>
                 <View style={styles.actions}>
-                  <TouchableOpacity 
-                    style={styles.detailsButton} 
-                    onPress={() => {/* Acción para ver detalles */}}
-                  >
-                    <Text style={styles.detailsButtonText}>VER DETALLE</Text>
-                  </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.detailsButton} 
+                  onPress={() => {
+                    // Determinamos el rol del usuario (si es un artista o cliente)
+                    const path = isArtist
+                      ? `/commissions/[commissionId]/detailsArtist`
+                      : isClient
+                      ? `/commissions/[commissionId]/detailsClient`
+                      : `/`;
+
+                    // Redirigimos según el rol
+                    router.push({ pathname: path, params: { commissionId: comm.id } });
+                  }}
+                >
+                  <Text style={styles.detailsButtonText}>VER DETALLE</Text>
+                </TouchableOpacity>
                 </View>
               </View>
             ))
@@ -148,9 +150,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                   />
                 </View>
                 <View style={styles.textContainer}>
-                  <Text style={styles.text}>
-                    {comm.clientUsername || "Usuario desconocido"}
-                  </Text>
+                <Text style={styles.textName}>
+                  {isClient ? comm.artistUsername || "Artista desconocido" : comm.clientUsername || "Cliente desconocido"}
+                </Text>
                   <Text style={styles.text}>Descripción: {comm.description}</Text>
                 </View>
                 <View style={styles.actions}>

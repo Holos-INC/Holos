@@ -65,9 +65,9 @@ export default function RequestForm({ artist }: RequestFormProps) {
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
 
-      const createdCommission = await createCommission(artist.id, commissionData, loggedInUser.token);
+      await createCommission(artist.id, commissionData, loggedInUser.token);
       setTimeout(() => {
-        router.push(`/commissions/${createdCommission.id}/checkout`);
+        router.push(`/commissions`);
       }, 2000);
   
       Alert.alert("Success", "Commission request sent!");

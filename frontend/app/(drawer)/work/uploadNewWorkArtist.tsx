@@ -102,7 +102,7 @@ export default function UploadWorkArtist() {
               />
               {errors.name && touched.name && (<Text style={styles.errorText}>{errors.name}</Text>)}
 
-              <Text style={styles.formLabel}>Dalé una descripción a tu obra</Text>
+              <Text style={styles.formLabel}>Dale una descripción a tu obra</Text>
               <View style={styles.inputDescriptionBox}>
               <TextInput
                 style={styles.inputDescriptionWork}
@@ -115,7 +115,6 @@ export default function UploadWorkArtist() {
               </View>
               {errors.description && touched.description && (<Text style={styles.errorText}>{errors.description}</Text>)}
 
-              <Text style={styles.formLabel}>¿Cuál es el precio de la obra?</Text>
               <Text style={styles.formLabel}>¿Cuál es el precio de la obra?</Text>
               <TextInput
                 style={styles.inputCostWork}

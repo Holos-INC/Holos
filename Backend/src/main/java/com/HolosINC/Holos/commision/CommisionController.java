@@ -1,6 +1,7 @@
 package com.HolosINC.Holos.commision;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
+import com.HolosINC.Holos.exceptions.AccessDeniedException;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -68,10 +71,25 @@ public class CommisionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CommissionDTO> getCommisionById(@PathVariable Long id) {
-        CommissionDTO commision = commisionService.getCommisionById(id);
-        return commision != null ? ResponseEntity.ok(commision) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> getCommisionById(@PathVariable Long id) {
+        try {
+            // Llamamos al servicio para obtener la comisión por ID
+            CommissionDTO commision = commisionService.getCommisionById(id);
+            
+            // Devolvemos la comisión si existe
+            return ResponseEntity.ok(commision);
+        } catch (ResourceNotFoundException e) {
+            // Si la comisión no se encuentra, respondemos con un 404
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            // Si el usuario no tiene acceso a la comisión, respondemos con un 403
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Si ocurre un error inesperado, respondemos con un 500
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
+
 
     @PutMapping("/{commissionId}/waiting")
     public ResponseEntity<?> waitingCommission(
