@@ -50,6 +50,8 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/payment/{paymentIntentId}", "/api/v1/payment/all").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/stripe-account/**").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/payment/**").authenticated()
+            .requestMatchers("/api/v1/stripe-subsciption/create**").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/stripe-subsciption/delete**").hasAuthority("ARTIST_PREMIUM")
             .anyRequest().permitAll()
         )
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
