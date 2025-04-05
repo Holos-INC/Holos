@@ -1,15 +1,17 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import {
   View,
   Text,
   Button,
   FlatList,
   StyleSheet,
-  Alert,
   Image,
   TextInput,
   Modal,
   TouchableOpacity,
+  Alert,
+  ScrollView,
+
 } from "react-native";
 import { useRouter } from "expo-router";
 import styles from "@/src/styles/Admin.styles";
@@ -48,18 +50,17 @@ export default function UserManagement() {
   const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 6;
+  const flatListRef = useRef<FlatList<BaseUser>>(null);
 
   const editUserValidationSchema = yup.object().shape({
     name: yup
       .string()
       .required("El nombre es obligatorio")
-      .min(3, "El nombre debe tener al menos 3 caracteres")
       .max(50, "El nombre no puede superar los 50 caracteres"),
   
     username: yup
       .string()
       .required("El nombre de usuario es obligatorio")
-      .min(5, "El nombre de usuario debe tener al menos 5 caracteres")
       .max(20, "El nombre de usuario no puede superar los 20 caracteres"),
   
     email: yup
@@ -69,7 +70,7 @@ export default function UserManagement() {
   
     phoneNumber: yup
       .string()
-      .matches(/^\d{9}$/, "El teléfono debe contener 9 dígitos")
+      .matches(/^\d{9,10}$/, "El teléfono debe contener 9 dígitos")
       .notRequired(), // No es obligatorio, pero si se ingresa, debe cumplir la regla
   });
 
@@ -119,25 +120,43 @@ export default function UserManagement() {
       setDeleteErrorMessage("ID de usuario inválido.");
       return;
     }
-  
+    const userToDelete = users.find(user => user.id === id);
+    const userName = userToDelete ? userToDelete.name : "Usuario desconocido";
     try {
       if (authority === "CLIENT") {
         await deleteClient(id, loggedInUser.token);
+        alert(`Eliminado cliente: ${userName}`);
       } else if (authority === "ARTIST") {
         await deleteArtist(id, loggedInUser.token);
+        alert(`Eliminado artista: ${userName}`);
       } else {
         setDeleteErrorMessage("Tipo de usuario no válido.");
         return;
       }
   
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-      setDeleteErrorMessage(null); // Limpiar error si la eliminación es exitosa
+      setDeleteErrorMessage(null);
     } catch (error: any) {
-      setDeleteErrorMessage("Error al eliminar el usuario. Inténtalo de nuevo.");
+      let formattedMessage = "Error al eliminar el usuario. Inténtalo de nuevo.";
+  
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (typeof errorData === "string") {
+          formattedMessage = errorData.includes(":")
+            ? errorData.split(":")[1].trim()
+            : errorData;
+        }
+        else if (typeof errorData === "object" && errorData.message) {
+          formattedMessage = errorData.message.includes(":")
+            ? errorData.message.split(":")[1].trim()
+            : errorData.message;
+        }
+      }
+  
+      setDeleteErrorMessage(formattedMessage);
       console.error("Error al eliminar el usuario:", error);
     }
   };
-  
 
   // Paginación
   const indexOfLastUser = currentPage * usersPerPage;
@@ -148,14 +167,23 @@ export default function UserManagement() {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+      // Mover scroll hacia arriba
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
   };
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
   };
+
+  useEffect(() => {
+    setEditErrorMessage(null);
+    setDeleteErrorMessage(null);
+  }, [currentPage, modalVisible]);
+  
 
   return (
     <ProtectedRoute allowedRoles={["ADMIN"]}>
@@ -168,10 +196,14 @@ export default function UserManagement() {
           style={styles.searchInput}
           placeholder="Buscar por usuario o email..."
           value={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            setCurrentPage(1); 
+          }}
         />
 
         <FlatList
+          ref={flatListRef}
           data={currentUsers}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (

@@ -29,7 +29,6 @@ export default function StripeSetupScreen() {
     try {
       setLoading(true);
       setError(null);
-      console.log(loggedInUser.token)
       await createStripeAccount(loggedInUser.token);
       const url = await getStripeAccountLink();
       window.location.href = url;

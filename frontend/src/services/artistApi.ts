@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "./axiosInstance";
 import { API_URL } from "../constants/api";
 const ARTIST_URL = `${API_URL}/artists`;
@@ -8,6 +9,16 @@ export const getArtistById = async (id:number) => {
     return response.data;
   } catch (error) {
     console.error("There was an error fetching the artist!", error);
+    throw error;
+  }
+};
+
+export const getArtistByBaseId = async (baseUserId: number) => {
+  try {
+    const response = await axios.get(`/artists/byBaseUser/${baseUserId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error obteniendo artista con baseUserId ${baseUserId}:`, error);
     throw error;
   }
 };

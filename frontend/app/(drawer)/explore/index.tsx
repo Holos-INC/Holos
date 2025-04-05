@@ -1,24 +1,17 @@
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Text, ScrollView, View, TextInput, Image, TouchableOpacity, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent, TouchableWithoutFeedback   } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
+import { Text, ScrollView, View, Image, TouchableOpacity, LayoutChangeEvent, NativeSyntheticEvent, NativeScrollEvent, TouchableWithoutFeedback   } from "react-native";
 import { useRouter } from "expo-router";
-import ReportDropdown from "@/src/components/report/ReportDropDown";
 import { useFonts } from "expo-font";6
-
 import { styles } from "@/src/styles/Explore.styles";
 import { BASE_URL } from "@/src/constants/api";
-import { Work } from "../../../src/constants/ExploreTypes";
-
-import {
-  fetchWorksAndTransform,
-  getFirstThreeArtists,
-} from "../../../src/services/ExploreWorkHelpers";
+import { WorksDoneDTO } from "../../../src/constants/ExploreTypes";
+import { getFirstThreeArtists } from "../../../src/services/ExploreWorkHelpers";
 import WorkCard from "@/src/components/explore/WorkCard";
+import { fetchWorksDone } from "@/src/services/WorksDoneApi";
 
 export default function ExploreScreen() {
-  const [works, setWorks] = useState<Work[]>([]);
+  const [works, setWorks] = useState<WorksDoneDTO[]>([]);
   const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
   const router = useRouter();
   // const { width } = useWindowDimensions();
@@ -35,8 +28,8 @@ export default function ExploreScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchWorksAndTransform();
-        setWorks(data);
+        const works = await fetchWorksDone();
+        setWorks(works);
       } catch (error) {
         console.error("Error fetching works:", error);
       }
@@ -60,10 +53,7 @@ export default function ExploreScreen() {
     }}>
 
    
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "#fff" }}
-      contentContainerStyle={{ flexGrow: 1 }}
-    >
+    <ScrollView style={{ flex: 1, backgroundColor: "#fff" }} contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
 
         {/* Sección superior */}
@@ -73,10 +63,7 @@ export default function ExploreScreen() {
 
         {/* Sección del medio: Obras */}
         <View style={styles.middleSection}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {works.map((work) => (
               <WorkCard
                 key={work.id}
@@ -94,7 +81,7 @@ export default function ExploreScreen() {
             <Text style={styles.bottomSectionHeaderText}>ARTISTAS</Text>
           </View>
           <View style={styles.artistsContainer}>
-          {firstThreeArtists.map((artist) => (
+          {/* {firstThreeArtists.map((artist:any) => (
             <View key={artist.id}>
               <TouchableOpacity
                 style={styles.artistCard}
@@ -109,7 +96,7 @@ export default function ExploreScreen() {
                 </View>
               </TouchableOpacity>
             </View>
-          ))}
+          ))} */}
           </View>
         </View>
       </View>

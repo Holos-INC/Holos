@@ -7,6 +7,7 @@ import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import LoadingScreen from "@/src/components/LoadingScreen";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -41,13 +42,7 @@ export default function RequestCommissionUserScreen() {
     navigation.setOptions({ title: `Commision ${artist?.baseUser.username}!` });
     }, [navigation, artist]);
 
-  if (loading) {
-    return (
-      <View>
-        <ActivityIndicator size="large" color="#333" />
-      </View>
-    );
-  }
+  if (loading) return <LoadingScreen/>
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
