@@ -3,7 +3,7 @@ import PaymentForm from "@/src/components/checkout/PaymentForm";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import WIPPlaceholder from "@/src/components/WorkInProgress";
-import { Commission, CommissionDTO } from "@/src/constants/CommissionTypes";
+import { CommissionDTO } from "@/src/constants/CommissionTypes";
 import { getCommissionById } from "@/src/services/commisionApi";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-const public_pk =  "pk_test_51R5yBhPEFPLFpq6fet8cJiv4MeVyAS06kdbP7nU1ct0oV9o237npeBw5c1h2WFNL0XYWHRFCzxMUbSnBMFHfzTld00NqKYPZeG";
+const public_pk =  "pk_test_51RA6BPP7ypDsDd4Vy9nMXXsM5unDbdLZRIgc9AFRXIp7xc7pAYizqg5XINqUlTjLnjdbyWjs64oxsVXWUfXso2bb00WkZJqZ9N";
 
 export default function Checkout () {
     const { commissionId } = useLocalSearchParams();

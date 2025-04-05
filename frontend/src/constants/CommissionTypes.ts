@@ -26,6 +26,7 @@ export interface Artist {
     name: string;
     username: string;
     email: string;
+    subscriptionId: string|null;
 }
 
 export type User = Client | Artist;

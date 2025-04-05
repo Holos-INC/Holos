@@ -29,3 +29,30 @@ export const createPaymentIntent = async (paymentDTO: PaymentDTO, commissionId: 
     )
     return res.data;
 };
+
+export const createSubscription = async (paymentMethodId: string, token: string) => {
+  const res = await axios.post(
+    `${API_URL}/stripe-subsciption/create`,
+    null,
+    {
+      params: { paymentMethod: paymentMethodId },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const cancelSubscription = async (token: string) => {
+  const res = await axios.post(
+    `${API_URL}/stripe-subsciption/delete`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data;
+};
