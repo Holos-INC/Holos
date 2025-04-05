@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.reports;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -73,7 +71,6 @@ public class ReportService {
 
     @Transactional
     public Report acceptReport(Long reportId) {
-        try {
             Report report = getReportByIdOrThrow(reportId);
     
             if (report.getStatus() != ReportStatus.PENDING) {
@@ -82,12 +79,7 @@ public class ReportService {
     
             report.setStatus(ReportStatus.ACCEPTED);
     
-            return reportRepository.save(report);
-    
-        } catch (Exception e) {
-            e.printStackTrace(); 
-            throw new RuntimeException("Fallo interno al aceptar el reporte");
-        }
+            return reportRepository.save(report);  
     }
     
     
@@ -101,7 +93,7 @@ public class ReportService {
         report.setStatus(ReportStatus.REJECTED);
         return reportRepository.save(report);
     }
-    
+
     public void deleteReport(Long reportId) {
         Report report = getReportByIdOrThrow(reportId);
     

@@ -6,9 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.work.Work;
 
 @Service
 public class CategoryService {

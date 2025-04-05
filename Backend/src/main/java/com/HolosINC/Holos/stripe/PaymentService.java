@@ -2,8 +2,10 @@ package com.HolosINC.Holos.stripe;
 
 
 import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionService;
+import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -29,11 +31,13 @@ public class PaymentService {
     private String returnUrl = "http://localhost:8081";
     private Double commisionPercentage = 0.06;
     private CommisionService commisionService;
+    private ArtistService artistService;
     private BaseUserService userService;
     private String currency = "eur";
 
     @Autowired
-    public PaymentService(CommisionService commisionService, BaseUserService userService) {
+    public PaymentService(CommisionService commisionService, BaseUserService userService, ArtistService artistService) {
+        this.artistService = artistService;
         this.commisionService = commisionService;
         this.userService = userService;
     }  
@@ -57,7 +61,7 @@ public class PaymentService {
     @Transactional
     public String createPayment(PaymentDTO paymentDTO, long commisionId) throws StripeException {
         Stripe.apiKey = secretKey;
-        Commision commision = commisionService.getCommisionById(commisionId);
+        CommissionDTO commision = commisionService.getCommisionById(commisionId);
         BaseUser activeUser = userService.findCurrentUser();
         String email = activeUser.getEmail();
         
@@ -65,7 +69,7 @@ public class PaymentService {
         if (commision==null){
             throw new ResourceNotFoundException("Commision", "id", commisionId);
         }
-        Artist artist = commision.getArtist();
+        Artist artist = artistService.findArtistByUsername(commision.getArtistUsername());
         if (artist==null){
             throw new ResourceNotFoundException("Artist not found");
         }

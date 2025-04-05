@@ -1,7 +1,7 @@
 import { API_URL } from "@/src/constants/api";
 import api from "@/src/services/axiosInstance";
 import { handleError } from "@/src/utils/handleError";
-import { Commission } from "@/src/constants/CommissionTypes";
+import { Commission, CommissionDTO, HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
 
 const COMMISSION_URL = `${API_URL}/commisions`;
 
@@ -15,9 +15,9 @@ export const getAllCommissions = async (): Promise<Commission[]> => {
   }
 };
 
-export const getAllRequestedCommissions = async (): Promise<Commission[]> => {
+export const getAllRequestedCommissions = async (token:string): Promise<HistoryCommisionsDTO> => {
   try {
-    const response = await api.get(`${COMMISSION_URL}/requested`);
+    const response = await api.get(`${COMMISSION_URL}/historyOfCommisions`, {headers: {Autorization: `Bearer ${token}`}});
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching requested commissions");
@@ -25,7 +25,7 @@ export const getAllRequestedCommissions = async (): Promise<Commission[]> => {
   }
 };
 
-export const getCommissionById = async (id: number): Promise<Commission> => {
+export const getCommissionById = async (id: number): Promise<CommissionDTO> => {
   try {
     const response = await api.get(`${COMMISSION_URL}/${id}`);
     return response.data;
@@ -35,15 +35,6 @@ export const getCommissionById = async (id: number): Promise<Commission> => {
   }
 };
 
-export const getClientCommissions = async (): Promise<Commission[]> => {
-  try {
-    const response = await api.get(`${COMMISSION_URL}/clientRequested`);
-    return response.data;
-  } catch (error) {
-    handleError(error, "Error fetching client commissions");
-    throw error;
-  }
-};
 
 export const createCommission = async ( commissionData: Partial<Commission>, artistId: number ): Promise<Commission> => {
   try {
@@ -55,10 +46,11 @@ export const createCommission = async ( commissionData: Partial<Commission>, art
   }
 };
 
-export const updateCommissionStatus = async ( id: number, artistId: number, accept: boolean ): Promise<Commission> => {
+export const updateCommissionStatus = async ( id: number, artistId: number, accept: boolean, token:string ): Promise<Commission> => {
   try {
     const response = await api.put(`${COMMISSION_URL}/${id}/status`, null, {
-      params: { artistId, accept },
+      params: { artistId, accept }, 
+      headers: {Autorization: `Bearer ${token}`}
     });
     return response.data;
   } catch (error) {
