@@ -162,7 +162,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["ARTIST", "CLIENT"]}>
+    <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM", "CLIENT"]}>
       <View style={styles.mainContainer}>
         <View style={styles.container}>
           <FlatList

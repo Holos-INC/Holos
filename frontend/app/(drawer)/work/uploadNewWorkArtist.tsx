@@ -189,7 +189,7 @@ export default function UploadWorkArtist() {
 
   return (
     <View style={styles.container}>
-      <ProtectedRoute allowedRoles={["ARTIST"]}>
+      <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM"]}>
       {abilityPost ? enableUpload() : unableUpload()}  
 
       </ProtectedRoute>

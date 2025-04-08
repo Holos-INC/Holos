@@ -126,7 +126,7 @@ export default function UserManagement() {
       if (authority === "CLIENT") {
         await deleteClient(id, loggedInUser.token);
         alert(`Eliminado cliente: ${userName}`);
-      } else if (authority === "ARTIST") {
+      } else if (authority === "ARTIST" || authority === "ARTIST_PREMIUM") {
         await deleteArtist(id, loggedInUser.token);
         alert(`Eliminado artista: ${userName}`);
       } else {

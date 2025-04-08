@@ -4,7 +4,8 @@ import type { Href } from "expo-router";
 import { useAuth } from "@/src/hooks/useAuth";
 import LoadingScreen from "./LoadingScreen";
 
-type UserRole = "ADMIN" | "ARTIST" | "CLIENT";
+// Agregar "ARTIST_PREMIUM" al tipo UserRole
+type UserRole = "ADMIN" | "ARTIST" | "ARTIST_PREMIUM" | "CLIENT";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,12 +14,16 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles = [], redirectTo = "/" }: ProtectedRouteProps) {
-  const { isAuthenticated, isArtist, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isArtist, isAdmin, loggedInUser, loading } = useAuth();
   const router = useRouter();
 
+  // Actualizar la lógica para incluir "ARTIST_PREMIUM"
   const userRole: UserRole = useMemo(() => {
-    return isAdmin ? "ADMIN" : isArtist ? "ARTIST" : "CLIENT";
-  }, [isAdmin, isArtist]);
+    if (isAdmin) return "ADMIN";
+    if (loggedInUser?.roles?.includes("ARTIST_PREMIUM")) return "ARTIST_PREMIUM";
+    if (isArtist) return "ARTIST";
+    return "CLIENT";
+  }, [isAdmin, isArtist, loggedInUser]);
 
   const notAllowed = !isAuthenticated || (allowedRoles.length > 0 && !allowedRoles.includes(userRole));
 
