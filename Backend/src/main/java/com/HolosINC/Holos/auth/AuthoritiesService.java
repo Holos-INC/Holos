@@ -114,7 +114,7 @@ public class AuthoritiesService {
 	}
 
 	@Transactional
-	public void updateUser(@Valid SignupRequest request) {
+	public void updateUser(@Valid SignupRequest request) throws Exception{
 		BaseUser user = baseUserService.findCurrentUser();
 		user.setUsername(request.getUsername());
 		user.setName(request.getFirstName());
@@ -137,7 +137,7 @@ public class AuthoritiesService {
 	}
 
 	@Transactional
-	public void deleteUser(Long id) {
+	public void deleteUser(Long id) throws Exception{
 		BaseUser user = baseUserService.findCurrentUser();
 		if (user.getId() != id) {
 			throw new AccessDeniedException("No puedes eliminar un usuario que no eres tu");

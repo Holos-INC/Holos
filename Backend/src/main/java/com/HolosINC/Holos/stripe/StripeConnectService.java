@@ -54,7 +54,7 @@ public class StripeConnectService {
     }
 
     @Transactional
-    public String createConnectedAccount() throws StripeException {
+    public String createConnectedAccount() throws StripeException, Exception {
         Stripe.apiKey = secretKey;
         BaseUser activeUser = userService.findCurrentUser();
         Artist artist = artistService.findArtistByUserId(activeUser.getId());
@@ -79,7 +79,7 @@ public class StripeConnectService {
     }
 
     @Transactional
-    public String createAccountLink() throws StripeException {  
+    public String createAccountLink() throws StripeException, Exception {  
         Long userId = userService.findCurrentUser().getId();
         Artist artist = artistService.findArtistByUserId(userId);
 

@@ -1,9 +1,10 @@
 INSERT INTO authorities (id, authority) VALUES
 (1, 'ADMIN'),
 (2, 'CLIENT'),
-(3, 'ARTIST');
+(3, 'ARTIST'),
+(4, 'ARTIST_PREMIUM');
 
-INSERT INTO base_user (id, first_name, username, password, email, phone_number, image_profile, created_user, authority) VALUES
+INSERT INTO base_user (id, name, username, password, email, phone_number, image_profile, created_user, authority) VALUES
 (1, 'client1', 'client1', '$2a$10$bQCIA7E2i4469olxpfn9keJqj22QmiDRZHQ2JbAKWUgYLK7ZgAnae', 'client1@gmail.com', '600619217', NULL, '2025-03-06', 2),
 (2, 'Jeenii', 'jeenni', '$2a$10$Kpe6DPMrQ3cVvUX7InB/C.l556UiudzbjVt/u/fhejE5l.hBW6FZi', 'reinapata20@gmail.com', '123456789', NULL, '2025-03-06', 2),
 (3, 'Emilio', 'emilio', '$2a$10$14GTyUA2jImRAIvh9p9yNe.2DC818K1/y7CX9VP3hWp4L5gnr9oeS', 'emilio.esp99@gmail.com', '123456789', NULL, '2025-03-06', 2),
@@ -45,7 +46,8 @@ INSERT INTO base_user (id, first_name, username, password, email, phone_number, 
 (40,'Rafael', 'rafaelcastillo_artist','$2a$10$KHEzZb0ioIjGoAYqvUX6G.5q6apcUxxMCY.dLXpnTgZnuFjkMLfdG', 'rafaelcastillocebolla2@gmail.com', '671168164','/images/nobita.jpg', '2025-03-06', 3),
 (41,'Mohamed', 'mohamed_artist','$2a$10$/xzsXNtwVMPX4eIu1coLYeBWvN7DDMiuzAE39B3M3fCt1SvVPo73u', 'mohmmedabourihhh2@gmail.com', '602171961','/images/nobita.jpg', '2025-03-06', 3),
 (42,'Enrique', 'enrique_artist','$2a$10$tbDdopmXHspY4l2iTHMJl.wFf/btZGataJBHRRdenrDHRSsHh/GlC', 'kiquegaraba2@gmail.com', '600619217','/images/nobita.jpg', '2025-03-06', 3),
-(43, 'admin1', 'admin1', '$2b$10$OHjdYNE5IRkwWb5R1NtPGeIyb2l8xShgxjIZHG7bZn1WI3jfIntRi', 'admin1@gmail.com', '600619217', NULL, '2025-03-06', 1);
+(43, 'admin1', 'admin1', '$2b$10$OHjdYNE5IRkwWb5R1NtPGeIyb2l8xShgxjIZHG7bZn1WI3jfIntRi', 'admin1@gmail.com', '600619217', NULL, '2025-03-06', 1),
+(44, 'ArtistaPremium', 'premium_artist', '$2a$12$Rei2PsecjBwwGRyHPAuNPu0xPnLf9cTFh1mXfa3HKpP/LQ5Pah1di','premium.artist@example.com', '600123456','/images/premium_artist.jpg','2025-04-05', 4 );
 
 INSERT INTO clients (id, base_user_id) VALUES
 (1, 1),
@@ -71,26 +73,26 @@ INSERT INTO clients (id, base_user_id) VALUES
 (22, 22);
 
 INSERT INTO artists (id, num_slots_of_work, table_commisions_price, base_user_id, seller_account_id) VALUES 
-(1, 7, '/images/tableCommisionsPrice.png', 23, 'acct_1R6NFEPQHM1XssL0'),
-(2, 7, '/images/tableCommisionsPrice.png', 24, 'acct_1R6NFEPQHM1XssL0'),
-(3, 7, '/images/tableCommisionsPrice.png', 25, 'acct_1R6NFEPQHM1XssL0'),
-(4, 7, '/images/tableCommisionsPrice.png', 26, 'acct_1R6NFEPQHM1XssL0'),
-(5, 7, '/images/tableCommisionsPrice.png', 27, 'acct_1R6NFEPQHM1XssL0'),
-(6, 7, '/images/tableCommisionsPrice.png', 28, 'acct_1R6NFEPQHM1XssL0'),
-(7, 7, '/images/tableCommisionsPrice.png', 29, 'acct_1R6NFEPQHM1XssL0'),
-(8, 7, '/images/tableCommisionsPrice.png', 30, 'acct_1R6NFEPQHM1XssL0'),
-(9, 7, '/images/tableCommisionsPrice.png', 31, 'acct_1R6NFEPQHM1XssL0'),
-(10, 7, '/images/tableCommisionsPrice.png', 32, 'acct_1R6NFEPQHM1XssL0'),
-(11, 7, '/images/tableCommisionsPrice.png', 33, 'acct_1R6NFEPQHM1XssL0'),
-(12, 7, '/images/tableCommisionsPrice.png', 34, 'acct_1R6NFEPQHM1XssL0'),
-(13, 7, '/images/tableCommisionsPrice.png', 35, 'acct_1R6NFEPQHM1XssL0'),
-(14, 7, '/images/tableCommisionsPrice.png', 36, 'acct_1R6NFEPQHM1XssL0'),
-(15, 7, '/images/tableCommisionsPrice.png', 37, 'acct_1R6NFEPQHM1XssL0'),
-(16, 7, '/images/tableCommisionsPrice.png', 38, 'acct_1R6NFEPQHM1XssL0'),
-(17, 7, '/images/tableCommisionsPrice.png', 39, 'acct_1R6NFEPQHM1XssL0'),
-(18, 7, '/images/tableCommisionsPrice.png', 40, 'acct_1R6NFEPQHM1XssL0'),
-(19, 7, '/images/tableCommisionsPrice.png', 41, 'acct_1R6NFEPQHM1XssL0'),
-(20, 7, '/images/tableCommisionsPrice.png', 42, 'acct_1R6NFEPQHM1XssL0');
+(1, 7, '/images/tableCommisionsPrice.png', 23, 'acct_1RA6GE03CzX7Ta5S'),
+(2, 7, '/images/tableCommisionsPrice.png', 24, 'acct_1RAXaVP8d284pnW4'),
+(3, 7, '/images/tableCommisionsPrice.png', 25, 'acct_1RAXec00roPwXDq1'),
+(4, 7, '/images/tableCommisionsPrice.png', 26, 'acct_1RAXgx02AxEEQfuI'),
+(5, 7, '/images/tableCommisionsPrice.png', 27, 'acct_1RAXiu00RzmoEgr2'),
+(6, 7, '/images/tableCommisionsPrice.png', 28, 'acct_1RAXlm03cHhWXhaE'),
+(7, 7, '/images/tableCommisionsPrice.png', 29, 'acct_1RAXpJ09JGkADaEd'),
+(8, 7, '/images/tableCommisionsPrice.png', 30, 'acct_1RAXwy07hwKP6viu'),
+(9, 7, '/images/tableCommisionsPrice.png', 31, 'acct_1RAXze09aP4JLLUr'),
+(10, 7, '/images/tableCommisionsPrice.png', 32, 'acct_1RAY1qP5XYoYQM1x'),
+(11, 7, '/images/tableCommisionsPrice.png', 33, 'acct_1RAY3K1ptjZFG2hL'),
+(12, 7, '/images/tableCommisionsPrice.png', 34, 'acct_1RAY9MP1hyAdt5np'),
+(13, 7, '/images/tableCommisionsPrice.png', 35, 'acct_1RAYByP4gcDVOdqy'),
+(14, 7, '/images/tableCommisionsPrice.png', 36, 'acct_1RAYDn021PnWv8yO'),
+(15, 7, '/images/tableCommisionsPrice.png', 37, 'acct_1RAYGn00qCQlgwcH'),
+(16, 7, '/images/tableCommisionsPrice.png', 38, 'acct_1RAYfB04PQ0lPkkt'),
+(17, 7, '/images/tableCommisionsPrice.png', 39, 'acct_1RAYJM07g4jOYAme'),
+(18, 7, '/images/tableCommisionsPrice.png', 40, 'acct_1RAYLY09DOHMpTCn'),
+(19, 7, '/images/tableCommisionsPrice.png', 41, 'acct_1RAYNyP9Gll65TID'),
+(20, 7, '/images/tableCommisionsPrice.png', 42, 'acct_1RAYPc06rGA4SaEh');
 
 INSERT INTO categories (id, name, description, image) VALUES
 (1, 'Painting', 'Artworks created using paint on a surface', '/images/painting_category.jpg'),
@@ -471,28 +473,6 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (195, 20, 'Golden Wheat', 'A field of golden wheat under the setting sun', 240.0, 9, 'ENDED', '2025-08-20', 'FIFTYFIFTY', NULL),
 (196, 20, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'REJECTED', '2025-08-21', 'INITIAL', NULL);
 
-INSERT INTO milestones (id, name, accepted, commision_id) VALUES 
-(1, 'Initial Sketch', TRUE, 6),
-(2, 'Line Art', FALSE, 6),
-(3, 'Coloring Phase 1', TRUE, 7),
-(4, 'Final Touches', FALSE, 7),
-(5, '3D Model Base', TRUE, 8),
-(6, 'Texture Painting', FALSE, 8),
-(7, 'Concept Art Approval', TRUE, 9),
-(8, 'First Revision', FALSE, 9),
-(9, 'Final Rendering', TRUE, 10),
-(10, 'Lighting Adjustments', FALSE, 10),
-(11, 'Sketch Approval', TRUE, 11),
-(12, 'Base Colors', FALSE, 11),
-(13, 'Initial Composition', TRUE, 12),
-(14, 'Details Refinement', FALSE, 12),
-(15, 'Pose Approval', TRUE, 13),
-(16, 'Shading Process', FALSE, 13),
-(17, 'Sculpt Base Form', TRUE, 14),
-(18, 'Final Texture Mapping', FALSE, 14),
-(19, 'Animation Draft', TRUE, 15),
-(20, 'Final Review', FALSE, 15);
-
 INSERT INTO artist_category(id,artist_id,category_id) VALUES
 (1, 1, 1),
 (2, 1, 2),
@@ -513,39 +493,24 @@ INSERT INTO work_category(id,category_id,work_id) VALUES
 (4, 4, 4),
 (5, 5, 5);
 
-INSERT INTO report_types (id, type) VALUES (500, 'Financial Report');
-INSERT INTO report_types (id, type) VALUES (501, 'Marketing Analysis');
-INSERT INTO report_types (id, type) VALUES (502, 'Customer Feedback');
-INSERT INTO report_types (id, type) VALUES (503, 'Technical Review');
-INSERT INTO report_types (id, type) VALUES (504, 'Annual Summary');
+INSERT INTO report_types (id, type) VALUES 
+(1, 'Financial Report'),
+(2, 'Marketing Analysis'),
+(3, 'Customer Feedback'),
+(4, 'Technical Review'),
+(5, 'Annual Summary');
 
-INSERT INTO works (id, name, description, price, artist_id) 
-VALUES (500, 'Sunset Painting', 'A beautiful sunset painting', 150.00, 1);
-
-INSERT INTO works (id, name, description, price, artist_id) 
-VALUES (501, 'Abstract Vibes', 'Modern abstract artwork', 200.50, 2);
-
-INSERT INTO works (id, name, description, price, artist_id) 
-VALUES (502, 'Cityscape', 'A detailed cityscape at night', 300.00, 3);
-
-INSERT INTO works (id, name, description, price, artist_id) 
-VALUES (503, 'Portrait of a Woman', 'Realistic portrait painting', 250.75, 1);
-
-INSERT INTO works (id, name, description, price, artist_id) 
-VALUES (504, 'Sculpture: The Thinker', 'Bronze sculpture inspired by Rodin', 500.00, 4);
+INSERT INTO works (id, name, description, price, artist_id) VALUES 
+(1, 'Sunset Painting', 'A beautiful sunset painting', 150.00, 1),
+(2, 'Abstract Vibes', 'Modern abstract artwork', 200.50, 2),
+(3, 'Cityscape', 'A detailed cityscape at night', 300.00, 3),
+(4, 'Portrait of a Woman', 'Realistic portrait painting', 250.75, 1),
+(5, 'Sculpture: The Thinker', 'Bronze sculpture inspired by Rodin', 500.00, 4);
 
 
-INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
-VALUES (1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 2, 500, 501);
-
-INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
-VALUES (2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 4, 501, 502);
-
-INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
-VALUES (3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 6, 503, 503);
-
-INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
-VALUES (4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 7, 504, 504);
-
-INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) 
-VALUES (5, 'Spam Content', 'The artwork description contains promotional links.', 'REJECTED', 8, 9, 502, 500);
+INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) VALUES 
+(1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 2, 1, 1),
+(2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 4, 2, 2),
+(3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 6, 3, 3),
+(4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 7, 4, 4),
+(5, 'Spam Content', 'The artwork description contains promotional links.', 'REJECTED', 8, 9, 2, 1);

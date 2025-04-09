@@ -12,7 +12,7 @@ interface WIPPlaceholderProps {
 const WIPPlaceholder: React.FC<WIPPlaceholderProps> = ({
   title = 'Work In Progress!',
   subtitle = 'This is a placeholder screen.',
-  message = 'Replace this with the final feature when it’s ready.'
+  message = "Replace this with the final feature when it's ready."
 }) => {
     const router = useRouter();
     const bounceAnim = useRef(new Animated.Value(0)).current;

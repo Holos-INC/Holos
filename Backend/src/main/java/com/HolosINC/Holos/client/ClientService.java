@@ -7,31 +7,24 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.HolosINC.Holos.auth.AuthoritiesRepository;
-import com.HolosINC.Holos.commision.Commision;
-import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.milestone.Milestone;
-import com.HolosINC.Holos.milestone.MilestoneRepository;
+import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.reports.Report;
+import com.HolosINC.Holos.reports.ReportRepository;
 
 @Service
 public class ClientService {
 
 	private final ClientRepository clientRepository;
 	private BaseUserRepository baseUserRepository;
-	private CommisionRepository commisionRepository;
-	private MilestoneRepository milestoneRepository;
-	private AuthoritiesRepository authoritiesRepository;
+	private ReportRepository reportRepository;
 
 	@Autowired
-	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, MilestoneRepository milestoneRepository, AuthoritiesRepository authoritiesRepository) {
+	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository,ReportRepository reportRepository) {
 		this.clientRepository = clientRepository;
 		this.baseUserRepository = baseUserRepository;
-		this.commisionRepository = commisionRepository;
-		this.milestoneRepository = milestoneRepository;
-		this.authoritiesRepository = authoritiesRepository;
+		this.reportRepository = reportRepository;
 	}
 
 	@Transactional
@@ -54,39 +47,41 @@ public class ClientService {
 	}
 
 	@Transactional(readOnly = true)
+	public boolean isClient(Long userId) {
+		return !(clientRepository.getClientByUser(userId).isEmpty());
+	}
+
+	@Transactional(readOnly = true)
 	public Iterable<Client> findAll() {
 		return clientRepository.findAll();
 	}
 
 	@Transactional
 	public void deleteClient(Long userId) {
-
 		try {
 			Client client = clientRepository.findById(userId)
-			.orElseThrow(() -> new ResourceNotFoundException("Client", "id", userId));
+				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", userId));
 			Long clientId = client.id;
+			BaseUser user = baseUserRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", userId));;
 			boolean hasActiveCommissions = clientRepository.hasActiveCommisions(clientId);
-			
 			if (hasActiveCommissions) {
-				throw new IllegalStateException("No se puede eliminar el cliente con ID " + clientId + 
+				throw new IllegalStateException("No se puede eliminar el cliente " + user.getName() + 
 												" porque tiene comisiones activas.");
 			}
-			
-					List<Commision> commisions = commisionRepository.findAllByClientId(clientId);
-			
-			for (Commision commision : commisions) {
-				List<Milestone> milestones = milestoneRepository.findAllByCommisionId(commision.getId());
-				milestoneRepository.deleteAll(milestones);
-			}
-			
-			commisionRepository.deleteAll(commisions);
-			
+	
+			List<Report> reportsReceived = reportRepository.findAllByReportedUserId(clientId);
+			reportRepository.deleteAll(reportsReceived);
+
+			List<Report> reportsMade = reportRepository.findAllByMadeById(clientId);
+			reportRepository.deleteAll(reportsMade);
+	
 			if (client.getBaseUser() != null) {
 				baseUserRepository.deleteById(client.getBaseUser().getId());
 			}
-
+	
 			clientRepository.delete(client);
-			
+	
 		} catch (IllegalStateException e) {
 			throw e;
 		} catch (ResourceNotFoundException e) {

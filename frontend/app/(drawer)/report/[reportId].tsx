@@ -75,7 +75,7 @@ export default function ReportScreen() {
         setReportTypes(formattedTypes);
       
       } catch (error) {
-        console.error("Error fetching report types:", error);
+        console.error("Hubo un error al cargar los tipos:", error);
         setReportTypes([]);
       }
     };
@@ -87,7 +87,7 @@ export default function ReportScreen() {
         const data = await getWorksDoneById(numberWorkId);
         setWork(data);
       } catch (error) {
-        console.error("Error fetching work details:", error);
+        console.error("Hubo un error al cargar los detalles de la obra:", error);
         setWork(null);
       } finally {
         setLoading(false);
@@ -158,7 +158,7 @@ export default function ReportScreen() {
     setReportTitle(""); 
     setReport("");
     setSelectedReportType(null);
-    router.push({ pathname: "/explore"});
+    router.push({ pathname: "/"});
     };
 
   const handleSingIn = () => {   

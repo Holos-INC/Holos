@@ -23,7 +23,7 @@ export const createCommission = async ( artistId: number, commissionData: Partia
       },
     });
 
-    showAlert("¡Encargo creado! Te llevamos al pago...");
+    showAlert("¡Encargo creado! Te llevamos a los pedidos");
     return response.data;
   } catch (error) {
     handleError(error, "Failed to create commission.");

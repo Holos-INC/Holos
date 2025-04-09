@@ -15,4 +15,8 @@ public class ResourceNotOwnedException extends RuntimeException {
 		super(String.format("%s not owned.", object.getClass().getSimpleName()));
 	}
 
+	public ResourceNotOwnedException(String message) {
+			super(message);
+	}
+
 }

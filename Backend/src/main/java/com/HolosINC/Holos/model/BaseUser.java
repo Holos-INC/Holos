@@ -30,7 +30,6 @@ public class BaseUser {
     protected Long id;
 
     @Size(min = 2, max = 255)
-    @Column(name = "first_name")
     @NotNull
     protected String name;
 

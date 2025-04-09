@@ -1,15 +1,14 @@
 package com.HolosINC.Holos.worksdone;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.artist.ArtistService;
-import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class WorksDoneService {
@@ -31,17 +30,18 @@ public class WorksDoneService {
     }
 
     @Transactional
-    public WorksDone updateWorksDone(WorksDone worksDone, Long worksDoneId, Long artistId) {
+    public WorksDone updateWorksDone(WorksDone worksDone, Long worksDoneId, Long artistId) throws Exception{
         Artist artist = artistService.findArtist(artistId);
 
         WorksDone worksDoneToUpdate = worksDoneRepository.findById(worksDoneId)
-            .orElseThrow(() -> new ResourceNotFoundException("WorksDone", "id", worksDoneId));
+                .orElseThrow(() -> new ResourceNotFoundException("WorksDone", "id", worksDoneId));
 
         if (!worksDoneToUpdate.getArtist().getId().equals(artist.getId())) {
             throw new IllegalArgumentException("El artista no tiene permisos para modificar este trabajo.");
         }
 
-        BeanUtils.copyProperties(worksDone, worksDoneToUpdate, "id");
+        BeanUtils.copyProperties(worksDone, worksDoneToUpdate, "id", "artist");
+
         return worksDoneRepository.save(worksDoneToUpdate);
     }
 
@@ -50,7 +50,14 @@ public class WorksDoneService {
     }
 
     public List<WorksDone> getWorksDoneByArtist(Artist artist) {
-        return worksDoneRepository.findAll().stream().filter(work -> work.getArtist().equals(artist))
+        return worksDoneRepository.findAll()
+                .stream()
+                .filter(work -> work.getArtist().equals(artist))
                 .collect(Collectors.toList());
     }
+
+    public Long countByArtistId(Long artistId) {
+        return worksDoneRepository.countByArtistId(artistId);
+    }
+
 }

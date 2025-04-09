@@ -7,6 +7,7 @@ import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import LoadingScreen from "@/src/components/LoadingScreen";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -19,7 +20,7 @@ export default function RequestCommissionUserScreen() {
 
   useEffect(() => {
     if (!artistUsername) {
-      console.error("Artist ID is undefined!");
+      console.error("El ID del artista no está definido!");
       return;
     }
 
@@ -28,7 +29,7 @@ export default function RequestCommissionUserScreen() {
         const artistData: Artist = await getArtistByUsername(toStringParam(artistUsername));
         setArtist(artistData);
       } catch (error) {
-        console.error("Error fetching artist:", error);
+        console.error("Error al buscar artista:", error);
       } finally {
         setLoading(false);
       }
@@ -38,16 +39,10 @@ export default function RequestCommissionUserScreen() {
   }, [artistUsername]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `Commision ${artist?.baseUser.username}!` });
+    navigation.setOptions({ title: `¡Haz un pedido a ${artist?.baseUser.username}!` });
     }, [navigation, artist]);
 
-  if (loading) {
-    return (
-      <View>
-        <ActivityIndicator size="large" color="#333" />
-      </View>
-    );
-  }
+  if (loading) return <LoadingScreen/>
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
@@ -55,7 +50,7 @@ export default function RequestCommissionUserScreen() {
         {artist && <UserPanel artist={artist} />}
 
         <View style={styles.commissionContainer}>
-          <Text style={styles.commissionTitle}>Commission Prices</Text>
+          <Text style={styles.commissionTitle}>Precio de la comisión</Text>
           <Image source={require(commissionTablePrice)} resizeMode="contain" />
         </View>
 

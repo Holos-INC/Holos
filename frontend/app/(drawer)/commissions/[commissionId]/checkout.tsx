@@ -3,7 +3,7 @@ import PaymentForm from "@/src/components/checkout/PaymentForm";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import WIPPlaceholder from "@/src/components/WorkInProgress";
-import { Commission } from "@/src/constants/CommissionTypes";
+import { CommissionDTO } from "@/src/constants/CommissionTypes";
 import { getCommissionById } from "@/src/services/commisionApi";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -12,11 +12,11 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
-const public_pk =  "pk_test_51R5yBhPEFPLFpq6fet8cJiv4MeVyAS06kdbP7nU1ct0oV9o237npeBw5c1h2WFNL0XYWHRFCzxMUbSnBMFHfzTld00NqKYPZeG";
+const public_pk =  "pk_test_51RA6BPP7ypDsDd4Vy9nMXXsM5unDbdLZRIgc9AFRXIp7xc7pAYizqg5XINqUlTjLnjdbyWjs64oxsVXWUfXso2bb00WkZJqZ9N";
 
 export default function Checkout () {
     const { commissionId } = useLocalSearchParams();
-    const [commission, setCommission] = useState<Commission|null>(null);
+    const [commission, setCommission] = useState<CommissionDTO|null>(null);
     const stripePromise = loadStripe(public_pk);
     const navigation = useNavigation();
 
@@ -27,14 +27,13 @@ export default function Checkout () {
     const isTwoColumn = width >= 768;
 
     useEffect(() => {
-      console.log(commissionId)
       if (!commissionId) return;
       const fetchCommission = async () => {
         try {
           const data = await getCommissionById(Number(commissionId));
           setCommission(data);
         } catch (err: any) {
-          setError(err.message || "Failed to fetch commission");
+          setError(err.message || "Hubo un fallo al buscar la comisión.");
         } finally {
           setLoading(false);
         }
@@ -57,7 +56,11 @@ export default function Checkout () {
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={[styles.container, isTwoColumn && styles.row]}>
               <View style={[styles.column, isTwoColumn && styles.column]}>
-                <PaymentForm amount={commission.price} commissionId={commission.id} description={commission.description} />
+                <PaymentForm 
+                  amount={Math.round(commission.price * 1.06 * 100) / 100}
+                  commissionId={commission.id}
+                  description={commission.description}
+                  status={commission.status} />
               </View>
               <View style={[styles.column, isTwoColumn && styles.column]}>
                 <PaymentDetails commission={commission} />

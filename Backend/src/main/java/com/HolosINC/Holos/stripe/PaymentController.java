@@ -1,14 +1,12 @@
 package com.HolosINC.Holos.stripe;
 
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentIntentCollection;
 
-import org.springframework.web.bind.annotation.RequestBody;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +43,18 @@ public class PaymentController {
     }
 
     @PostMapping("/create/{commissionId}")
-    public ResponseEntity<String> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) throws StripeException {
+public ResponseEntity<?> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) {
+    try {
         String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
-        return new ResponseEntity<String>(paymentIntent, HttpStatus.OK);
+        return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
+    } catch (ResourceNotFoundException e) {
+        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+    } catch (StripeException e) {
+        return ResponseEntity.badRequest().body("Error procesando el pago: " + e.getMessage());
+    } catch (Exception e) {
+        return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
     }
+}
 
     @PostMapping("/confirm")
     public ResponseEntity<String> confirmPayment(@RequestParam String paymentIntentId, @RequestParam String paymentMethod) throws StripeException {

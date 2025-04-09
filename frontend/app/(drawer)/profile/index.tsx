@@ -7,6 +7,7 @@ import { API_URL, BASE_URL } from "@/src/constants/api";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { getUser } from "@/src/services/userApi";
 import colors from "@/src/constants/colors";
+import { useAuth } from "@/src/hooks/useAuth";
 
 const isWeb = Platform.OS === "web";
 
@@ -14,6 +15,7 @@ const UserProfileScreen = () => {
   const navigation = useNavigation<any>();
   const { loggedInUser } = useContext(AuthenticationContext);
   const [user, setUser] = useState<User | null>(null);
+  const { isArtist } = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -25,10 +27,10 @@ const UserProfileScreen = () => {
       }
     };
     fetchUser();
-  }, [user?.id]);  
+  }, [user?.id]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${user?.baseUser.username}'s profile` });
+    navigation.setOptions({ title: `Mi perfil` });
   }, [navigation, user]);
 
   if (!user) {
@@ -36,7 +38,7 @@ const UserProfileScreen = () => {
   }
 
   // Determinamos si el usuario es artista verificando si tiene tableCommisionsPrice
-  const isArtist = "tableCommisionsPrice" in user && user.tableCommisionsPrice;
+  const isPremium = user && 'subscriptionId' in user && user.subscriptionId !== null;
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -51,6 +53,11 @@ const UserProfileScreen = () => {
           // TODO Conseguir de imagenes estáticas
           style={styles.image}
         />
+        { isArtist ? <View style={[styles.premiumBadge, !isPremium && styles.freeBadge]}>
+          <Text style={[styles.premiumBadgeText, !isPremium && styles.freeBadgeText]}>
+            { isPremium ? '🌟 Premium' : 'Gratis'}
+          </Text>
+        </View>:<></>}
         <Text style={styles.label}>
           DATOS {isArtist ? "ARTISTA" : "CLIENTE"}
         </Text>
@@ -70,6 +77,23 @@ const UserProfileScreen = () => {
         {isArtist ? <TouchableOpacity onPress={() => navigation.navigate("profile/stripe-setup")} style={styles.stripeButton}>
             <Text style={styles.stripeButtonText}>Conectar Stripe</Text>
           </TouchableOpacity>:<></>}
+        {isArtist && (
+          isPremium ? (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("profile/premium/cancel")}
+              style={styles.stripeButton}
+            >
+              <Text style={styles.stripeButtonText}>Cancelar Holos Premium</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("profile/premium/index")}
+              style={styles.stripeButton}
+            >
+              <Text style={styles.stripeButtonText}>Holos Premium</Text>
+            </TouchableOpacity>
+          )
+        )}
       </View>
     </ScrollView>
   );
@@ -81,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     backgroundColor: "#F9FAFB",
-    paddingTop: 10,
+    paddingVertical: 20,
     paddingHorizontal: 20,
   },
   scrollView: {
@@ -153,7 +177,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  
+  premiumBadge: {
+    backgroundColor: '#ffe3f0',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 999,
+    alignSelf: 'center',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#fbc0d9',
+    shadowColor: '#f45b82',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+  },
+  premiumBadgeText: {
+    color: '#f45b82',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  freeBadge: {
+    backgroundColor: '#f0f0f0',
+    borderColor: '#ccc',
+  },
+  freeBadgeText: {
+    color: '#999',
+  }
 });
 
 export default UserProfileScreen;

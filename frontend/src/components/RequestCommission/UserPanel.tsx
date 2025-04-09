@@ -1,15 +1,14 @@
 import { View, Text, Image } from "react-native";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { BASE_URL } from "@/src/constants/api";
+import LoadingScreen from "../LoadingScreen";
 
 interface UserPanelProps {
   artist: Artist;
 }
 
 export default function UserPanel({ artist }: UserPanelProps) {
-  if (!artist) {
-    return <Text>Loading...</Text>;
-  }
+  if (!artist) return <LoadingScreen/>
 
   return (
     <View
@@ -37,10 +36,10 @@ export default function UserPanel({ artist }: UserPanelProps) {
         />
 
       ) : (
-        <Text>No profile image</Text>
+        <Text>Sin imagen disponible</Text>
       )}
-      <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>{artist.baseUser.name || "Unknown Artist"}</Text>
-      <Text style={{ fontSize: 14, color: "#333" }}>@{artist.baseUser.username || "No Username"}</Text>
+      <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>{artist.baseUser.name || "Artista desconocido"}</Text>
+      <Text style={{ fontSize: 14, color: "#333" }}>@{artist.baseUser.username || "Sin nombre de usuario"}</Text>
       <Text style={{ fontSize: 14, textAlign: "center", color: "#666", marginTop: 5 }}>
         {/* {artist.description || "No description available"} */}
       </Text>

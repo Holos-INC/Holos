@@ -2,19 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, Linking } from 'react-native';
 import { useNavigation, useRouter } from 'expo-router';
 import { API_URL } from "@/src/constants/api";
-import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { RootDrawerParamList } from '../_layout';
-import { RouteProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
-
-type SignupScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, "Signup">;
-type SignupScreenRouteProp = RouteProp<RootDrawerParamList, "Signup">;
-
-type SignupScreenProps = {
-  navigation: SignupScreenNavigationProp;
-  route: SignupScreenRouteProp;
-};
+import colors from '@/src/constants/colors';
 
 export default function SignupScreen() {
   // Estados compartidos
@@ -28,13 +18,13 @@ export default function SignupScreen() {
   const [selectedImage, setSelectedImage] = useState('');
   const [role, setRole] = useState('client');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const navigation = useNavigation();
 
   // Estados específicos para artistas
   const [numSlotsOfWork, setNumSlotsOfWork] = useState('');
   const [tableCommissionsPrice, setTableCommissionsPrice] = useState('');
 
   const router = useRouter();
-  const navigation = useNavigation<SignupScreenNavigationProp>();
 
   // Validación en tiempo real: cuando cambie password o confirmPassword
   useEffect(() => {
@@ -130,7 +120,7 @@ export default function SignupScreen() {
       }
 
       Alert.alert("Registro exitoso", "Usuario registrado correctamente");
-      router.push(`/(drawer)/explore`);
+      router.push(`/`);
     } catch (error) {
       console.error("Error en la petición:", error);
       Alert.alert("Error", String(error));
@@ -167,6 +157,10 @@ export default function SignupScreen() {
     }
   };
 
+  useEffect(() => {
+    navigation.setOptions({ title: '👤 Registro de usuario' });
+  }, [navigation]);
+
   return (
     <ScrollView style={styles.screenBackground}>
       <Image
@@ -174,7 +168,7 @@ export default function SignupScreen() {
         style={styles.logo}
       />
 
-      <Text style={styles.pageTitle}>Nuevo {role}</Text>
+      <Text style={styles.pageTitle}>Nuevo {role==='client'?'Cliente':'Artista'}</Text>
 
       <View style={styles.cardContainer}>
 
@@ -364,35 +358,42 @@ export default function SignupScreen() {
         </TouchableOpacity>
 
       </View>
+      <Text
+        style={styles.link}
+        onPress={() => {router.push('/login')}}
+      >
+        ¿Ya tienes cuenta? ¡Inicia sesión!
+      </Text>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   screenBackground: {
     flex: 1,
-    backgroundColor: '#FAE8F0',
-    paddingHorizontal: 16,
-    paddingTop: 40,
+    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: '5%',
+    paddingBottom: '5%',
+    gap:10
   },
   logo: {
     width: 200,
     height: 200,
     resizeMode: 'contain',
     alignSelf: 'center',
-    marginBottom: 16,
+    // marginBottom: 16,
   },
   pageTitle: {
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 20,
-    color: '#403568',
+    color: colors.contentStrong,
     alignSelf: 'center',
   },
   cardContainer: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: '#C68FA2',
+    borderWidth: 1,
+    borderColor: colors.brandPrimary,
     borderRadius: 10,
     padding: 16,
     shadowColor: '#000',
@@ -400,6 +401,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    marginBottom:15
   },
   formRow: {
     flexDirection: 'row',
@@ -414,11 +416,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     marginBottom: 4,
-    color: '#403568',
+    color: colors.contentStrong,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E9C2CF',
+    borderColor: colors.brandPrimary,
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 4,
@@ -426,7 +428,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   errorText: {
-    color: 'red',
+    color: colors.brandPrimary,
     fontSize: 12,
     marginTop: 4,
   },
@@ -439,21 +441,21 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   roleButton: {
-    backgroundColor: '#E9C2CF',
+    backgroundColor: `${colors.brandSecondary}80`,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
     marginRight: 8,
   },
   roleButtonActive: {
-    backgroundColor: '#C68FA2',
+    backgroundColor: colors.brandSecondary,
   },
   roleButtonText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
   createButton: {
-    backgroundColor: '#C68FA2',
+    backgroundColor: colors.brandSecondary,
     borderRadius: 8,
     paddingVertical: 12,
     marginTop: 12,
@@ -477,20 +479,21 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: "#C68FA2",
+    borderColor: colors.brandPrimary,
     borderRadius: 4,
     marginRight: 8,
     backgroundColor: "#FFFFFF",
   },
   checkboxChecked: {
-    backgroundColor: "#C68FA2",
+    backgroundColor: colors.brandPrimary,
   },
   checkboxLabel: {
     fontSize: 14,
-    color: "#403568",
+    color: colors.contentStrong,
   },
   link: {
-    color: "#C68FA2",
+    color: colors.brandPrimary,
     textDecorationLine: "underline",
+    fontWeight:'bold',
   },
 });

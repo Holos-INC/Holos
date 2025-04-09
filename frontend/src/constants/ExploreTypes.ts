@@ -28,3 +28,11 @@ export interface Work {
   artist: Artist;
   image: string;
 }
+
+export interface WorksDoneDTO {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+}

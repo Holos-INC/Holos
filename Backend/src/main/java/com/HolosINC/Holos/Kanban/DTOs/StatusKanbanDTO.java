@@ -27,4 +27,13 @@ public class StatusKanbanDTO {
         statusKanban.setColor(this.getColor());
         return statusKanban;
     }
+
+    public StatusKanbanDTO(StatusKanbanOrder s) {
+        this.id = s.getId();
+        this.name = s.getName();
+        this.order = s.getOrder();
+        this.description = s.getDescription();
+        this.color = s.getColor();
+    }
+    
 }

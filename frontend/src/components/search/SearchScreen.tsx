@@ -38,6 +38,15 @@ const SearchScreen = () => {
     return 1; // pequeñas, 1 columna
   };
 
+  const isBase64Path = (base64: string): boolean => {
+    try {
+      const decoded = atob(base64);
+      return decoded.startsWith("/images/");
+    } catch (e) {
+      return false;
+    }
+  };
+
   return (
     <ScrollView style={mobileStyles.container}>
       {/* Input de búsqueda */}
@@ -64,7 +73,7 @@ const SearchScreen = () => {
               <Text style={mobileStyles.sectionTitle}>Trabajos</Text>
               <FlatList
                 data={workResults}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item, index) => (item?.id ? item.id.toString() : `work-${index}`)}
                 numColumns={getNumColumns()}
                 contentContainerStyle={mobileStyles.worksScrollContainer}
                 renderItem={({ item }) => (
@@ -73,10 +82,19 @@ const SearchScreen = () => {
                     onPress={() => router.push({ pathname: "/work/[workId]", params: { workId: String(item.id) } })}
                   >
                     <View style={mobileStyles.cardContainer}>
-                      <Image source={{ uri: `${BASE_URL}${item.image}` }} style={mobileStyles.image} />
+                      <Image
+                        source={{ 
+                          uri: isBase64Path(item.image)
+                            ?`${BASE_URL}${item.image}`
+                            :`data:image/jpeg;base64,${item.image}`
+                          }}
+                        style={mobileStyles.image}
+                        resizeMode="cover"
+                        onError={() => console.log("Error cargando imagen:", item.image)}
+                      />
                       <View style={mobileStyles.textContainer}>
                         <Text style={mobileStyles.title}>{item.name}</Text>
-                        <Text style={mobileStyles.artist}>by @{item.artist?.baseUser?.username ?? "Desconocido"}</Text>
+                        <Text style={mobileStyles.artist}>por  @{item.artist?.baseUser?.username ?? "Desconocido"}</Text>
                         <Text style={mobileStyles.description}>{item.description}</Text>
                       </View>
                     </View>

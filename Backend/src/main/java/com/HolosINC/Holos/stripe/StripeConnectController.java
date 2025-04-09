@@ -27,29 +27,44 @@ public class StripeConnectController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Account>> getAllConnectedAccounts() throws StripeException {
-        List<Account> accounts = stripeConnectService.getAllConnectedAccounts();
-        return new ResponseEntity<List<Account>>(accounts, HttpStatus.OK);
+    public ResponseEntity<List<Account>> getAllConnectedAccounts() {
+        try {
+            List<Account> accounts = stripeConnectService.getAllConnectedAccounts();
+            return new ResponseEntity<>(accounts, HttpStatus.OK);
+        } catch (StripeException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<String> getAccountById(@PathVariable String accountId) throws StripeException{
-        Account account= stripeConnectService.getById(accountId);
-        String accountStr = account.toJson();
-        return new ResponseEntity<String>(accountStr, HttpStatus.OK);
+    public ResponseEntity<String> getAccountById(@PathVariable String accountId){
+        try {
+            Account account= stripeConnectService.getById(accountId);
+            String accountStr = account.toJson();
+            return new ResponseEntity<String>(accountStr, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createConnectedAccount() throws StripeException{
-        String accountId = stripeConnectService.createConnectedAccount();
-        return new ResponseEntity<String>(accountId, HttpStatus.OK);
+    public ResponseEntity<String> createConnectedAccount(){
+        try {
+            String accountId = stripeConnectService.createConnectedAccount();
+            return new ResponseEntity<String>(accountId, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/create-link")
-    public ResponseEntity<String> createAccountLink() throws StripeException{
-        //Esto no debería pedir un sellerAccountId ya que se obtendría con el findCurrentUser
-        String accountLinkUrl = stripeConnectService.createAccountLink();
-        return new ResponseEntity<String>(accountLinkUrl, HttpStatus.OK);
+    public ResponseEntity<String> createAccountLink(){
+        try {
+            String accountLinkUrl = stripeConnectService.createAccountLink();
+            return new ResponseEntity<String>(accountLinkUrl, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

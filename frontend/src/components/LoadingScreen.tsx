@@ -16,7 +16,7 @@ export default function LoadingScreen() {
   return (
     <View style={styles.container}>
       <Animated.Text style={[styles.loadingText, { transform: [{ translateY: bounce }] }]}>
-        Loading...
+        Cargando...
       </Animated.Text>
       <ActivityIndicator size="large" color="#ff80bf" />
     </View>
