@@ -2,11 +2,15 @@ package com.HolosINC.Holos.search.DTOs;
 
 import com.HolosINC.Holos.worksdone.WorksDone;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SearchWorkDTO {
-    
+
     private Long id;
 
     private byte[] image;
@@ -14,7 +18,7 @@ public class SearchWorkDTO {
     private String name;
 
     private Double price;
-    
+
     private String description;
 
     private String artistUsername;

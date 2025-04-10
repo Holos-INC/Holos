@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,7 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
-import com.HolosINC.Holos.work.Work;
+import com.HolosINC.Holos.search.DTOs.SearchWorkDTO;
 
 public class SearchControllerTest {
 
@@ -41,10 +43,12 @@ public class SearchControllerTest {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(searchController).build();
     }
-/*
+
     @Test
     public void testSearchWorksWithAllParams() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0, 10), 1);
+        SearchWorkDTO dto = mock(SearchWorkDTO.class);
+        Page<SearchWorkDTO> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
+
         when(searchService.searchWorks("cuadro", 50.0, 150.0, 0, 10)).thenReturn(mockPage);
 
         mockMvc.perform(get("/api/v1/search/works")
@@ -61,7 +65,10 @@ public class SearchControllerTest {
 
     @Test
     public void testSearchWorksWithDefaultParams() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0, 10), 1);
+        SearchWorkDTO dto = mock(SearchWorkDTO.class);
+
+        Page<SearchWorkDTO> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
+
         when(searchService.searchWorks(null, null, null, 0, 10)).thenReturn(mockPage);
 
         mockMvc.perform(get("/api/v1/search/works"))
@@ -73,7 +80,10 @@ public class SearchControllerTest {
 
     @Test
     public void testSearchWorksWithOnlyQuery() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0, 10), 1);
+        SearchWorkDTO dto = mock(SearchWorkDTO.class);
+
+        Page<SearchWorkDTO> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
+
         when(searchService.searchWorks("paisaje", null, null, 0, 10)).thenReturn(mockPage);
 
         mockMvc.perform(get("/api/v1/search/works")
@@ -86,7 +96,9 @@ public class SearchControllerTest {
 
     @Test
     public void testSearchWorksWithMinAndMaxPriceOnly() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0, 10), 1);
+        SearchWorkDTO dto = mock(SearchWorkDTO.class);
+        Page<SearchWorkDTO> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
+
         when(searchService.searchWorks(null, 20.0, 80.0, 0, 10)).thenReturn(mockPage);
 
         mockMvc.perform(get("/api/v1/search/works")
@@ -100,8 +112,9 @@ public class SearchControllerTest {
 
     @Test
     public void testSearchWorksWithEmptyResults() throws Exception {
-        Page<Work> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
-        when(searchService.searchWorks("nada", null, null, 0, 10)).thenReturn(emptyPage);
+        Page<SearchWorkDTO> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
+        when(searchService.searchWorks("nada", null, null, 0,
+                10)).thenReturn(emptyPage);
 
         mockMvc.perform(get("/api/v1/search/works")
                 .param("query", "nada"))
@@ -113,18 +126,20 @@ public class SearchControllerTest {
 
     @Test
     public void testSearchWorksPaginationSecondPage() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(1, 10), 11);
+        SearchWorkDTO dto = new SearchWorkDTO(); // Crea el DTO que espera el controlador
+        Page<SearchWorkDTO> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(1, 10), 11);
+
         when(searchService.searchWorks(null, null, null, 1, 10)).thenReturn(mockPage);
 
         mockMvc.perform(get("/api/v1/search/works")
                 .param("page", "1")
                 .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(1));
+                .andExpect(jsonPath("$.number").value(1)); // Verifica que esté en la página 1 (segunda página)
 
         verify(searchService).searchWorks(null, null, null, 1, 10);
     }
-*/
+
     @Test
     public void testSearchWorksInvalidPageParam() throws Exception {
         when(searchService.searchWorks(null, null, null, -1, 10))
@@ -228,33 +243,35 @@ public class SearchControllerTest {
         verify(searchService).searchArtists("nobody", null, 0, 10);
     }
 
-    /* 
-    @Test
-    public void testSearchWorksByArtistWithDefaultPagination() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0, 10), 1);
-        when(searchService.searchWorksByArtist(1, 0, 10)).thenReturn(mockPage);
-
-        mockMvc.perform(get("/api/v1/search/artists/1/works"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        verify(searchService).searchWorksByArtist(1, 0, 10);
-    }
-
-    @Test
-    public void testSearchWorksByArtistWithCustomPagination() throws Exception {
-        Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(2, 5), 15);
-        when(searchService.searchWorksByArtist(2, 2, 5)).thenReturn(mockPage);
-
-        mockMvc.perform(get("/api/v1/search/artists/2/works")
-                .param("page", "2")
-                .param("size", "5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number").value(2));
-
-        verify(searchService).searchWorksByArtist(2, 2, 5);
-    }
-*/
+    /*
+     * @Test
+     * public void testSearchWorksByArtistWithDefaultPagination() throws Exception {
+     * Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(0,
+     * 10), 1);
+     * when(searchService.searchWorksByArtist(1, 0, 10)).thenReturn(mockPage);
+     * 
+     * mockMvc.perform(get("/api/v1/search/artists/1/works"))
+     * .andExpect(status().isOk())
+     * .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+     * 
+     * verify(searchService).searchWorksByArtist(1, 0, 10);
+     * }
+     * 
+     * @Test
+     * public void testSearchWorksByArtistWithCustomPagination() throws Exception {
+     * Page<Work> mockPage = new PageImpl<>(List.of(new Work()), PageRequest.of(2,
+     * 5), 15);
+     * when(searchService.searchWorksByArtist(2, 2, 5)).thenReturn(mockPage);
+     * 
+     * mockMvc.perform(get("/api/v1/search/artists/2/works")
+     * .param("page", "2")
+     * .param("size", "5"))
+     * .andExpect(status().isOk())
+     * .andExpect(jsonPath("$.number").value(2));
+     * 
+     * verify(searchService).searchWorksByArtist(2, 2, 5);
+     * }
+     */
     @Test
     public void testSearchWorksByArtistInvalidPage() throws Exception {
         when(searchService.searchWorksByArtist(3, -1, 10))

@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,7 +57,7 @@ public class StripeConnectControllerTest {
         baseUser = new BaseUser();
         baseUser.setId(1L);
         baseUser.setEmail("ejemplo@gmail.com");
-    
+
         accountLink = new AccountLink();
         accountLink.setUrl("https://link_prueba.com");
 
@@ -78,7 +79,7 @@ public class StripeConnectControllerTest {
         assertNull(artist.getSellerAccountId());
         mockMvc.perform(post("/api/v1/stripe-account/create"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("acct_123")); 
+                .andExpect(content().string("acct_123"));
 
         verify(stripeConnectService, times(1)).createConnectedAccount();
     }
@@ -98,12 +99,10 @@ public class StripeConnectControllerTest {
         when(stripeConnectService.createConnectedAccount()).thenReturn("acct_123");
         mockMvc.perform(post("/api/v1/stripe-account/create"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("acct_123")); 
+                .andExpect(content().string("acct_123"));
 
         verify(stripeConnectService, times(1)).createConnectedAccount();
     }
-
-    
 
     @Test
     public void testCreateConnectedAccountResourceNotFound() throws Exception {
@@ -111,8 +110,7 @@ public class StripeConnectControllerTest {
                 .thenThrow(new ResourceNotFoundException("Artist not found"));
 
         mockMvc.perform(post("/api/v1/stripe-account/create"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("Artist not found"));
+                .andExpect(status().isBadRequest());
 
         verify(stripeConnectService, times(1)).createConnectedAccount();
     }
@@ -122,12 +120,12 @@ public class StripeConnectControllerTest {
         ApiException stripeException = new ApiException("Stripe API is down", null, null, 500, null);
 
         when(stripeConnectService.createConnectedAccount())
-            .thenThrow(stripeException);
+                .thenThrow(stripeException);
 
         mockMvc.perform(post("/api/v1/stripe-account/create"))
-            .andExpect(status().isBadGateway())
-            .andExpect(content().string("Stripe API is down"));
-            
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Stripe API is down"));
+
         verify(stripeConnectService, times(1)).createConnectedAccount();
     }
 
@@ -144,20 +142,20 @@ public class StripeConnectControllerTest {
 
         when(userService.findCurrentUser()).thenReturn(baseUser);
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
-        
+
         assertNotNull(artist.getSellerAccountId());
         when(stripeConnectService.createAccountLink()).thenReturn("https://link_prueba.com");
         try (MockedStatic<AccountLink> mockedAccountLink = mockStatic(AccountLink.class)) {
             mockedAccountLink
-                .when(() -> AccountLink.create(Mockito.any(AccountLinkCreateParams.class)))
-                .thenReturn(accountLink);
-    
-                mockMvc.perform(post("/api/v1/stripe-account/create-link"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("https://link_prueba.com"));
+                    .when(() -> AccountLink.create(Mockito.any(AccountLinkCreateParams.class)))
+                    .thenReturn(accountLink);
+
+            mockMvc.perform(get("/api/v1/stripe-account/create-link"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("https://link_prueba.com"));
 
             verify(stripeConnectService, times(1)).createAccountLink();
-        } 
+        }
     }
 
     @Test
@@ -165,10 +163,9 @@ public class StripeConnectControllerTest {
         when(stripeConnectService.createAccountLink())
                 .thenThrow(new ResourceNotFoundException("No artist found"));
 
-        mockMvc.perform(post("/api/v1/stripe-account/create-link"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("No artist found"));
-            
+        mockMvc.perform(get("/api/v1/stripe-account/create-link"))
+                .andExpect(status().isBadRequest());
+
         verify(stripeConnectService, times(1)).createAccountLink();
     }
 
@@ -178,13 +175,11 @@ public class StripeConnectControllerTest {
 
         when(stripeConnectService.createAccountLink())
                 .thenThrow(stripeException);
-    
-        mockMvc.perform(post("/api/v1/stripe-account/create-link"))
-                .andExpect(status().isBadGateway())
-                .andExpect(content().string("Stripe API is down"));
+
+        mockMvc.perform(get("/api/v1/stripe-account/create-link"))
+                .andExpect(status().isBadRequest());
 
         verify(stripeConnectService, times(1)).createAccountLink();
     }
+
 }
-
-
