@@ -1,6 +1,8 @@
 package com.HolosINC.Holos.auth;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -11,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
@@ -48,6 +52,11 @@ public class AuthoritiesServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        authoritiesService = new AuthoritiesService(
+                encoder, baseUserService, artistService,
+                clientService, authoritiesRepository);
+
+        ReflectionTestUtils.setField(authoritiesService, "imageHandler", imageHandler);
     }
 
     @Test
@@ -82,6 +91,20 @@ public class AuthoritiesServiceTest {
         request.setPassword("password");
         request.setEmail("artist@example.com");
         request.setAuthority("ARTIST");
+        request.setFirstName("Artist");
+        request.setPhoneNumber("123456789");
+
+        MultipartFile mockImage = mock(MultipartFile.class);
+        MultipartFile mockTable = mock(MultipartFile.class);
+
+        when(mockImage.getSize()).thenReturn(1024L);
+        when(mockImage.isEmpty()).thenReturn(false);
+        when(mockTable.getSize()).thenReturn(1024L);
+        when(mockTable.isEmpty()).thenReturn(false);
+        when(mockTable.getBytes()).thenReturn(new byte[0]);
+
+        request.setImageProfile(mockImage);
+        request.setTableCommisionsPrice(mockTable);
 
         Authorities authority = new Authorities();
         authority.setAuthority("ARTIST");

@@ -1,11 +1,14 @@
 package com.HolosINC.Holos.stripe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.stripe.model.Customer;
 import com.stripe.model.Subscription;
@@ -58,7 +62,7 @@ public class PremiumSubscriptionServiceTest {
         when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(java.util.Optional.of(artist));
 
         String paymentMethod = "pm_123";
-        
+
         try (MockedStatic<Customer> customerMock = mockStatic(Customer.class)) {
             Customer mockCustomer = Mockito.mock(Customer.class);
             when(mockCustomer.getId()).thenReturn("cus_123");
@@ -72,7 +76,7 @@ public class PremiumSubscriptionServiceTest {
                         .thenReturn(mockSubscription);
 
                 String subscriptionId = premiumSubscriptionService.createSubscription(paymentMethod);
-                
+
                 assertEquals("sub_123", subscriptionId);
                 verify(artistRepository, times(1)).save(artist);
             }
@@ -122,7 +126,7 @@ public class PremiumSubscriptionServiceTest {
             subscriptionMock.when(() -> Subscription.retrieve("sub_123")).thenReturn(mockSubscription);
 
             Subscription canceledSubscription = premiumSubscriptionService.cancelSubscription();
-            
+
             assertEquals(mockSubscription, canceledSubscription);
         }
     }
@@ -131,14 +135,13 @@ public class PremiumSubscriptionServiceTest {
     public void testCancelSubscriptionWithNoActiveSubscription() {
         when(userService.findCurrentUser()).thenReturn(baseUser);
         artist.setSubscriptionId(null);
-        when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(java.util.Optional.of(artist));
+        when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(Optional.of(artist));
 
-        try {
+        Exception exception = assertThrows(BadRequestException.class, () -> {
             premiumSubscriptionService.cancelSubscription();
-            fail("Se esperaba una excepción indicando que el usuario no tiene una suscripción activa");
-        } catch (Exception e) {
-            assertEquals("Este usuario no es propietario de esta suscripción", e.getMessage());
-        }
+        });
+
+        assertEquals("Este usuario no tiene una suscripción asociada", exception.getMessage());
     }
 
     @Test

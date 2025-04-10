@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.artist;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,12 +48,27 @@ public class ArtistRestControllerTest {
     public void testFindByIdSuccess() throws Exception {
         Artist artist = new Artist();
         artist.setId(1L);
+        artist.setNumSlotsOfWork(5);
+        artist.setDescription("Artista especializado en retratos");
+
+        BaseUser baseUser = new BaseUser();
+        baseUser.setName("Artista 1");
+        baseUser.setUsername("artista1");
+        baseUser.setEmail("artista1@example.com");
+        baseUser.setPhoneNumber("123456789");
+        baseUser.setImageProfile(new byte[0]);
+        baseUser.setTableCommissionsPrice(new byte[0]);
+
+        artist.setBaseUser(baseUser);
 
         when(artistService.findArtist(1L)).thenReturn(artist);
 
         mockMvc.perform(get("/api/v1/artists/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.artistId").value(1))
+                .andExpect(jsonPath("$.numSlotsOfWork").value(5))
+                .andExpect(jsonPath("$.description").value("Artista especializado en retratos"))
+                .andExpect(jsonPath("$.username").value("artista1"));
 
         verify(artistService, times(1)).findArtist(1L);
     }
@@ -62,8 +78,7 @@ public class ArtistRestControllerTest {
         when(artistService.findArtist(1L)).thenThrow(new ResourceNotFoundException("Artist", "id", 1L));
 
         mockMvc.perform(get("/api/v1/artists/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(""));
+                .andExpect(status().isBadRequest());
 
         verify(artistService, times(1)).findArtist(1L);
     }
@@ -86,11 +101,12 @@ public class ArtistRestControllerTest {
 
     @Test
     public void testFindByUsernameNotFound() throws Exception {
-        when(artistService.findArtistByUsername("artistUsername")).thenThrow(new ResourceNotFoundException("Artist", "username", "artistUsername"));
+        when(artistService.findArtistByUsername("artistUsername"))
+                .thenThrow(new ResourceNotFoundException("Artist", "username", "artistUsername"));
 
         mockMvc.perform(get("/api/v1/artists/username/artistUsername"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(""));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Artist not found with username: artistUsername"));
 
         verify(artistService, times(1)).findArtistByUsername("artistUsername");
     }
@@ -101,7 +117,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Cliente eliminado exitosamente"));
+                .andExpect(jsonPath("$.message").value("Artista eliminado con exito"));
 
         verify(artistService, times(1)).deleteArtist(1L);
     }
@@ -112,14 +128,15 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Error: Artist not found with id: 1"));
+                .andExpect(content().string("Artist not found with id: 1"));
 
         verify(artistService, times(1)).deleteArtist(1L);
     }
 
     @Test
     public void testDeleteArtistAccessDenied() throws Exception {
-        doThrow(new AccessDeniedException("No se puede eliminar al artista porque tiene comisiones en estado ACCEPTED."))
+        doThrow(new AccessDeniedException(
+                "No se puede eliminar al artista porque tiene comisiones en estado ACCEPTED."))
                 .when(artistService).deleteArtist(1L);
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))

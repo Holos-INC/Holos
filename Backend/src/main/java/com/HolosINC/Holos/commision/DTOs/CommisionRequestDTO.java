@@ -7,21 +7,23 @@ import com.HolosINC.Holos.commision.Commision;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CommisionRequestDTO {
 
-    public String name;
+    private String name;
 
-    public String description;
+    private String description;
 
-    public String image;
+    private String image;
 
-    public Date milestoneDate;
+    private Date milestoneDate;
 
-    public Double price;
-    
+    private Double price;
+
     public Commision createCommision() {
         Commision commision = new Commision();
         commision.setName(this.getName());

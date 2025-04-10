@@ -2,7 +2,10 @@ package com.HolosINC.Holos.worksDone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Authorities;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.model.BaseUser;
+import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.worksdone.WorksDone;
 import com.HolosINC.Holos.worksdone.WorksDoneRepository;
 import com.HolosINC.Holos.worksdone.WorksDoneService;
@@ -20,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 public class WorksDoneServiceTest {
@@ -30,6 +35,9 @@ public class WorksDoneServiceTest {
     @Mock
     private ArtistService artistService;
 
+    @Mock
+    private BaseUserService baseUserService;
+
     @InjectMocks
     private WorksDoneService worksDoneService;
 
@@ -37,22 +45,40 @@ public class WorksDoneServiceTest {
     private Artist artist;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        // Instancia básica para usar en los tests
+        // Crear autoridad premium
+        Authorities authority = new Authorities();
+        authority.setAuthority("ARTIST_PREMIUM");
+
+        // Crear BaseUser con autoridad
+        BaseUser baseUser = new BaseUser();
+        baseUser.setId(10L);
+        baseUser.setUsername("testuser");
+        baseUser.setName("Test");
+        baseUser.setAuthority(authority); // <-- Aquí está la clave
+
+        // Crear artista con ese BaseUser
         artist = new Artist();
         artist.setId(10L);
+        artist.setBaseUser(baseUser);
 
+        // Crear obra con imagen y nombre
         worksDone = new WorksDone();
         worksDone.setId(1L);
         worksDone.setName("Obra de Prueba");
-        worksDone.setArtist(artist);
+        worksDone.setImage("dummy image content".getBytes());
     }
 
     // 1) createWorksDone
     @Test
     public void testCreateWorksDone_Success() throws Exception {
+        worksDone.setImage("dummy image content".getBytes());
+
+        when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+        when(baseUserService.findArtist(10L)).thenReturn(artist);
+        when(worksDoneRepository.countByArtistId(10L)).thenReturn(0L);
         when(worksDoneRepository.save(any(WorksDone.class))).thenReturn(worksDone);
 
         WorksDone result = worksDoneService.createWorksDone(worksDone);
@@ -65,7 +91,13 @@ public class WorksDoneServiceTest {
 
     @Test
     public void testCreateWorksDone_DataAccessException() {
-        when(worksDoneRepository.save(worksDone)).thenThrow(new DataAccessException("DB Error") {});
+        worksDone.setImage("dummy image content".getBytes());
+
+        when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+        when(baseUserService.findArtist(10L)).thenReturn(artist);
+        when(worksDoneRepository.countByArtistId(10L)).thenReturn(0L);
+        when(worksDoneRepository.save(worksDone)).thenThrow(new DataAccessException("DB Error") {
+        });
 
         assertThrows(DataAccessException.class, () -> {
             worksDoneService.createWorksDone(worksDone);
@@ -94,6 +126,8 @@ public class WorksDoneServiceTest {
     @Test
     public void testUpdateWorksDone_Success() throws Exception {
         // Setup
+        worksDone.setArtist(artist);
+
         when(artistService.findArtist(10L)).thenReturn(artist);
         when(worksDoneRepository.findById(1L)).thenReturn(Optional.of(worksDone));
         when(worksDoneRepository.save(any(WorksDone.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -101,13 +135,11 @@ public class WorksDoneServiceTest {
         // Nuevo WorksDone con cambios:
         WorksDone updatedData = new WorksDone();
         updatedData.setName("Obra Actualizada");
-        // updatedData.setArtist(...)  // No lo seteamos porque no se sobreescribe en update
 
         WorksDone result = worksDoneService.updateWorksDone(updatedData, 1L, 10L);
 
         assertNotNull(result);
         assertEquals("Obra Actualizada", result.getName());
-        // Verificar que no cambió el ID ni el Artist:
         assertEquals(1L, result.getId());
         assertNotNull(result.getArtist());
         assertEquals(10L, result.getArtist().getId());
@@ -202,6 +234,8 @@ public class WorksDoneServiceTest {
     @Test
     public void testGetWorksDoneByArtist_Success() {
         List<WorksDone> allWorks = new ArrayList<>();
+
+        worksDone.setArtist(artist);
         allWorks.add(worksDone);
 
         // Creamos una obra con otro artista

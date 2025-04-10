@@ -31,10 +31,15 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze without tests
+      - name: Build and analyze 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify -DskipTests org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f ./Backend/pom.xml -Dsonar.projectKey=Holos-INC_Holos
+          
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f ./Backend/pom.xml 
+          -Dsonar.projectKey=Holos-INC_Holos
+          -Dsonar.surefire.reportPaths=target/surefire-reports 
+          -Dsonar.jacoco.reportPaths=target/jacoco.exec 
+          -Dsonar.coverage.exclusions=**/*DTO.*
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
