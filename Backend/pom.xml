@@ -30,7 +30,7 @@
 		<java.version>17</java.version>
 		<spring-ai.version>1.0.0-M5</spring-ai.version>
 		<lombok.version>1.18.26</lombok.version>
-	  	<sonar.organization>holos-inc</sonar.organization>
+		<sonar.organization>holos-inc</sonar.organization>
   		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
@@ -243,6 +243,26 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>0.8.8</version> <!-- Usa la versión más reciente -->
+			<executions>
+				<execution>
+				<id>prepare-agent</id> <!-- Asigna un id único -->
+				<goals>
+					<goal>prepare-agent</goal> <!-- Configura el agente de cobertura para que capture los datos -->
+				</goals>
+				</execution>
+				<execution>
+				<id>generate-report</id> <!-- Asigna un id único -->
+				<goals>
+					<goal>report</goal> <!-- Genera el informe de cobertura -->
+				</goals>
+				<phase>verify</phase> <!-- Ejecuta este paso después de la fase de verificación -->
+				</execution>
+			</executions>
 			</plugin>
 		</plugins>
 	</build>
