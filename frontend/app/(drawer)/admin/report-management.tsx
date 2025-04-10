@@ -191,8 +191,6 @@ export default function ReportManagement() {
   const renderItem = ({ item }: { item: Report }) => (
     <TouchableOpacity style={styles.reportItem} onPress={() => openModal(item)}>
       <Text style={styles.reportTitle}>{item.name}</Text>
-      <Text style={styles.reportDescription}>{item.description}</Text>
-      <Text style={styles.reportStatus}>Estado: {item.status}</Text>
     </TouchableOpacity>
   );
 

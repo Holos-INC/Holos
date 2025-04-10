@@ -62,9 +62,10 @@ const UserProfileScreen = () => {
           DATOS {isArtist ? "ARTISTA" : "CLIENTE"}
         </Text>
         <Text style={styles.fieldLabel}>Nombre:</Text>
-        <TextInput style={styles.input} value={user.baseUser.username} editable={false} />
+        <TextInput style={styles.input} value={user.baseUser.username} editable={false} testID="nombre"/>
         <Text style={styles.fieldLabel}>Usuario:</Text>
         <TextInput
+          testID="username"
           style={styles.input}
           value={user.baseUser.username}
           editable={false}

@@ -18,6 +18,7 @@ export default function CustomDrawer(props:CustomDrawerProps) {
     return (
         <View style={{flex:1}}>
             {isAuthenticated && <TouchableOpacity
+                testID="drawerButtonId"
                 style={{padding:20, flexDirection:'row', gap:25, borderBottomColor:"#AAA", borderBottomWidth:1}}
                 onPress={() => {router.push('/profile')}}
             >
@@ -40,6 +41,7 @@ export default function CustomDrawer(props:CustomDrawerProps) {
                 <DrawerItemList {...props} />
             </DrawerContentScrollView>
             {isAuthenticated&&<TouchableOpacity
+                testID="logoutButtonId"
                 style={{
                     borderTopColor: "#AAA",
                     borderTopWidth: 1,

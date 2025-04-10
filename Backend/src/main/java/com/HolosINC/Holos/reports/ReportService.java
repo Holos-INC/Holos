@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.reports;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class ReportService {
         return reportTypeRepository.findAll();
     }
 
-    public List<Report> getReports() {
+    public Collection<Report> getReports() {
         return reportRepository.findAll();
     }
 

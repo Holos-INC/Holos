@@ -7,6 +7,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.HolosINC.Holos.commision.Commision;
+import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
@@ -19,12 +22,14 @@ public class ClientService {
 	private final ClientRepository clientRepository;
 	private BaseUserRepository baseUserRepository;
 	private ReportRepository reportRepository;
+	private CommisionRepository commissionRepository;
 
 	@Autowired
-	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository,ReportRepository reportRepository) {
+	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository,ReportRepository reportRepository, CommisionRepository commissionRepository) {
 		this.clientRepository = clientRepository;
 		this.baseUserRepository = baseUserRepository;
 		this.reportRepository = reportRepository;
+		this.commissionRepository = commissionRepository;
 	}
 
 	@Transactional
@@ -69,10 +74,10 @@ public class ClientService {
 				throw new IllegalStateException("No se puede eliminar el cliente " + user.getName() + 
 												" porque tiene comisiones activas.");
 			}
-	
+			List<Commision> commissions = commissionRepository.findAllByClientId(clientId);
+			commissionRepository.deleteAll(commissions);
 			List<Report> reportsReceived = reportRepository.findAllByReportedUserId(clientId);
 			reportRepository.deleteAll(reportsReceived);
-
 			List<Report> reportsMade = reportRepository.findAllByMadeById(clientId);
 			reportRepository.deleteAll(reportsMade);
 	

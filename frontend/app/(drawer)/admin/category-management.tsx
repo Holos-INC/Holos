@@ -142,16 +142,18 @@ interface Category {
       {deleteError && <Text style={styles.errorText}>{deleteError}</Text>}
       {/* Buscador */}
       <TextInput
+        testID="searchInput"
         style={styles.searchInput}
         placeholder="Buscar por nombre"
         value={searchText}
         onChangeText={handleSearch}
       />
 
-      <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.button} testID="addButton" onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Añadir Nueva Categoría</Text>
       </TouchableOpacity>
       <FlatList
+        testID="categoryList"
         ref={flatListRef}
         data={currentCategories}
         keyExtractor={(item) => item.id?.toString() || ""}
@@ -162,13 +164,13 @@ interface Category {
               style={styles.categoryImage} 
             />
             <View style={styles.categoryInfo}>
-              <Text style={styles.categoryText}>{item.name}</Text>
-              <Text style={styles.categoryDescription}>{item.description}</Text>
+              <Text style={styles.categoryText} testID="name">{item.name}</Text>
+              <Text style={styles.categoryDescription} testID="description">{item.description}</Text>
             </View>
             <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(item)}>
               <Text style={styles.buttonText}>✏️ Editar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id as number)}>
+            <TouchableOpacity style={styles.deleteButton} testID="deleteButton" onPress={() => handleDelete(item.id as number)}>
               <Text style={styles.buttonText}>🗑️ Eliminar</Text>
             </TouchableOpacity>
           </View>
@@ -201,12 +203,14 @@ interface Category {
             <Text style={styles.modalTitle}>Nueva Categoría</Text>
             {addError && <Text style={styles.errorText}>{addError}</Text>}
             <TextInput
+              testID="nameInput"
               style={styles.input}
               placeholder="Nombre"
               value={newCategory.name}
               onChangeText={(text) => setNewCategory({ ...newCategory, name: text })}
             />
             <TextInput
+              testID="descriptionInput"
               style={styles.input}
               placeholder="Descripción"
               value={newCategory.description}
@@ -220,7 +224,7 @@ interface Category {
             />
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.smallButton} onPress={handleAddCategory}>
-                <Text style={styles.buttonText}>Agregar</Text>
+                <Text style={styles.buttonText} testID="saveButton">Agregar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.smallButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
                 <Text style={styles.buttonText}>Cancelar</Text>

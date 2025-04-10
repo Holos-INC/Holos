@@ -177,6 +177,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nombre</Text>
             <TextInput
+              testID='firstName'
               style={styles.input}
               placeholder="Ej. Roberto"
               value={firstName}
@@ -187,6 +188,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Apellidos</Text>
             <TextInput
+              testID='lastName'
               style={styles.input}
               placeholder="Ej. Pérez López"
             />
@@ -198,6 +200,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Correo</Text>
             <TextInput
+              testID='email'
               style={styles.input}
               placeholder="correo@ejemplo.com"
               value={email}
@@ -209,6 +212,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nombre de usuario</Text>
             <TextInput
+              testID='username'
               style={styles.input}
               placeholder="UsuarioEjemplo"
               value={username}
@@ -222,6 +226,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nueva contraseña</Text>
             <TextInput
+              testID='password'
               style={styles.input}
               placeholder="********"
               secureTextEntry
@@ -233,6 +238,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirma contraseña</Text>
             <TextInput
+              testID='confirmPassword'
               style={styles.input}
               placeholder="********"
               secureTextEntry
@@ -250,6 +256,7 @@ export default function SignupScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Foto de perfil</Text>
             <TouchableOpacity
+              testID='imageProfile'
               onPress={pickImage}
               style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}
             >
@@ -275,6 +282,7 @@ export default function SignupScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Slots de trabajo (1-8)</Text>
                 <TextInput
+                  testID='numSlotsOfWork'
                   style={styles.input}
                   placeholder="Número entre 1 y 8"
                   value={numSlotsOfWork}
@@ -289,6 +297,7 @@ export default function SignupScreen() {
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Precio del tablero de comisiones</Text>
                 <TouchableOpacity
+                  testID='tableCommissionsPrice'
                   onPress={pickTableCommissionsPrice}
                   style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}
                 >
@@ -334,6 +343,7 @@ export default function SignupScreen() {
 
         <View style={styles.checkboxContainer}>
           <TouchableOpacity
+            testID='acceptTerms'
             style={styles.checkboxRow}
             onPress={() => setAcceptTerms(!acceptTerms)}
           >
@@ -353,7 +363,10 @@ export default function SignupScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.createButton} onPress={handleSignup}>
+        <TouchableOpacity 
+          testID='signupButton'
+          style={styles.createButton} 
+          onPress={handleSignup}>
           <Text style={styles.createButtonText}>Crear cuenta</Text>
         </TouchableOpacity>
 

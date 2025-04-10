@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.reports;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class ReportController {
     @GetMapping("/admin")
     public ResponseEntity<?> getAllReports() {
         try {
-            List<Report> reports = reportService.getReports();
+            Collection<Report> reports = reportService.getReports();
             return ResponseEntity.ok(reports);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

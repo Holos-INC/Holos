@@ -72,6 +72,7 @@ export default function LoginScreen() {
           <Text style={styles.title}>Iniciar Sesión</Text>
 
           <TextInput
+            testID='username'
             onChangeText={handleChange('username')}
             onBlur={handleBlur('username')}
             value={values.username}
@@ -85,6 +86,7 @@ export default function LoginScreen() {
 
           <View>
             <TextInput
+              testID='password'
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               value={values.password}
@@ -113,6 +115,7 @@ export default function LoginScreen() {
           )}
 
           <Button
+            testID='loginButton'
             onPress={() => handleSubmit()} 
             disabled={!isValid}
             style={styles.loginButton}

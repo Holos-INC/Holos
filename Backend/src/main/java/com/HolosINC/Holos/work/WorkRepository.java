@@ -1,10 +1,14 @@
 package com.HolosINC.Holos.work;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import com.HolosINC.Holos.commision.Commision;
 
 @Repository
 public interface WorkRepository extends JpaRepository<Work, Long>{
@@ -26,4 +30,6 @@ public interface WorkRepository extends JpaRepository<Work, Long>{
        "AND (:maxPrice IS NULL OR w.price <= :maxPrice)")
     Page<Work> searchByTitleAndPrice(String query, Double minPrice, Double maxPrice, Pageable pageable);
     
+    @Query("SELECT w FROM Work w WHERE w.artist.id = :artistId")
+    List<Work> findAllByArtistId(Long artistId);
 }

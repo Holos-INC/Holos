@@ -111,7 +111,8 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                 <Text style={styles.textName}>
                   {isClient ? comm.artistUsername || "Artista desconocido" : comm.clientUsername || "Cliente desconocido"}
                 </Text>
-                  <Text style={styles.text}>{comm.description}</Text>
+                <Text style={styles.text}>{comm.description}</Text>
+                <Text style={styles.text}>{getStatusText(comm.status)}</Text>
                 </View>
                 <View style={styles.actions}>
                 <TouchableOpacity 

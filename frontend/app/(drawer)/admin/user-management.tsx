@@ -190,7 +190,7 @@ export default function UserManagement() {
       <View style={styles.container}>
         <Text style={styles.title}>Gestión de Usuarios</Text>
         
-        <Text style={styles.errorText}>{deleteErrorMessage}</Text>
+        <Text style={styles.errorText} testID="deleteErrorMessage">{deleteErrorMessage}</Text>
 
         <TextInput
           style={styles.searchInput}
@@ -211,17 +211,18 @@ export default function UserManagement() {
               <View style={styles.categoryInfo}>
                 <Image source={{ uri: item.imageProfile || "https://via.placeholder.com/80" }} style={styles.userImage} />
                 <View style={styles.userDetails}>
-                  <Text style={styles.userName}>{item.name} ({item.authority.authority})</Text>
-                  <Text style={styles.userEmail}>{item.email}</Text>
-                  {item.phoneNumber && <Text style={styles.userPhone}>📞 {item.phoneNumber}</Text>}
-                  <Text style={styles.userDate}>🗓️ Creado: {item.createdUser}</Text>
+                  <Text style={styles.userName} testID="userName">{item.name} ({item.authority.authority})</Text>
+                  <Text style={styles.userEmail} testID="email">{item.email}</Text>
+                  {item.phoneNumber && <Text style={styles.userPhone} testID="phoneNumber">📞 {item.phoneNumber}</Text>}
+                  <Text style={styles.userDate} testID="date">🗓️ Creado: {item.createdUser}</Text>
                 </View>
                 <View style={styles.buttons}>
-                  <TouchableOpacity style={styles.editButton} onPress={() => { setSelectedUser(item); setModalVisible(true); }}>
+                  <TouchableOpacity style={styles.editButton} testID={"editButton"} onPress={() => { setSelectedUser(item); setModalVisible(true); }}>
                     <Text style={styles.buttonText}>✏️ Editar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={styles.deleteButton} 
+                    testID={"deleteButton"}
                     onPress={() => handleDelete(item.id, item.authority.authority)}
                   >
                     <Text style={styles.buttonText}>🗑️ Eliminar</Text>
@@ -258,27 +259,31 @@ export default function UserManagement() {
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>Editar Usuario</Text>
               
-              <Text style={styles.errorText}>{editErrorMessage}</Text>
+              <Text style={styles.errorText} testID="errorMessage">{editErrorMessage}</Text>
 
               <TextInput
+                testID="nameInput"
                 style={styles.input}
                 placeholder="Nombre"
                 value={selectedUser?.name}
                 onChangeText={(text) => setSelectedUser((prev) => prev ? { ...prev, name: text } : prev)}
               />
               <TextInput
+                testID="usernameInput"
                 style={styles.input}
                 placeholder="Usuario"
                 value={selectedUser?.username}
                 onChangeText={(text) => setSelectedUser((prev) => prev ? { ...prev, username: text } : prev)}
               />
               <TextInput
+                testID="emailInput"
                 style={styles.input}
                 placeholder="Email"
                 value={selectedUser?.email}
                 onChangeText={(text) => setSelectedUser((prev) => prev ? { ...prev, email: text } : prev)}
               />
               <TextInput
+                testID="phoneInput"
                 style={styles.input}
                 placeholder="Teléfono"
                 value={selectedUser?.phoneNumber}
@@ -287,7 +292,7 @@ export default function UserManagement() {
 
               <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.smallButton} onPress={saveChanges}>
-                  <Text style={styles.buttonText}>Guardar</Text>
+                  <Text style={styles.buttonText} testID="saveButton">Guardar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.smallButton, styles.cancelButton]} onPress={() => setModalVisible(false)}>
                   <Text style={styles.buttonText}>Cancelar</Text>

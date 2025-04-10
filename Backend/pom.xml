@@ -34,6 +34,26 @@
   		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
+	<!-- Selenium WebDriver -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.20.0</version> <!-- Puedes usar la última versión disponible -->
+		</dependency>
+
+		<!-- JUnit 4 (ya tienes junit pero sin versión ni scope definido) -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version> <!-- O la versión más reciente -->
+		</dependency>
+
 
 		<!-- Spring and Spring Boot dependencies -->
 		<dependency>
@@ -100,6 +120,8 @@
 			<artifactId>junit</artifactId>
 			<groupId>junit</groupId>
 		</dependency>
+		
+
 		<!-- AI -->
 		<dependency>
 			<groupId>org.springframework.ai</groupId>

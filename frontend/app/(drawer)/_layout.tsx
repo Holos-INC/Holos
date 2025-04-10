@@ -34,6 +34,7 @@ export default function DrawerLayout() {
       {...drawerProps}
       user={user}
       isAuthenticated={isAuthenticated}
+      testID="drawer-home-button"
     />
   )  
 

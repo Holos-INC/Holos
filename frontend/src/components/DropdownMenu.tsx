@@ -23,6 +23,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ actions, style }) =>
   return (
     <View style={[styles.container, style]}>
       <Menu
+        testID='dropdownMenuId'
         visible={visible}
         onDismiss={closeMenu}
         contentStyle={styles.menuStyle}
