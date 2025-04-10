@@ -5,12 +5,11 @@ import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
+import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
-import com.HolosINC.Holos.payment.PaymentHistory;
-import com.HolosINC.Holos.payment.PaymentHistoryRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -43,13 +43,8 @@ public class PaymentService {
     private CommisionRepository commisionRepository;
 
     @Autowired
-    private PaymentHistoryRepository paymentHistoryRepository;
-
-    @Autowired
-    private CommisionRepository commisionRepository;
-
-    @Autowired
-    private PaymentHistoryRepository paymentHistoryRepository;
+    private PaymentHistoryRepository phr;
+    
 
     @Autowired
     public PaymentService(CommisionService commisionService, BaseUserService userService, ArtistService artistService) {
@@ -151,7 +146,7 @@ public class PaymentService {
         paymentHistory.setAmount(paymentIntent.getAmount() / 100.0); // Stripe usa centavos
         paymentHistory.setPaymentDate(LocalDateTime.now());
         paymentHistory.setPaymentMethod(paymentIntent.getPaymentMethod());
-        paymentHistoryRepository.save(paymentHistory);
+        phr.save(paymentHistory);
     }
 
     @Transactional
