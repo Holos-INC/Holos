@@ -146,7 +146,7 @@ export default function ArtistDetailScreen() {
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
-            router.push(/commissions/request/${artist?.username})
+            router.push(`/commissions/request/${artist?.username}`)
           }
         >
           <Text style={styles.buttonText}>Solicitar Trabajo Personalizado</Text>
