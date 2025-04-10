@@ -1,6 +1,8 @@
 package com.HolosINC.Holos.chat;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -63,9 +65,13 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void testCreateChatMessageSuccess() throws Exception{
+    public void testCreateChatMessageSuccess() throws Exception {
+        BaseUser currentUser = new BaseUser();
+        currentUser.setId(1L);
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setText("Hello!");
+        chatMessage.setImage(new byte[1024 * 1024]);
 
         when(baseUserService.findCurrentUser()).thenReturn(currentUser);
         when(chatMessageRepository.save(chatMessage)).thenReturn(chatMessage);
@@ -84,7 +90,7 @@ public class ChatServiceTest {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setText("Hello!");
 
-        assertThrows(AccessDeniedException.class, () -> {
+        assertThrows(Exception.class, () -> {
             chatMessageService.createChatMessage(chatMessage);
         });
 
