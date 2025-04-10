@@ -26,7 +26,7 @@ public class SignupRequest {
 	@NotBlank
 	private String phoneNumber;
 
-	@NotBlank
+	// @NotBlank
 	private MultipartFile imageProfile;
 
     private MultipartFile tableCommisionsPrice;

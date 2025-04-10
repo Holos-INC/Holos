@@ -3,13 +3,12 @@ package com.HolosINC.Holos.auth;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,8 +34,7 @@ import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.security.authentication.BadCredentialsException;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")

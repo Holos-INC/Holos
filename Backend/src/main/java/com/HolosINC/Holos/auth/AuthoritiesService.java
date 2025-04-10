@@ -1,8 +1,5 @@
 package com.HolosINC.Holos.auth;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
@@ -22,6 +19,9 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.ImageHandler;
+
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @Service
 public class AuthoritiesService {
@@ -62,8 +62,8 @@ public class AuthoritiesService {
 				throw new IllegalArgumentException("Nombre de usuario ya existente en la base de datos.");
 			if(authoritiesRepository.existsBaseUserByUsername(request.getEmail()))
 				throw new IllegalArgumentException("Email ya existente en la base de datos.");
-			if (request.getImageProfile().getSize() > 5 * 1024 * 1024) 
-				throw new IllegalArgumentException("La imagen de perfil no puede ser mayor a 5MB.");
+			// if (request.getImageProfile().getSize() > 5 * 1024 * 1024) 
+			// 	throw new IllegalArgumentException("La imagen de perfil no puede ser mayor a 5MB.");
 			
 			BaseUser user = new BaseUser();
 			user.setUsername(request.getUsername());
@@ -72,11 +72,11 @@ public class AuthoritiesService {
 			user.setPassword(encoder.encode(request.getPassword()));
 			user.setEmail(request.getEmail());
 			user.setPhoneNumber(request.getPhoneNumber());
-			user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
+			// user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
 	
-			if (request.getImageProfile() != null) {
-				user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
-			}
+			// if (request.getImageProfile() != null) {
+			// 	user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
+			// }
 	
 			String strRoles = request.getAuthority().toUpperCase();
 			Authorities role = findByAuthority(strRoles);
@@ -86,18 +86,18 @@ public class AuthoritiesService {
 				baseUserService.save(user);
 	
 				Artist artist = new Artist();
-				if (request.getTableCommisionsPrice() != null) {
-					if(request.getTableCommisionsPrice().getSize() > 0) {
-						artist.setTableCommisionsPrice(imageHandler.getBytes(request.getTableCommisionsPrice()));
-					} else {
-						throw new IllegalArgumentException("No se ha subido la tabla de comisiones.");
-					}
-				}
+				// if (request.getTableCommisionsPrice() != null) {
+				// 	if(request.getTableCommisionsPrice().getSize() > 0) {
+				// 		artist.setTableCommisionsPrice(imageHandler.getBytes(request.getTableCommisionsPrice()));
+				// 	} else {
+				// 		throw new IllegalArgumentException("No se ha subido la tabla de comisiones.");
+				// 	}
+				// }
 
 				artist.setDescription(request.getDescription());
 				artist.setLinkToSocialMedia(request.getLinkToSocialMedia());
 				artist.setNumSlotsOfWork(7);
-				artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
+				// artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
 				artist.setBaseUser(user);
 	
 				artistService.saveArtist(artist);
