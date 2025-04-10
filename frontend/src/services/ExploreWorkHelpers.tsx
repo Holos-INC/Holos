@@ -10,9 +10,13 @@ import api from "./axiosInstance";
 /**
  * Llama a la API y devuelve el array de WorksDoneDTO.
  */
-export async function fetchWorksAndTransform(token: string): Promise<WorksDoneDTO[]> {
+export async function fetchWorksAndTransform(
+  token: string
+): Promise<WorksDoneDTO[]> {
   try {
-    const data = await api.get(`${BASE_URL}/api/v1/search/works?size=5`, { headers: { Authorization: `Bearer ${token}`}});
+    const data = await api.get(`${BASE_URL}/api/v1/search/works?size=5`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return data.data.content;
   } catch (error) {
     console.error("Error fetching works done:", error);

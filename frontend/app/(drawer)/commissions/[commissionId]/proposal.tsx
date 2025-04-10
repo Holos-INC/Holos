@@ -3,10 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   useWindowDimensions,
   ScrollView,
-  Pressable,
 } from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { Button, IconButton, TextInput } from "react-native-paper";
@@ -16,12 +14,9 @@ import { reject, toPay, waiting } from "@/src/services/commisionApi";
 import { priceValidationSchema } from "@/src/utils/priceValidation";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import PaymentDetails from "@/src/components/checkout/PaymentDetails";
-import WIPPlaceholder from "@/src/components/WorkInProgress";
 import colors from "@/src/constants/colors";
 import { BaseUser, StatusCommission } from "@/src/constants/CommissionTypes";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import { BASE_URL } from "@/src/constants/api";
-import { getUser } from "@/src/services/userApi";
 import UserPanel from "@/src/components/proposal/UserPanel";
 import TurnDotsIndicator from "@/src/components/proposal/TurnDotsIndicator";
 import { PayButton } from "@/src/components/proposal/PayButton";
@@ -118,8 +113,7 @@ export default function CommissionDetailsScreen() {
     });
   }, [commission?.name, navigation]);
 
-  if (!commission) return <WIPPlaceholder />;
-  if (!loggedInUser) return <LoadingScreen />;
+  if (!commission || !loggedInUser) return <LoadingScreen />;
 
   const isArtist = commission.artistUsername === loggedInUser.username;
   const isClient = commission.clientUsername === loggedInUser.username;

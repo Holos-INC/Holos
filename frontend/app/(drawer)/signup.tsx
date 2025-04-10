@@ -1,67 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, Linking } from 'react-native';
-import { useNavigation, useRouter } from 'expo-router';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Image,
+  Linking,
+} from "react-native";
+import { useNavigation, useRouter } from "expo-router";
 import { API_URL } from "@/src/constants/api";
-import { ScrollView } from 'react-native-gesture-handler';
-import * as ImagePicker from 'expo-image-picker';
-import colors from '@/src/constants/colors';
+import { ScrollView } from "react-native-gesture-handler";
+import * as ImagePicker from "expo-image-picker";
+import colors from "@/src/constants/colors";
 
 export default function SignupScreen() {
   // Estados compartidos
-  const [username, setUsername] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Estado para confirmar contraseña
-  const [passwordError, setPasswordError] = useState('');     // Estado para mensaje de error
-  const [imageProfile, setImageProfile] = useState('');
-  const [selectedImage, setSelectedImage] = useState('');
-  const [role, setRole] = useState('client');
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // Estado para confirmar contraseña
+  const [passwordError, setPasswordError] = useState(""); // Estado para mensaje de error
+  const [imageProfile, setImageProfile] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
+  const [role, setRole] = useState("client");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const navigation = useNavigation();
 
   // Estados específicos para artistas
-  const [numSlotsOfWork, setNumSlotsOfWork] = useState('');
-  const [tableCommissionsPrice, setTableCommissionsPrice] = useState('');
+  // const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
+  const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
 
   const router = useRouter();
 
   // Validación en tiempo real: cuando cambie password o confirmPassword
   useEffect(() => {
     if (confirmPassword.length > 0 && password !== confirmPassword) {
-      setPasswordError('Las contraseñas no coinciden');
+      setPasswordError("Las contraseñas no coinciden");
     } else {
-      setPasswordError('');
+      setPasswordError("");
     }
   }, [password, confirmPassword]);
 
-
   const handleSignup = async () => {
-    {if (!acceptTerms) {
-      console.log("Error: Términos y condiciones no aceptados");
-      alert("Debes aceptar los Términos y Condiciones");
-      
+    {
+      if (!acceptTerms) {
+        console.log("Error: Términos y condiciones no aceptados");
+        alert("Debes aceptar los Términos y Condiciones");
+      }
+
+      if (passwordError) {
+        alert("Las contraseñas no coinciden");
+      }
+
+      if (!password || !confirmPassword) {
+        alert("Debes ingresar y confirmar la contraseña");
+      }
+
+      // if (!selectedImage) {
+      //   alert("Selecciona una foto de perfil");
+      // }
     }
 
-    if (passwordError) {
-      alert("Las contraseñas no coinciden");
-      
-    }
-
-    if (!password || !confirmPassword) {
-      alert("Debes ingresar y confirmar la contraseña");
-      
-    }
-
-    if (!selectedImage) {
-      alert("Selecciona una foto de perfil");
-      
-    }}
-
-    if (role === 'artist' && !tableCommissionsPrice) {
-      alert("Selecciona una imagen para el precio del tablero de comisiones");
-      
-    }
+    // if (role === "artist" && !tableCommissionsPrice) {
+    //   alert("Selecciona una imagen para el precio del tablero de comisiones");
+    // }
 
     const userPayload = {
       firstName,
@@ -70,7 +75,7 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      numSlotsOfWork: role === 'artist' ? numSlotsOfWork : undefined,
+      // numSlotsOfWork: role === "artist" ? numSlotsOfWork : undefined,
     };
 
     const formData = new FormData();
@@ -82,14 +87,14 @@ export default function SignupScreen() {
     const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
     const profileMimeType = `image/${profileFileExtension}`;
 
-    formData.append("imageProfile", {
+    formData.append(imageProfile, {
       uri: selectedImage,
       name: profileFileName,
       type: profileMimeType,
     } as any);
 
     // Imagen del precio del tablero de comisiones
-    if (role === 'artist') {
+    if (role === "artist") {
       const tableUriParts = tableCommissionsPrice.split("/");
       const tableFileName = tableUriParts[tableUriParts.length - 1];
       const tableFileExtension = tableFileName?.split(".").pop() || "jpg";
@@ -103,6 +108,10 @@ export default function SignupScreen() {
     }
 
     try {
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: {
@@ -126,7 +135,6 @@ export default function SignupScreen() {
       Alert.alert("Error", String(error));
     }
   };
-
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -158,20 +166,18 @@ export default function SignupScreen() {
   };
 
   useEffect(() => {
-    navigation.setOptions({ title: '👤 Registro de usuario' });
+    navigation.setOptions({ title: "👤 Registro de usuario" });
   }, [navigation]);
 
   return (
     <ScrollView style={styles.screenBackground}>
-      <Image
-        source={require('@/assets/images/logo.png')}
-        style={styles.logo}
-      />
+      <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
 
-      <Text style={styles.pageTitle}>Nuevo {role==='client'?'Cliente':'Artista'}</Text>
+      <Text style={styles.pageTitle}>
+        Nuevo {role === "client" ? "Cliente" : "Artista"}
+      </Text>
 
       <View style={styles.cardContainer}>
-
         <View style={styles.formRow}>
           {/* Nombre */}
           <View style={styles.inputGroup}>
@@ -186,10 +192,7 @@ export default function SignupScreen() {
           {/* Apellidos */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Apellidos</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ej. Pérez López"
-            />
+            <TextInput style={styles.input} placeholder="Ej. Pérez López" />
           </View>
         </View>
 
@@ -251,9 +254,12 @@ export default function SignupScreen() {
             <Text style={styles.label}>Foto de perfil</Text>
             <TouchableOpacity
               onPress={pickImage}
-              style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}
+              style={[
+                styles.input,
+                { justifyContent: "center", alignItems: "center" },
+              ]}
             >
-              <Text style={{ color: '#888' }}>
+              <Text style={{ color: "#888" }}>
                 {selectedImage ? "Imagen seleccionada" : "Seleccionar imagen"}
               </Text>
             </TouchableOpacity>
@@ -261,17 +267,20 @@ export default function SignupScreen() {
             {selectedImage && (
               <Image
                 source={{ uri: selectedImage }}
-                style={{ width: 100, height: 100, marginTop: 10, borderRadius: 8 }}
+                style={{
+                  width: 100,
+                  height: 100,
+                  marginTop: 10,
+                  borderRadius: 8,
+                }}
               />
             )}
           </View>
-
         </View>
 
-        {role === 'artist' && (
+        {/* {role === "artist" && (
           <>
             <View style={styles.formRow}>
-              {/* Slots de trabajo */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Slots de trabajo (1-8)</Text>
                 <TextInput
@@ -285,28 +294,40 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.formRow}>
-              {/* Precio del tablero de comisiones */}
+
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Precio del tablero de comisiones</Text>
+                <Text style={styles.label}>
+                  Precio del tablero de comisiones
+                </Text>
                 <TouchableOpacity
                   onPress={pickTableCommissionsPrice}
-                  style={[styles.input, { justifyContent: 'center', alignItems: 'center' }]}
+                  style={[
+                    styles.input,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]}
                 >
-                  <Text style={{ color: '#888' }}>
-                    {tableCommissionsPrice ? "Imagen seleccionada" : "Seleccionar imagen"}
+                  <Text style={{ color: "#888" }}>
+                    {tableCommissionsPrice
+                      ? "Imagen seleccionada"
+                      : "Seleccionar imagen"}
                   </Text>
                 </TouchableOpacity>
 
                 {tableCommissionsPrice && (
                   <Image
                     source={{ uri: tableCommissionsPrice }}
-                    style={{ width: 100, height: 100, marginTop: 10, borderRadius: 8 }}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      marginTop: 10,
+                      borderRadius: 8,
+                    }}
                   />
                 )}
               </View>
             </View>
           </>
-        )}
+        )} */}
 
         <View style={styles.roleContainer}>
           <Text style={styles.label}>Rol actual: {role}</Text>
@@ -314,18 +335,18 @@ export default function SignupScreen() {
             <TouchableOpacity
               style={[
                 styles.roleButton,
-                role === 'client' && styles.roleButtonActive
+                role === "client" && styles.roleButtonActive,
               ]}
-              onPress={() => setRole('client')}
+              onPress={() => setRole("client")}
             >
               <Text style={styles.roleButtonText}>CLIENT</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.roleButton,
-                role === 'artist' && styles.roleButtonActive
+                role === "artist" && styles.roleButtonActive,
               ]}
-              onPress={() => setRole('artist')}
+              onPress={() => setRole("artist")}
             >
               <Text style={styles.roleButtonText}>ARTIST</Text>
             </TouchableOpacity>
@@ -337,14 +358,18 @@ export default function SignupScreen() {
             style={styles.checkboxRow}
             onPress={() => setAcceptTerms(!acceptTerms)}
           >
-            <View style={[styles.checkbox, acceptTerms && styles.checkboxChecked]} />
+            <View
+              style={[styles.checkbox, acceptTerms && styles.checkboxChecked]}
+            />
             <Text style={styles.checkboxLabel}>
               Acepto los{" "}
               <Text
                 style={styles.link}
                 onPress={() => {
                   // Abrir la URL de los términos y condiciones
-                  Linking.openURL("https://holos-doc.vercel.app/docs/Documentacion/S2/Terminos%20y%20Condiciones");
+                  Linking.openURL(
+                    "https://holos-doc.vercel.app/docs/Documentacion/S2/Terminos%20y%20Condiciones"
+                  );
                 }}
               >
                 Términos y Condiciones
@@ -356,56 +381,57 @@ export default function SignupScreen() {
         <TouchableOpacity style={styles.createButton} onPress={handleSignup}>
           <Text style={styles.createButtonText}>Crear cuenta</Text>
         </TouchableOpacity>
-
       </View>
       <Text
         style={styles.link}
-        onPress={() => {router.push('/login')}}
+        onPress={() => {
+          router.push("/login");
+        }}
       >
         ¿Ya tienes cuenta? ¡Inicia sesión!
       </Text>
     </ScrollView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   screenBackground: {
     flex: 1,
     backgroundColor: colors.surfaceMuted,
-    paddingHorizontal: '5%',
-    paddingBottom: '5%',
-    gap:10
+    paddingHorizontal: "5%",
+    paddingBottom: "5%",
+    gap: 10,
   },
   logo: {
     width: 200,
     height: 200,
-    resizeMode: 'contain',
-    alignSelf: 'center',
+    resizeMode: "contain",
+    alignSelf: "center",
     // marginBottom: 16,
   },
   pageTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 20,
     color: colors.contentStrong,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   cardContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: colors.brandPrimary,
     borderRadius: 10,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    marginBottom:15
+    marginBottom: 15,
   },
   formRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 12,
   },
   inputGroup: {
@@ -413,7 +439,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   label: {
-    fontWeight: '500',
+    fontWeight: "500",
     fontSize: 14,
     marginBottom: 4,
     color: colors.contentStrong,
@@ -425,7 +451,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 4,
     fontSize: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   errorText: {
     color: colors.brandPrimary,
@@ -437,7 +463,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   roleButtonsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 8,
   },
   roleButton: {
@@ -451,20 +477,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.brandSecondary,
   },
   roleButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
   createButton: {
     backgroundColor: colors.brandSecondary,
     borderRadius: 8,
     paddingVertical: 12,
     marginTop: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   checkboxContainer: {
     marginTop: 16,
@@ -494,6 +520,6 @@ const styles = StyleSheet.create({
   link: {
     color: colors.brandPrimary,
     textDecorationLine: "underline",
-    fontWeight:'bold',
+    fontWeight: "bold",
   },
 });
