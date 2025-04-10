@@ -1,13 +1,16 @@
 package com.HolosINC.Holos.stripe;
 
-
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
+import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
+import com.HolosINC.Holos.payment.PaymentHistory;
+import com.HolosINC.Holos.payment.PaymentHistoryRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 public class PaymentService {
@@ -35,15 +40,26 @@ public class PaymentService {
     private String currency = "eur";
 
     @Autowired
+    private CommisionRepository commisionRepository;
+
+    @Autowired
+    private PaymentHistoryRepository paymentHistoryRepository;
+
+    @Autowired
+    private CommisionRepository commisionRepository;
+
+    @Autowired
+    private PaymentHistoryRepository paymentHistoryRepository;
+
+    @Autowired
     public PaymentService(CommisionService commisionService, BaseUserService userService, ArtistService artistService) {
         this.artistService = artistService;
         this.commisionService = commisionService;
         this.userService = userService;
     }  
 
-
     @Transactional
-    public PaymentIntent getById(String paymentIntentId) throws StripeException{
+    public PaymentIntent getById(String paymentIntentId) throws StripeException {
         Stripe.apiKey = secretKey;
         PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
         return paymentIntent;
@@ -82,7 +98,7 @@ public class PaymentService {
                 .setAmount(paymentDTO.getAmount()) 
                 .setCurrency(currency)
                 .setReceiptEmail(email)
-                .setApplicationFeeAmount(commissionAmount) //Comisión de nuestra aplicación
+                .setApplicationFeeAmount(commissionAmount) // Comisión de nuestra aplicación
                 .setTransferData(
                             PaymentIntentCreateParams.TransferData.builder()
                                 .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
@@ -102,7 +118,6 @@ public class PaymentService {
             throw new Exception("Error inesperado al crear el pago: " + e.getMessage());
         }
     }
-    
 
     @Transactional
     public PaymentIntent confirmPayment(String paymentIntentId, String paymentMethod) throws StripeException {
@@ -115,11 +130,34 @@ public class PaymentService {
         return paymentIntent.confirm(params);
     }
 
+    public Long getCommissionIdByPaymentIntent(String paymentIntentId) {
+        return commisionRepository.findCommissionIdByPaymentIntentId(paymentIntentId);
+    }
+
+    @Transactional
+    public void processPayment(Long commissionId, PaymentIntent paymentIntent) {
+        Commision commision = commisionRepository.findById(commissionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada con ID: " + commissionId));
+
+        if (!commision.getStatus().equals(StatusCommision.NOT_PAID_YET)) {
+            throw new IllegalStateException("La comisión no está en estado NOT_PAID_YET");
+        }
+
+        commision.setStatus(StatusCommision.ACCEPTED);
+        commisionRepository.save(commision);
+
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setCommision(commision);
+        paymentHistory.setAmount(paymentIntent.getAmount() / 100.0); // Stripe usa centavos
+        paymentHistory.setPaymentDate(LocalDateTime.now());
+        paymentHistory.setPaymentMethod(paymentIntent.getPaymentMethod());
+        paymentHistoryRepository.save(paymentHistory);
+    }
+
     @Transactional
     public PaymentIntent cancelPayment(String paymentIntentId) throws StripeException {
         Stripe.apiKey = secretKey;
         PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
         return paymentIntent.cancel();
     }
-
 }
