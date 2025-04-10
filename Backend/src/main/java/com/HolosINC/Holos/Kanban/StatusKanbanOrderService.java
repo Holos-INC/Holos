@@ -179,10 +179,10 @@ public class StatusKanbanOrderService {
                     .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
 
 
-            if (!!currentArtist.getId().equals(c.getArtist().getId())) { {
+            if (!currentArtist.getId().equals(c.getArtist().getId())) {
                 throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
             }  
-            }
+            
 
             StatusKanbanOrder thisStatus = statusKanbanOrderRepository.actualStatusKanban(id);
             if (thisStatus == null) {
@@ -217,7 +217,7 @@ public class StatusKanbanOrderService {
             System.out.println("Artista de la comisión: " + c.getArtist().getId());
                 
             commisionRepository.save(c);
-        } catch (Exception e) {
+        }} catch (Exception e) {
             throw e;
         }
     }
