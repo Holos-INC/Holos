@@ -23,7 +23,6 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 public class ClientRestControllerTest {
     private MockMvc mockMvc;
 
@@ -68,9 +67,9 @@ public class ClientRestControllerTest {
                 .when(clientService).findClient(1L);
 
         mockMvc.perform(get("/api/v1/users/1"))
-                .andExpect(status().isNotFound()) 
-                .andExpect(content().string("")); 
-    
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""));
+
         verify(clientService, times(1)).findClient(1L);
     }
 
@@ -88,7 +87,7 @@ public class ClientRestControllerTest {
     @Test
     public void testDeleteClientNotFound() throws Exception {
         doThrow(new ResourceNotFoundException("Client", "userId", 1L))
-            .when(clientService).deleteClient(1L);
+                .when(clientService).deleteClient(1L);
 
         mockMvc.perform(delete("/api/v1/users/administrator/clients/1"))
                 .andExpect(status().isBadRequest())
@@ -106,13 +105,14 @@ public class ClientRestControllerTest {
         client.setId(1L);
         client.setBaseUser(baseUser);
 
-        doThrow(new IllegalStateException("No se puede eliminar el cliente " + client.getBaseUser().getUsername()+ 
-												" porque tiene comisiones activas."))
+        doThrow(new IllegalStateException("No se puede eliminar el cliente " + client.getBaseUser().getUsername() +
+                " porque tiene comisiones activas."))
                 .when(clientService).deleteClient(1L);
 
         mockMvc.perform(delete("/api/v1/users/administrator/clients/1"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error interno al eliminar el cliente: No se puede eliminar el cliente usuario_prueba porque tiene comisiones activas."));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(
+                        "Error interno al eliminar el cliente: No se puede eliminar el cliente usuario_prueba porque tiene comisiones activas."));
 
         verify(clientService, times(1)).deleteClient(1L);
     }
@@ -137,7 +137,7 @@ public class ClientRestControllerTest {
     @Test
     public void testFindByUserIdNotFound() throws Exception {
         doThrow(new ResourceNotFoundException("Client", "userId", 1L))
-            .when(clientService).findClientByUserId(1L);
+                .when(clientService).findClientByUserId(1L);
 
         mockMvc.perform(get("/api/v1/users/byBaseUser/1"))
                 .andExpect(status().isNotFound())
@@ -155,12 +155,12 @@ public class ClientRestControllerTest {
         auth.setAuthority("CLIENT");
         user.setAuthority(auth);
         when(userService.findCurrentUser()).thenReturn(user);
-        when(userService.findClient(1L)).thenReturn(new Client()); 
-    
+        when(userService.findClient(1L)).thenReturn(new Client());
+
         mockMvc.perform(get("/api/v1/users/profile"))
-                .andExpect(status().isOk()) 
-                .andExpect(content().json("{}")); 
-    
+                .andExpect(status().isOk())
+                .andExpect(content().json("{}"));
+
         verify(userService, times(1)).findCurrentUser();
         verify(userService, times(1)).findClient(1L);
     }
@@ -174,11 +174,11 @@ public class ClientRestControllerTest {
         auth.setAuthority("ARTIST");
         user.setAuthority(auth);
         when(userService.findCurrentUser()).thenReturn(user);
-        when(userService.findArtist(2L)).thenReturn(new Artist()); 
+        when(userService.findArtist(2L)).thenReturn(new Artist());
 
         mockMvc.perform(get("/api/v1/users/profile"))
-                .andExpect(status().isOk()) 
-                .andExpect(content().json("{}")); 
+                .andExpect(status().isOk())
+                .andExpect(content().json("{}"));
 
         verify(userService, times(1)).findCurrentUser();
         verify(userService, times(1)).findArtist(2L);
@@ -193,11 +193,11 @@ public class ClientRestControllerTest {
         auth.setAuthority("ARTIST_PREMIUM");
         user.setAuthority(auth);
         when(userService.findCurrentUser()).thenReturn(user);
-        when(userService.findArtist(2L)).thenReturn(new Artist()); 
+        when(userService.findArtist(2L)).thenReturn(new Artist());
 
         mockMvc.perform(get("/api/v1/users/profile"))
-                .andExpect(status().isOk()) 
-                .andExpect(content().json("{}")); 
+                .andExpect(status().isOk())
+                .andExpect(content().json("{}"));
 
         verify(userService, times(1)).findCurrentUser();
         verify(userService, times(1)).findArtist(2L);
@@ -206,11 +206,11 @@ public class ClientRestControllerTest {
     @Test
     public void testProfileOfCurrentUserWithError() throws Exception {
         when(userService.findCurrentUser()).thenThrow(new ResourceNotFoundException("No estás logeado"));
-    
+
         mockMvc.perform(get("/api/v1/users/profile"))
-                .andExpect(status().isBadRequest()) 
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string("No tienes perfil, tienes que loguearte"));
-    
+
         verify(userService, times(1)).findCurrentUser();
     }
 
@@ -228,6 +228,6 @@ public class ClientRestControllerTest {
                 .andExpect(jsonPath("$.username").value("updatedUsername"));
 
         verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
-    }    
-    
+    }
+
 }

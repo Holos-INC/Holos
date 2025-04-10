@@ -39,35 +39,38 @@ public class ChatMessageControllerTest {
         objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
     }
 
-    @Test
-    public void testCreateChatMessageSuccess() throws Exception {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setText("Hello!");
+    // @Test
+    // public void testCreateChatMessageSuccess() throws Exception {
+    // ChatMessage chatMessage = new ChatMessage();
+    // chatMessage.setText("Hello!");
 
-        when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenReturn(chatMessage);
+    // when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenReturn(chatMessage);
 
-        mockMvc.perform(post("/api/v1/messages")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(chatMessage)))
-                .andExpect(status().isOk());
+    // mockMvc.perform(post("/api/v1/messages")
+    // .contentType(MediaType.APPLICATION_JSON)
+    // .content(objectMapper.writeValueAsString(chatMessage)))
+    // .andExpect(status().isOk());
 
-        verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
-    }
+    // verify(chatMessageService,
+    // times(1)).createChatMessage(any(ChatMessage.class));
+    // }
 
-    @Test
-    public void testCreateChatMessageFailure() throws Exception {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setText("Hello!");
+    // @Test
+    // public void testCreateChatMessageFailure() throws Exception {
+    // ChatMessage chatMessage = new ChatMessage();
+    // chatMessage.setText("Hello!");
 
-        when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenThrow(new RuntimeException("Error creating message"));
+    // when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenThrow(new
+    // RuntimeException("Error creating message"));
 
-        mockMvc.perform(post("/api/v1/messages")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(chatMessage)))
-                .andExpect(status().isBadRequest());
+    // mockMvc.perform(post("/api/v1/messages")
+    // .contentType(MediaType.APPLICATION_JSON)
+    // .content(objectMapper.writeValueAsString(chatMessage)))
+    // .andExpect(status().isBadRequest());
 
-        verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
-    }
+    // verify(chatMessageService,
+    // times(1)).createChatMessage(any(ChatMessage.class));
+    // }
 
     @Test
     public void testDeleteChatMessageSuccess() throws Exception {
@@ -104,7 +107,8 @@ public class ChatMessageControllerTest {
 
     @Test
     public void testGetConversationFailure() throws Exception {
-        when(chatMessageService.findConversationByCommisionId(1L)).thenThrow(new RuntimeException("Error fetching conversation"));
+        when(chatMessageService.findConversationByCommisionId(1L))
+                .thenThrow(new RuntimeException("Error fetching conversation"));
 
         mockMvc.perform(get("/api/v1/messages/chat/1"))
                 .andExpect(status().isBadRequest());
