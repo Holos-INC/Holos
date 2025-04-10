@@ -17,11 +17,12 @@ export default function ProtectedRoute({ children, allowedRoles = [], redirectTo
   const { isAuthenticated, isArtist, isAdmin, loggedInUser, loading } = useAuth();
   const router = useRouter();
 
-  // Actualizar la lógica para incluir "ARTIST_PREMIUM"
+// Nota: isArtist incluye tanto ARTIST como ARTIST_PREMIUM.
+  // En la mayoría de los casos, se ha puesto ARTIST y ARTIST_PREMIUM pero realmente con ARTIST, admite ambos roles.
   const userRole: UserRole = useMemo(() => {
     if (isAdmin) return "ADMIN";
     if (loggedInUser?.roles?.includes("ARTIST_PREMIUM")) return "ARTIST_PREMIUM";
-    if (isArtist) return "ARTIST";
+    if (isArtist) return "ARTIST"; 
     return "CLIENT";
   }, [isAdmin, isArtist, loggedInUser]);
 

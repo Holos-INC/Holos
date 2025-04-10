@@ -21,7 +21,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   // 3. Tipar el estado como arreglo de Commission
   const [commissions, setCommissions] = useState<HistoryCommisionsDTO>({requested: [], accepted: [], history: [], error: ""});
   const [loading, setLoading] = useState(true);
-  const isArtist = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("ARTIST", "ARTIST_PREMIUM");
+  const isArtist = Array.isArray(loggedInUser?.roles) && (loggedInUser.roles.includes("ARTIST") || loggedInUser.roles.includes("ARTIST_PREMIUM"));
   const isClient = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
 
   const fetchCommissions = async () => {
