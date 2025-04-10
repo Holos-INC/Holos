@@ -7,14 +7,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.util.Pair;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanCreateDTO;
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanDTO;
+import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanFullResponseDTO;
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanUpdateDTO;
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO;
 import com.HolosINC.Holos.artist.Artist;
@@ -23,7 +26,6 @@ import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
 import com.HolosINC.Holos.commision.StatusCommision;
-import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -49,17 +51,17 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional
-    public StatusKanbanOrder addStatusToKanban(String color, String description, String nombre) throws Exception {
+    public StatusKanbanOrder createStatusKanbanOrder(StatusKanbanOrder statusKanbanOrder) {
+        return statusKanbanOrderRepository.save(statusKanbanOrder);
+    }
+
+    public StatusKanbanOrder addStatusToKanban(StatusKanbanCreateDTO dto) throws Exception {
         StatusKanbanOrder statusKanbanOrder = new StatusKanbanOrder();
-        statusKanbanOrder.setColor(color);
-        statusKanbanOrder.setDescription(description);
-        statusKanbanOrder.setName(nombre);
+        BeanUtils.copyProperties(dto, statusKanbanOrder);
 
         Long currentUserId = userService.findCurrentUser().getId();
         Artist artist = artistService.findArtistByUserId(currentUserId);
-
-        List<StatusKanbanOrder> list = statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(artist.getId());
-        int order = list.isEmpty() ? 1 : list.size() + 1;
+        int order = statusKanbanOrderRepository.countByArtistUsername(artist.getBaseUser().getUsername()) + 1;
 
         statusKanbanOrder.setOrder(order);
         statusKanbanOrder.setArtist(artist);
@@ -75,17 +77,56 @@ public class StatusKanbanOrderService {
     public void updateStatusKanban(StatusKanbanUpdateDTO dto) {
         StatusKanbanOrder sk = statusKanbanOrderRepository.findById(dto.getId().intValue())
             .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", dto.getId()));
-    
         if (commisionService.isStatusKanbanInUse(sk)) {
             throw new BadRequestException("No se puede modificar un estado que está asignado a una o más comisiones.");
         }
+
     
-        sk.setName(dto.getName());
-        sk.setColor(dto.getColor());
-        sk.setDescription(dto.getDescription());
+        BeanUtils.copyProperties(dto, sk, "id");
     
         try {
             statusKanbanOrderRepository.save(sk);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Ya existe otro estado con ese nombre u orden para este artista.");
+        }
+    }
+    
+    @Transactional
+    public StatusKanbanOrder updateStatusKanbanOrder(StatusKanbanOrder statusKanbanOrder) {
+        return statusKanbanOrderRepository.save(statusKanbanOrder);
+    }
+
+    @Transactional
+    public StatusKanbanOrder updateKanban(int id, String color, String description, String nombre) throws Exception {
+        StatusKanbanOrder sk = statusKanbanOrderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
+        sk.setColor(color);
+        sk.setDescription(description);
+        sk.setName(nombre);
+        return statusKanbanOrderRepository.save(sk);
+    }
+
+    @Transactional
+    public StatusKanbanOrder updateOrder(Long id, Integer order) throws Exception{
+        StatusKanbanOrder statusKanban = statusKanbanOrderRepository.findById(id.intValue())
+                .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
+        
+        Artist artist = artistService.findArtist(userService.findCurrentUser().getId());
+        List<StatusKanbanOrder> kanban = statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(artist.getId());
+
+        if (order <= 0 || kanban.size() < order)
+            throw new IllegalArgumentException("El orden proporcionado no es válido. Debe estar entre 1 y " + kanban.size());
+
+        kanban.remove(statusKanban);
+        kanban.add(order - 1, statusKanban);
+
+        for(int i=1; i<=kanban.size(); i++) {
+            kanban.get(i - 1).setOrder(-i);
+        }
+    
+        try {
+            statusKanbanOrderRepository.save(statusKanban);
+            return statusKanban;
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("Ya existe otro estado con ese nombre u orden para este artista.");
         }
@@ -96,13 +137,7 @@ public class StatusKanbanOrderService {
         StatusKanbanOrder status = statusKanbanOrderRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
     
-        return new StatusKanbanDTO(
-            status.getId(),
-            status.getName(),
-            status.getOrder(),
-            status.getDescription(),
-            status.getColor()
-        );
+        return new StatusKanbanDTO(status);
     }    
 
     @Transactional
@@ -114,17 +149,13 @@ public class StatusKanbanOrderService {
             throw new BadRequestException("No se puede eliminar un estado que está asignado a una o más comisiones.");
         }
     
-        Integer artistId = statusToDelete.getArtist().getId().intValue();
+        Long artistId = statusToDelete.getArtist().getId();
         Integer orderDeleted = statusToDelete.getOrder();
     
         statusKanbanOrderRepository.deleteById(id);
         statusKanbanOrderRepository.flush();
     
-        List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtist(artistId)
-            .stream()
-            .filter(s -> s.getOrder() > orderDeleted)
-            .sorted((a, b) -> Integer.compare(a.getOrder(), b.getOrder()))
-            .toList();
+        List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtistIdOrderByOrderAscFiltered(artistId, orderDeleted);
     
         for (StatusKanbanOrder status : statusList) {
             status.setOrder(-status.getOrder());
@@ -139,12 +170,12 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional
-    public Pair<List<StatusKanbanDTO>, List<StatusKanbanWithCommisionsDTO>> getAllStatusFromArtist() {
+    public StatusKanbanFullResponseDTO getAllStatusFromArtist() {
         try {
             Long artistId = userService.findCurrentUser().getId();
             List<StatusKanbanDTO> statuses =  statusKanbanOrderRepository.getAllStatusOrdererOfArtist(artistId);
             List<StatusKanbanWithCommisionsDTO> commisions = statusKanbanOrderRepository.getAllCommisionsAcceptedOfArtist(artistId);
-            return Pair.of(statuses, commisions);
+            return new StatusKanbanFullResponseDTO(statuses, commisions);
         } catch (ResourceNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -170,9 +201,6 @@ public class StatusKanbanOrderService {
         try {
             BaseUser currentUser = userService.findCurrentUser();
             Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
-            if (currentArtist == null) {
-                throw new AccessDeniedException("Tu usuario no está vinculado a ningún artista.");
-            }
 
             Commision c = commisionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
@@ -185,17 +213,13 @@ public class StatusKanbanOrderService {
             if (thisStatus == null) {
                 throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
             }
-            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.nextStatusKanban(thisStatus.getArtist().getId(),
+            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(thisStatus.getArtist().getId(),
                                                                                                      thisStatus.getOrder() + 1);
             if (nextStatus.isEmpty()) {
                 c.setStatusKanbanOrder(null);
                 c.setStatus(StatusCommision.ENDED);
             } else 
                 c.setStatusKanbanOrder(nextStatus.get());
-
-            System.out.println("ID del usuario actual: " + currentUser.getId());
-            System.out.println("Artista asociado al usuario: " + currentArtist.getId());
-            System.out.println("Artista de la comisión: " + c.getArtist().getId());
                 
             commisionRepository.save(c);
         } catch (Exception e) {
@@ -214,21 +238,15 @@ public class StatusKanbanOrderService {
         if (!currentArtist.getId().equals(c.getArtist().getId())) {
             throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
         }
-    
-        StatusKanbanOrder thisStatus = c.getStatusKanbanOrder();
-        if (thisStatus == null) {
-            throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
-        }
-    
+
         Optional<StatusKanbanOrder> previousStatus = statusKanbanOrderRepository
-            .nextStatusKanban(currentArtist.getId(), thisStatus.getOrder() - 1);
+            .statusKanbanOfOrder(currentArtist.getId(), c.getStatusKanbanOrder().getOrder() - 1);
     
         if (previousStatus.isEmpty()) {
             throw new BadRequestException("No existe un estado anterior a este.");
-        } else {
-            c.setStatusKanbanOrder(previousStatus.get());
-            commisionRepository.save(c);
         }
+        c.setStatusKanbanOrder(previousStatus.get());
+        commisionRepository.save(c);    
     }
 
     @Transactional

@@ -12,6 +12,7 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "Profile Controller", description = "API para gestionar el perfil de usuario y convertilo al DTO")
 @RestController
@@ -22,16 +23,16 @@ public class ProfileController {
     private ProfileService profileService;
 
     @PutMapping("/update")
-    @Operation(
-        summary = "Actualizar perfil",
-        description = "Permite actualizar los datos del perfil del usuario a un DTO para usa mas facil en Front. El usuario debe estar autenticado, y asi usamos el finduser."
+    @Operation(summary = "Actualizar perfil", 
+               description = "Permite actualizar los datos del perfil del usuario a un DTO para usa mas facil en Front. El usuario debe estar autenticado, y asi usamos el finduser."
     )
-    public ResponseEntity<BaseUserDTO> updateProfile(@RequestBody @Parameter(description = "DTO con los nuevos datos del usuario") BaseUserDTO baseUserDTO) {
+    public ResponseEntity<BaseUserDTO> updateProfile(
+            @RequestBody @Valid @Parameter(description = "DTO con los nuevos datos del usuario") BaseUserDTO baseUserDTO) {
         try {
             BaseUserDTO updatedUser = profileService.updateProfile(baseUserDTO);  
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.badRequest().build();
         }
 }
 }

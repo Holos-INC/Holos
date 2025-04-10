@@ -60,7 +60,7 @@ public class StripeWebhookController {
         } catch (IOException e) {
             return ResponseEntity.badRequest().body("Error procesando JSON");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error interno");
+            return ResponseEntity.badRequest().body("Error interno");
         }
     }
 }

@@ -64,7 +64,7 @@ const KanbanScreen: React.FC = () => {
         { ...columna,
           status: { 
             ...columna.status,
-            name: updated.nombre,
+            name: updated.name,
             description: updated.description,
             color: updated.color
           }

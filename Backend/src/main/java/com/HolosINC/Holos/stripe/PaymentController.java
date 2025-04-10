@@ -1,9 +1,9 @@
 package com.HolosINC.Holos.stripe;
 
+import com.HolosINC.Holos.exceptions.AccessDeniedException;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
-import com.stripe.model.PaymentIntentCollection;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -28,45 +28,22 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @GetMapping("/{paymentIntentId}")
-    public ResponseEntity<String> getPaymentById(@PathVariable("paymentIntentId") String paymentIntentId) throws StripeException{
-        PaymentIntent paymentIntent= paymentService.getById(paymentIntentId);
-        String paymentStr = paymentIntent.toJson();
-        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<String> getAllPayments() throws StripeException{
-        PaymentIntentCollection paymentIntents = paymentService.getAll();
-        String paymentStr = paymentIntents.toJson();
-        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
-    }
 
     @PostMapping("/create/{commissionId}")
-public ResponseEntity<?> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) {
-    try {
-        String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
-        return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
-    } catch (ResourceNotFoundException e) {
-        return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-    } catch (StripeException e) {
-        return ResponseEntity.badRequest().body("Error procesando el pago: " + e.getMessage());
-    } catch (Exception e) {
-        return ResponseEntity.internalServerError().body("Error inesperado: " + e.getMessage());
-    }
-}
-
-    @PostMapping("/confirm")
-    public ResponseEntity<String> confirmPayment(@RequestParam String paymentIntentId, @RequestParam String paymentMethod) throws StripeException {
-        PaymentIntent paymentIntent = paymentService.confirmPayment(paymentIntentId, paymentMethod);
-        String paymentStr = paymentIntent.toJson();
-        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
-    }
-
-    @PostMapping("/cancel")
-    public ResponseEntity<String> cancelPayment(@RequestParam String paymentIntentId) throws StripeException {
-        PaymentIntent paymentIntent = paymentService.cancelPayment(paymentIntentId);
-        String paymentStr = paymentIntent.toJson();
-        return new ResponseEntity<String>(paymentStr, HttpStatus.OK);
+    public ResponseEntity<?> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) throws Exception {
+        try {
+            String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
+            return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (StripeException e) { 
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -52,7 +52,7 @@ public class CategoryRestController {
             Category newCategory = categoryService.saveCategory(category);
             return ResponseEntity.status(HttpStatus.CREATED).body(newCategory);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -64,7 +64,7 @@ public class CategoryRestController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(404).body(null);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -73,10 +73,8 @@ public class CategoryRestController {
         try {
             categoryService.deleteCategory(id);
             return ResponseEntity.ok().body("Categoría eliminada exitosamente");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error interno al eliminar la categoría");
+            return ResponseEntity.badRequest().body("Error interno al eliminar la categoría");
         }
     }
 }

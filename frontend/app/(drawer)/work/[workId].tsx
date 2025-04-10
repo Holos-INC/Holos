@@ -13,7 +13,7 @@ import { getWorksDoneById } from "@/src/services/WorksDoneApi";
 import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
 import { BASE_URL } from "@/src/constants/api";
 import { useFonts } from "expo-font";
-import { Work } from "@/src/constants/ExploreTypes";
+import { Work, WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkDetail.styles";
 
 // >>> Importa el componente que muestra el menú de reporte <<<
@@ -23,7 +23,7 @@ export default function WorkDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { workId } = useLocalSearchParams();
-  const [work, setWork] = useState<Work | null>(null);
+  const [work, setWork] = useState<WorksDoneDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const { width } = useWindowDimensions();
   const styles = width > 768 ? desktopStyles : mobileStyles;
@@ -41,7 +41,7 @@ export default function WorkDetailScreen() {
   useEffect(() => {
     const fetchWork = async () => {
       try {
-        const data = (await getWorksDoneById(Number(workId))) as Work;
+        const data = (await getWorksDoneById(Number(workId))) as WorksDoneDTO;
         setWork(data);
       } catch (error) {
         console.error("Error fetching work details:", error);
@@ -139,15 +139,15 @@ export default function WorkDetailScreen() {
 
             <Text
               onPress={() => {
-                if (work.artist && work.artist.id) {
-                  router.push(`/profile/${work.artist.id}`);
+                if (work.artistId) {
+                  router.push(`/profile/${work.artistId}`);
                 } else {
                   console.warn("No se encontró el artista");
                 }
               }}
               style={styles.artistText}
             >
-              {work.artist.baseUser?.username || "Artista desconocido"}
+              {work.artistSurname || "Artista desconocido"}
             </Text>
 
             <Text style={styles.infoText}>

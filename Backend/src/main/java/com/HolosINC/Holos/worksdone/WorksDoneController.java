@@ -8,6 +8,8 @@ import com.HolosINC.Holos.util.RestPreconditions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,49 +41,117 @@ public class WorksDoneController {
     @PostMapping(consumes = { "multipart/form-data" })
     public ResponseEntity<?> createWorksDone(
             @RequestPart("work") String workJson,
-            @RequestPart("image") MultipartFile imageFile) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        WorksDoneDTO dto = mapper.readValue(workJson, WorksDoneDTO.class);
-        dto.setImage(imageFile.getBytes());
-
-        Long currentUserId = baseUserService.findCurrentUser().getId();
-        Artist artist = baseUserService.findArtist(currentUserId);
-
-        boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
-        long worksCount = worksDoneService.countByArtistId(artist.getId());
-
-        if (!isPremium && worksCount >= 7) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Has alcanzado el límite de 7 obras. Hazte premium para subir más.");
+            @RequestPart("image") MultipartFile imageFile) {
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            WorksDoneDTO dto = mapper.readValue(workJson, WorksDoneDTO.class);
+    
+            if (imageFile != null && !imageFile.isEmpty()) {
+                dto.setImage(imageFile.getBytes());
+            }
+    
+            WorksDone work = dto.createWorksDone();
+    
+            WorksDone created = worksDoneService.createWorksDone(work);
+            return ResponseEntity.ok(WorksDoneDTO.createDTO(created));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        WorksDone work = dto.createWorksDone();
-        work.setArtist(artist);
-
-        WorksDone created = worksDoneService.createWorksDone(work);
-        return ResponseEntity.ok(WorksDoneDTO.createDTO(created));
     }
+
 
     @GetMapping
     public ResponseEntity<List<WorksDoneDTO>> getAllWorksDone() {
-        List<WorksDoneDTO> dtos = worksDoneService
-                .getAllWorksDone()
-                .stream()
-                .map(WorksDoneDTO::createDTO)
-                .toList();
-        return ResponseEntity.ok(dtos);
+        try {
+            List<WorksDoneDTO> worksDoneDTOs = worksDoneService.getAllWorksDone()
+                    .stream()
+                    .map(work -> WorksDoneDTO.builder()
+                            .id(work.getId())
+                            .name(work.getName())
+                            .description(work.getDescription())
+                            .price(work.getPrice())
+                            .image(work.getImage())
+                            .artistId(work.getArtist().getId())
+                            .baseUserId(work.getArtist().getBaseUser().getId())
+                            .artistName(work.getArtist().getBaseUser().getName())
+                            .artistSurname(work.getArtist().getBaseUser().getUsername())
+                            .build())
+                    .toList();
+            return ResponseEntity.ok(worksDoneDTOs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorksDone> getWorksDoneById(@PathVariable Long id) {
-        WorksDone worksDone = worksDoneService.getWorksDoneById(id);
-        return worksDone != null ? ResponseEntity.ok(worksDone) : ResponseEntity.notFound().build();
+    public ResponseEntity<WorksDoneDTO> getWorksDoneById(@PathVariable Long id) {
+        try {
+            WorksDone worksDone = worksDoneService.getWorksDoneById(id);
+            WorksDoneDTO workDoneDTO = WorksDoneDTO.builder()
+                    .id(worksDone.getId())
+                    .name(worksDone.getName())
+                    .description(worksDone.getDescription())
+                    .price(worksDone.getPrice())
+                    .image(worksDone.getImage())
+                    .artistId(worksDone.getArtist().getId())
+                    .baseUserId(worksDone.getArtist().getBaseUser().getId())
+                    .artistName(worksDone.getArtist().getBaseUser().getName())
+                    .artistSurname(worksDone.getArtist().getBaseUser().getUsername())
+                    .build();
+            return worksDone != null ? ResponseEntity.ok(workDoneDTO) : ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
-    @GetMapping("/artist/{artistId}")
-    public ResponseEntity<?> getWorksDoneByArtist(@PathVariable Long artistId) {
+    @GetMapping("/artist/{username}")
+    public ResponseEntity<List<WorksDoneDTO>> getWorksDoneByArtist(@PathVariable String username) {
+        try {
+            Artist artist = artistService.findArtistByUsername(username);
+            List<WorksDoneDTO> worksDoneDTOs = worksDoneService.getWorksDoneByArtist(artist).stream()
+                    .map(work -> WorksDoneDTO.builder()
+                            .id(work.getId())
+                            .name(work.getName())
+                            .description(work.getDescription())
+                            .price(work.getPrice())
+                            .image(work.getImage())
+                            .artistId(work.getArtist().getId())
+                            .baseUserId(work.getArtist().getBaseUser().getId())
+                            .artistName(work.getArtist().getBaseUser().getName())
+                            .artistSurname(work.getArtist().getBaseUser().getUsername())
+                            .build())
+                    .toList();
+            return ResponseEntity.ok(worksDoneDTOs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PutMapping(value = "/artist/{artistId}/{worksDoneId}")
+    public ResponseEntity<WorksDone> updateWorksDone(@PathVariable("worksDoneId") Long worksDoneId, 
+        @PathVariable("artistId") Long artistId,
+            @RequestBody @Valid WorksDone worksDone) {
+
+        try{
+            RestPreconditions.checkNotNull(worksDoneService.getWorksDoneById(worksDoneId), "WorksDone", "ID", worksDoneId);
+            return new ResponseEntity<>(worksDoneService.updateWorksDone(worksDone, worksDoneId, artistId), HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+    @GetMapping("/mostPublicationsArtists")
+    public ResponseEntity<List<Artist>> getMostPublicationsArtists() {
+        try {
+            List<Artist> artists = worksDoneService.getMostPublicationsArtists();
+            return ResponseEntity.ok(artists);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/artist/id/{artistId}")
+    public ResponseEntity<?> getWorksDoneByArtistId(@PathVariable Long artistId) {
         try{
             Artist artist = artistService.findArtist(artistId);
             List<WorksDone> works = worksDoneService.getWorksDoneByArtist(artist);
@@ -132,9 +202,7 @@ public class WorksDoneController {
         boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
         long worksCount = worksDoneService.countByArtistId(artist.getId());
         
-        boolean canUpload = isPremium || worksCount < 7 || !(worksCount  == 7) ;
+        boolean canUpload = isPremium || worksCount < 7;
         return ResponseEntity.ok(canUpload);
-
     }
-
 }

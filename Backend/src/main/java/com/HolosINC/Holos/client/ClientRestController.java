@@ -27,9 +27,19 @@ class ClientRestController {
 
 	private final ClientService clientService;
 	private final BaseUserService baseUserService;
-
+    private final ProfileService profileService;
+	
 	@Autowired
-    private ProfileService profileService;
+	public ClientRestController(ClientService clientService, BaseUserService baseUserService, ProfileService profileService) {
+		this.clientService = clientService;
+		this.baseUserService = baseUserService;
+        this.profileService = profileService;
+	}
+
+	@GetMapping(value = "{id}")
+	public ResponseEntity<Client> findById(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(clientService.findClient(id), HttpStatus.OK);
+	}
 
     @PutMapping("/update")
     public ResponseEntity<?> updateProfile(@RequestBody BaseUserDTO baseUserDTO){
@@ -40,17 +50,6 @@ class ClientRestController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
     }
-	
-	@Autowired
-	public ClientRestController(ClientService clientService, BaseUserService baseUserService) {
-		this.clientService = clientService;
-		this.baseUserService = baseUserService;
-	}
-
-	@GetMapping(value = "{id}")
-	public ResponseEntity<Client> findById(@PathVariable("id") Long id) {
-		return new ResponseEntity<>(clientService.findClient(id), HttpStatus.OK);
-	}
 
 	@GetMapping("/profile")
 	public ResponseEntity<?> profileOfCurrentUser() {
@@ -59,21 +58,22 @@ class ClientRestController {
 			Object endUser = null;
 			if(user.hasAuthority("CLIENT"))
 				endUser = baseUserService.findClient(user.getId());
-			if(user.hasAuthority("ARTIST"))
+			if(user.hasAuthority("ARTIST")||user.hasAuthority("ARTIST_PREMIUM"))
 				endUser = baseUserService.findArtist(user.getId());
 			return ResponseEntity.ok().body(endUser);
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("No tienes perfil, tienes que loguearte");
 		}
 	}
+
 	@GetMapping("/byBaseUser/{baseUserId}")
-public ResponseEntity<Client> getClientByBaseUser(@PathVariable Long baseUserId) {
-    Client client = clientService.findClientByUserId(baseUserId);
-    if(client == null) {
-        return ResponseEntity.notFound().build();
-    }
-    return ResponseEntity.ok(client);
-}
+    public ResponseEntity<Client> getClientByBaseUser(@PathVariable Long baseUserId) {
+        Client client = clientService.findClientByUserId(baseUserId);
+		if(client == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(client);
+	}
 
 
 
@@ -88,7 +88,7 @@ public ResponseEntity<Client> getClientByBaseUser(@PathVariable Long baseUserId)
         // Captura específicamente el error de violación de restricción de clave foránea
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede eliminar el cliente porque tiene registros relacionados en otras partes del sistema.");
     } catch (Exception e) {
-        return ResponseEntity.internalServerError().body("Error interno al eliminar el cliente: " + e.getMessage());
+        return ResponseEntity.badRequest().body("Error interno al eliminar el cliente: " + e.getMessage());
     }
     }
 }

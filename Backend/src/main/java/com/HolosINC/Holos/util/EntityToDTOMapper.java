@@ -11,13 +11,16 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 
 public class EntityToDTOMapper {
     public static ArtistDTO toArtistDTO(Artist artist) {
+        
         ArtistDTO artistDTO = new ArtistDTO();
         artistDTO.setName(artist.getBaseUser().getName());
         artistDTO.setUsername(artist.getBaseUser().getUsername());
         artistDTO.setEmail(artist.getBaseUser().getEmail());
         artistDTO.setPhoneNumber(artist.getBaseUser().getPhoneNumber());
         artistDTO.setImageProfile(artist.getBaseUser().getImageProfile());
-        artistDTO.setTableCommissionsPrice(artist.getTableCommisionsPrice());
+        artistDTO.setTableCommissionsPrice(artist.getBaseUser().getTableCommissionsPrice());
+        artistDTO.setDescription(artist.getDescription());
+        artistDTO.setLinkToSocialMedia(artist.getLinkToSocialMedia());
         artistDTO.setArtistId(artist.getId());
         artistDTO.setSellerAccountId(artist.getSellerAccountId());
         artistDTO.setNumSlotsOfWork(artist.getNumSlotsOfWork());

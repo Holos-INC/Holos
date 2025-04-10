@@ -50,6 +50,7 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/payment/{paymentIntentId}", "/api/v1/payment/all").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/stripe-account/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/payment/**").authenticated()
+            .requestMatchers(HttpMethod.POST,"/api/v1/worksdone/**").hasAnyAuthority("ADMIN", "ARTIST")
             .requestMatchers("/api/v1/stripe-subsciption/create**").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/stripe-subsciption/delete**").hasAuthority("ARTIST_PREMIUM")
             .anyRequest().permitAll()

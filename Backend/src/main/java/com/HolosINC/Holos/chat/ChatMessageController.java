@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
 
@@ -25,8 +27,17 @@ public class ChatMessageController {
     }
 
     @PostMapping
-    public ResponseEntity<ChatMessage> createChatMessage(@RequestBody ChatMessage chatMessage) {
+    public ResponseEntity<ChatMessage> createChatMessage(
+        @RequestPart("chatMessage") String chatMessageJson,
+        @RequestPart(value = "image", required = false) MultipartFile imageFile) { //Cambio Backend: He puesto el image a required false
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            ChatMessage chatMessage = mapper.readValue(chatMessageJson, ChatMessage.class);
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                chatMessage.setImage(imageFile.getBytes());
+            }
+            
             ChatMessage newChatMessage = service.createChatMessage(chatMessage);
             return ResponseEntity.ok(newChatMessage);
         } catch (Exception e) {

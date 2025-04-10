@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.HolosINC.Holos.configuration.jwt.JwtUtils;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -48,11 +49,11 @@ public class BaseUserController {
     }
 
     @PutMapping("/administrator/users/{id}")
-    public ResponseEntity<BaseUser> updateUser(@PathVariable Long id, @RequestBody BaseUser updatedUser) {
+    public ResponseEntity<?> updateUserAdmins(@PathVariable Long id, @RequestBody @Valid BaseUser updatedUser) {
         try {
-            return ResponseEntity.ok(baseUserService.updateUser(id, updatedUser));
+            return ResponseEntity.ok(baseUserService.updateUserAdmins(id, updatedUser));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -61,7 +62,7 @@ public class BaseUserController {
         try {
             return ResponseEntity.ok(baseUserService.changeUserRole(id, newRole));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error al cambiar el rol: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al cambiar el rol: " + e.getMessage());
         }
     }
 }
