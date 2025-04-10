@@ -9,11 +9,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
+import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.model.BaseUser;
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionController;
 import com.HolosINC.Holos.commision.CommisionService;
-import com.HolosINC.Holos.commision.EnumPaymentArrangement;
-import com.HolosINC.Holos.commision.StatusCommision;
+
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import com.HolosINC.Holos.client.Client;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -37,8 +41,7 @@ public class CommisionControllerTest {
 
     private ObjectMapper objectMapper;
 
-    private static final Long COMMISION_ID = 12345L;  
-  
+    private static final Long COMMISION_ID = 12345L;
 
     @BeforeEach
     public void setUp() {
@@ -48,50 +51,57 @@ public class CommisionControllerTest {
     }
 
     @Test
-public void testCreateCommisionSuccess() throws Exception {
-    // Prepara los datos para la solicitud
-    CommisionRequestDTO commisionRequestDTO = new CommisionRequestDTO(
-            "Test Commision",
-            "Description of the test commission",
-            "image/coolImage.png",
-            new java.util.Date(),
-            100.0
-    );
+    public void testCreateCommisionSuccess() throws Exception {
 
-    // Crea el objeto de respuesta esperado
-    Commision createdCommision = new Commision();
-    createdCommision.setId(COMMISION_ID);  // Asignamos un ID simulado para la comisión creada
+        CommisionRequestDTO commisionRequestDTO = new CommisionRequestDTO(
+                "Test Commision",
+                "Description of the test commission",
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA", // Base64 simulada
+                new java.util.Date(),
+                100.0);
 
-    // Configura el mock del servicio para devolver el objeto creado cuando se invoque el método 'createCommision'
-    when(commisionService.createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID)))
-            .thenReturn(new CommissionDTO(createdCommision));
+        BaseUser clientUser = new BaseUser();
+        clientUser.setUsername("client_user");
 
-    // Ejecuta la prueba y verifica el comportamiento
-    mockMvc.perform(post("/api/v1/commisions/{id}", COMMISION_ID)  // Usando el {id} para pasar el ID de manera más clara
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(commisionRequestDTO)))  // Convertimos el DTO a JSON
-            .andExpect(status().isOk())  // Esperamos un 200 OK
-            .andExpect(jsonPath("$.id").value(COMMISION_ID))  // Verificamos que el ID en la respuesta sea el esperado
-            .andDo(result -> {
-                // Imprime la respuesta completa en la consola para depuración
-                System.out.println("Response content: " + result.getResponse().getContentAsString());
-            });
+        BaseUser artistUser = new BaseUser();
+        artistUser.setUsername("artist_user");
 
-    // Verifica que el servicio fue llamado exactamente una vez con los parámetros esperados
-    verify(commisionService, times(1)).createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID));
-}
+        Client client = new Client();
+        client.setBaseUser(clientUser);
+
+        Artist artist = new Artist();
+        artist.setBaseUser(artistUser);
+
+        Commision createdCommision = new Commision();
+        createdCommision.setId(COMMISION_ID);
+        createdCommision.setName("Test Commision");
+        createdCommision.setDescription("Description of the test commission");
+        createdCommision.setPrice(100.0);
+        createdCommision.setClient(client);
+        createdCommision.setArtist(artist);
+
+        when(commisionService.createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID)))
+                .thenReturn(new CommissionDTO(createdCommision));
+
+        mockMvc.perform(post("/api/v1/commisions/{id}", COMMISION_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(commisionRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(COMMISION_ID))
+                .andDo(result -> System.out.println("Response content: " + result.getResponse().getContentAsString()));
+
+        verify(commisionService, times(1)).createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID));
+    }
 
     @Test
     public void testCreateCommisionBadRequest() throws Exception { // revisar
-        
+
         CommisionRequestDTO commisionRequestDTO = new CommisionRequestDTO(
                 "Test Commision",
                 "Description of the test commission",
                 "image/coolImage.png",
                 new java.util.Date(),
-                100.0
-        );
-        
+                100.0);
 
         // Simulando una excepción de tipo IllegalArgumentException
         when(commisionService.createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID)))
@@ -103,43 +113,31 @@ public void testCreateCommisionSuccess() throws Exception {
                 .content(objectMapper.writeValueAsString(commisionRequestDTO)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid input")).andDo(result -> {
-                        System.out.println("Response content: " + result.getResponse().getContentAsString());
-                    });
-
+                    System.out.println("Response content: " + result.getResponse().getContentAsString());
+                });
 
         verify(commisionService, times(1)).createCommision(any(CommisionRequestDTO.class), eq(COMMISION_ID));
     }
 
     @Test
-    public void testGetAllCommisionsSuccess() throws Exception {
-        // Dado
-        Commision commision1 = new Commision();
-        commision1.setId(1234L); //Asigna un valor a la ID
-        commision1.setName("Commission 1");
-        commision1.setDescription("Description of Commission 1");
-        commision1.setPrice(100.0);
-        
-        Commision commision2 = new Commision();
-        commision2.setId(2345L);  // Asigna un valor a la ID
-        commision2.setName("Commission 2");
-        commision2.setDescription("Description of Commission 2");
-        commision2.setPrice(200.0);
-    
-        List<Commision> commisions = List.of(commision1, commision2);
-    
-        // Simulando el comportamiento del servicio
-        when(commisionService.getAllCommisions()).thenReturn(commisions);
-    
-        // Ejecutar la prueba
-        mockMvc.perform(get("/api/v1/commisions"))
+    public void testGetHistoryOfCommisionsSuccess() throws Exception {
+        HistoryCommisionsDTO history = new HistoryCommisionsDTO();
+        history.setRequested(List.of());
+        history.setAccepted(List.of());
+        history.setHistory(List.of());
+
+        when(commisionService.getHistoryOfCommissions()).thenReturn(history);
+
+        mockMvc.perform(get("/api/v1/commisions/historyOfCommisions"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.requested").isArray())
+                .andExpect(jsonPath("$.accepted").isArray())
+                .andExpect(jsonPath("$.history").isArray())
                 .andDo(result -> {
-                    // Imprimir el contenido de la respuesta en la consola
                     System.out.println("Response content: " + result.getResponse().getContentAsString());
                 });
-    
-        verify(commisionService, times(1)).getAllCommisions();
+
+        verify(commisionService, times(1)).getHistoryOfCommissions();
     }
 
     @Test
@@ -147,31 +145,44 @@ public void testCreateCommisionSuccess() throws Exception {
         // Dado
         Long Identifier = 12345L;
         Commision commision1 = new Commision();
-        commision1.setId(Identifier); //Asigna un valor a la ID
+        commision1.setId(Identifier);
         commision1.setName("Commission 1");
         commision1.setDescription("Description of Commission 1");
         commision1.setPrice(100.0);
-        
 
-        // Simulando el comportamiento del servicio
+        // Mock Artist + BaseUser
+        Artist artist = new Artist();
+        BaseUser artistUser = new BaseUser();
+        artistUser.setUsername("artistUser");
+        artist.setBaseUser(artistUser);
+        commision1.setArtist(artist);
+
+        // Mock Client + BaseUser
+        Client client = new Client();
+        BaseUser clientUser = new BaseUser();
+        clientUser.setUsername("clientUser");
+        client.setBaseUser(clientUser);
+        commision1.setClient(client);
+
+        // Simular el comportamiento del servicio
         when(commisionService.getCommisionById(COMMISION_ID)).thenReturn(new CommissionDTO(commision1));
 
         // Ejecutar la prueba
         mockMvc.perform(get("/api/v1/commisions/" + COMMISION_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(COMMISION_ID)).andDo(result -> {
-                        // Imprimir el contenido de la respuesta en la consola
-                        System.out.println("Response content: " + result.getResponse().getContentAsString());
-                    });
-        ;
+                .andExpect(jsonPath("$.id").value(COMMISION_ID))
+                .andDo(result -> {
+                    System.out.println("Response content: " + result.getResponse().getContentAsString());
+                });
 
         verify(commisionService, times(1)).getCommisionById(COMMISION_ID);
     }
 
     @Test
     public void testGetCommisionByIdNotFound() throws Exception {
-        // Simulando que no se encuentra la comisión
-        when(commisionService.getCommisionById(COMMISION_ID)).thenReturn(null);
+        // Simula que el servicio lanza una excepción de recurso no encontrado
+        when(commisionService.getCommisionById(COMMISION_ID))
+                .thenThrow(new ResourceNotFoundException("Commision", "id", COMMISION_ID));
 
         // Ejecutar la prueba
         mockMvc.perform(get("/api/v1/commisions/" + COMMISION_ID))
@@ -182,29 +193,12 @@ public void testCreateCommisionSuccess() throws Exception {
     }
 
     @Test
-    public void testUpdateCommisionStatusSuccess() throws Exception {
-        // Dado
-        Commision updatedCommision = new Commision();
-        updatedCommision.setId(COMMISION_ID);
-
-        // Simulando el comportamiento del servicio
-        when(commisionService.updateCommisionStatus(COMMISION_ID, true)).thenReturn(updatedCommision);
-
-        // Ejecutar la prueba
-        mockMvc.perform(put("/api/v1/commisions/" + COMMISION_ID + "/status?accept=true"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(COMMISION_ID));
-
-        verify(commisionService, times(1)).updateCommisionStatus(COMMISION_ID, true);
-    }
-
-    @Test
     public void testCancelCommisionSuccess() throws Exception {
         // Simulando el comportamiento del servicio
         doNothing().when(commisionService).cancelCommission(COMMISION_ID);
 
         // Ejecutar la prueba
-        mockMvc.perform(put("/api/v1/commisions/cancel/" + COMMISION_ID + "?clientId=" + COMMISION_ID))
+        mockMvc.perform(put("/api/v1/commisions/" + COMMISION_ID + "/cancel"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Comisión cancelada correctamente."));
 
