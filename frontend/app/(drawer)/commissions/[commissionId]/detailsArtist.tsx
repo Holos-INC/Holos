@@ -147,7 +147,7 @@ export default function CommissionDetailsScreen() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["ARTIST"]}>
+    <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM"]}>
       <ScrollView style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#000" />

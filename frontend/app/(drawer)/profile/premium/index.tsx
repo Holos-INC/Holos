@@ -17,7 +17,7 @@ export default function PremiumScreen() {
     }, [navigation]);
 
     return (
-      <ProtectedRoute allowedRoles={['ARTIST']}>
+      <ProtectedRoute allowedRoles={['ARTIST', 'ARTIST_PREMIUM']}>
         <Elements stripe={stripePromise}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.card}>
