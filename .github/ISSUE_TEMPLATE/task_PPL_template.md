@@ -9,7 +9,7 @@ assignees: ''
 
 # **Roles:**
 - Alguien - Eq. Desarrollo
-- Nerea - Project Manager
+- Alguien - Eq. QA (Revisor)
 
 # **Descripción tarea:**
 Añade aquí la descripción de la tarea
