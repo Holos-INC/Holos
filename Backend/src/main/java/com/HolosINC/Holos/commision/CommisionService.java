@@ -30,8 +30,8 @@ public class CommisionService {
     private final ClientRepository clientRepository;
     private final ArtistService artistService;
     private final BaseUserService userService;
-    private final ClientService clientService;
     private final StatusKanbanOrderService statusKanbanOrderService;
+    private final ClientService clientService;
 
     @Autowired
     public CommisionService(CommisionRepository commisionRepository, ArtistService artistService,
@@ -43,6 +43,10 @@ public class CommisionService {
         this.clientRepository = clientRepository;
         this.clientService = clientService;
         this.statusKanbanOrderService = statusKanbanOrderService;
+    }
+
+    public List<Commision> getAllCommisions() {
+        return commisionRepository.findAll();
     }
 
     @Transactional
@@ -58,6 +62,7 @@ public class CommisionService {
             commision.setArtist(artist);
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
+            commision.setPaymentArrangement(EnumPaymentArrangement.INITIAL); // TODO - GESTIONAR PARA MÁS DE ESTE TIPO DE PAGO
             commisionRepository.save(commision);
             return new CommissionDTO(commision);
         } catch (Exception e) {
@@ -78,8 +83,6 @@ public class CommisionService {
 
             commisionInBDD.setPrice(commisionDTO.getPrice());
             return commisionRepository.save(commisionInBDD);
-        } catch (ResourceNotFoundException | IllegalArgumentException e) {
-            throw e;
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -97,10 +100,7 @@ public class CommisionService {
                     user.getId().equals(commisionInBDD.getArtist().getBaseUser().getId())))
                 throw new IllegalArgumentException("No tienes permiso para acceder a esta comisión");
 
-            return new CommissionDTO(commisionInBDD);
-            
-        } catch (ResourceNotFoundException | IllegalArgumentException e) {
-            throw e; 
+            return new CommissionDTO(commisionInBDD); 
         } catch (Exception e) {
             throw new Exception("Error al obtener la comisión: " + e.getMessage(), e);
         }
@@ -109,166 +109,196 @@ public class CommisionService {
 
     @Transactional
     public Commision updateCommisionStatus(Long commisionId, boolean accept) throws Exception {
-        Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
 
-        Artist artist = artistService.findArtistByUserId(userService.findCurrentUser().getId());
+            Artist artist = artistService.findArtistByUserId(userService.findCurrentUser().getId());
 
-        if (!commision.getArtist().getId().equals(artist.getId())) {
-            throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
-        }
-
-        if (!commision.getStatus().equals(StatusCommision.REQUESTED))
-            throw new IllegalArgumentException("El estado de la comisión ya no es editable");
-
-        if (accept) {
-            commision.setAcceptedDateByArtist(new Date());
-            if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artist.getId()) > 0) {
-                commision.setStatus(StatusCommision.ACCEPTED);
-
-                Optional<StatusKanbanOrder> statusKanban = commisionRepository
-                        .getFirstStatusKanbanOfArtist(artist.getId());
-                if (statusKanban.isEmpty())
-                    throw new ResourceNotFoundException("Antes de aceptar una comisión, créate un estado en el Kanban");
-                commision.setStatusKanbanOrder(statusKanban.get());
-            } else {
-                commision.setStatus(StatusCommision.IN_WAIT_LIST);
+            if (!commision.getArtist().getId().equals(artist.getId())) {
+                throw new IllegalArgumentException("El artista no tiene permisos para modificar esta comisión.");
             }
-        } else {
-            commision.setStatus(StatusCommision.REJECTED);
-        }
 
-        return commisionRepository.save(commision);
+            if (!commision.getStatus().equals(StatusCommision.REQUESTED))
+                throw new IllegalArgumentException("El estado de la comisión ya no es editable");
+
+            if (accept) {
+                commision.setAcceptedDateByArtist(new Date());
+                if (artist.getNumSlotsOfWork() - commisionRepository.numSlotsCovered(artist.getId()) > 0) {
+                    commision.setStatus(StatusCommision.ACCEPTED);
+
+                    Optional<StatusKanbanOrder> statusKanban = commisionRepository
+                            .getFirstStatusKanbanOfArtist(artist.getId());
+                    if (statusKanban.isEmpty())
+                        throw new ResourceNotFoundException("Antes de aceptar una comisión, créate un estado en el Kanban");
+                    commision.setStatusKanbanOrder(statusKanban.get());
+                } else {
+                    commision.setStatus(StatusCommision.IN_WAIT_LIST);
+                }
+            } else {
+                commision.setStatus(StatusCommision.REJECTED);
+            }
+
+            return commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     @Transactional
     public void waitingCommission(CommissionDTO priceChanged, Long commisionId) throws Exception {
-        Commision commision = commisionRepository.findById(commisionId)
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        Long id = userService.findCurrentUser().getId();
-        if (clientService.isClient(id)) {
-            if (!commision.getClient().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException("El cliente no tiene permisos para poner en espera esta comisión.");
+            Long id = userService.findCurrentUser().getId();
+            if (clientService.isClient(id)) {
+                if (!commision.getClient().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException("El cliente no tiene permisos para poner en espera esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
+                    commision.setStatus(StatusCommision.WAITING_ARTIST);
+                    commision.setPrice(priceChanged.getPrice());
+                } else {
+                    throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
+                }
             }
-            if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
-                commision.setStatus(StatusCommision.WAITING_ARTIST);
-                commision.setPrice(priceChanged.getPrice());
-            } else {
-                throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
+            if (artistService.isArtist(id)) {
+                if (!commision.getArtist().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException("El artista no tiene permisos para poner en espera esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.REQUESTED ||
+                        commision.getStatus() == StatusCommision.WAITING_ARTIST) {
+                    commision.setStatus(StatusCommision.WAITING_CLIENT);
+                    commision.setPrice(priceChanged.getPrice());
+                } else {
+                    throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
+                }
             }
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        if (artistService.isArtist(id)) {
-            if (!commision.getArtist().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException("El artista no tiene permisos para poner en espera esta comisión.");
-            }
-            if (commision.getStatus() == StatusCommision.REQUESTED ||
-                    commision.getStatus() == StatusCommision.WAITING_ARTIST) {
-                commision.setStatus(StatusCommision.WAITING_CLIENT);
-                commision.setPrice(priceChanged.getPrice());
-            } else {
-                throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
-            }
-        }
-        commisionRepository.save(commision);
     }
 
     @Transactional
     public void toPayCommission(Long commisionId) throws Exception {
-        Commision commision = commisionRepository.findById(commisionId)
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        Long id = userService.findCurrentUser().getId();
-        if (clientService.isClient(id)) {
-            if (!commision.getClient().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException(
-                        "El cliente no tiene permisos para aceptar el precio de esta comisión.");
+            Long id = userService.findCurrentUser().getId();
+            if (clientService.isClient(id)) {
+                if (!commision.getClient().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException(
+                            "El cliente no tiene permisos para aceptar el precio de esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
+                    commision.setStatus(StatusCommision.NOT_PAID_YET);
+                } else {
+                    throw new IllegalStateException("No puedes aceptar el precio de esta comisión en su estado actual.");
+                }
             }
-            if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
-                commision.setStatus(StatusCommision.NOT_PAID_YET);
-            } else {
-                throw new IllegalStateException("No puedes aceptar el precio de esta comisión en su estado actual.");
+            if (artistService.isArtist(id)) {
+                if (!commision.getArtist().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException(
+                            "El artista no tiene permisos para aceptar el precio de esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.REQUESTED ||
+                        commision.getStatus() == StatusCommision.WAITING_ARTIST) {
+                    commision.setStatus(StatusCommision.NOT_PAID_YET);
+                } else {
+                    throw new IllegalStateException("No puedes aceptar el precio de esta comisión en su estado actual.");
+                }
             }
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        if (artistService.isArtist(id)) {
-            if (!commision.getArtist().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException(
-                        "El artista no tiene permisos para aceptar el precio de esta comisión.");
-            }
-            if (commision.getStatus() == StatusCommision.REQUESTED ||
-                    commision.getStatus() == StatusCommision.WAITING_ARTIST) {
-                commision.setStatus(StatusCommision.NOT_PAID_YET);
-            } else {
-                throw new IllegalStateException("No puedes aceptar el precio de esta comisión en su estado actual.");
-            }
-        }
-        commisionRepository.save(commision);
     }
 
     @Transactional
     public void rejectCommission(Long commisionId) throws Exception {
-        Commision commision = commisionRepository.findById(commisionId)
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        Long id = userService.findCurrentUser().getId();
-        if (clientService.isClient(id)) {
-            if (!commision.getClient().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException("El cliente no tiene permisos para rechazar esta comisión.");
+            Long id = userService.findCurrentUser().getId();
+            if (clientService.isClient(id)) {
+                if (!commision.getClient().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException("El cliente no tiene permisos para rechazar esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
+                    commision.setStatus(StatusCommision.REJECTED);
+                } else {
+                    throw new IllegalStateException("No puedes rechazar esta comisión en su estado actual.");
+                }
             }
-            if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
-                commision.setStatus(StatusCommision.REJECTED);
-            } else {
-                throw new IllegalStateException("No puedes rechazar esta comisión en su estado actual.");
+            if (artistService.isArtist(id)) {
+                if (!commision.getArtist().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException("El artista no tiene permisos para rechazar esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.REQUESTED ||
+                        commision.getStatus() == StatusCommision.WAITING_ARTIST) {
+                    commision.setStatus(StatusCommision.REJECTED);
+                } else {
+                    throw new IllegalStateException("No puedes rechazar esta comisión en su estado actual.");
+                }
             }
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        if (artistService.isArtist(id)) {
-            if (!commision.getArtist().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException("El artista no tiene permisos para rechazar esta comisión.");
-            }
-            if (commision.getStatus() == StatusCommision.REQUESTED ||
-                    commision.getStatus() == StatusCommision.WAITING_ARTIST) {
-                commision.setStatus(StatusCommision.REJECTED);
+    } 
+
+    @Transactional
+    public void acceptCommission(Long commisionId) throws Exception{
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+            Long id = userService.findCurrentUser().getId();
+            Boolean slotsFull = commision.getArtist().getNumSlotsOfWork()
+                    - commisionRepository.numSlotsCovered(commision.getArtist().getId()) <= 0;
+            if (clientService.isClient(id)) {
+                if (!commision.getClient().getBaseUser().getId().equals(id)) {
+                    throw new IllegalArgumentException("El cliente no tiene permisos para aceptar esta comisión.");
+                }
+                if (commision.getStatus() == StatusCommision.NOT_PAID_YET) {
+                    commision.setStatus(slotsFull ? StatusCommision.IN_WAIT_LIST : StatusCommision.ACCEPTED);
+                    if (!slotsFull) {
+                        StatusKanbanOrder statusKanban = commisionRepository
+                                .getFirstStatusKanbanOfArtist(commision.getArtist().getId()).orElseThrow( () -> 
+                                new ResourceNotFoundException("Antes de aceptar una comisión, créate un estado en el Kanban"));
+                        commision.setStatusKanbanOrder(statusKanban);
+                    }
+                } else {
+                    throw new IllegalStateException("No puedes aceptar esta comisión en su estado actual.");
+                }
             } else {
-                throw new IllegalStateException("No puedes rechazar esta comisión en su estado actual.");
+                throw new IllegalArgumentException("El artista no tiene permisos para aceptar esta comisión.");
             }
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        commisionRepository.save(commision);
     }
 
     @Transactional
-    public void acceptCommission(Long commisionId) {
-        Commision commision = commisionRepository.findById(commisionId)
+    public void cancelCommission(Long commisionId) throws Exception{
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        Long id = userService.findCurrentUser().getId();
-        Boolean slotsFull = commision.getArtist().getNumSlotsOfWork()
-                - commisionRepository.numSlotsCovered(commision.getArtist().getId()) <= 0;
-        if (clientService.isClient(id)) {
-            if (!commision.getClient().getBaseUser().getId().equals(id)) {
-                throw new IllegalArgumentException("El cliente no tiene permisos para aceptar esta comisión.");
+            Long id = userService.findCurrentUser().getId();
+            if (!commision.getClient().getBaseUser().getId().equals(id) &&
+                    !commision.getArtist().getBaseUser().getId().equals(id)) {
+                throw new IllegalArgumentException("Usted no tiene permisos para cancelar esta comisión.");
             }
-            if (commision.getStatus() == StatusCommision.NOT_PAID_YET) {
-                commision.setStatus(slotsFull ? StatusCommision.IN_WAIT_LIST : StatusCommision.ACCEPTED);
-            } else {
-                throw new IllegalStateException("No puedes aceptar esta comisión en su estado actual.");
+            if (!(commision.getStatus() == StatusCommision.IN_WAIT_LIST ||
+                    commision.getStatus() == StatusCommision.ACCEPTED)) {
+                throw new IllegalStateException("La comisión no puede ser cancelada en su estado actual.");
             }
-        } else {
-            throw new IllegalArgumentException("El artista no tiene permisos para aceptar esta comisión.");
+            commision.setStatus(StatusCommision.CANCELED);
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
-        commisionRepository.save(commision);
-    }
-
-    @Transactional
-    public void cancelCommission(Long commisionId) {
-        Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-        Long id = userService.findCurrentUser().getId();
-        if (!commision.getClient().getBaseUser().getId().equals(id) &&
-                !commision.getArtist().getBaseUser().getId().equals(id)) {
-            throw new IllegalArgumentException("Usted no tiene permisos para cancelar esta comisión.");
-        }
-        if (!(commision.getStatus() == StatusCommision.IN_WAIT_LIST ||
-                commision.getStatus() == StatusCommision.ACCEPTED)) {
-            throw new IllegalStateException("La comisión no puede ser cancelada en su estado actual.");
-        }
-        commision.setStatus(StatusCommision.CANCELED);
-        commisionRepository.save(commision);
     }
 
     @Transactional(readOnly = true)
@@ -293,8 +323,6 @@ public class CommisionService {
             }
 
             return historyCommisionsDTO;
-        } catch (IllegalAccessException e) {
-            throw e;
         } catch (Exception e) {
             throw e;
         }
@@ -305,7 +333,7 @@ public class CommisionService {
                 commisionRepository.findCommisionsFilteredByArtistIdAndPermittedStatus(
                         userId,
                         List.of(StatusCommision.REQUESTED, StatusCommision.WAITING_ARTIST,
-                                StatusCommision.WAITING_CLIENT)));
+                                StatusCommision.WAITING_CLIENT, StatusCommision.NOT_PAID_YET)));
 
         historyCommisionsDTO.setAccepted(commisionRepository.findCommissionsInProgressByArtist(userId));
 

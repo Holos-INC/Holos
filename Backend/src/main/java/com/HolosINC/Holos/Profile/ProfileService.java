@@ -22,8 +22,8 @@ public class ProfileService {
     @Transactional
     public BaseUserDTO updateProfile(BaseUserDTO baseUserDTO) throws Exception {
         BaseUser currentUser = baseUserService.findCurrentUser();
-
         Artist artist = artistService.findArtist(currentUser.getId());
+
         if (artist != null) {
             artist.getBaseUser().setName(baseUserDTO.getName());
             artist.getBaseUser().setEmail(baseUserDTO.getEmail());
@@ -31,8 +31,7 @@ public class ProfileService {
             artist.getBaseUser().setImageProfile(baseUserDTO.getImageProfile());
 
             artistService.saveArtist(artist);
-            return EntityToDTOMapper.toArtistDTO(
-                    artist);
+            return EntityToDTOMapper.toArtistDTO(artist);
         }
 
         return EntityToDTOMapper.toBaseUserDTO(currentUser);

@@ -1,11 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Dimensions,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
-import { Commission, HistoryCommisionsDTO, StatusCommission } from "@/src/constants/CommissionTypes";
+import { HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
 import ClientCommissionsScreen from "./requested";
-import { useRouter } from "expo-router";  
+import { useRouter } from "expo-router";
 import { getAllRequestedCommissions } from "@/src/services/commisionApi";
 
 // 2. Ajusta la pantalla
@@ -16,17 +26,28 @@ const MOBILE_CARD_PADDING = 12;
 
 export default function ArtistRequestOrders({ route, navigation }: any) {
   const { loggedInUser } = useContext(AuthenticationContext);
-  const router = useRouter();  // Usamos useRouter de expo-router
+  const router = useRouter(); // Usamos useRouter de expo-router
 
   // 3. Tipar el estado como arreglo de Commission
-  const [commissions, setCommissions] = useState<HistoryCommisionsDTO>({requested: [], accepted: [], history: [], error: ""});
+  const [commissions, setCommissions] = useState<HistoryCommisionsDTO>({
+    requested: [],
+    accepted: [],
+    history: [],
+    error: "",
+  });
   const [loading, setLoading] = useState(true);
-  const isArtist = Array.isArray(loggedInUser?.roles) && (loggedInUser.roles.includes("ARTIST") || loggedInUser.roles.includes("ARTIST_PREMIUM"));
-  const isClient = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
+  const isArtist =
+    Array.isArray(loggedInUser?.roles) &&
+    (loggedInUser.roles.includes("ARTIST") ||
+      loggedInUser.roles.includes("ARTIST_PREMIUM"));
+  const isClient =
+    Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
 
   const fetchCommissions = async () => {
     try {
-      const data: HistoryCommisionsDTO = await getAllRequestedCommissions(loggedInUser.token);
+      const data: HistoryCommisionsDTO = await getAllRequestedCommissions(
+        loggedInUser.token
+      );
       setCommissions(data);
     } catch (error) {
       Alert.alert("Error", "Error al obtener las comisiones.");
@@ -77,11 +98,15 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["ARTIST","ARTIST_PREMIUM", "CLIENT"]}>
+    <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM", "CLIENT"]}>
       <View style={styles.container}>
-        
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>  {/* Usamos router.back() para retroceder */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            {" "}
+            {/* Usamos router.back() para retroceder */}
             <Ionicons name="arrow-back" size={24} color="#000000" />
             <Text style={styles.backButtonText}>ATRÁS</Text>
           </TouchableOpacity>
@@ -90,46 +115,47 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
 
         <ScrollView style={styles.content}>
           <Text style={styles.sectionTitle}>EN CURSO</Text>
-          <ClientCommissionsScreen commissions={commissions.accepted}/>
+          <ClientCommissionsScreen commissions={commissions.accepted} />
 
           <View style={styles.separator} />
           <Text style={styles.sectionTitle}>
             {isArtist ? "NUEVAS SOLICITUDES" : "PAGOS PENDIENTES"}
           </Text>
           {newRequests.length === 0 ? (
-            <Text style={styles.noRequestsText}>No hay nuevas solicitudes.</Text>
+            <Text style={styles.noRequestsText}>
+              No hay nuevas solicitudes.
+            </Text>
           ) : (
             newRequests.map((comm) => (
               <View key={comm.id} style={styles.card}>
                 <View style={styles.profileContainer}>
-                  <Image 
-                    source={{ uri: comm.imageProfile || "URL_DE_IMAGEN_POR_DEFECTO" }} 
-                    style={styles.profileImage} 
+                  <Image
+                    source={{
+                      uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO",
+                    }}
+                    style={styles.profileImage}
                   />
                 </View>
                 <View style={styles.textContainer}>
-                <Text style={styles.textName}>
-                  {isClient ? comm.artistUsername || "Artista desconocido" : comm.clientUsername || "Cliente desconocido"}
-                </Text>
+                  <Text style={styles.textName}>
+                    {isClient
+                      ? comm.artistUsername || "Artista desconocido"
+                      : comm.clientUsername || "Cliente desconocido"}
+                  </Text>
                   <Text style={styles.text}>{comm.description}</Text>
                 </View>
                 <View style={styles.actions}>
-                <TouchableOpacity 
-                  style={styles.detailsButton} 
-                  onPress={() => {
-                    // Determinamos el rol del usuario (si es un artista o cliente)
-                    const path = isArtist
-                      ? `/commissions/[commissionId]/detailsArtist`
-                      : isClient
-                      ? `/commissions/[commissionId]/detailsClient`
-                      : `/`;
-
-                    // Redirigimos según el rol
-                    router.push({ pathname: path, params: { commissionId: comm.id } });
-                  }}
-                >
-                  <Text style={styles.detailsButtonText}>VER DETALLE</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.detailsButton}
+                    onPress={() => {
+                      router.push({
+                        pathname: `/commissions/[commissionId]/proposal`,
+                        params: { commissionId: comm.id },
+                      });
+                    }}
+                  >
+                    <Text style={styles.detailsButtonText}>VER DETALLE</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))
@@ -137,23 +163,33 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
 
           <View style={styles.separator} />
 
-          <Text style={styles.sectionTitle}>SOLICITUDES ACEPTADAS/DENEGADAS</Text>
+          <Text style={styles.sectionTitle}>
+            SOLICITUDES ACEPTADAS/DENEGADAS
+          </Text>
           {respondedRequests.length === 0 ? (
-            <Text style={styles.noRequestsText}>No hay solicitudes respondidas.</Text>
+            <Text style={styles.noRequestsText}>
+              No hay solicitudes respondidas.
+            </Text>
           ) : (
             respondedRequests.map((comm) => (
               <View key={comm.id} style={styles.card}>
                 <View style={styles.profileContainer}>
-                  <Image 
-                    source={{ uri: comm.imageProfile || "URL_DE_IMAGEN_POR_DEFECTO" }} 
-                    style={styles.profileImage} 
+                  <Image
+                    source={{
+                      uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO",
+                    }}
+                    style={styles.profileImage}
                   />
                 </View>
                 <View style={styles.textContainer}>
-                <Text style={styles.textName}>
-                  {isClient ? comm.artistUsername || "Artista desconocido" : comm.clientUsername || "Cliente desconocido"}
-                </Text>
-                  <Text style={styles.text}>Descripción: {comm.description}</Text>
+                  <Text style={styles.textName}>
+                    {isClient
+                      ? comm.artistUsername || "Artista desconocido"
+                      : comm.clientUsername || "Cliente desconocido"}
+                  </Text>
+                  <Text style={styles.text}>
+                    Descripción: {comm.description}
+                  </Text>
                 </View>
                 <View style={styles.actions}>
                   <Text style={styles.responseText}>
@@ -222,13 +258,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   profileContainer: {
-    marginRight: 10, 
+    marginRight: 10,
   },
   profileImage: {
-    width: 40, 
+    width: 40,
     height: 40,
-    borderRadius: 20, 
-    backgroundColor: "#D9D9D9", 
+    borderRadius: 20,
+    backgroundColor: "#D9D9D9",
   },
   textContainer: {
     flex: 1,
@@ -238,7 +274,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   textName: {
-    fontSize: 17, 
+    fontSize: 17,
     fontWeight: "bold",
     color: "#000000",
   },
@@ -248,7 +284,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   detailsButton: {
-    backgroundColor: "#183771", 
+    backgroundColor: "#183771",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -256,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   detailsButtonText: {
-    color: "#FECEF1", 
+    color: "#FECEF1",
     fontSize: 14,
     fontWeight: "bold",
     textTransform: "uppercase",
@@ -268,8 +304,8 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 2,
-    backgroundColor: "#D3D3D3", 
-    marginVertical: 20, 
+    backgroundColor: "#D3D3D3",
+    marginVertical: 20,
     marginHorizontal: 20,
   },
 });

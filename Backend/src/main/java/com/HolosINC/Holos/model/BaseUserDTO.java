@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 public class BaseUserDTO {
 
-    // creo que estos atributos son los correctos para manetener
-
     @Size(min = 2, max = 255)
     protected String name;
 

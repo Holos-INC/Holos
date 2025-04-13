@@ -24,7 +24,7 @@ public class WorkController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Work> getWorkById(@PathVariable Long id) {
+    public ResponseEntity<Work> getWorkById(@PathVariable Long id) throws Exception{
         Work work = workService.getWorkById(id);
         return work != null ? ResponseEntity.ok(work) : ResponseEntity.notFound().build();
     }

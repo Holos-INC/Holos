@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.client;
 
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +8,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
 import com.HolosINC.Holos.reports.Report;
 import com.HolosINC.Holos.reports.ReportRepository;
@@ -42,13 +44,13 @@ public class ClientService {
 
 	@Transactional(readOnly = true)
 	public Client findClientByUserId(Long userId) {
-		return clientRepository.findById(userId)
+		return clientRepository.findClientByUserId(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("Client", "userId", userId));
 	}
 
 	@Transactional(readOnly = true)
 	public boolean isClient(Long userId) {
-		return !(clientRepository.getClientByUser(userId).isEmpty());
+		return !(clientRepository.findClientByUserId(userId).isEmpty());
 	}
 
 	@Transactional(readOnly = true)
@@ -57,16 +59,14 @@ public class ClientService {
 	}
 
 	@Transactional
-	public void deleteClient(Long userId) {
+	public void deleteClient(Long userId) throws Exception{
 		try {
-			Client client = clientRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", userId));
-			Long clientId = client.id;
-			BaseUser user = baseUserRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("Client", "id", userId));;
+			Client client = clientRepository.findClientByUserId(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("Client", "userId", userId));
+			Long clientId = client.getId(); 
 			boolean hasActiveCommissions = clientRepository.hasActiveCommisions(clientId);
 			if (hasActiveCommissions) {
-				throw new IllegalStateException("No se puede eliminar el cliente " + user.getName() + 
+				throw new AccessDeniedException("No se puede eliminar el cliente " + client.getBaseUser().getUsername()+ 
 												" porque tiene comisiones activas.");
 			}
 	
@@ -81,7 +81,7 @@ public class ClientService {
 			}
 	
 			clientRepository.delete(client);
-	
+
 		} catch (IllegalStateException e) {
 			throw e;
 		} catch (ResourceNotFoundException e) {
@@ -91,6 +91,6 @@ public class ClientService {
 									" porque tiene datos relacionados.");
 		} catch (Exception e) {
 			throw new RuntimeException("Error interno al eliminar el cliente con ID " + userId);
-		}
+		} 
 	}
 }

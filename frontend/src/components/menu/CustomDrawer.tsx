@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/src/constants/api";
 import { BaseUser } from "@/src/constants/CommissionTypes";
+import { useAuth } from "@/src/hooks/useAuth";
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -14,12 +15,13 @@ export default function CustomDrawer(props:CustomDrawerProps) {
     const {top, bottom} = useSafeAreaInsets();
     const { user, isAuthenticated } = props;
     const router = useRouter();
+    const { isArtist } = useAuth();
 
     return (
         <View style={{flex:1}}>
             {isAuthenticated && <TouchableOpacity
                 style={{padding:20, flexDirection:'row', gap:25, borderBottomColor:"#AAA", borderBottomWidth:1}}
-                onPress={() => {router.push('/profile')}}
+                onPress={() => {isArtist ? router.push('/profile/indexArtist') : router.push('/profile/indexClient')}}
             >
                 <Image
                     source={

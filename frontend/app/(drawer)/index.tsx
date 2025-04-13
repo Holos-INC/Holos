@@ -1,20 +1,24 @@
-
 import React, { useState, useEffect, useMemo } from "react";
-import { Text, ScrollView, View, TouchableWithoutFeedback   } from "react-native";
-import { styles } from "@/src/styles/Explore.styles";
+import { Text, ScrollView, View, TouchableWithoutFeedback,TextInput} from "react-native";
+import { desktopStyles } from "@/src/styles/Explore.styles";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
-import { getFirstThreeArtists } from "@/src/services/ExploreWorkHelpers";
+import { fetchWorksAndTransform, getTopThreeArtists } from "@/src/services/ExploreWorkHelpers";
+import { desktopStyles as styles } from "@/src/styles/Explore.styles";
 import WorkCard from "@/src/components/explore/WorkCard";
 import { fetchWorksDone } from "@/src/services/WorksDoneApi";
+import SearchScreen from "@/src/components/search/SearchScreen"; // Importa la pantalla de búsqueda
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function ExploreScreen() {
-  const [works, setWorks] = useState<WorksDoneDTO[]>([]);
-  const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
+  const [works, setWorks] = useState<WorksDoneDTO[]>([]); // Obras destacadas
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Estado para la búsqueda
+  const [isSearching, setIsSearching] = useState<boolean>(false); // Estado para alternar vistas
+  const { loggedInUser } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const works = await fetchWorksDone();
+        const works = await fetchWorksAndTransform(loggedInUser.token); // Obtén las obras destacadas
         setWorks(works);
       } catch (error) {
         console.error("Error fetching works:", error);
@@ -24,63 +28,64 @@ export default function ExploreScreen() {
     fetchData();
   }, []);
 
-  const firstThreeArtists = useMemo(() => getFirstThreeArtists(works), [works]);
+  const firstThreeArtists = useMemo(() => getTopThreeArtists(), [works]);
+  const handleSearch = () => {
+    setIsSearching(true); // Cambia a la vista de búsqueda
+  };
 
   return (
+    <TouchableWithoutFeedback
+      onPress={() => {
+        setIsSearching(false); // Cierra la búsqueda al tocar fuera
+      }}
+    >
+      <ScrollView
+        style={{ flex: 1, backgroundColor: "#fff" }}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        <View style={styles.container}>
+          {/* Barra de búsqueda */}
+          <TextInput
+            style={[styles.searchBar, {marginTop: 25 }]}
+            placeholder="Buscar trabajos o artistas..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch} // Realiza la búsqueda al presionar Enter
+          />
 
-    <TouchableWithoutFeedback onPress={() => {
-      if (menuVisibleId !== null) {
-        setMenuVisibleId(null); // Cierra el menú al tocar fuera
-      }
-    }}>
+          {isSearching ? (
+            // Renderiza la pantalla de búsqueda
+            <SearchScreen query={searchQuery} />
+          ) : (
+            // Pantalla principal de Explorer
+            <>
+              {/* Sección superior */}
+              <View style={styles.topSection}>
+                <Text style={styles.topSectionText}>Obras Destacadas</Text>
+              </View>
 
-   
-    <ScrollView style={{ flex: 1, backgroundColor: "#fff" }} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
+              {/* Sección del medio: Obras */}
+              <View style={styles.middleSection}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {works.map((work) => (
+                    <WorkCard key={work.id} work={work} />
+                  ))}
+                </ScrollView>
+              </View>
 
-        {/* Sección superior */}
-        <View style={styles.topSection}>
-          <Text style={styles.topSectionText}>Obras</Text>
-        </View>
-
-        {/* Sección del medio: Obras */}
-        <View style={styles.middleSection}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {works.map((work) => (
-              <WorkCard
-                key={work.id}
-                work={work}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Sección inferior: Artistas */}
-        <View style={styles.bottomSection}>
-          <View style={styles.bottomSectionHeader}>
-            <Text style={styles.bottomSectionHeaderText}>ARTISTAS</Text>
-          </View>
-          <View style={styles.artistsContainer}>
-          {/* {firstThreeArtists.map((artist:any) => (
-            <View key={artist.id}>
-              <TouchableOpacity
-                style={styles.artistCard}
-                onPress={() => router.push({ pathname: "/profile/[artistId]", params: { artistId: String(artist.id) }})}
-              >
-                <Image
-                  source={{ uri: `${BASE_URL}${artist.baseUser?.imageProfile}`}}
-                  style={styles.artistImage}
-                />
-                <View style={styles.artistTextContainer}>
-                  <Text style={styles.artistName}>{artist.username}</Text>
+              {/* Sección inferior: Artistas */}
+              <View style={styles.bottomSection}>
+                <View style={styles.bottomSectionHeader}>
+                  <Text style={styles.bottomSectionHeaderText}>ARTISTAS</Text>
                 </View>
-              </TouchableOpacity>
-            </View>
-          ))} */}
-          </View>
+                <View style={styles.artistsContainer}>
+                  {/* Aquí puedes agregar la lógica para mostrar artistas */}
+                </View>
+              </View>
+            </>
+          )}
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }

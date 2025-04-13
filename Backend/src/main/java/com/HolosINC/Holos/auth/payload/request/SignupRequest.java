@@ -29,6 +29,9 @@ public class SignupRequest {
 	@NotBlank
 	private MultipartFile imageProfile;
 
-	@NotBlank
-	private MultipartFile tableCommissionsPrice;
+    private MultipartFile tableCommisionsPrice;
+
+    private String description;
+
+    private String linkToSocialMedia;
 }

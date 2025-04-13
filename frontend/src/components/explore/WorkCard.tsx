@@ -3,7 +3,7 @@ import { TouchableOpacity, Image, View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { BASE_URL } from "@/src/constants/api";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
-import { styles } from "@/src/styles/Explore.styles";
+import { desktopStyles } from "@/src/styles/Explore.styles";
 import { DropdownMenu } from "../DropdownMenu";
 
 
@@ -28,9 +28,9 @@ const WorkCard = ({ work }: Props) => {
 
 
   return (
-    <View style={styles.cardWrapper}>
+    <View style={desktopStyles.cardWrapper}>
       <TouchableOpacity
-        style={styles.cardContainer}
+        style={desktopStyles.cardContainer}
         onPress={() => router.push({ pathname: "/work/[workId]", params: { workId: String(work.id) } })}
       >
         <Image
@@ -39,23 +39,23 @@ const WorkCard = ({ work }: Props) => {
               ? `${BASE_URL}${atob(work.image)}`
               : `data:image/jpeg;base64,${work.image}`,
           }}
-          style={styles.image}
+          style={desktopStyles.image}
           resizeMode="cover"
           onError={() => console.log("Error cargando imagen:", work.image)}
         />
 
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{work.name}</Text>
-          {/* <Text style={styles.artist}>by @{work.artist?.baseUser?.username ?? "Artista desconocido"} </Text> */}
-          <Text style={styles.description}>{work.description}</Text>
+        <View style={desktopStyles.textContainer}>
+          <Text style={desktopStyles.title}>{work.name}</Text>
+          {/* <Text style={desktopStyles.artist}>by @{work.artist?.baseUser?.username ?? "Artista desconocido"} </Text> */}
+          <Text style={desktopStyles.description}>{work.description}</Text>
         </View>
       </TouchableOpacity>
 
-      <View style={styles.dropdownOverlay}>
+      <View style={desktopStyles.dropdownOverlay}>
       <DropdownMenu
         actions={[{
           label: 'Reportar',
-          onPress: () => router.push(`/report/${work.id}`)
+          onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } })
         }]}
       />
       </View>

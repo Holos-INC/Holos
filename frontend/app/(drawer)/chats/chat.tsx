@@ -1,129 +1,101 @@
+// app/chats/index.tsx
 import React, { useContext, useEffect, useState } from "react";
 import {
   View,
-  FlatList,
   Text,
+  FlatList,
   TouchableOpacity,
+  StyleSheet,
+  Image,
   ActivityIndicator,
-  Alert,
 } from "react-native";
+import { getAcceptedCommissions } from "@/src/services/commisionApi";
+import { ClientCommissionDTO } from "@/src/constants/CommissionTypes";
 import { useRouter } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { getAllUserMessages } from "@/src/services/chatService";
-import { ConversationListStyles as styles } from "@/src/styles/ConversationListScreen.styles";
+import { styles } from "@/src/styles/ListChats.styles";
 
-interface BaseUser {
-  id: number;
-  name: string;
-}
-
-export interface ChatMessage {
-  id: number;
-  text: string;
-  creationDate: Date;
-  fromUser: BaseUser;
-  toUser: BaseUser;
-}
-
-interface Conversation {
-  otherUser: BaseUser;
-  lastMessage: ChatMessage;
-}
-
-export default function ConversationListScreen() {
-  const router = useRouter();
+export default function ChatListScreen() {
   const { loggedInUser } = useContext(AuthenticationContext);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [acceptedChats, setAcceptedChats] = useState<ClientCommissionDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // Carga todos los mensajes en los que participa el usuario actual
-  const loadMessages = async () => {
+  const fetchChats = async () => {
     try {
-      const msgs = await getAllUserMessages(loggedInUser.id, loggedInUser.token);
-      setMessages(msgs);
+      const token = loggedInUser.token;
+      const data = await getAcceptedCommissions(token);
+      console.log("Accepted chats:", data);
+      setAcceptedChats(data);
     } catch (error) {
-      Alert.alert("Error", "No se pudieron cargar los mensajes");
+      console.error("Error fetching chats:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Agrupa los mensajes en conversaciones (último mensaje con cada "otro" usuario)
-  const groupMessagesToConversations = () => {
-    const convMap: { [key: number]: ChatMessage } = {};
-    messages.forEach((msg) => {
-      const otherUser =
-        msg.fromUser.id === loggedInUser.id ? msg.toUser : msg.fromUser;
-      if (
-        !convMap[otherUser.id] ||
-        new Date(msg.creationDate) > new Date(convMap[otherUser.id].creationDate)
-      ) {
-        convMap[otherUser.id] = msg;
-      }
-    });
-
-    const convArray: Conversation[] = Object.keys(convMap).map((key) => {
-      const msg = convMap[parseInt(key)];
-      const otherUser =
-        msg.fromUser.id === loggedInUser.id ? msg.toUser : msg.fromUser;
-      return { otherUser, lastMessage: msg };
-    });
-
-    // Ordena por fecha descendente
-    convArray.sort(
-      (a, b) =>
-        new Date(b.lastMessage.creationDate).getTime() -
-        new Date(a.lastMessage.creationDate).getTime()
-    );
-    setConversations(convArray);
-  };
-
   useEffect(() => {
-    loadMessages();
+    fetchChats();
   }, []);
 
-  useEffect(() => {
-    groupMessagesToConversations();
-  }, [messages]);
+  const renderItem = ({ item }: { item: ClientCommissionDTO }) => {
+    console.log("Chat item:", item);
+    const otherUsername =
+      loggedInUser.username === item.artistUsername
+        ? item.clientUsername
+        : item.artistUsername;
+    const commissionId = item.id;
+    console.log("Navegando con ID:", commissionId);
 
-  const renderItem = ({ item }: { item: Conversation }) => (
-    <TouchableOpacity
-      style={styles.conversationItem}
-      onPress={() => {
-        // Navega a la pantalla de chat del usuario (id) correspondiente
-        router.push(`/(drawer)/chats/${item.otherUser.id}`);
-      }}
-    >
-      <Text style={styles.userName}>{item.otherUser.name}</Text>
-      <Text style={styles.lastMessage} numberOfLines={1}>
-        {item.lastMessage.text}
-      </Text>
-    </TouchableOpacity>
-  );
+    return (
+      <TouchableOpacity
+        style={styles.chatItem}
+        onPress={() =>
+          router.push(
+            `/chats/${commissionId}?otherUsername=${encodeURIComponent(otherUsername)}`
+          )
+        }
+      >
+        <Image
+          source={{
+            uri: item.image
+              ? `data:image/jpeg;base64,${item.image}`
+              : "https://via.placeholder.com/50",
+          }}
+          style={styles.chatImage}
+        />
+        <View style={styles.chatInfo}>
+          <Text style={styles.chatTitle}>{item.name}</Text>
+          <Text style={styles.chatSubtitle}>Chat con {otherUsername}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#F8C3CD" />
+      <View style={[styles.centered, { backgroundColor: "#ADD8E6" }]}>
+        <ActivityIndicator size="large" color="#fff" />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {conversations.length === 0 ? (
-        <View style={styles.centered}>
-          <Text style={styles.userName}>No tienes conversaciones</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={conversations}
-          keyExtractor={(item) => item.otherUser.id.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.list}
-        />
-      )}
+      <FlatList
+        data={acceptedChats}
+        keyExtractor={(item, index) =>
+          item.id ? item.id.toString() : index.toString()
+        }
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No hay chats disponibles.</Text>
+          </View>
+        }
+      />
     </View>
   );
 }
+

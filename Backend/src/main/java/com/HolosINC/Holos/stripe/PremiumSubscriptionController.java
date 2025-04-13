@@ -1,5 +1,9 @@
 package com.HolosINC.Holos.stripe;
 
+import com.HolosINC.Holos.exceptions.BadRequestException;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Subscription;
 
 
@@ -23,15 +27,33 @@ public class PremiumSubscriptionController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createSubscription(@RequestParam String paymentMethod) throws Exception{
+        try{
         String accountId = stripeService.createSubscription(paymentMethod);
         return new ResponseEntity<String>(accountId, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) { 
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        }
     }
 
     @PostMapping("/delete")
     public ResponseEntity<String> cancelSubscription() throws Exception{
+        try{
         Subscription subscription = stripeService.cancelSubscription();
         String subscriptionString = subscription.toJson();
         return new ResponseEntity<String>(subscriptionString, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (ResourceNotOwnedException e) {
+            throw new ResourceNotOwnedException(e.getMessage());
+        } catch (StripeException e) { 
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        }
     }
 
 }

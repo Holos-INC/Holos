@@ -22,7 +22,7 @@ export default function CancelPremiumScreen() {
             setLoading(true);
             await cancelSubscription(loggedInUser.token);
             setConfirmVisible(false);
-            router.push('/profile');
+            router.push('/profile/indexArtist');
         } catch (err) {
             console.error(err);
             alert("Error al cancelar suscripción.");

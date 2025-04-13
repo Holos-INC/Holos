@@ -33,6 +33,8 @@ export default function AuthenticationContextProvider(props) {
 
     const signIn = async (data, onSuccess = null, onError = null) => {
         try {
+            await signOut(); 
+
             const user = await login(data);
             setAuthToken(user.token);
             setLoggedInUser(user);

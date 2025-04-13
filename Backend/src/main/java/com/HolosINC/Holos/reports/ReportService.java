@@ -3,10 +3,9 @@ package com.HolosINC.Holos.reports;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -39,17 +38,17 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-    public Report createReport(ReportDTO reportDTO) {
+    public Report createReport(ReportDTO reportDTO) throws Exception{
         Work work = worskService.getWorkById(reportDTO.getWorkId());
         ReportType reportType = reportTypeRepository
             .findByType(reportDTO.getReportType())
-            .orElseThrow(() -> new RuntimeException("Invalid report type"));
+            .orElseThrow(() -> new AccessDeniedException("Invalid report type"));
         BaseUser baseUser = baseUserService.findCurrentUser();
 
         boolean alreadyReported = reportRepository.existsByMadeByIdAndWorkIdAndReportTypeId(baseUser.getId(), work.getId(), reportType.getId());
 
         if (alreadyReported) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "¡Ya has reportado esta obra!");
+            throw new AccessDeniedException("¡Ya has reportado esta obra!");
         }
 
         Report report = reportDTO.createReport(work, reportType);
@@ -62,7 +61,7 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-    public ReportType addReportType(ReportType reportType) {
+    public ReportType addReportType(ReportType reportType) throws Exception{
         if (reportTypeRepository.findByType(reportType.getType()).isPresent()) {
             throw new IllegalArgumentException("Report type name already exists");
         }
@@ -70,7 +69,7 @@ public class ReportService {
     }
 
     @Transactional
-    public Report acceptReport(Long reportId) {
+    public Report acceptReport(Long reportId) throws Exception{
             Report report = getReportByIdOrThrow(reportId);
     
             if (report.getStatus() != ReportStatus.PENDING) {
@@ -83,7 +82,7 @@ public class ReportService {
     }
     
     
-    public Report rejectReport(Long reportId) {
+    public Report rejectReport(Long reportId) throws Exception{
         Report report = getReportByIdOrThrow(reportId);
     
         if (report.getStatus() != ReportStatus.PENDING) {
@@ -94,7 +93,7 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-    public void deleteReport(Long reportId) {
+    public void deleteReport(Long reportId) throws Exception{
         Report report = getReportByIdOrThrow(reportId);
     
         if (report.getStatus() != ReportStatus.REJECTED) {
@@ -104,12 +103,12 @@ public class ReportService {
         reportRepository.delete(report);
     }
     
-    private Report getReportByIdOrThrow(Long id) {
+    private Report getReportByIdOrThrow(Long id) throws Exception{
         return reportRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reporte no encontrado con ID: " + id));
     }
 
-    public ReportType getReportTypeByType(String type) {
+    public ReportType getReportTypeByType(String type) throws Exception{
         return reportTypeRepository.findByType(type)
                 .orElseThrow(() -> new ResourceNotFoundException("Report type not found"));
     }
