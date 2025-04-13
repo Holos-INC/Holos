@@ -1,8 +1,8 @@
 ---
 name: Task PPL
 about: Tareas para el PPL
-title: ''
-labels: 'Task XX.X - '
+title: 'G<1-2-3>-Task XX.X-<Título>'
+labels: ''
 assignees: ''
 
 ---
@@ -13,3 +13,6 @@ assignees: ''
 
 # **Descripción tarea:**
 Añade aquí la descripción de la tarea
+
+# **Solución propuesta: (Opcional)**
+-
