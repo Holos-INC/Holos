@@ -5,16 +5,16 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.Auth;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -49,6 +49,10 @@ public class BaseUser {
     @Column(name = "phone_number")
     protected String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    protected Auth authority;
+
     @Lob
     @Column(name = "image_profile", columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
@@ -69,22 +73,4 @@ public class BaseUser {
 
     @Column(name = "ban_time")
     protected Integer banTime;
-
-    @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "authority")
-    Authorities authority;
-
-    public Boolean hasAuthority(String auth) {
-        return authority.getAuthority().equals(auth);
-    }
-
-    public Boolean hasAnyAuthority(String... authorities) {
-        Boolean cond = false;
-        for (String auth : authorities) {
-            if (auth.equals(authority.getAuthority()))
-                cond = true;
-        }
-        return cond;
-    }
 }

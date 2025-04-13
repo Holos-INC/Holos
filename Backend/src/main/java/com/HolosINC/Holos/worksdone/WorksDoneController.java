@@ -2,6 +2,7 @@ package com.HolosINC.Holos.worksdone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.auth.payload.response.MessageResponse;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.RestPreconditions;
@@ -199,7 +200,7 @@ public class WorksDoneController {
         Long currentUserId = baseUserService.findCurrentUser().getId();
         Artist artist = baseUserService.findArtist(currentUserId);
 
-        boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
+        boolean isPremium = artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM;
         long worksCount = worksDoneService.countByArtistId(artist.getId());
         
         boolean canUpload = isPremium || worksCount < 7;

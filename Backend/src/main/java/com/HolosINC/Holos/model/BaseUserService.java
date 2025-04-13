@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.auth.Authorities;
-import com.HolosINC.Holos.auth.AuthoritiesRepository;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
@@ -20,7 +19,6 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
-    private AuthoritiesRepository authoritiesRepository;
 
 	@Autowired
 	public BaseUserService(BaseUserRepository baseUserRepository) {
@@ -41,6 +39,10 @@ public class BaseUserService {
 
     public Boolean existsUser(String username) {
         return baseUserRepository.findUserByUsername(username).isPresent();
+    }
+
+    public Boolean existsEmail(String email) {
+        return baseUserRepository.findByEmail(email).isPresent();
     }
 
     public BaseUser findById(Long id) {
@@ -98,12 +100,15 @@ public class BaseUserService {
     }
     
     @Transactional
-    public BaseUser changeUserRole(Long id, String newRole) {
+    public BaseUser changeUserRole(Long id, String newRole) throws Exception{
         BaseUser user = baseUserRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
-        Authorities authority = authoritiesRepository.findByName(newRole)
-            .orElseThrow(() -> new ResourceNotFoundException("Authority", "name", newRole));
+        Auth authority = Auth.valueOf(newRole.toUpperCase());
+
+        if(authority == null) {
+            throw new IllegalArgumentException("Invalid role: " + newRole);
+        }
 
         user.setAuthority(authority);
         return baseUserRepository.save(user);

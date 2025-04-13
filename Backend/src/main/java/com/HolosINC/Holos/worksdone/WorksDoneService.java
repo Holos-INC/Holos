@@ -2,6 +2,7 @@ package com.HolosINC.Holos.worksdone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserService;
 
@@ -34,7 +35,7 @@ public class WorksDoneService {
             
             Long currentUserId = baseUserService.findCurrentUser().getId();
             Artist artist = baseUserService.findArtist(currentUserId);
-            boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
+            boolean isPremium = artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM;
             long worksCount = countByArtistId(artist.getId());
             if (!isPremium && worksCount >= 7) {
                 throw new AccessDeniedException("Has alcanzado el límite de 7 obras. Hazte premium para subir más.");

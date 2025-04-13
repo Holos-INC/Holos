@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.HolosINC.Holos.Profile.ProfileService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.auth.payload.response.MessageResponse;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
@@ -56,9 +57,9 @@ class ClientRestController {
 		try {
 			BaseUser user = baseUserService.findCurrentUser();
 			Object endUser = null;
-			if(user.hasAuthority("CLIENT"))
+			if(user.getAuthority() == Auth.CLIENT)
 				endUser = baseUserService.findClient(user.getId());
-			if(user.hasAuthority("ARTIST")||user.hasAuthority("ARTIST_PREMIUM"))
+			if(user.getAuthority() == Auth.ARTIST || user.getAuthority() == Auth.ARTIST_PREMIUM)
 				endUser = baseUserService.findArtist(user.getId());
 			return ResponseEntity.ok().body(endUser);
 		} catch (Exception e) {
