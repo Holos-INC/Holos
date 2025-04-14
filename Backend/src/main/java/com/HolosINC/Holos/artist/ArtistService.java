@@ -64,7 +64,7 @@ public class ArtistService {
 
 	@Transactional(readOnly = true)
 	public boolean isArtist(Long userId) throws Exception {
-		return !(artistRepository.findByUserId(userId).isEmpty());
+		return artistRepository.findByUserId(userId).isPresent();
 	}
 
 	@Transactional
