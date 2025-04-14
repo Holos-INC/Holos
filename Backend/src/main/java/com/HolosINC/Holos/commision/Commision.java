@@ -34,7 +34,7 @@ public class Commision extends Work{
     @Enumerated(EnumType.STRING)
     private EnumPaymentArrangement paymentArrangement;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.DATE)    
     private Date milestoneDate;
 
     @Column(unique = true)

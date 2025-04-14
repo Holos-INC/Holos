@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClientCommissionDTO {//Cambio Backend: he añadido id y el client username(lo necesitaba para acceder al chat)
+public class ClientCommissionDTO {
     
     private Long id;
     private byte[] image;
