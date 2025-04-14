@@ -13,7 +13,7 @@ export const createStripeAccount = async (token: string) => {
 };
 
 export const getStripeAccountLink = async () => {
-    const res = await api.get("/stripe-account/create-link");
+    const res = await api.post("/stripe-account/create-link");
     return res.data as string;
 };
 

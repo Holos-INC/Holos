@@ -14,10 +14,25 @@ export interface Artist {
   username: string;
   email: string;
   phoneNumber?: string;
-  imageProfile?: string;
   tableCommisionsPrice?: string;
   numSlotsOfWork: number;
   baseUser?: BaseUser;
+}
+
+export interface ArtistDTO {
+  artistId: number;
+  baseUserId: number;
+
+  name: string;
+  username: string;
+  email: string;
+  phoneNumber: string;
+
+  imageProfile: string;
+  numSlotsOfWork: number;
+  tableCommisionsPrice: string;
+  description: string;
+  linkToSocialMedia: string;
 }
 
 export interface Work {
@@ -29,10 +44,24 @@ export interface Work {
   image: string;
 }
 
+
+export interface SearchWorkDTO {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  artistUsername: String;
+  image: string;
+}
+
 export interface WorksDoneDTO {
   id: number;
   name: string;
   description: string;
   price: number;
   image: string;
+  artistId: number;
+  artistName: string;
+  artistSurname: string;
+  baseUserId: number;
 }

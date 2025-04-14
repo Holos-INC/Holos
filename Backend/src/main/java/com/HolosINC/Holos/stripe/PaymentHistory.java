@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class PaymentHistory {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
     protected Long id;
     
+    @ManyToOne
     private Commision commision;
     private Double Amount;
     private LocalDateTime paymentDate;

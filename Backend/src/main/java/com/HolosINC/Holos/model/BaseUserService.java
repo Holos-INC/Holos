@@ -87,7 +87,7 @@ public class BaseUserService {
     }
 
     @Transactional
-    public BaseUser updateUser(Long id, BaseUser updatedUser) {
+    public BaseUser updateUserAdmins(Long id, BaseUser updatedUser) {
         return baseUserRepository.findById(id).map(user -> {
             user.setName(updatedUser.getName());
             user.setUsername(updatedUser.getUsername());

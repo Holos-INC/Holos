@@ -5,6 +5,8 @@ import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { useStripePayment } from "@/src/hooks/useStripePayment";
 import { createPaymentIntent } from "@/src/services/stripeApi";
 import PaymentFormLayout from "@/src/components/checkout/PaymentFormLayout";
+import { payCommissionById } from "@/src/services/commisionApi";
+import { Text } from "react-native";
 
 interface PaymentFormProps {
   amount: number;
@@ -13,7 +15,12 @@ interface PaymentFormProps {
   status: string;
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, description,status }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({
+  amount,
+  commissionId,
+  description,
+  status,
+}) => {
   const stripe = useStripe();
   const router = useRouter();
   const [success, setSuccess] = useState(false);
@@ -28,14 +35,18 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, descrip
       setError("Stripe aún no está listo 😿");
       return;
     }
-    if (status != "NOT_PAID_YET" ) {
+    if (status != "NOT_PAID_YET") {
       setError("Esta comisión ya fue pagada o no está disponible para pago.");
       return;
     }
 
     try {
       const paymentDTO = { amount: Math.round(amount * 100), description };
-      const secret = await createPaymentIntent(paymentDTO, commissionId, loggedInUser.token);
+      const secret = await createPaymentIntent(
+        paymentDTO,
+        commissionId,
+        loggedInUser.token
+      );
 
       const result = await stripe.confirmCardPayment(secret, {
         payment_method: paymentMethodId,
@@ -45,21 +56,27 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, commissionId, descrip
         setError(result.error.message || "Ocurrió un error 😿");
       } else if (result.paymentIntent?.status === "succeeded") {
         setSuccess(true);
+        const error = await payCommissionById(commissionId);
+        if (result.error) {
+          setError(error ? String(error) : "Ocurrió un error 😿");
+        }
         setTimeout(() => router.replace("/"), 2500);
       }
     } catch (e) {
       setError("No se pudo completar el pago 😿");
     }
   };
-  
+
   return (
-    <PaymentFormLayout
-      title="Tarjetas aceptadas:"
-      onPress={handlePayPress}
-      loading={loading}
-      success={success}
-      error={error}
-    />
+    <>
+      <PaymentFormLayout
+        title="Tarjetas aceptadas:"
+        onPress={handlePayPress}
+        loading={loading}
+        success={success}
+        error={error}
+      />
+    </>
   );
 };
 

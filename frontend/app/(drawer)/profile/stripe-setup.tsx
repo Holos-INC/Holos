@@ -1,9 +1,22 @@
-import { View, Text, Pressable, ActivityIndicator, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  ActivityIndicator,
+  StyleSheet,
+  Image,
+} from "react-native";
 import { useState, useEffect, useContext } from "react";
-import { createStripeAccount, getStripeAccountLink } from "@/src/services/stripeApi";
+import {
+  createStripeAccount,
+  getStripeAccountLink,
+} from "@/src/services/stripeApi";
 import colors from "@/src/constants/colors";
-import { FontAwesome } from "@expo/vector-icons";
-import Animated, { useSharedValue, withSpring, useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+  useSharedValue,
+  withSpring,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { useNavigation } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 
@@ -41,27 +54,37 @@ export default function StripeSetupScreen() {
   };
 
   useEffect(() => {
-    navigation.setOptions({ title: '💳 Conectar Stripe' });
+    navigation.setOptions({ title: "💳 Conectar Stripe" });
   }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <FontAwesome name="credit-card" size={36} color={colors.brandPrimary} style={styles.icon}/>
       <Text style={styles.title}>Solo falta un paso 💫</Text>
       <Text style={styles.description}>
-        Para empezar a recibir pagos a través de Holos, necesitas conectar una cuenta de Stripe.{"\n"}
+        Para empezar a recibir pagos a través de Holos, necesitas conectar una
+        cuenta de Stripe.{"\n"}
         ¡Es rápido, seguro y totalmente gratis!
       </Text>
 
       {error && <Text style={styles.error}>{error}</Text>}
 
       <Animated.View style={[styles.buttonWrapper, animatedStyle]}>
-        <Pressable onPressIn={onPressIn} onPressOut={onPressOut} onPress={handleStripeConnect} disabled={loading} style={styles.button}>
+        <Pressable
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          onPress={handleStripeConnect}
+          disabled={loading}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>Activar pagos con Stripe</Text>
         </Pressable>
       </Animated.View>
 
-      <Image source={require("@/assets/images/logo.png")} style={styles.backgroundImage} resizeMode="contain"/>
+      <Image
+        source={require("@/assets/images/logo.png")}
+        style={styles.backgroundImage}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -75,14 +98,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   backgroundImage: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
     width: 200,
     height: 200,
     opacity: 0.5,
     zIndex: -1,
-  },  
+  },
   icon: {
     marginBottom: 12,
   },

@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_URL } from "../constants/api";
 
-const API_URL = "http://localhost:8080/api/v1/reports";
+const API_URL = API_URL + "/reports";
 
 
 export const getReportTypes = async () => {
@@ -15,17 +16,17 @@ export const getReportTypes = async () => {
 
 
 export const postReportWork = async (report, token) => {
-    try {
-        const response = await axios.post(API_URL, report, {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          }
-        });
-        return response.data;
-      } catch (error) {
-        console.error("Error al enviar el reporte:", error);
-        throw error;
+  try {
+    const response = await axios.post(API_URL, report, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al enviar el reporte:", error);
+    throw error;
+  }
 };
 

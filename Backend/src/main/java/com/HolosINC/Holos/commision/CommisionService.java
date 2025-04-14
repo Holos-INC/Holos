@@ -45,6 +45,10 @@ public class CommisionService {
         this.statusKanbanOrderService = statusKanbanOrderService;
     }
 
+    public List<Commision> getAllCommisions() {
+        return commisionRepository.findAll();
+    }
+
     @Transactional
     public CommissionDTO createCommision(CommisionRequestDTO commisionDTO, Long artistId) throws Exception {
         try {
@@ -58,6 +62,7 @@ public class CommisionService {
             commision.setArtist(artist);
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
+            commision.setPaymentArrangement(EnumPaymentArrangement.INITIAL); // TODO - GESTIONAR PARA MÁS DE ESTE TIPO DE PAGO
             commisionRepository.save(commision);
             return new CommissionDTO(commision);
         } catch (Exception e) {
@@ -328,7 +333,7 @@ public class CommisionService {
                 commisionRepository.findCommisionsFilteredByArtistIdAndPermittedStatus(
                         userId,
                         List.of(StatusCommision.REQUESTED, StatusCommision.WAITING_ARTIST,
-                                StatusCommision.WAITING_CLIENT)));
+                                StatusCommision.WAITING_CLIENT, StatusCommision.NOT_PAID_YET)));
 
         historyCommisionsDTO.setAccepted(commisionRepository.findCommissionsInProgressByArtist(userId));
 

@@ -1,47 +1,96 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  StyleSheet,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFonts } from "expo-font";
+
 import { getArtistById } from "@/src/services/artistApi";
 import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
-import styles from "@/src/styles/ArtistDetail.styles";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import ReportDropdown from "@/src/components/report/ReportDropDown";
-import { API_URL, BASE_URL } from "@/src/constants/api";
-import { Artist } from "@/src/constants/CommissionTypes";
 import LoadingScreen from "@/src/components/LoadingScreen";
+
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
+import styles from "@/src/styles/ArtistDetail.styles";
 
 interface Artwork {
   id: number;
   name: string;
   image: string;
+  artistName?: string;
+  description?: string;
 }
+
+// Componente que calcula dinámicamente la relación de aspecto
+const ProfileImage = ({ uri }: { uri: string }) => {
+  const [aspectRatio, setAspectRatio] = useState<number>(1);
+
+  useEffect(() => {
+    if (uri) {
+      Image.getSize(
+        uri,
+        (width, height) => setAspectRatio(width / height),
+        (error) => {
+          console.error("Error al obtener dimensiones:", error);
+          setAspectRatio(1);
+        }
+      );
+    }
+  }, [uri]);
+
+  return (
+    <Image source={{ uri }} style={[styles.profileImage, { aspectRatio }]} />
+  );
+};
 
 export default function ArtistDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { artistId } = useLocalSearchParams<{ artistId: string }>();
 
-  const [artist, setArtist] = useState<Artist | null>(null);
+  const [artist, setArtist] = useState<ArtistDTO | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
 
+  const [fontsLoaded] = useFonts({
+    "Merriweather-Regular": require("../../../assets/fonts/Merriweather_24pt-Regular.ttf"),
+    "Merriweather-Italic": require("../../../assets/fonts/Merriweather_24pt-Italic.ttf"),
+    "Merriweather-Bold": require("../../../assets/fonts/Merriweather_24pt-Bold.ttf"),
+    "Merriweather-BoldItalic": require("../../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      const artistData: Artist = await getArtistById(Number(artistId));
-      setArtist(artistData);
-      const worksData: Artwork[] = await getWorksDoneByArtist(Number(artistId));
-      setWorks(worksData);
-      setLoading(false);
+      try {
+        const artistData: ArtistDTO = await getArtistById(Number(artistId));
+        setArtist(artistData);
+
+        const worksData: Artwork[] = await getWorksDoneByArtist(
+          artistData.username || ""
+        );
+        setWorks(worksData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [artistId]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${artist?.baseUser.username}` });
-  }, [navigation, artist]);
+    navigation.setOptions({ title: "Perfil de Artista" });
+  }, [navigation]);
 
-  if (loading) {
+  if (!fontsLoaded || loading) {
     return <LoadingScreen />;
   }
 
@@ -53,69 +102,85 @@ export default function ArtistDetailScreen() {
         }
       }}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Información del artista */}
-        <View style={styles.header}>
-          <Image
-            source={{ uri: `${API_URL}${artist?.baseUser?.imageProfile}` }}
-            style={styles.artistImage}
-          />
-          <View style={styles.artistDetails}>
-            <Text style={styles.artistName}>{artist?.baseUser?.username}</Text>
-            <Text style={styles.artistDescription}>@{artist?.baseUser?.username}</Text>
+      <ScrollView style={styles.container}>
+        {/* Botón "Atrás" */}
+        <TouchableOpacity
+          onPress={() => router.push("/")}
+          style={styles.backButton}
+        >
+          <Text style={styles.backArrow}>←</Text>
+          <Text style={styles.backText}>ATRÁS</Text>
+        </TouchableOpacity>
+
+        {/* Línea horizontal debajo de "Atrás" */}
+        <View style={styles.divider} />
+
+        {/* Sección superior dividida en dos columnas */}
+        <View style={styles.topContainer}>
+          {/* Columna izquierda: Perfil */}
+          <View style={styles.profileContainer}>
+            <ProfileImage
+              uri={
+                artist?.imageProfile
+                  ? decodeImagePath(artist.imageProfile)
+                  : "https://via.placeholder.com/150"
+              }
+            />
+            <View style={styles.profileTextContainer}>
+              <Text style={styles.artistName}>
+                {artist?.username || "Nombre no disponible"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Columna derecha: Descripción */}
+          <View style={styles.topRight}>
+            <Text style={styles.descriptionTitle}>Descripción</Text>
+            <Text style={styles.descriptionText}>
+              {artist?.description || "No hay descripción disponible."}
+            </Text>
           </View>
         </View>
 
-          {/* Botones de acción */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() =>
-                router.push({
-                  pathname: "/commissions/request/[artistUsername]",
-                  params: { artistUsername: String(artist?.baseUser.username) },
-                })
-              }
-            >
-              <Text style={styles.buttonText}>Solicitar trabajo</Text>
-            </TouchableOpacity>
+        {/* Botón para solicitar trabajo personalizado */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            router.push(`/commissions/request/${artist?.username}`)
+          }
+        >
+          <Text style={styles.buttonText}>Solicitar Trabajo Personalizado</Text>
+        </TouchableOpacity>
 
-          
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              router.push({
-                pathname: "/chats/[toUserId]",
-                params: { toUserId: String(artist?.baseUser?.id) },
-              })
-            }
+        {/* Sección inferior: scroll horizontal de obras */}
+        <View style={styles.bottomContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.worksScrollContainer}
           >
-            <Text style={styles.buttonText}>Enviar un mensaje</Text>
-          </TouchableOpacity>
-          </View>
-
-        {/* Obras del artista */}
-        <View style={styles.artworksContainer}>
-          <Text style={styles.artworksTitle}>Obras del artista</Text>
-          <View style={styles.artworksList}>
-            {works.map((work: Artwork) => (
-              <View key={work.id} style={styles.artworkItem}>
-
+            {works.map((work) => (
+              <TouchableOpacity
+                key={work.id}
+                style={styles.workItem}
+                onPress={() =>
+                  router.push({
+                    pathname: "/work/[workId]",
+                    params: { workId: String(work.id) },
+                  })
+                }
+              >
                 <Image
-                  source={
-                    work.image
-                      ? { uri: `${BASE_URL}${atob(work.image)}` }
-                      : undefined
-                  }
-                  style={styles.artworkImage}
+                  source={{ uri: decodeImagePath(work.image) }}
+                  style={styles.workImage}
                 />
-                <Text style={styles.artworkTitle}>{work.name}</Text>
-                <View style={styles.reportDropDownContainer}>
-                  <ReportDropdown workId={work.id} menuVisibleId={menuVisibleId} setMenuVisibleId={setMenuVisibleId} isBigScreen={false} />
+                <View style={styles.workTextContainer}>
+                  <Text style={styles.workTitle}>{work.name}</Text>
+                  <Text style={styles.workArtist}>{work.artistName}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>

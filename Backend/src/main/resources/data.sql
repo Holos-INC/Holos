@@ -72,27 +72,27 @@ INSERT INTO clients (id, base_user_id) VALUES
 (21, 21),
 (22, 22);
 
-INSERT INTO artists (id, num_slots_of_work, table_commisions_price, base_user_id, seller_account_id) VALUES 
-(1, 7, '/images/tableCommisionsPrice.png', 23, 'acct_1RA6GE03CzX7Ta5S'),
-(2, 7, '/images/tableCommisionsPrice.png', 24, 'acct_1RAXaVP8d284pnW4'),
-(3, 7, '/images/tableCommisionsPrice.png', 25, 'acct_1RAXec00roPwXDq1'),
-(4, 7, '/images/tableCommisionsPrice.png', 26, 'acct_1RAXgx02AxEEQfuI'),
-(5, 7, '/images/tableCommisionsPrice.png', 27, 'acct_1RAXiu00RzmoEgr2'),
-(6, 7, '/images/tableCommisionsPrice.png', 28, 'acct_1RAXlm03cHhWXhaE'),
-(7, 7, '/images/tableCommisionsPrice.png', 29, 'acct_1RAXpJ09JGkADaEd'),
-(8, 7, '/images/tableCommisionsPrice.png', 30, 'acct_1RAXwy07hwKP6viu'),
-(9, 7, '/images/tableCommisionsPrice.png', 31, 'acct_1RAXze09aP4JLLUr'),
-(10, 7, '/images/tableCommisionsPrice.png', 32, 'acct_1RAY1qP5XYoYQM1x'),
-(11, 7, '/images/tableCommisionsPrice.png', 33, 'acct_1RAY3K1ptjZFG2hL'),
-(12, 7, '/images/tableCommisionsPrice.png', 34, 'acct_1RAY9MP1hyAdt5np'),
-(13, 7, '/images/tableCommisionsPrice.png', 35, 'acct_1RAYByP4gcDVOdqy'),
-(14, 7, '/images/tableCommisionsPrice.png', 36, 'acct_1RAYDn021PnWv8yO'),
-(15, 7, '/images/tableCommisionsPrice.png', 37, 'acct_1RAYGn00qCQlgwcH'),
-(16, 7, '/images/tableCommisionsPrice.png', 38, 'acct_1RAYfB04PQ0lPkkt'),
-(17, 7, '/images/tableCommisionsPrice.png', 39, 'acct_1RAYJM07g4jOYAme'),
-(18, 7, '/images/tableCommisionsPrice.png', 40, 'acct_1RAYLY09DOHMpTCn'),
-(19, 7, '/images/tableCommisionsPrice.png', 41, 'acct_1RAYNyP9Gll65TID'),
-(20, 7, '/images/tableCommisionsPrice.png', 42, 'acct_1RAYPc06rGA4SaEh');
+INSERT INTO artists (id, num_slots_of_work, table_commisions_price, base_user_id, seller_account_id, description) VALUES 
+(1, 7, '/images/tableCommisionsPrice.png', 23, 'acct_1RA6GE03CzX7Ta5S','Soy el artista 1'),
+(2, 7, '/images/tableCommisionsPrice.png', 24, 'acct_1RAXaVP8d284pnW4',null),
+(3, 7, '/images/tableCommisionsPrice.png', 25, 'acct_1RAXec00roPwXDq1',null),
+(4, 7, '/images/tableCommisionsPrice.png', 26, 'acct_1RAXgx02AxEEQfuI',null),
+(5, 7, '/images/tableCommisionsPrice.png', 27, 'acct_1RAXiu00RzmoEgr2',null),
+(6, 7, '/images/tableCommisionsPrice.png', 28, 'acct_1RAXlm03cHhWXhaE',null),
+(7, 7, '/images/tableCommisionsPrice.png', 29, 'acct_1RAXpJ09JGkADaEd',null),
+(8, 7, '/images/tableCommisionsPrice.png', 30, 'acct_1RAXwy07hwKP6viu',null),
+(9, 7, '/images/tableCommisionsPrice.png', 31, 'acct_1RAXze09aP4JLLUr',null),
+(10, 7, '/images/tableCommisionsPrice.png', 32, 'acct_1RAY1qP5XYoYQM1x',null),
+(11, 7, '/images/tableCommisionsPrice.png', 33, 'acct_1RAY3K1ptjZFG2hL',null),
+(12, 7, '/images/tableCommisionsPrice.png', 34, 'acct_1RAY9MP1hyAdt5np',null),
+(13, 7, '/images/tableCommisionsPrice.png', 35, 'acct_1RAYByP4gcDVOdqy',null),
+(14, 7, '/images/tableCommisionsPrice.png', 36, 'acct_1RAYDn021PnWv8yO',null),
+(15, 7, '/images/tableCommisionsPrice.png', 37, 'acct_1RAYGn00qCQlgwcH',null),
+(16, 7, '/images/tableCommisionsPrice.png', 38, 'acct_1RAYfB04PQ0lPkkt',null),
+(17, 7, '/images/tableCommisionsPrice.png', 39, 'acct_1RAYJM07g4jOYAme',null),
+(18, 7, '/images/tableCommisionsPrice.png', 40, 'acct_1RAYLY09DOHMpTCn',null),
+(19, 7, '/images/tableCommisionsPrice.png', 41, 'acct_1RAYNyP9Gll65TID',null),
+(20, 7, '/images/tableCommisionsPrice.png', 42, 'acct_1RAYPc06rGA4SaEh',null);
 
 INSERT INTO categories (id, name, description, image) VALUES
 (1, 'Painting', 'Artworks created using paint on a surface', '/images/painting_category.jpg'),
@@ -122,11 +122,21 @@ INSERT INTO categories (id, name, description, image) VALUES
 
 
 INSERT INTO works_done(id, artist_id, name, description, price, image) VALUES 
-(25, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
-(26, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
-(27, 1, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
-(28, 1, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
-(29, 1, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg');
+(200, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
+(201, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
+(202, 1, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
+(203, 1, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
+(204, 1, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg'),
+(205, 2, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
+(206, 2, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
+(207, 3, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
+(208, 3, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
+(209, 4, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg'),
+(210, 4, 'Sunset Painting', 'A beautiful sunset painting', 150.0, '/images/sunset_painting.jpg'), 
+(211, 5, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, '/images/ocean_waves.jpg'), 
+(212, 5, 'Starry Night Replica', 'Inspired by Van Gogh`s Starry Night', 300.0, '/images/starry_night_replica.jpg'), 
+(213, 6, 'Abstract Art', 'A modern abstract composition', 180.0, '/images/abstract_art.jpg'),
+(214, 6, 'Forest Path', 'A peaceful forest pathway', 120.0, '/images/abstract_art.jpg');
 
 INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, description, color) VALUES 
 (1, 1, 'To Do', 1, 'Tasks that need to be started', '#FF5733'),
@@ -499,13 +509,6 @@ INSERT INTO report_types (id, type) VALUES
 (3, 'Customer Feedback'),
 (4, 'Technical Review'),
 (5, 'Annual Summary');
-
-INSERT INTO works (id, name, description, price, artist_id) VALUES 
-(1, 'Sunset Painting', 'A beautiful sunset painting', 150.00, 1),
-(2, 'Abstract Vibes', 'Modern abstract artwork', 200.50, 2),
-(3, 'Cityscape', 'A detailed cityscape at night', 300.00, 3),
-(4, 'Portrait of a Woman', 'Realistic portrait painting', 250.75, 1),
-(5, 'Sculpture: The Thinker', 'Bronze sculpture inspired by Rodin', 500.00, 4);
 
 
 INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) VALUES 

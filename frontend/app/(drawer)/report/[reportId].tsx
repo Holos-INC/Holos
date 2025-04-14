@@ -9,6 +9,7 @@ import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import styles from "@/src/styles/ReportScreen.styles";
 import  popUpMovilWindows  from "@/src/components/PopUpAlertMovilWindows";
 import { API_URL } from "@/src/constants/api";
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 
 export interface ReportDTO {
   name: string;
@@ -50,7 +51,7 @@ export default function ReportScreen() {
   const { loggedInUser, isAuthenticated } = useContext(AuthenticationContext);
   const [reportTitle, setReportTitle] = useState<string>(""); 
   const [report, setReport] = useState("");
-  const [work, setWork] = useState<Work | null>(null);
+  const [work, setWork] = useState<WorksDoneDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [reportTypes, setReportTypes] = useState<{ label: string; value: number }[]>([]);
   const [selectedReportType, setSelectedReportType] = useState<number | null>(null);
@@ -145,7 +146,7 @@ export default function ReportScreen() {
       popUpMovilWindows("Éxito", "Reporte enviado correctamente");
       cleanStatus();
     } catch (error:any) {
-      if (error.response?.status === 409) {
+      if (error.response?.status === 400) {
         popUpMovilWindows("¡Ya reportaste esta obra!", "No puedes enviar el mismo reporte dos veces 😵‍💫");
         cleanStatus();
       } else {
@@ -172,12 +173,12 @@ export default function ReportScreen() {
   return(
     loading ? (
       <>
-      <Text style={styles.title}>Reportar obra del artista: {work?.artist.name }</Text>
+      <Text style={styles.title}>Reportar obra del artista: {work?.artistName }</Text>
       <Text style={styles.loading}>Cargando detalles de la obra...</Text>
       </>
     ) : work ? (
       <>
-        <Text style={styles.title}>Reportar obra del artista: {work?.artist.name }</Text>
+        <Text style={styles.title}>Reportar obra del artista: {work?.artistName }</Text>
 
         <View style={{ position: "relative" }}>
           {work.image ? (
@@ -193,7 +194,7 @@ export default function ReportScreen() {
         <Text style={styles.artworkTitle}>{work.name}</Text>
 
         {/* Nombre del artista */}
-        <Text style={styles.artistName}>Artista: {work.artist.name}</Text>
+        <Text style={styles.artistName}>Artista: {work.artistName}</Text>
 
 
               {/* Campo de texto para el título del reporte */}

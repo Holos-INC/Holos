@@ -24,13 +24,13 @@ export type StatusWithCommissions = {
 
 export type StatusKanbanUpdateDTO = {
     id: number;
-    nombre: string;
+    name: string;
     color: string;
     description: string;
 }
 
 export type StatusKanbanCreateDTO = {
-    nombre: string;
+    name: string;
     color: string;
     description: string;
 }

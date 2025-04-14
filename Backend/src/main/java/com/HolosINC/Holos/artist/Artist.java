@@ -9,6 +9,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -38,6 +39,12 @@ public class Artist{
     @Lob
     @Column(name = "tableCommisionsPrice", columnDefinition = "LONGBLOB")
     private byte[] tableCommisionsPrice;
+
+    @Size(max = 500)
+    private String description;
+
+    @Size(max = 100)
+    private String linkToSocialMedia;
 
     @OneToOne(optional = true)
     private BaseUser baseUser;

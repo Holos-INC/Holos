@@ -7,11 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 
 import com.stripe.model.Subscription;
@@ -41,14 +44,14 @@ public class PremiumSubscriptionService {
     }  
 
     @Transactional
-    public String createSubscription(String paymentMethod) throws Exception {
+    public String createSubscription(String paymentMethod) throws StripeException {
         Stripe.apiKey = secretKey;
         BaseUser activeUser = userService.findCurrentUser();
         Artist artist = artistRepository.findArtistByUser(activeUser.getId())
             .orElseThrow(() -> new ResourceNotFoundException("Artist", "userId", activeUser.getId()));
 
         if(artist.getSubscriptionId()!=null){
-            throw new Exception("Este usuario ya tiene una suscripción activa");
+            throw new BadRequestException("Este usuario ya tiene una suscripción activa");
         }
 
         // Crear un cliente en Stripe (si aún no tienes uno)
@@ -76,18 +79,18 @@ public class PremiumSubscriptionService {
     }
 
     @Transactional
-    public Subscription cancelSubscription() throws Exception {
+    public Subscription cancelSubscription() throws StripeException {
         Stripe.apiKey = secretKey;
         BaseUser activeUser = userService.findCurrentUser();
         Artist artist = artistRepository.findArtistByUser(activeUser.getId())
             .orElseThrow(() -> new ResourceNotFoundException("Artist", "userId", activeUser.getId()));
         String subscriptionId = artist.getSubscriptionId();
         if(subscriptionId==null){
-            throw new Exception("Este usuario no es propietario de esta suscripción");
+            throw new BadRequestException("Este usuario no tiene una suscripción asociada");
         }
         
         if(!artist.getSubscriptionId().trim().equals(subscriptionId.trim())){
-            throw new Exception("Este usuario no es propietario de esta suscripción");
+            throw new ResourceNotOwnedException("Este usuario no es propietario de esta suscripción");
         }
 
         Subscription subscription = Subscription.retrieve(subscriptionId);

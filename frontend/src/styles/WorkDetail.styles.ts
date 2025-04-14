@@ -103,6 +103,17 @@ export const desktopStyles = StyleSheet.create({
     top: 20,
     right: 20,
   },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  reportButtonText: {
+    fontFamily: "Merriweather-Bold",
+    fontSize: 16,
+    marginTop: 10,
+  },
 });
 
 export const mobileStyles = StyleSheet.create({
@@ -201,5 +212,16 @@ export const mobileStyles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
+  },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  reportButtonText: {
+    fontFamily: "Merriweather-Bold",
+    fontSize: 16,
+    marginTop: 10,
   },
 });

@@ -42,8 +42,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
     try {
       setEditError(null)
   
-      await updateStatusColumn( { id: editingColumn.status.id, nombre: name, description, color }, token )
-      onUpdateColumn({ id: editingColumn.status.id, nombre: name, description, color })
+      await updateStatusColumn( { id: editingColumn.status.id, name: name, description, color }, token )
+      onUpdateColumn({ id: editingColumn.status.id, name: name, description, color })
       setEditingColumn(null)
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Hubo un error al actualizar la columna 😿'
@@ -62,7 +62,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
   const handleCreateColumn = async ({ name, description, color }: { name: string; description: string; color: string }) => {
     setCreateError(null);
     try {
-      await onAddColumn({ nombre: name, description, color })
+      await onAddColumn({ name: name, description, color })
       setCreatingColumn(false)
     } catch (err: any) {
       const raw = err?.response?.data;
