@@ -91,7 +91,7 @@ public class ArtistService {
 
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
-				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId().intValue());
+				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId());
 			}
 
 			List<ArtistCategory> artistCategories = artistCategoryRepository.findAllByArtistId(artistId);
