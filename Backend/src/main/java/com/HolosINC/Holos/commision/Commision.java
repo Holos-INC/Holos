@@ -41,10 +41,9 @@ public class Commision extends Work{
     private String paymentIntentId;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "status_kanban_order_id", referencedColumnName = "id")
     private StatusKanbanOrder statusKanbanOrder;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(nullable = false)
     private Client client;
 }

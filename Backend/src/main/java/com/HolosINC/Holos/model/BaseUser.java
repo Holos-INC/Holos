@@ -46,7 +46,6 @@ public class BaseUser {
     protected String email;
 
     @Size(max = 15)
-    @Column(name = "phone_number")
     protected String phoneNumber;
 
 
@@ -55,23 +54,19 @@ public class BaseUser {
     protected Auth authority;
 
     @Lob
-    @Column(name = "image_profile", columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
 
     @Lob
-    @Column(name = "table_commissions", columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] tableCommissionsPrice;
 
-    @Column(name = "created_user")
     @NotNull
     protected Date createdUser;
 
-    @Column(name = "updated_user")
     protected Date updatedUser;
 
-    @Column(name = "ban_user")
     protected Date bannedUser;
 
-    @Column(name = "ban_time")
     protected Integer banTime;
 }
