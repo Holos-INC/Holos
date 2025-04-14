@@ -351,12 +351,12 @@ public class StatusKanbanOrderServiceTest {
         when(statusKanbanOrderRepository.statusKanbanOfOrder(artist.getId(), 2))
                 .thenReturn(Optional.empty());
 
-        statusKanbanOrderService.nextStatusOfCommision(777L);
+        statusKanbanOrderService.nextStatusOfCommision(c.getId());
 
         assertNull(c.getStatusKanbanOrder());
         // Se setea la comisión a ENDED
         assertEquals(StatusCommision.ENDED, c.getStatus());
-        verify(commisionRepository, times(1)).save(c);
+        verify(commisionRepository, times(1)).save(c); // Se ejecuta dos veces, una para la nueva en IN_WAIT_LIST y otra para la original
     }
 
     @Test

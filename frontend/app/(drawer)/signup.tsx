@@ -37,30 +37,30 @@ export default function SignupScreen() {
 
 
   const handleSignup = async () => {
-    {if (!acceptTerms) {
-      console.log("Error: Términos y condiciones no aceptados");
+    // Validaciones
+    if (!acceptTerms) {
       alert("Debes aceptar los Términos y Condiciones");
-      
+      return;
     }
 
     if (passwordError) {
       alert("Las contraseñas no coinciden");
-      
+      return;
     }
 
     if (!password || !confirmPassword) {
       alert("Debes ingresar y confirmar la contraseña");
-      
+      return;
     }
 
     if (!selectedImage) {
       alert("Selecciona una foto de perfil");
-      
-    }}
+      return;
+    }
 
-    if (role === 'artist' && !tableCommissionsPrice) {
+    if ((role === 'artist' || role === 'artist_premium') && !tableCommissionsPrice) {
       alert("Selecciona una imagen para el precio del tablero de comisiones");
-      
+      return;
     }
 
     const userPayload = {
@@ -70,7 +70,7 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      numSlotsOfWork: role === 'artist' ? numSlotsOfWork : undefined,
+      numSlotsOfWork: (role === 'artist' || role === 'artist_premium') ? numSlotsOfWork : undefined,
     };
 
     const formData = new FormData();
@@ -89,7 +89,7 @@ export default function SignupScreen() {
     } as any);
 
     // Imagen del precio del tablero de comisiones
-    if (role === 'artist') {
+    if (role === 'artist' || role === 'artist_premium') {
       const tableUriParts = tableCommissionsPrice.split("/");
       const tableFileName = tableUriParts[tableUriParts.length - 1];
       const tableFileExtension = tableFileName?.split(".").pop() || "jpg";
@@ -268,7 +268,7 @@ export default function SignupScreen() {
 
         </View>
 
-        {role === 'artist' && (
+        {role === 'artist' || role === 'artist_premium' ? (
           <>
             <View style={styles.formRow}>
               {/* Slots de trabajo */}
@@ -306,7 +306,7 @@ export default function SignupScreen() {
               </View>
             </View>
           </>
-        )}
+        ) : null}
 
         <View style={styles.roleContainer}>
           <Text style={styles.label}>Rol actual: {role}</Text>
@@ -328,6 +328,15 @@ export default function SignupScreen() {
               onPress={() => setRole('artist')}
             >
               <Text style={styles.roleButtonText}>ARTIST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.roleButton,
+                role === 'artist_premium' && styles.roleButtonActive
+              ]}
+              onPress={() => setRole('artist_premium')}
+            >
+              <Text style={styles.roleButtonText}>ARTIST PREMIUM</Text>
             </TouchableOpacity>
           </View>
         </View>
