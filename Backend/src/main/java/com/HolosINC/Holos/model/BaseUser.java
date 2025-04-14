@@ -9,6 +9,8 @@ import com.HolosINC.Holos.auth.Auth;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,6 +49,8 @@ public class BaseUser {
     @Column(name = "phone_number")
     protected String phoneNumber;
 
+
+    @Enumerated(EnumType.STRING)
     @NotNull
     protected Auth authority;
 

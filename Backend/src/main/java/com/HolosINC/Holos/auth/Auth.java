@@ -4,9 +4,5 @@ public enum Auth {
     ARTIST,
     ADMIN,
     CLIENT,
-    ARTIST_PREMIUM,;
-
-    String getAuthority() {
-        throw new UnsupportedOperationException("Unimplemented method 'getAuthority'");
-    }
+    ARTIST_PREMIUM;
 }
