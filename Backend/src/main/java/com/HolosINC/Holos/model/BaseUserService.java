@@ -3,7 +3,6 @@ package com.HolosINC.Holos.model;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +19,6 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
 
-	@Autowired
 	public BaseUserService(BaseUserRepository baseUserRepository) {
 		this.baseUserRepository = baseUserRepository;
 	}

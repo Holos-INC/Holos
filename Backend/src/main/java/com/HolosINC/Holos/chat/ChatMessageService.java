@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ public class ChatMessageService {
     private final BaseUserService baseUserService;
     private final CommisionRepository commisionRepository;
 
-    @Autowired
     public ChatMessageService(ChatMessageRepository chatMessageRepository, BaseUserService baseUserService, CommisionRepository commisionRepository) {
         this.commisionRepository = commisionRepository;
         this.chatMessageRepository = chatMessageRepository;

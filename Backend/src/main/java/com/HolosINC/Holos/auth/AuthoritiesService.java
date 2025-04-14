@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Date;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +27,10 @@ public class AuthoritiesService {
 	private final BaseUserService baseUserService;
 	private final ArtistService artistService;
 	private final ClientService clientService;
+	private final ImageHandler imageHandler;
 
-	@Autowired
-	private ImageHandler imageHandler;
-
-	@Autowired
-	public AuthoritiesService(PasswordEncoder encoder, BaseUserService baseUserService, ArtistService artistService,
-			ClientService clientService) {
+	public AuthoritiesService(PasswordEncoder encoder, BaseUserService baseUserService, ArtistService artistService, ClientService clientService, ImageHandler imageHandler) {
+		this.imageHandler = imageHandler;
 		this.encoder = encoder;
 		this.baseUserService = baseUserService;
 		this.artistService = artistService;

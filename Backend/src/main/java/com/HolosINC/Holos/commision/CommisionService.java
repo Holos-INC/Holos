@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,6 @@ public class CommisionService {
     private final StatusKanbanOrderService statusKanbanOrderService;
     private final ClientService clientService;
 
-    @Autowired
     public CommisionService(CommisionRepository commisionRepository, ArtistService artistService,
             BaseUserService userService, ClientRepository clientRepository, ClientService clientService,
             StatusKanbanOrderService statusKanbanOrderService) {

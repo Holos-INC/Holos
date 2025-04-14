@@ -18,7 +18,6 @@ import com.stripe.param.PaymentIntentCreateParams;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 
@@ -32,7 +31,6 @@ public class PaymentService {
     private BaseUserService userService;
     private String currency = "eur";
 
-    @Autowired
     public PaymentService(CommisionRepository commisionRepository, BaseUserService userService) {
         this.commisionRepository = commisionRepository;
         this.userService = userService;

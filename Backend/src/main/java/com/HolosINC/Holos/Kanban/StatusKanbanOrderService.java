@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -41,7 +40,6 @@ public class StatusKanbanOrderService {
     private final BaseUserService userService;
     private final CommisionService commisionService;
 
-    @Autowired
     public StatusKanbanOrderService(StatusKanbanOrderRepository statusKanbanOrderRepository, ArtistService artistService, BaseUserService userService, CommisionRepository commisionRepository, @Lazy CommisionService commisionService) {
         this.statusKanbanOrderRepository = statusKanbanOrderRepository;
         this.artistService = artistService;

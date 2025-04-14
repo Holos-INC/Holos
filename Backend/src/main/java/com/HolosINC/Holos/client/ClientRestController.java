@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +29,6 @@ class ClientRestController {
 	private final BaseUserService baseUserService;
     private final ProfileService profileService;
 	
-	@Autowired
 	public ClientRestController(ClientService clientService, BaseUserService baseUserService, ProfileService profileService) {
 		this.clientService = clientService;
 		this.baseUserService = baseUserService;
