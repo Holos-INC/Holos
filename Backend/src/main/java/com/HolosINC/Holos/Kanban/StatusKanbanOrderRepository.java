@@ -12,7 +12,7 @@ import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanDTO;
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO;
 
 @Repository
-public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanOrder, Integer> {
+public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanOrder, Long> {
 
     @Query("SELECT s FROM StatusKanbanOrder s WHERE s.order = :order_client AND s.artist.id = :id")
     Optional<StatusKanbanOrder> findByOrderAndArtist(Integer order_client, Integer id);

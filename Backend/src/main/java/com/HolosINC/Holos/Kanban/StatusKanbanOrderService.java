@@ -73,7 +73,7 @@ public class StatusKanbanOrderService {
 
     @Transactional
     public void updateStatusKanban(StatusKanbanUpdateDTO dto) {
-        StatusKanbanOrder sk = statusKanbanOrderRepository.findById(dto.getId().intValue())
+        StatusKanbanOrder sk = statusKanbanOrderRepository.findById(dto.getId())
             .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", dto.getId()));
         if (commisionService.isStatusKanbanInUse(sk)) {
             throw new BadRequestException("No se puede modificar un estado que está asignado a una o más comisiones.");
@@ -95,7 +95,7 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional
-    public StatusKanbanOrder updateKanban(int id, String color, String description, String nombre) throws Exception {
+    public StatusKanbanOrder updateKanban(Long id, String color, String description, String nombre) throws Exception {
         StatusKanbanOrder sk = statusKanbanOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
         sk.setColor(color);
@@ -106,7 +106,7 @@ public class StatusKanbanOrderService {
 
     @Transactional
     public StatusKanbanOrder updateOrder(Long id, Integer order) throws Exception{
-        StatusKanbanOrder statusKanban = statusKanbanOrderRepository.findById(id.intValue())
+        StatusKanbanOrder statusKanban = statusKanbanOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
         
         Artist artist = artistService.findArtist(userService.findCurrentUser().getId());
@@ -131,7 +131,7 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional(readOnly = true)
-    public StatusKanbanDTO getStatusKanbanById(Integer id) {
+    public StatusKanbanDTO getStatusKanbanById(Long id) {
         StatusKanbanOrder status = statusKanbanOrderRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
     
@@ -139,7 +139,7 @@ public class StatusKanbanOrderService {
     }    
 
     @Transactional
-    public void deleteStatusKanbanOrder(Integer id) {
+    public void deleteStatusKanbanOrder(Long id) {
         StatusKanbanOrder statusToDelete = statusKanbanOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
     
