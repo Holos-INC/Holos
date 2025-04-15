@@ -47,12 +47,14 @@ export default function RequestCommissionUserScreen() {
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {artist && <UserPanel artist={artist} />}
 
+      {/* 
+         {artist && <UserPanel artist={artist} />}
         <View style={styles.commissionContainer}>
           <Text style={styles.commissionTitle}>Precio de la comisión</Text>
           <Image source={require(commissionTablePrice)} resizeMode="contain" />
-        </View>
+        </View> 
+      */}
 
         {artist && <RequestForm artist={artist} />}
       </ScrollView>
