@@ -56,9 +56,7 @@ public class CommisionService {
             Client client = clientRepository.findById(userService.findCurrentUser().getId())
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId()));
-            if (artist == null ||
-            !(artist.getBaseUser().getAuthority() == Auth.ARTIST) ||
-            !(artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM))
+            if (artist == null || (!(artist.getBaseUser().getAuthority() == Auth.ARTIST) && !(artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM)))
                 throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
             commision.setArtist(artist);
             commision.setClient(client);
