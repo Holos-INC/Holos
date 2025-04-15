@@ -168,26 +168,19 @@ public class StatusKanbanOrderService {
     }
 
     @Transactional
-    public StatusKanbanFullResponseDTO getAllStatusFromArtist() {
-        try {
-            Long artistId = userService.findCurrentUser().getId();
-            List<StatusKanbanDTO> statuses =  statusKanbanOrderRepository.getAllStatusOrdererOfArtist(artistId);
-            List<StatusKanbanWithCommisionsDTO> commisions = statusKanbanOrderRepository.getAllCommisionsAcceptedOfArtist(artistId);
-            return new StatusKanbanFullResponseDTO(statuses, commisions);
-        } catch (ResourceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw e;
-        }
+    public StatusKanbanFullResponseDTO getAllStatusFromArtist() throws Exception{
+        Long artistId = userService.findCurrentUser().getId();
+        List<StatusKanbanDTO> statuses =  statusKanbanOrderRepository.getAllStatusOrdererOfArtist(artistId);
+        List<StatusKanbanWithCommisionsDTO> commisions = statusKanbanOrderRepository.getAllCommisionsAcceptedOfArtist(artistId);
+        return new StatusKanbanFullResponseDTO(statuses, commisions);
     }
 
     @Transactional
-    public Integer countByArtistUsername(String username) {
-        try {
-            return statusKanbanOrderRepository.countByArtistUsername(username);
-        } catch (Exception e) {
-            throw e;
+    public Integer countByArtistUsername(String username) throws Exception {
+        if(artistService.findArtistByUsername(username) == null) {
+            throw new ResourceNotFoundException("No existe un artista con ese nombre de usuario.");
         }
+        return statusKanbanOrderRepository.countByArtistUsername(username);
     }
     
     public List<StatusKanbanOrder> findAllStatusKanbanOrderByArtist(Long intValue) {
@@ -196,14 +189,11 @@ public class StatusKanbanOrderService {
 
     @Transactional
     public void nextStatusOfCommision(Long id) throws Exception {
-        try {
             BaseUser currentUser = userService.findCurrentUser();
             Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
 
             Commision c = commisionRepository.findById(id)
-                
                     .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
-
 
             if (!currentArtist.getId().equals(c.getArtist().getId())) {
                 throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
@@ -240,9 +230,6 @@ public class StatusKanbanOrderService {
                 c.setStatusKanbanOrder(nextStatus.get());
                 
             commisionRepository.save(c);
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
     @Transactional

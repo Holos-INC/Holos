@@ -48,10 +48,8 @@ public class ChatMessageService {
     @Transactional(readOnly = true)
     public List<ChatMessage> findConversationByCommisionId(Long commisionId) throws Exception{
         BaseUser user = baseUserService.findCurrentUser();
-        Commision commision = commisionRepository.findById(commisionId).orElse(null);
-        if (commision == null) {
-            throw new ResourceNotFoundException("Commision", "id", commisionId);
-        }
+        Commision commision = commisionRepository.findById(commisionId).orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+
         if (commision.getArtist().getBaseUser().getId() != user.getId() && commision.getClient().getBaseUser().getId() != user.getId()) {
             throw new AccessDeniedException("You don't have access to this commision");
         }

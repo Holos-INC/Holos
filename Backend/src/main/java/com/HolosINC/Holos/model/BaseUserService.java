@@ -1,9 +1,7 @@
 package com.HolosINC.Holos.model;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,14 +23,6 @@ public class BaseUserService {
 
     public BaseUser save(BaseUser baseUser) {
         return baseUserRepository.save(baseUser);
-    }
-
-    public BaseUser login(String username, String password) {
-        Optional<BaseUser> user = baseUserRepository.login(username, password);
-        if (user.isEmpty()) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        return user.get();
     }
 
     public Boolean existsUser(String username) {

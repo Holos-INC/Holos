@@ -69,8 +69,8 @@ public class WorksDoneService {
         return worksDoneRepository.save(worksDoneToUpdate);
     }
 
-    public WorksDone getWorksDoneById(Long id) {
-        return worksDoneRepository.findById(id).orElse(null);
+    public WorksDone getWorksDoneById(Long id) throws Exception{
+        return worksDoneRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("WorksDone", "id", id));
     }
 
     public List<WorksDone> getWorksDoneByArtist(Artist artist) {

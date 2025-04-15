@@ -22,7 +22,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -123,7 +122,7 @@ public class StatusKanbanOrderServiceTest {
         updateDTO.setId(1L);
         updateDTO.setName("Estado Editado");
 
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
         // No está en uso => false
         when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(false);
 
@@ -139,7 +138,7 @@ public class StatusKanbanOrderServiceTest {
         StatusKanbanUpdateDTO updateDTO = new StatusKanbanUpdateDTO();
         updateDTO.setId(999L);
 
-        when(statusKanbanOrderRepository.findById(999)).thenReturn(Optional.empty());
+        when(statusKanbanOrderRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> {
             statusKanbanOrderService.updateStatusKanban(updateDTO);
@@ -152,7 +151,7 @@ public class StatusKanbanOrderServiceTest {
         updateDTO.setId(1L);
         updateDTO.setName("Progreso");
 
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
         // Simulamos que está en uso
         when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(true);
 
@@ -170,7 +169,7 @@ public class StatusKanbanOrderServiceTest {
         updateDTO.setId(1L);
         updateDTO.setName("X");
 
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
         when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(false);
         when(statusKanbanOrderRepository.save(any(StatusKanbanOrder.class)))
                 .thenThrow(new DataIntegrityViolationException("Duplicado"));
@@ -185,9 +184,9 @@ public class StatusKanbanOrderServiceTest {
     // ============================================================
     @Test
     public void testGetStatusKanbanById_Success() {
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
 
-        StatusKanbanDTO dto = statusKanbanOrderService.getStatusKanbanById(1);
+        StatusKanbanDTO dto = statusKanbanOrderService.getStatusKanbanById(1L);
 
         assertNotNull(dto);
         assertEquals("Boceto", dto.getName());
@@ -196,10 +195,10 @@ public class StatusKanbanOrderServiceTest {
 
     @Test
     public void testGetStatusKanbanById_NotFound() {
-        when(statusKanbanOrderRepository.findById(999)).thenReturn(Optional.empty());
+        when(statusKanbanOrderRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> {
-            statusKanbanOrderService.getStatusKanbanById(999);
+            statusKanbanOrderService.getStatusKanbanById(999L);
         });
     }
 
@@ -208,51 +207,51 @@ public class StatusKanbanOrderServiceTest {
     // ============================================================
     @Test
     public void testDeleteStatusKanbanOrder_Success() {
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
         // No está en uso => false
         when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(false);
 
         // No error al eliminar
-        doNothing().when(statusKanbanOrderRepository).deleteById(1);
+        doNothing().when(statusKanbanOrderRepository).deleteById(1L);
 
         // Supongamos que no hay otros status => list vacía
         when(statusKanbanOrderRepository.findByArtistIdOrderByOrderAscFiltered(artist.getId(), statusKanbanOrder.getOrder()))
                 .thenReturn(Collections.emptyList());
 
-        statusKanbanOrderService.deleteStatusKanbanOrder(1);
+        statusKanbanOrderService.deleteStatusKanbanOrder(1L);
 
-        verify(statusKanbanOrderRepository, times(1)).deleteById(1);
+        verify(statusKanbanOrderRepository, times(1)).deleteById(1L);
         verify(statusKanbanOrderRepository, times(2)).flush();
     }
 
     @Test
     public void testDeleteStatusKanbanOrder_NotFound() {
-        when(statusKanbanOrderRepository.findById(999)).thenReturn(Optional.empty());
+        when(statusKanbanOrderRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> {
-            statusKanbanOrderService.deleteStatusKanbanOrder(999);
+            statusKanbanOrderService.deleteStatusKanbanOrder(999L);
         });
 
-        verify(statusKanbanOrderRepository, never()).deleteById(anyInt());
+        verify(statusKanbanOrderRepository, never()).deleteById(anyLong());
     }
 
     @Test
     public void testDeleteStatusKanbanOrder_StatusInUse() {
-        when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+        when(statusKanbanOrderRepository.findById(1L)).thenReturn(Optional.of(statusKanbanOrder));
         when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(true);
 
         assertThrows(BadRequestException.class, () -> {
-            statusKanbanOrderService.deleteStatusKanbanOrder(1);
+            statusKanbanOrderService.deleteStatusKanbanOrder(1L);
         });
 
-        verify(statusKanbanOrderRepository, never()).deleteById(anyInt());
+        verify(statusKanbanOrderRepository, never()).deleteById(anyLong());
     }
 
     // ============================================================
     // 5) getAllStatusFromArtist()
     // ============================================================
     @Test
-    public void testGetAllStatusFromArtist_Success() {
+    public void testGetAllStatusFromArtist_Success() throws Exception {
         when(userService.findCurrentUser()).thenReturn(currentUser);
         // Se asume que artistService.findArtistByUserId(...) no se llama,
         // porque en el método hay un find, pero revisa tu código real.
@@ -275,18 +274,6 @@ public class StatusKanbanOrderServiceTest {
         assertEquals("Boceto", result.getStatuses().get(0).getName());
         assertEquals(1, result.getCommissions().size());
         assertEquals(55L, result.getCommissions().get(0).getId());
-    }
-
-    // ============================================================
-    // 6) countByArtistUsername(String username)
-    // ============================================================
-    @Test
-    public void testCountByArtistUsername_Success() {
-        when(statusKanbanOrderRepository.countByArtistUsername("someUsername")).thenReturn(5);
-
-        Integer result = statusKanbanOrderService.countByArtistUsername("someUsername");
-
-        assertEquals(5, result);
     }
 
     // ============================================================

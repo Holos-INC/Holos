@@ -47,7 +47,7 @@ class ArtistRestController {
 	
 	@GetMapping(value = "/{id}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-	public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+	public ResponseEntity<?> findById(@PathVariable Long id) {
 		try{
             Artist artist = artistService.findArtist(id);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
@@ -71,7 +71,7 @@ class ArtistRestController {
 
 	@GetMapping(value = "username/{username}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-    public ResponseEntity<?> findByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<?> findByUsername(@PathVariable String username) {
         try{
             Artist artist = artistService.findArtistByUsername(username);
             return ResponseEntity.ok(artist);

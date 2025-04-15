@@ -2,8 +2,7 @@ package com.HolosINC.Holos.stripe;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
-import com.HolosINC.Holos.auth.Authorities;
-import com.HolosINC.Holos.auth.AuthoritiesRepository;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
@@ -27,8 +26,6 @@ public class StripeWebhookServiceTest {
     @Mock
     private BaseUserRepository userRepository;
 
-    @Mock
-    private AuthoritiesRepository authoritiesRepository;
 
     @InjectMocks
     private StripeWebhookService stripeWebhookService;
@@ -41,15 +38,12 @@ public class StripeWebhookServiceTest {
         artist.setSubscriptionId(subscriptionId);
 
         BaseUser user = new BaseUser();
-        Authorities auth = new Authorities();
-        auth.setAuthority("ARTIST");
 
-        user.setAuthority(auth);
+        user.setAuthority(Auth.ARTIST);
         artist.setBaseUser(user);
         artist.setSubscriptionId(subscriptionId);
 
         when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.of(artist));
-        when(authoritiesRepository.findByName("ARTIST")).thenReturn(Optional.of(auth));
         when(userRepository.save(any(BaseUser.class))).thenReturn(user);
         when(artistRepository.save(any(Artist.class))).thenReturn(artist);
 
@@ -67,7 +61,6 @@ public class StripeWebhookServiceTest {
         artist.setSubscriptionId(subscriptionId);
 
         when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.of(artist));
-        when(authoritiesRepository.findByName("ARTIST")).thenReturn(Optional.empty());
 
         stripeWebhookService.handleSubscriptionDeleted(subscriptionId);
     }
@@ -91,7 +84,6 @@ public class StripeWebhookServiceTest {
         artist.setSubscriptionId(subscriptionId);
 
         when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.of(artist));
-        when(authoritiesRepository.findByName("ARTIST_PREMIUM")).thenReturn(Optional.empty());
 
         stripeWebhookService.handleSubscriptionCreated(subscriptionId);
     }

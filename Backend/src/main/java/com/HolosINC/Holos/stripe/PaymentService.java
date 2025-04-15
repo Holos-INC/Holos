@@ -22,10 +22,8 @@ import com.stripe.param.PaymentIntentListParams;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class PaymentService {

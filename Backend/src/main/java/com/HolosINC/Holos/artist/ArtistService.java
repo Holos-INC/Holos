@@ -69,7 +69,6 @@ public class ArtistService {
 
 	@Transactional
 	public void deleteArtist(Long userId) throws Exception {
-		try {
 			Artist artist = artistRepository.findArtistByUser(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", userId));
 			Long artistId = artist.id;
@@ -104,9 +103,6 @@ public class ArtistService {
 			}
 
 			artistRepository.delete(artist);
-		} catch (Exception e) {
-			throw new ResourceNotFoundException("Error: El artista con ID " + userId + " no existe.");
-		}
 	}
 	
 	@Transactional

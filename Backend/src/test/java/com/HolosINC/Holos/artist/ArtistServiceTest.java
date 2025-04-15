@@ -3,6 +3,7 @@ package com.HolosINC.Holos.artist;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -162,7 +163,7 @@ public class ArtistServiceTest {
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
         when(commisionRepository.findAll()).thenReturn(List.of(commision));
 
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(AccessDeniedException.class, () -> {
             artistService.deleteArtist(1L);
         });
 

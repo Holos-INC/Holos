@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanDTO;
@@ -18,7 +17,7 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     Optional<StatusKanbanOrder> findByOrderAndArtist(Integer order_client, Integer id);
 
     @Query("SELECT s FROM StatusKanbanOrder s WHERE s.artist.id = :artistId")
-    List<StatusKanbanOrder> findByArtist(@Param("artistId") Integer artistId);
+    List<StatusKanbanOrder> findByArtist(Integer artistId);
 
     List<StatusKanbanOrder> findByArtistIdOrderByOrderAsc(Long artistId);
 
@@ -26,7 +25,7 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     List<StatusKanbanOrder> findByArtistIdOrderByOrderAscFiltered(Long artistId, Integer order);
 
     @Query("SELECT new com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO(c.id, c.name, c.description, c.price, c.paymentArrangement, c.statusKanbanOrder.name, c.client.baseUser.username)" +
-    "FROM Commision c WHERE c.artist.baseUser.id = :artistId ORDER BY c.statusKanbanOrder.order") // c.numMilestones
+    "FROM Commision c WHERE c.artist.baseUser.id = :artistId ORDER BY c.statusKanbanOrder.order")
     List<StatusKanbanWithCommisionsDTO> getAllCommisionsAcceptedOfArtist(Long artistId);
 
     @Query("SELECT new com.HolosINC.Holos.Kanban.DTOs.StatusKanbanDTO(s.id, s.name, s.order, s.description, s.color)" +
@@ -40,7 +39,7 @@ public interface StatusKanbanOrderRepository extends JpaRepository<StatusKanbanO
     Optional<StatusKanbanOrder> statusKanbanOfOrder(Long id, int nextOrder);
 
     @Query("SELECT COUNT(s) FROM StatusKanbanOrder s WHERE s.artist.baseUser.username = :username")
-    Integer countByArtistUsername(@Param("username") String username);
+    Integer countByArtistUsername(String username);
 
 }
 
