@@ -57,7 +57,6 @@ public class ArtistRestControllerTest {
         baseUser.setEmail("artista1@example.com");
         baseUser.setPhoneNumber("123456789");
         baseUser.setImageProfile(new byte[0]);
-        baseUser.setTableCommissionsPrice(new byte[0]);
 
         artist.setBaseUser(baseUser);
 

@@ -31,7 +31,7 @@ export const updateUserClient = async (
 
   const formData = new FormData();
 
-  const { imageProfile,tableCommissionsPrice, ...restOfUser } = user;
+  const { imageProfile, ...restOfUser } = user;
     
   formData.append("updateUser", JSON.stringify(restOfUser)); 
 

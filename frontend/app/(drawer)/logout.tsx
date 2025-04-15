@@ -9,8 +9,8 @@ export default function LogoutScreen() {
   const router = useRouter();
 
   const handleLogout = () => {
-    signOut(() => console.log("Logged out!"));
     router.replace("/login");
+    signOut(() => console.log("Logged out!"));
   };
 
   return (

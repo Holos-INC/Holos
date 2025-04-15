@@ -21,6 +21,7 @@ export default function ClientCommissionsScreen({commissions}: {commissions: Com
             commissions.map((commission: CommissionInProgress, index: number) => (
                 
                     <CommissionCard
+                        key={index}
                         title={commission.name}
                         image={`data:image/jpeg;base64,${commission.image}`}
                         artistUsername={commission.artistUsername}
