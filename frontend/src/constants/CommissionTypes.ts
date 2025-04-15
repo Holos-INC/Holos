@@ -141,7 +141,6 @@ export interface BaseUserDTO {
   phoneNumber: string;
   description: string;
   imageProfile: string;
-  tableCommissionsPrice: string;
   authorityName: string;
 }
 

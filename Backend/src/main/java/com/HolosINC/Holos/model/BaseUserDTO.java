@@ -27,8 +27,6 @@ public class BaseUserDTO {
 
     private byte[] imageProfile;
 
-    private byte[] tableCommissionsPrice;
-
     private String authorityName;
 
 }

@@ -199,7 +199,7 @@ const userArtistProfileScreen = () => {
                       imageProfile
                         ? { uri: imageProfile }
                         : artist?.imageProfile
-                        ? { uri: `${BASE_URL}${atob(artist.imageProfile)}` }
+                        ? { uri: `data:image/jpeg;base64,${artist.imageProfile}` }
                         : undefined
                     }
                     style={styles.imageProfile}
@@ -303,11 +303,7 @@ const userArtistProfileScreen = () => {
                       tableCommisionsPrice
                         ? { uri: tableCommisionsPrice }
                         : artist.tableCommisionsPrice
-                        ? {
-                            uri: `${BASE_URL}${atob(
-                              artist.tableCommisionsPrice
-                            )}`,
-                          }
+                        ? { uri: `data:image/jpeg;base64,${artist.tableCommisionsPrice}`}
                         : undefined
                     }
                     style={styles.priceImage}

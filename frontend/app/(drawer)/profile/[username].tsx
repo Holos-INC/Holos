@@ -10,17 +10,12 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
-
-import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
 import LoadingScreen from "@/src/components/LoadingScreen";
-
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
 import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 import styles from "@/src/styles/ArtistDetail.styles";
 import { Button, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
-import { BASE_URL } from "@/src/constants/api";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getUserByUsername } from "@/src/services/userApi";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
@@ -40,7 +35,6 @@ export default function ArtistDetailScreen() {
   const { username } = useLocalSearchParams<{ username: string }>();
   const [user, setUser] = useState<BaseUserDTO | null>(null);
   const isCurrentUser = loggedInUser?.username === user?.username || false;
-  const isClient = user?.authorityName === "CLIENT" || true;
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { width } = useWindowDimensions();
@@ -126,7 +120,7 @@ export default function ArtistDetailScreen() {
               }}
               source={
                 user?.imageProfile
-                  ? { uri: `${BASE_URL}${atob(user.imageProfile)}` }
+                  ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
                   : undefined
               }
             />
@@ -182,7 +176,7 @@ export default function ArtistDetailScreen() {
             </Text>
           </View>
         </View>
-        {!isClient && isCurrentUser ? (
+        {!(user?.authorityName === "CLIENT") && isCurrentUser ? (
           <View
             style={{
               margin: 10,
@@ -212,7 +206,7 @@ export default function ArtistDetailScreen() {
               Conectar Stripe
             </Button>
           </View>
-        ) : !isClient && !isCurrentUser ? (
+        ) : !(user?.authorityName === "CLIENT") && !isCurrentUser ? (
           <Button
             icon={"email"}
             mode="contained"

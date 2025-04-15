@@ -94,9 +94,8 @@ public class AuthoritiesService {
 					}
 				}
 
-				artist.setDescription(request.getDescription());
 				artist.setLinkToSocialMedia(request.getLinkToSocialMedia());
-				artist.setNumSlotsOfWork(7);
+				artist.setNumSlotsOfWork(request.getNumSlotsOfWork());
 				artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
 				artist.setBaseUser(user);
 	
@@ -130,8 +129,6 @@ public class AuthoritiesService {
 
 		if (user.getAuthority().getAuthority().toUpperCase().equals("ARTIST ") ||user.getAuthority().getAuthority().toUpperCase().equals("ARTIST_PREMIUM")) {
 			Artist artist = artistService.findArtist(user.getId());
-			artist.setDescription(
-					request.getDescription() != null ? request.getDescription() : artist.getDescription());
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(

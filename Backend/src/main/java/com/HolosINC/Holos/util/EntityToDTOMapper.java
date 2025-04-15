@@ -1,9 +1,7 @@
 package com.HolosINC.Holos.util;
 
-import com.HolosINC.Holos.artist
-.Artist;
-import com.HolosINC.Holos.artist
-.ArtistDTO;
+import com.HolosINC.Holos.artist.Artist;
+import com.HolosINC.Holos.artist.ArtistDTO;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
 
@@ -18,7 +16,7 @@ public class EntityToDTOMapper {
         artistDTO.setEmail(artist.getBaseUser().getEmail());
         artistDTO.setPhoneNumber(artist.getBaseUser().getPhoneNumber());
         artistDTO.setImageProfile(artist.getBaseUser().getImageProfile());
-        artistDTO.setTableCommissionsPrice(artist.getBaseUser().getTableCommissionsPrice());
+        artistDTO.setTableCommisionsPrice(artist.getTableCommisionsPrice());
         artistDTO.setDescription(artist.getDescription());
         artistDTO.setLinkToSocialMedia(artist.getLinkToSocialMedia());
         artistDTO.setArtistId(artist.getId());
@@ -35,7 +33,6 @@ public static BaseUserDTO toBaseUserDTO(BaseUser baseUser) {
         baseUserDTO.setPhoneNumber(baseUser.getPhoneNumber());
         baseUserDTO.setDescription(baseUser.getDescription());
         baseUserDTO.setImageProfile(baseUser.getImageProfile());
-        baseUserDTO.setTableCommissionsPrice(baseUser.getTableCommissionsPrice());
         baseUserDTO.setAuthorityName(baseUser.getAuthority().getAuthority());
         return baseUserDTO;
     }

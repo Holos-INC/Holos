@@ -1,6 +1,4 @@
-import { BASE_URL } from "@/src/constants/api";
 import { BaseUser } from "@/src/constants/CommissionTypes";
-import { useAuth } from "@/src/hooks/useAuth";
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -18,7 +16,6 @@ export default function CustomDrawer(props: CustomDrawerProps) {
   const { top, bottom } = useSafeAreaInsets();
   const { user, isAuthenticated } = props;
   const router = useRouter();
-  const { isArtist } = useAuth();
 
   return (
     <View style={{ flex: 1 }}>
@@ -38,7 +35,7 @@ export default function CustomDrawer(props: CustomDrawerProps) {
           <Image
             source={
               user?.imageProfile
-                ? { uri: `${BASE_URL}${atob(user.imageProfile)}` }
+                ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
                 : undefined
             }
             style={{ width: 65, height: 65, borderRadius: 100 }}

@@ -56,10 +56,6 @@ public class BaseUser {
     @Column(name = "image_profile", columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
 
-    @Lob
-    @Column(name = "table_commissions", columnDefinition = "LONGBLOB")
-    private byte[] tableCommissionsPrice;
-
     @Column(name = "created_user")
     @NotNull
     protected Date createdUser;
