@@ -147,10 +147,7 @@ const SearchScreen = ({ query }: { query: string }) => {
                       <TouchableOpacity
                         style={mobileStyles.artistCard}
                         onPress={() =>
-                          router.push({
-                            pathname: "/profile/[artistId]",
-                            params: { artistId: String(artist.id) },
-                          })
+                          router.push(`/profile/${artist.username}`)
                         }
                       >
                         <Image

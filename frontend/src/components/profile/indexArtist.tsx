@@ -5,7 +5,6 @@ import {
   TextInput,
   Image,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   Platform,
   useWindowDimensions,

@@ -86,6 +86,12 @@ public class BaseUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
+    @Transactional(readOnly = true)
+    public BaseUser getUserByUsername(String username) {
+        return baseUserRepository.findUserByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+    }
+
     @Transactional
     public BaseUser updateUserAdmins(Long id, BaseUser updatedUser) {
         return baseUserRepository.findById(id).map(user -> {

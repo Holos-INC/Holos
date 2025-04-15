@@ -1,4 +1,12 @@
-import { View, TextInput, Image, Text, TouchableOpacity, Button, Alert } from "react-native";
+import {
+  View,
+  TextInput,
+  Image,
+  Text,
+  TouchableOpacity,
+  Button,
+  Alert,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import { Formik } from "formik";
@@ -11,11 +19,12 @@ import { Artist, PaymentArrangement } from "@/src/constants/CommissionTypes";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Platform } from "react-native";
 import { router } from "expo-router";
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
 
 const cameraIcon = "photo-camera";
 
 interface RequestFormProps {
-  artist: Artist;
+  artist: ArtistDTO;
 }
 
 type FormValues = {
@@ -32,29 +41,36 @@ export default function RequestForm({ artist }: RequestFormProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const commissionValidationSchema = object({
-    name: string().required('Title is required'),
+    name: string().required("Title is required"),
     description: string().required("Description is required"),
-    price: number().required('Price is required').positive('Must be positive'),
+    price: number().required("Price is required").positive("Must be positive"),
     image: string(),
-    milestoneDate: date().nullable().min(new Date(new Date().setDate(new Date().getDate() + 1)), "Date must be after today!"),
+    milestoneDate: date()
+      .nullable()
+      .min(
+        new Date(new Date().setDate(new Date().getDate() + 1)),
+        "Date must be after today!"
+      ),
   });
 
-  const pickImage = async (setFieldValue: (field: string, value: any) => void) => {
+  const pickImage = async (
+    setFieldValue: (field: string, value: any) => void
+  ) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setSelectedImage(uri);
       setFieldValue("image", uri);
     }
   };
-  
-  const handleFormSubmit = async (values: FormValues)=> {
+
+  const handleFormSubmit = async (values: FormValues) => {
     try {
       const commissionData = {
         name: values.name,
@@ -65,11 +81,15 @@ export default function RequestForm({ artist }: RequestFormProps) {
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
 
-      await createCommission(artist.id, commissionData, loggedInUser.token);
+      await createCommission(
+        artist.artistId,
+        commissionData,
+        loggedInUser.token
+      );
       setTimeout(() => {
         router.push(`/commissions`);
       }, 2000);
-  
+
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {
       Alert.alert("Error", "Failed to create commission.");
@@ -78,12 +98,25 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
   return (
     <Formik<FormValues>
-      initialValues={{name: "",description: "",price: 0,image: "",milestoneDate: null}}
+      initialValues={{
+        name: "",
+        description: "",
+        price: 0,
+        image: "",
+        milestoneDate: null,
+      }}
       validationSchema={commissionValidationSchema}
       onSubmit={handleFormSubmit}
     >
-      {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
-
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        values,
+        errors,
+        touched,
+      }) => (
         <View style={styles.formContainer}>
           {/* Title Field */}
           <TextInput
@@ -93,8 +126,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
             onChangeText={handleChange("name")}
             onBlur={handleBlur("name")}
           />
-          {errors.name && touched.name && ( <Text style={styles.errorText}>{errors.name}</Text> )}
-        
+          {errors.name && touched.name && (
+            <Text style={styles.errorText}>{errors.name}</Text>
+          )}
+
           {/* Description Field */}
           <TextInput
             style={styles.input}
@@ -104,8 +139,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
             onChangeText={handleChange("description")}
             onBlur={handleBlur("description")}
           />
-          {errors.description && touched.description && ( <Text style={styles.errorText}>{errors.description}</Text> )}
-        
+          {errors.description && touched.description && (
+            <Text style={styles.errorText}>{errors.description}</Text>
+          )}
+
           {/* Price Field */}
           <TextInput
             style={styles.title}
@@ -122,10 +159,15 @@ export default function RequestForm({ artist }: RequestFormProps) {
             }}
             onBlur={handleBlur("price")}
           />
-          {errors.price && touched.price && ( <Text style={styles.errorText}>Please insert a numeric value</Text> )}
+          {errors.price && touched.price && (
+            <Text style={styles.errorText}>Please insert a numeric value</Text>
+          )}
 
           {/* Date Picker Trigger */}
-          <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.dateButton}
+          >
             <Text style={styles.dateButtonText}>
               {values.milestoneDate
                 ? `Selected: ${values.milestoneDate.toLocaleDateString()}`
@@ -139,7 +181,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
           {Platform.OS === "web" ? (
             <input
               type="date"
-              onChange={(e) => { const date = new Date(e.target.value); setFieldValue("milestoneDate", date);}}
+              onChange={(e) => {
+                const date = new Date(e.target.value);
+                setFieldValue("milestoneDate", date);
+              }}
               style={{ padding: 10, borderRadius: 6 }}
             />
           ) : (
@@ -148,20 +193,28 @@ export default function RequestForm({ artist }: RequestFormProps) {
                 value={values.milestoneDate || new Date()}
                 mode="date"
                 display="default"
-                onChange={(event, selectedDate) => { setShowDatePicker(false); if (selectedDate) { setFieldValue("milestoneDate", selectedDate);}}}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    setFieldValue("milestoneDate", selectedDate);
+                  }
+                }}
               />
             )
           )}
-        
+
           {/* Image Preview */}
           <View style={styles.previewContainer}>
             {values.image ? (
-              <Image source={{ uri: values.image }} style={styles.previewImage} />
+              <Image
+                source={{ uri: values.image }}
+                style={styles.previewImage}
+              />
             ) : (
               <Text style={styles.placeholderText}>No image selected</Text>
             )}
           </View>
-        
+
           {/* Image Picker + Submit */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={() => pickImage(setFieldValue)}>
@@ -169,7 +222,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
             </TouchableOpacity>
             <Button title="Submit" onPress={() => handleSubmit()} />
           </View>
-      </View>      
+        </View>
       )}
     </Formik>
   );

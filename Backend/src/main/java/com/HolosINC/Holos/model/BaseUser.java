@@ -49,6 +49,9 @@ public class BaseUser {
     @Column(name = "phone_number")
     protected String phoneNumber;
 
+    @Size(max = 500)
+    private String description;
+
     @Lob
     @Column(name = "image_profile", columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
