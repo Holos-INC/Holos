@@ -38,6 +38,7 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
       <CardElement options={{ style: cardElementStyle }} />
 
       <TouchableOpacity
+        testID="pay-button"
         onPress={onPress}
         style={[styles.button, loading && { opacity: 0.5 }]}
         disabled={loading}

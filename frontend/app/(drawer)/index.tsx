@@ -26,7 +26,7 @@ export default function ExploreScreen() {
     };
 
     fetchData();
-  }, []);
+  }, [loggedInUser]);
 
   const firstThreeArtists = useMemo(() => getTopThreeArtists(), [works]);
   const handleSearch = () => {

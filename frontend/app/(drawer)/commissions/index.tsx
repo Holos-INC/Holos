@@ -17,6 +17,9 @@ import { HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
 import ClientCommissionsScreen from "./requested";
 import { useRouter } from "expo-router";
 import { getAllRequestedCommissions } from "@/src/services/commisionApi";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+
 
 // 2. Ajusta la pantalla
 const { width } = Dimensions.get("window");
@@ -54,9 +57,11 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     }
   };
 
-  useEffect(() => {
-    fetchCommissions();
-  }, [loggedInUser]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCommissions();
+    }, [])
+  );  
 
   const getStatusText = (status: string) => {
     switch (status) {

@@ -66,9 +66,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
       };
 
       await createCommission(artist.id, commissionData, loggedInUser.token);
-      setTimeout(() => {
         router.push(`/commissions`);
-      }, 2000);
   
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {
