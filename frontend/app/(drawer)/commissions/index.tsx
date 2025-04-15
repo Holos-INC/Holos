@@ -40,7 +40,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   });
   const [loading, setLoading] = useState(true);
   const isArtist =
-    Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("ARTIST");
+    Array.isArray(loggedInUser?.roles) &&
+    (loggedInUser.roles.includes("ARTIST") ||
+      loggedInUser.roles.includes("ARTIST_PREMIUM"));
   const isClient =
     Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
 
@@ -101,7 +103,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   }
 
   return (
-    <ProtectedRoute allowedRoles={["ARTIST", "CLIENT"]}>
+    <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM", "CLIENT"]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
