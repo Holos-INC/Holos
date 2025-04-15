@@ -49,7 +49,7 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
       </TouchableOpacity>
 
       {error && <Text style={styles.error}>{error}</Text>}
-      {success && <Text style={styles.success}>¡Pago realizado con éxito! 🎉</Text>}
+      {success && <Text style={styles.success} testID="successText">¡Pago realizado con éxito! 🎉</Text>}
     </View>
   );
 };

@@ -18,6 +18,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import static org.junit.Assert.assertEquals;
+
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Keys;
@@ -25,7 +27,9 @@ import java.util.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
-public class CommissionEndToEndTest {
+import static org.junit.Assert.assertEquals;
+
+public class CommissionEndToEndTests {
   private WebDriver driver;
   private Map<String, Object> vars;
   JavascriptExecutor js;
@@ -177,15 +181,31 @@ public class CommissionEndToEndTest {
 
     driver.switchTo().frame(iframe);
     WebElement cardNumberInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
-        By.cssSelector("input[name='cardnumber']")
-    ));
-    cardNumberInput.sendKeys("4242424242424242");
-    WebElement expInput = driver.findElement(By.name("exp-date"));
-    expInput.sendKeys("1230");
-    WebElement cvcInput = driver.findElement(By.name("cvc"));
-    cvcInput.sendKeys("123");
-    driver.switchTo().defaultContent();
-    //driver.findElement(By.cssSelector(".r-backgroundColor-oe20jz > .css-text-146c3p1")).click();
-    driver.findElement(By.cssSelector("[data-testid='pay-button']")).click();
+    By.cssSelector("input[name='cardnumber']")
+));
+cardNumberInput.sendKeys("4242424242424242");
+
+WebElement expInput = driver.findElement(By.name("exp-date"));
+expInput.sendKeys("1230");
+
+WebElement cvcInput = driver.findElement(By.name("cvc"));
+cvcInput.sendKeys("123");
+
+// 💡 Esperar a que el campo postal esté visible
+WebElement zipInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
+    By.name("postal") // o "postalCode" si ese es el name exacto
+));
+zipInput.sendKeys("12345");
+
+driver.switchTo().defaultContent();
+
+//driver.findElement(By.cssSelector(".r-backgroundColor-oe20jz > .css-text-146c3p1")).click();
+driver.findElement(By.cssSelector("[data-testid='pay-button']")).click();
+WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+  By.cssSelector("[data-testid='successText']") // Ojo con el typo "sucessText"
+));
+
+String successText = successMessage.getText();
+assertEquals("¡Pago realizado con éxito! 🎉", successText);
   }
 }
