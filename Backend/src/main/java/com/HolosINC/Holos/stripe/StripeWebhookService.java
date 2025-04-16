@@ -3,6 +3,7 @@ package com.HolosINC.Holos.stripe;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.auth.Auth;
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
 
@@ -23,11 +24,13 @@ public class StripeWebhookService {
     }
 
     @Transactional
-    public void handleSubscriptionDeleted(String subscriptionId) {
+    public void handleSubscriptionDeleted(String subscriptionId) throws Exception{
         Optional<Artist> artistOpt = artistRepository.findBySubscriptionId(subscriptionId);
+        if(subscriptionId == null) {
+            throw new ResourceNotFoundException("Subscription ID not found in the database.");
+        }
         if (artistOpt.isEmpty()) {
-            System.out.println("No se encontró el artista con el subscriptionId: " + subscriptionId);
-            return;
+            throw new ResourceNotFoundException("Subscription ID not found in the database.");
         }
         Artist artist = artistOpt.get();     
         BaseUser user = artist.getBaseUser();
@@ -35,13 +38,19 @@ public class StripeWebhookService {
         user.setAuthority(Auth.ARTIST);
         userRepository.save(user);
 
-        artist.setSubscriptionId(null);
+        artist.setSubscriptionId(subscriptionId);
         artistRepository.save(artist);
     }
 
     @Transactional
-    public void handleSubscriptionCreated(String subscriptionId) {
+    public void handleSubscriptionCreated(String subscriptionId) throws Exception{
         Optional<Artist> artistOpt = artistRepository.findBySubscriptionId(subscriptionId);
+        if(subscriptionId == null) {
+            throw new ResourceNotFoundException("Subscription ID not found in the database.");
+        }
+        if(artistOpt.isEmpty()){
+            throw new ResourceNotFoundException("Subscription ID not found in the database.");
+        }
         artistOpt.ifPresent(artist -> {
             BaseUser user = artist.getBaseUser();
             user.setAuthority(Auth.ARTIST_PREMIUM);
