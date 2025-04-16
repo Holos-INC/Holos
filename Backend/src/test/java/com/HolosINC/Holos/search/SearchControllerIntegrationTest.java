@@ -9,11 +9,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//@SpringBootTest
-//@AutoConfigureMockMvc
+@SpringBootTest
+@AutoConfigureMockMvc
 public class SearchControllerIntegrationTest {
 
-/*     @Autowired
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
@@ -151,6 +151,6 @@ public class SearchControllerIntegrationTest {
                 .param("maxPrice", "300"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
-    } */
+    } 
 
 }
