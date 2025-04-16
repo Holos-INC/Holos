@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,10 @@ import colors from "@/src/constants/colors";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getUserByUsername } from "@/src/services/userApi";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
+import ProfileHeader from "@/src/components/profile/ProfileHeader";
+import ActionButtons from "@/src/components/profile/ActionButtons";
+import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
 
 interface Artwork {
   id: number;
@@ -33,12 +37,17 @@ export default function ArtistDetailScreen() {
   const navigation = useNavigation();
   const { loggedInUser } = useAuth();
   const { username } = useLocalSearchParams<{ username: string }>();
-  const [user, setUser] = useState<BaseUserDTO | null>(null);
-  const isCurrentUser = loggedInUser?.username === user?.username || false;
+  const [user, setUser] = useState<BaseUserDTO | ArtistDTO | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { width } = useWindowDimensions();
-  const isCompact = width < 0.75 * 1000;
+  function isBaseUser(
+    user: BaseUserDTO | ArtistDTO | null
+  ): user is BaseUserDTO {
+    return !!user && "authorityName" in user;
+  }
+  const isClient = isBaseUser(user) && user.authorityName === "CLIENT";
+  const isCurrentUser = loggedInUser?.username === user?.username;
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("@/assets/fonts/Montserrat/Montserrat-Regular.ttf"),
@@ -53,7 +62,6 @@ export default function ArtistDetailScreen() {
           loggedInUser?.token || ""
         );
         setUser(userData);
-        console.log(userData);
 
         const worksData: Artwork[] = await getWorksDoneByArtist(
           userData.username || ""
@@ -88,142 +96,21 @@ export default function ArtistDetailScreen() {
         ATRÁS
       </Button>
 
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          paddingVertical: 30,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: isCompact ? "column" : "row",
-            alignItems: isCompact ? "center" : "flex-start",
-            gap: isCompact ? 50 : 10,
-            width: "100%",
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              gap: 10,
-              width: "100%",
-            }}
-          >
-            <Image
-              style={{
-                width: 150,
-                height: 150,
-                borderRadius: 75,
-                resizeMode: "cover",
-              }}
-              source={
-                user?.imageProfile
-                  ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
-                  : undefined
-              }
-            />
-            <Text style={{ fontSize: 16, fontFamily: "Montserrat-Bold" }}>
-              @{user?.username || "undefined"}
-            </Text>
-          </View>
-
-          <View
-            style={{
-              flex: isCompact ? 1 : 3,
-              gap: 20,
-              alignItems: isCompact ? "center" : "flex-start",
-              marginTop: isCompact ? 20 : 0,
-              width: "100%",
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: isCompact ? "center" : "flex-start",
-                width: "100%",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 30,
-                  fontWeight: "bold",
-                  fontFamily: "Montserrat-Bold",
-                  textAlign: isCompact ? "center" : "left",
-                }}
-              >
-                {user?.name || "Nombre no disponible"}
-              </Text>
-              {isCurrentUser && (
-                <IconButton
-                  icon={"pencil"}
-                  iconColor={colors.brandPrimary}
-                  size={30}
-                  onPress={() => router.push(`/profile/edit`)}
-                />
-              )}
-            </View>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: "Montserrat-Regular",
-                textAlign: isCompact ? "center" : "left",
-              }}
-            >
-              {user?.description || "No hay descripción disponible."}
-            </Text>
-          </View>
-        </View>
-        {!(user?.authorityName === "CLIENT") && isCurrentUser ? (
-          <View
-            style={{
-              margin: 10,
-              flexDirection: "row",
-              alignSelf: "center",
-              gap: 10,
-            }}
-          >
-            <Button
-              icon={"crown"}
-              mode="contained"
-              buttonColor={colors.brandPrimary}
-              style={{ padding: 5 }}
-              labelStyle={{ fontWeight: "bold", fontSize: 16 }}
-              onPress={() => router.push(`/profile/premium`)}
-            >
-              Holos Premium
-            </Button>
-            <Button
-              icon={"credit-card"}
-              mode="contained"
-              buttonColor={colors.brandPrimary}
-              style={{ padding: 5 }}
-              labelStyle={{ fontWeight: "bold", fontSize: 16 }}
-              onPress={() => router.push(`/profile/stripe-setup`)}
-            >
-              Conectar Stripe
-            </Button>
-          </View>
-        ) : !(user?.authorityName === "CLIENT") && !isCurrentUser ? (
-          <Button
-            icon={"email"}
-            mode="contained"
-            buttonColor={colors.brandSecondary}
-            style={{ padding: 5, alignSelf: "center" }}
-            labelStyle={{ fontWeight: "bold", fontSize: 16 }}
-            onPress={() =>
-              router.push(`/commissions/request/${user?.username}`)
-            }
-          >
-            Solicitar trabajo personalizado
-          </Button>
-        ) : null}
+      <View style={{ flex: 1, alignItems: "center", paddingVertical: 30 }}>
+        <ProfileHeader
+          user={user}
+          isCurrentUser={isCurrentUser}
+          onEditPress={() => setShowEditDialog(true)}
+        />
+        <ActionButtons
+          isClient={isClient}
+          isCurrentUser={isCurrentUser}
+          username={user?.username}
+        />
       </View>
+
       <View style={styles.divider} />
 
-      {/* Sección inferior: scroll horizontal de obras */}
       <View style={styles.bottomContainer}>
         <ScrollView
           horizontal
@@ -253,6 +140,15 @@ export default function ArtistDetailScreen() {
           ))}
         </ScrollView>
       </View>
+      {user && (
+        <ArtistProfileDialog
+          visible={showEditDialog}
+          onDismiss={() => setShowEditDialog(false)}
+          user={user}
+          setUser={setUser}
+          token={loggedInUser?.token || ""}
+        />
+      )}
     </ScrollView>
   );
 }

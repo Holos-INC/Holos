@@ -124,6 +124,7 @@ public class AuthoritiesService {
 		user.setEmail(request.getEmail() != null ? request.getEmail() : user.getEmail());
 		user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : user.getPhoneNumber());
 		user.setImageProfile(request.getImageProfile() != null ? imageHandler.getBytes(request.getImageProfile()) : user.getImageProfile());
+		user.setDescription(request.getDescription() != null ? request.getDescription() : user.getDescription());
 
 		baseUserService.save(user);
 
