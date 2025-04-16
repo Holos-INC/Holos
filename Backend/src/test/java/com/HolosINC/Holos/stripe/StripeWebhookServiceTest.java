@@ -52,7 +52,7 @@ public class StripeWebhookServiceTest {
         String expectedSubscriptionId = artistRepository.findBySubscriptionId(subscriptionId).get().getSubscriptionId();
 
         // Assert
-        verify(artistRepository, times(1)).findBySubscriptionId(subscriptionId);
+        verify(artistRepository, times(2)).findBySubscriptionId(subscriptionId);
         verify(userRepository, times(1)).save(user);
         verify(artistRepository, times(1)).save(artist);
 
