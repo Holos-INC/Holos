@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
-import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
-import UserPanel from "@/src/components/RequestCommission/UserPanel";
+import { ScrollView } from "react-native";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
 import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
@@ -9,8 +7,6 @@ import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { ArtistDTO } from "@/src/constants/ExploreTypes";
-
-const commissionTablePrice = "@/assets/images/image.png";
 
 export default function RequestCommissionUserScreen() {
   const { artistUsername } = useLocalSearchParams();
@@ -51,15 +47,8 @@ export default function RequestCommissionUserScreen() {
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {artist && <UserPanel artist={artist} />}
-
-        <View style={styles.commissionContainer}>
-          <Text style={styles.commissionTitle}>Precio de la comisión</Text>
-          <Image source={require(commissionTablePrice)} resizeMode="contain" />
-        </View>
-
-        {artist && <RequestForm artist={artist} />}
+      <ScrollView>
+      {artist && <RequestForm artist={artist} />}
       </ScrollView>
     </ProtectedRoute>
   );

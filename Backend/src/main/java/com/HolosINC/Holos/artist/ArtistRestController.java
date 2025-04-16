@@ -71,7 +71,7 @@ class ArtistRestController {
         }
     }
 
-	@GetMapping(value = "username/{username}")
+	@GetMapping(value = "/username/{username}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
     public ResponseEntity<?> findByUsername(@PathVariable("username") String username) {
         try{
