@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
-import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
-import UserPanel from "@/src/components/RequestCommission/UserPanel";
+import { ScrollView } from "react-native";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
 import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
