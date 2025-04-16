@@ -27,7 +27,6 @@ export default function RequestCommissionUserScreen() {
         const artistData: ArtistDTO = await getArtistByUsername(
           toStringParam(artistUsername)
         );
-        console.log("Artista encontrado:", artistData);
         setArtist(artistData);
       } catch (error) {
         console.error("Error al buscar artista:", error);
@@ -47,9 +46,7 @@ export default function RequestCommissionUserScreen() {
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
-      <ScrollView>
-      {artist && <RequestForm artist={artist} />}
-      </ScrollView>
+      <ScrollView>{artist && <RequestForm artist={artist} />}</ScrollView>
     </ProtectedRoute>
   );
 }

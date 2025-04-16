@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 import { Formik } from "formik";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import colors from "@/src/constants/colors";
 import * as ImagePicker from "expo-image-picker";
 import { artistUser } from "@/src/constants/user";
@@ -12,6 +12,8 @@ import { Platform, useWindowDimensions } from "react-native";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
 import { Dialog, Portal, Button, TextInput } from "react-native-paper";
 import { desktopStyles, mobileStyles } from "@/src/styles/userProfile.styles";
+import { AuthenticationContext } from "@/src/contexts/AuthContext";
+import { useRouter } from "expo-router";
 
 interface ArtistProfileDialogProps {
   visible: boolean;
@@ -19,6 +21,7 @@ interface ArtistProfileDialogProps {
   user: BaseUserDTO | ArtistDTO;
   setUser: (user: BaseUserDTO | ArtistDTO) => void;
   token: string;
+  refreshUser: () => Promise<void>;
 }
 
 const validationSchema = Yup.object().shape({
@@ -48,6 +51,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   user,
   setUser,
   token,
+  refreshUser,
 }) => {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width > 775;
@@ -57,6 +61,8 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const [tableCommisionsPrice, setTableCommisionsPrice] = useState<
     string | null
   >(null);
+  const { signOut } = useContext(AuthenticationContext);
+  const router = useRouter();
 
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
@@ -108,6 +114,8 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
 
   const sendProfile = async (values: any) => {
     try {
+      const usernameChanged = values.username !== user.username;
+
       if (isArtist) {
         await updateUserArtist(values, token);
       } else {
@@ -120,6 +128,13 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       const { imageProfile, tableCommissionsPrice, ...safeValues } = values;
       setUser({ ...user, ...safeValues }); // safe copy
 
+      if (usernameChanged) {
+        router.replace("/login");
+        signOut(() => console.log("Logged out!"));
+      } else {
+        await refreshUser();
+        onDismiss();
+      }
       onDismiss();
     } catch (err) {
       console.error(err);
@@ -193,6 +208,10 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                   {touched.username && errors.username && (
                     <Text style={styles.error}>{errors.username}</Text>
                   )}
+                  <Text style={{ color: colors.brandPrimary, fontSize: 12 }}>
+                    * ¡Si cambias de nombre de usuario tendrás que volver a
+                    iniciar sesión!
+                  </Text>
 
                   <Text style={styles.label}>Correo</Text>
                   <TextInput

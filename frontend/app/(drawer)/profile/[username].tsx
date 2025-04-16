@@ -54,25 +54,26 @@ export default function ArtistDetailScreen() {
     "Montserrat-Bold": require("@/assets/fonts/Montserrat/Montserrat-Bold.ttf"),
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userData: BaseUserDTO = await getUserByUsername(
-          username,
-          loggedInUser?.token || ""
-        );
-        setUser(userData);
+  const fetchData = async () => {
+    try {
+      const userData: BaseUserDTO = await getUserByUsername(
+        username,
+        loggedInUser?.token || ""
+      );
+      setUser(userData);
 
-        const worksData: Artwork[] = await getWorksDoneByArtist(
-          userData.username || ""
-        );
-        setWorks(worksData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const worksData: Artwork[] = await getWorksDoneByArtist(
+        userData.username || ""
+      );
+      setWorks(worksData);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [username]);
 
@@ -147,6 +148,7 @@ export default function ArtistDetailScreen() {
           user={user}
           setUser={setUser}
           token={loggedInUser?.token || ""}
+          refreshUser={fetchData}
         />
       )}
     </ScrollView>

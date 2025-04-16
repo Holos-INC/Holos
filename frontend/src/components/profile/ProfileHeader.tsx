@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, useWindowDimensions } from "react-native";
-import { IconButton } from "react-native-paper";
+import { Icon, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
 import { ArtistDTO } from "@/src/constants/ExploreTypes";
@@ -42,9 +42,25 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               : undefined
           }
         />
-        <Text style={{ fontSize: 16, fontFamily: "Montserrat-Bold" }}>
-          @{user?.username}
-        </Text>
+
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: "Montserrat-Bold",
+              marginRight: 4,
+            }}
+          >
+            @{user?.username}
+          </Text>
+          {true && (
+            <Icon
+              source="star-four-points-outline"
+              size={16}
+              color={colors.brandSecondary}
+            />
+          )}
+        </View>
       </View>
 
       <View
