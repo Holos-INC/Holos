@@ -1,4 +1,12 @@
-import { View, TextInput, Image, Text, TouchableOpacity, Alert, Platform } from "react-native";
+import {
+  View,
+  TextInput,
+  Image,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Platform,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import { Formik } from "formik";
@@ -46,7 +54,9 @@ export default function RequestForm({ artist }: RequestFormProps) {
       ),
   });
 
-  const pickImage = async (setFieldValue: (field: string, value: any) => void) => {
+  const pickImage = async (
+    setFieldValue: (field: string, value: any) => void
+  ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -60,7 +70,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
     }
   };
 
-  const handleFormSubmit = async (values: FormValues, resetForm: () => void) => {
+  const handleFormSubmit = async (
+    values: FormValues,
+    resetForm: () => void
+  ) => {
     try {
       const commissionData = {
         name: values.name,
@@ -84,38 +97,65 @@ export default function RequestForm({ artist }: RequestFormProps) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.surfaceMuted, paddingVertical: 16 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: COLORS.surfaceMuted,
+        paddingVertical: 16,
+      }}
+    >
       {/* Título principal */}
       <Text style={styles.pageTitle}>Encarga una Obra a: </Text>
-  
+
       {/* Tarjeta del artista */}
       <UserPanel artist={artist} />
 
-     {/* Tarjeta de la tabla de precios */}
+      {/* Tarjeta de la tabla de precios */}
       <View style={styles.priceTableContainer}>
         <Text style={styles.label}>
-          Precios orientativos establecidos por el artista según el tipo de obra:
+          Precios orientativos establecidos por el artista según el tipo de
+          obra:
         </Text>
 
         <Text style={styles.priceTableText}>
-          Puedes usar esta tabla para ayudarte a decidir el precio de tu encargo.
+          Puedes usar esta tabla para ayudarte a decidir el precio de tu
+          encargo.
         </Text>
 
-        <Image
-          source={require(commissionTablePrice)}
-          style={styles.priceTableImage}
-        />
+        <View style={styles.imageWrapper}>
+          <Image
+            source={require(commissionTablePrice)}
+            style={styles.priceTableImage}
+            resizeMode="contain"
+          />
+        </View>
       </View>
-  
+
       {/* Formulario */}
       <Formik<FormValues>
-        initialValues={{ name: "", description: "", price: 0, image: "", milestoneDate: null }}
+        initialValues={{
+          name: "",
+          description: "",
+          price: 0,
+          image: "",
+          milestoneDate: null,
+        }}
         validationSchema={commissionValidationSchema}
-        onSubmit={(values, { resetForm }) => handleFormSubmit(values, resetForm)}
+        onSubmit={(values, { resetForm }) =>
+          handleFormSubmit(values, resetForm)
+        }
       >
-        {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched, resetForm }) =>  (
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setFieldValue,
+          values,
+          errors,
+          touched,
+          resetForm,
+        }) => (
           <View style={styles.formContainer}>
-            
             {/* Title */}
             <Text style={styles.label}>Título de la Obra: </Text>
             <TextInput
@@ -128,9 +168,11 @@ export default function RequestForm({ artist }: RequestFormProps) {
             {errors.name && touched.name && (
               <Text style={styles.errorText}>{errors.name}</Text>
             )}
-  
+
             {/* Description */}
-            <Text style={styles.label}>Descripción de lo que espera ver en la Obra:</Text>
+            <Text style={styles.label}>
+              Descripción de lo que espera ver en la Obra:
+            </Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Describa su pedido..."
@@ -142,10 +184,15 @@ export default function RequestForm({ artist }: RequestFormProps) {
             {errors.description && touched.description && (
               <Text style={styles.errorText}>{errors.description}</Text>
             )}
-  
+
             {/* Price */}
-            <Text style={styles.label}>Precio que cree adecuado pagar por la Obra:</Text>
-            <Text style={styles.subtext}>El artista tendrá derecho a negociar el precio si lo cree necesario</Text>
+            <Text style={styles.label}>
+              Precio que cree adecuado pagar por la Obra:
+            </Text>
+            <Text style={styles.subtext}>
+              El artista tendrá derecho a negociar el precio si lo cree
+              necesario
+            </Text>
             <TextInput
               style={styles.title}
               placeholder="Introduzca el precio"
@@ -153,14 +200,19 @@ export default function RequestForm({ artist }: RequestFormProps) {
               value={values.price === 0 ? "" : values.price.toString()}
               onChangeText={(text) => {
                 const numericValue = text.replace(/[^0-9]/g, "");
-                setFieldValue("price", numericValue === "" ? "" : Number(numericValue));
+                setFieldValue(
+                  "price",
+                  numericValue === "" ? "" : Number(numericValue)
+                );
               }}
               onBlur={handleBlur("price")}
             />
             {errors.price && touched.price && (
-              <Text style={styles.errorText}>Por favor, introduzca un valor numérico</Text>
+              <Text style={styles.errorText}>
+                Por favor, introduzca un valor numérico
+              </Text>
             )}
-  
+
             {/* Delivery date */}
             <Text style={styles.label}>Fecha de Entrega de la Obra:</Text>
 
@@ -193,7 +245,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
                 }
                 onChange={(e) => {
                   const date = new Date(e.target.value);
-                  setFieldValue("milestoneDate", isNaN(date.getTime()) ? null : date);
+                  setFieldValue(
+                    "milestoneDate",
+                    isNaN(date.getTime()) ? null : date
+                  );
                 }}
                 style={styles.webDateInput}
               />
@@ -212,17 +267,22 @@ export default function RequestForm({ artist }: RequestFormProps) {
                 />
               )
             )}
-  
+
             {/* Image preview */}
             <Text style={styles.label}>Imagen de Referencia (Opcional):</Text>
             <View style={styles.previewContainer}>
               {values.image ? (
-                <Image source={{ uri: values.image }} style={styles.previewImage} />
+                <Image
+                  source={{ uri: values.image }}
+                  style={styles.previewImage}
+                />
               ) : (
-                <Text style={styles.placeholderText}>No se ha seleccionado ninguna imagen</Text>
+                <Text style={styles.placeholderText}>
+                  No se ha seleccionado ninguna imagen
+                </Text>
               )}
             </View>
-  
+
             {/* Buttons */}
             <TouchableOpacity
               style={styles.cameraButton}
