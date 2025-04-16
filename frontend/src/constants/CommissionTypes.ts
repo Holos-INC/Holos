@@ -140,7 +140,6 @@ export interface BaseUserDTO {
   email: string;
   phoneNumber: string;
   imageProfile: string;
-  tableCommissionsPrice: string;
 }
 
 export interface CommissionDTO {

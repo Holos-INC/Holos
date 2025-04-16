@@ -26,7 +26,7 @@ export default function CustomDrawer(props:CustomDrawerProps) {
                 <Image
                     source={
                         user?.imageProfile
-                          ? { uri: `${BASE_URL}${atob(user.imageProfile)}` }
+                          ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
                           : undefined
                       }
                     style = {{width:65,height:65, borderRadius:100}}

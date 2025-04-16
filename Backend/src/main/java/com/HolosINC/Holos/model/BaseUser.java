@@ -57,10 +57,14 @@ public class BaseUser {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] imageProfile;
 
+<<<<<<< HEAD
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] tableCommissionsPrice;
 
+=======
+    @Column(name = "created_user")
+>>>>>>> origin/develop
     @NotNull
     protected Date createdUser;
 

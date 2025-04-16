@@ -53,7 +53,7 @@ public class CommisionService {
         try {
             Commision commision = commisionDTO.createCommision();
             Artist artist = artistService.findArtist(artistId);
-            Client client = clientRepository.findById(userService.findCurrentUser().getId())
+            Client client = clientRepository.findClientByUserId(userService.findCurrentUser().getId())
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId()));
             if (artist == null || (!(artist.getBaseUser().getAuthority() == Auth.ARTIST) && !(artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM)))

@@ -20,7 +20,4 @@ public class BaseUserDTO {
     protected String phoneNumber;
 
     private byte[] imageProfile;
-
-    private byte[] tableCommissionsPrice;
-
 }
