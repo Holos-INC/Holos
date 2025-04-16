@@ -13,7 +13,7 @@ import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
 
-const cameraIcon = "photo-camera";
+const commissionTablePrice = "@/assets/images/image.png";
 
 interface RequestFormProps {
   artist: Artist;
@@ -90,6 +90,22 @@ export default function RequestForm({ artist }: RequestFormProps) {
   
       {/* Tarjeta del artista */}
       <UserPanel artist={artist} />
+
+     {/* Tarjeta de la tabla de precios */}
+      <View style={styles.priceTableContainer}>
+        <Text style={styles.label}>
+          Precios orientativos establecidos por el artista según el tipo de obra:
+        </Text>
+
+        <Text style={styles.priceTableText}>
+          Puedes usar esta tabla para ayudarte a decidir el precio de tu encargo.
+        </Text>
+
+        <Image
+          source={require(commissionTablePrice)}
+          style={styles.priceTableImage}
+        />
+      </View>
   
       {/* Formulario */}
       <Formik<FormValues>
@@ -101,7 +117,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
           <View style={styles.formContainer}>
             
             {/* Title */}
-            <Text style={styles.label}>Título de la Obra</Text>
+            <Text style={styles.label}>Título de la Obra: </Text>
             <TextInput
               style={styles.title}
               placeholder="Título"
@@ -129,7 +145,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
   
             {/* Price */}
             <Text style={styles.label}>Precio que cree adecuado pagar por la Obra:</Text>
-            <Text >El artista tendrá derecho a negociar el precio si lo cree necesario</Text>
+            <Text style={styles.subtext}>El artista tendrá derecho a negociar el precio si lo cree necesario</Text>
             <TextInput
               style={styles.title}
               placeholder="Introduzca el precio"

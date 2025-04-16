@@ -9,8 +9,6 @@ import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
 
-const commissionTablePrice = "@/assets/images/image.png";
-
 export default function RequestCommissionUserScreen() {
   const { artistUsername } = useLocalSearchParams();
   const [artist, setArtist] = useState<Artist | null>(null);
@@ -46,17 +44,8 @@ export default function RequestCommissionUserScreen() {
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-
-      {/* 
-         {artist && <UserPanel artist={artist} />}
-        <View style={styles.commissionContainer}>
-          <Text style={styles.commissionTitle}>Precio de la comisión</Text>
-          <Image source={require(commissionTablePrice)} resizeMode="contain" />
-        </View> 
-      */}
-
-        {artist && <RequestForm artist={artist} />}
+      <ScrollView>
+      {artist && <RequestForm artist={artist} />}
       </ScrollView>
     </ProtectedRoute>
   );
