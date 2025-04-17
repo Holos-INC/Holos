@@ -31,7 +31,7 @@ interface RequestFormProps {
 type FormValues = {
   name: string;
   description: string;
-  price: number;
+  price: string;
   image: string;
   milestoneDate: Date | null;
 };
@@ -42,16 +42,16 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
   const commissionValidationSchema = object({
     name: string().required("El título es necesario"),
-    description: string().required("La descripción es necesariad"),
-    price: number()
+    description: string().required("La descripción es necesaria"),
+    price: string()
       .required("El precio es necesario")
-      .positive("Debe ser positivo"),
+      .matches(/^[0-9]+([.,][0-9]{1,2})?$/, "Debe ser un número válido con hasta 2 decimales"),
     image: string(),
     milestoneDate: date()
       .nullable()
       .min(
         new Date(new Date().setDate(new Date().getDate() + 1)),
-        "La fecha debe ser posterior a la actual(más de un día)"
+        "La fecha debe ser posterior a la actual (más de un día)"
       ),
   });
 
@@ -79,7 +79,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
       const commissionData = {
         name: values.name,
         description: values.description,
-        price: values.price,
+        price: parseFloat(values.price.replace(",", ".")),
         paymentArrangement: PaymentArrangement.INITIAL,
         image: values.image,
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
@@ -117,13 +117,11 @@ export default function RequestForm({ artist }: RequestFormProps) {
       {/* Tarjeta de la tabla de precios */}
       <View style={styles.priceTableContainer}>
         <Text style={styles.label}>
-          Precios orientativos establecidos por el artista según el tipo de
-          obra:
+          Precios orientativos establecidos por el artista según el tipo de obra:
         </Text>
 
         <Text style={styles.priceTableText}>
-          Puedes usar esta tabla para ayudarte a decidir el precio de tu
-          encargo.
+          Puedes usar esta tabla para ayudarte a decidir el precio de tu encargo.
         </Text>
 
         <View style={styles.imageWrapper}>
@@ -140,7 +138,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
         initialValues={{
           name: "",
           description: "",
-          price: 0,
+          price: "",
           image: "",
           milestoneDate: null,
         }}
@@ -194,27 +192,25 @@ export default function RequestForm({ artist }: RequestFormProps) {
               Precio que cree adecuado pagar por la Obra:
             </Text>
             <Text style={styles.subtext}>
-              El artista tendrá derecho a negociar el precio si lo cree
-              necesario
+              El artista tendrá derecho a negociar el precio si lo cree necesario
             </Text>
             <TextInput
               style={styles.title}
               placeholder="Introduzca el precio"
-              keyboardType="numeric"
-              value={values.price === 0 ? "" : values.price.toString()}
+              keyboardType="default"
+              value={values.price}
               onChangeText={(text) => {
-                const numericValue = text.replace(/[^0-9]/g, "");
-                setFieldValue(
-                  "price",
-                  numericValue === "" ? "" : Number(numericValue)
-                );
+                const cleaned = text
+                  .replace(/-/g, "")
+                  .replace(",", ".")
+                  .replace(/[^0-9.]/g, "")
+                  .replace(/(\..*?)\..*/g, "$1");
+                setFieldValue("price", cleaned);
               }}
               onBlur={handleBlur("price")}
             />
             {errors.price && touched.price && (
-              <Text style={styles.errorText}>
-                Por favor, introduzca un valor numérico
-              </Text>
+              <Text style={styles.errorText}>{errors.price}</Text>
             )}
 
             {/* Delivery date */}
@@ -287,7 +283,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
               )}
             </View>
 
-            {/* Buttons */}
+            {/* Botón de subir imagen */}
             <TouchableOpacity
               style={styles.cameraButton}
               onPress={() => pickImage(setFieldValue)}
@@ -296,6 +292,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
               <Text style={styles.cameraButtonText}>Subir Imagen</Text>
             </TouchableOpacity>
 
+            {/* Botones de acción */}
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.cancelButton}
