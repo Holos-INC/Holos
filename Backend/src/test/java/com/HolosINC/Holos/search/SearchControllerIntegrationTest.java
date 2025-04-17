@@ -153,4 +153,50 @@ public class SearchControllerIntegrationTest {
                 .andExpect(jsonPath("$.content").isArray());
     } 
 
+ //added
+
+    @Test
+    public void testSearchWorksWithInvalidPriceRange() throws Exception{
+        mockMvc.perform(get("api/v1/search/works").param("minPrice", "300").param("maxPrice", 
+        "100"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("minPrice no puede ser mayor que maxPrice."));
+
+    }
+
+    @Test
+    public void testSearchAllPaginationBeyondMaxResults() throws Exception {
+    mockMvc.perform(get("/api/v1/search/all")
+            .param("query", "art")
+            .param("page", "9999")  // Página con más resultados de los disponibles
+            .param("size", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isEmpty());  
+}
+
+    @Test 
+    public void testSearchWorksByNonExistentArtist() throws Exception {
+        mockMvc.perform(get("/api/v1/search/artists/9999/works"))  // ID de artista que no existe
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());  // Se espera una lista vacía
+    }
+
+    @Test
+    public void testSearchArtitstWithNegativeMinWorksDone() throws Exception{
+        mockMvc.perform(get("api/v1/search/artists")
+        .param("minWorksDone", "-1"))
+        .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("minWorksDone no puede ser negativo."));
+
+    }
+
+    @Test
+public void testSearchAllWithoutParameters() throws Exception {
+    mockMvc.perform(get("/api/v1/search/all"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isArray());
+}
+
+
+
+
 }
