@@ -25,16 +25,30 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const { loggedInUser } = useContext(AuthenticationContext);
   const { getPaymentMethod, error, loading, setError } = useStripePayment();
 
-  const handlePayPress = async () => {
-    const stripe =
-      typeof window !== "undefined"
-        ? require("@stripe/react-stripe-js").useStripe()
-        : null;
-    const paymentMethodId = await getPaymentMethod();
-    if (!paymentMethodId) return;
-
-    if (!stripe) {
+  const handlePayPress = async (
+    stripe: any,
+    elements: any,
+    CardElement: React.ComponentType<any>
+  ) => {
+    if (!stripe || !elements) {
       setError("Stripe aún no está listo 😿");
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+
+    if (!cardElement) {
+      setError("No se pudo encontrar el formulario de tarjeta 😿");
+      return;
+    }
+
+    const { error: stripeError, paymentMethod } =
+      await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
+    if (!stripe) {
+      setError("Stripe aún no está listo 😿" + stripeError);
       return;
     }
     if (status != "NOT_PAID_YET") {
@@ -51,7 +65,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       );
 
       const result = await stripe.confirmCardPayment(secret, {
-        payment_method: paymentMethodId,
+        payment_method: paymentMethod.id,
       });
 
       if (result.error) {
@@ -71,10 +85,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   return (
     <StripeSafeWrapper>
-      {(CardElement) => (
+      {(CardElement, stripe, elements) => (
         <PaymentFormLayout
           title="Tarjetas aceptadas:"
-          onPress={handlePayPress}
+          onPress={() => handlePayPress(stripe, elements, CardElement)}
           loading={loading}
           success={success}
           error={error}

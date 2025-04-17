@@ -1,24 +1,14 @@
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useState } from "react";
 
 export function useStripePayment() {
+  const stripe = useStripe();
+  const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const getPaymentMethod = async (): Promise<string | null> => {
     setError(null);
-
-    if (typeof window === "undefined") {
-      setError("Stripe no está disponible 😿");
-      return null;
-    }
-
-    const {
-      useStripe,
-      useElements,
-      CardElement,
-    } = require("@stripe/react-stripe-js");
-    const stripe = useStripe();
-    const elements = useElements();
 
     if (!stripe || !elements) {
       setError("Stripe no está disponible 😿");

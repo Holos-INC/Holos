@@ -77,10 +77,8 @@ export default function Checkout() {
     navigation.setOptions({ title: "🛍️ Checkout" });
   }, [navigation]);
 
-  if (loading) return <LoadingScreen />;
+  if (loading || !commission) return <LoadingScreen />;
   if (error) return <Text style={{ padding: 24, color: "red" }}>{error}</Text>;
-  if (!commission)
-    return <WIPPlaceholder message="Replace with a true error screen." />;
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>

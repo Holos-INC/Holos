@@ -8,12 +8,14 @@ import { ArtistDTO } from "@/src/constants/ExploreTypes";
 type ProfileHeaderProps = {
   user: BaseUserDTO | ArtistDTO | null;
   isCurrentUser: boolean;
+  isPremium: boolean;
   onEditPress: () => void;
 };
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   isCurrentUser,
+  isPremium,
   onEditPress,
 }) => {
   const { width } = useWindowDimensions();
@@ -42,25 +44,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               : undefined
           }
         />
-
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontFamily: "Montserrat-Bold",
-              marginRight: 4,
-            }}
-          >
-            @{user?.username}
-          </Text>
-          {true && (
-            <Icon
-              source="star-four-points-outline"
-              size={16}
-              color={colors.brandSecondary}
-            />
-          )}
-        </View>
+        <Text
+          style={{
+            fontSize: 16,
+            fontFamily: "Montserrat-Bold",
+          }}
+        >
+          @{user?.username}
+        </Text>
       </View>
 
       <View
@@ -86,10 +77,18 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               fontWeight: "bold",
               fontFamily: "Montserrat-Bold",
               textAlign: isCompact ? "center" : "left",
+              marginRight: 7,
             }}
           >
             {user?.name || "Nombre no disponible"}
           </Text>
+          {isPremium && (
+            <Icon
+              source="check-decagram"
+              size={30}
+              color={colors.brandSecondary}
+            />
+          )}
           {isCurrentUser && (
             <IconButton
               icon={"pencil"}

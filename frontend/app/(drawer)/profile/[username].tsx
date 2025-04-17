@@ -1,12 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
@@ -14,8 +7,7 @@ import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 import styles from "@/src/styles/ArtistDetail.styles";
-import { Button, IconButton } from "react-native-paper";
-import colors from "@/src/constants/colors";
+import { Button } from "react-native-paper";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getUserByUsername } from "@/src/services/userApi";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
@@ -46,6 +38,7 @@ export default function ArtistDetailScreen() {
     return !!user && "authorityName" in user;
   }
   const isClient = isBaseUser(user) && user.authorityName === "CLIENT";
+  const isPremium = isBaseUser(user) && user.authorityName === "ARTIST_PREMIUM";
   const isCurrentUser = loggedInUser?.username === user?.username;
   const [showEditDialog, setShowEditDialog] = useState(false);
 
@@ -101,6 +94,7 @@ export default function ArtistDetailScreen() {
         <ProfileHeader
           user={user}
           isCurrentUser={isCurrentUser}
+          isPremium={isPremium}
           onEditPress={() => setShowEditDialog(true)}
         />
         <ActionButtons

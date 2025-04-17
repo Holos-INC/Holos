@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
+import { useStripe, useElements } from "@stripe/react-stripe-js";
 
 interface Props {
-  children: (CardElement: React.ComponentType<any>) => React.ReactNode;
+  children: (
+    CardElement: React.ComponentType<any>,
+    stripe: ReturnType<typeof useStripe>,
+    elements: ReturnType<typeof useElements>
+  ) => React.ReactNode;
 }
 
 const StripeSafeWrapper: React.FC<Props> = ({ children }) => {
   const [CardElement, setCardElement] =
     useState<React.ComponentType<any> | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const stripe = useStripe();
+  const elements = useElements();
 
   useEffect(() => {
     const loadStripe = async () => {
@@ -39,11 +47,11 @@ const StripeSafeWrapper: React.FC<Props> = ({ children }) => {
     );
   }
 
-  return CardElement ? (
-    <>{children(CardElement)}</>
-  ) : (
-    <Text>Cargando pasarela segura...</Text>
-  );
+  if (!CardElement) {
+    return <Text>Cargando pasarela segura...</Text>;
+  }
+
+  return <>{children(CardElement, stripe, elements)}</>;
 };
 
 export default StripeSafeWrapper;
