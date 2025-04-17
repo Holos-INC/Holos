@@ -30,6 +30,10 @@ public class CommissionDTO {
 
     private EnumPaymentArrangement paymentArrangement;
 
+    private Integer totalPayments;
+
+    private Boolean isWaitingPayment;
+
     private Date milestoneDate;
     
     private String artistUsername;
@@ -50,12 +54,14 @@ public class CommissionDTO {
         this.price = commision.getPrice();
         this.status = commision.getStatus();
         this.paymentArrangement = commision.getPaymentArrangement();
+        this.totalPayments = commision.getTotalPayments();
         this.milestoneDate = commision.getMilestoneDate();
         this.artistUsername = commision.getArtist().getBaseUser().getUsername();
         this.clientUsername = commision.getClient().getBaseUser().getUsername();
         this.image = commision.getImage();
         this.imageProfileA = commision.getArtist().getBaseUser().getImageProfile();
         this.imageProfileC = commision.getClient().getBaseUser().getImageProfile();
+        this.isWaitingPayment = commision.isWaitingPayment();
 
     }
 
@@ -66,7 +72,8 @@ public class CommissionDTO {
         commision.setDescription(this.description);
         commision.setPrice(this.price);
         commision.setStatus(this.status);
-        commision.setPaymentArrangement(this.paymentArrangement);
+        commision.setPaymentArrangement(this.getPaymentArrangement());
+        commision.setTotalPayments(this.getTotalPayments());
         commision.setMilestoneDate(this.milestoneDate);
         commision.setImage(this.image);
         return commision;

@@ -30,9 +30,9 @@ public class PaymentController {
 
 
     @PostMapping("/create/{commissionId}")
-    public ResponseEntity<?> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) throws Exception {
+    public ResponseEntity<?> createPayment(@PathVariable long commissionId) throws Exception {
         try {
-            String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
+            String paymentIntent = paymentService.createPayment(commissionId);
             return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());

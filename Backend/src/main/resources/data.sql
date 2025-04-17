@@ -226,7 +226,7 @@ INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, descripti
 (85, 20, 'Completed', 3, 'Tasks that have been finished', '#F1C40F'),
 (86, 20, 'On Hold', 4, 'Tasks that are paused or waiting for approval', '#FFC300');
 
--- Comisiones para el Artista 1(ID 1)
+/* -- Comisiones para el Artista 1(ID 1)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
 (1, 1, 'Golden Sunrise', 'A beautiful golden sunrise landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL),
 (2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 13, 'REQUESTED', '2025-03-15', 'INITIAL', NULL),
@@ -481,7 +481,7 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (193, 20, 'Tropical Paradise', 'A tropical beach with turquoise waters', 220.0, 7, 'IN_WAIT_LIST', '2025-08-18', 'MODERATOR', NULL),
 (194, 20, 'River Sunset', 'A beautiful sunset over a calm river', 230.0, 8, 'ENDED', '2025-08-19', 'FINAL', NULL),
 (195, 20, 'Golden Wheat', 'A field of golden wheat under the setting sun', 240.0, 9, 'ENDED', '2025-08-20', 'FIFTYFIFTY', NULL),
-(196, 20, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'REJECTED', '2025-08-21', 'INITIAL', NULL);
+(196, 20, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'REJECTED', '2025-08-21', 'INITIAL', NULL); */
 
 INSERT INTO artist_category(id,artist_id,category_id) VALUES
 (1, 1, 1),

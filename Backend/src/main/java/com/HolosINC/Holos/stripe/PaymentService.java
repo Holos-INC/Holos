@@ -14,19 +14,16 @@ import com.HolosINC.Holos.model.BaseUserService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.PaymentIntentCollection;
-import com.stripe.param.PaymentIntentConfirmParams;
+import com.stripe.net.RequestOptions;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.PaymentIntentListParams;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+
 
 @Service
 public class PaymentService {
@@ -47,22 +44,7 @@ public class PaymentService {
     }  
 
     @Transactional
-    public PaymentIntent getById(String paymentIntentId) throws StripeException {
-        Stripe.apiKey = secretKey;
-        PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-        return paymentIntent;
-    }
-
-    @Transactional
-    public PaymentIntentCollection getAll() throws StripeException {
-        Stripe.apiKey = secretKey;
-        PaymentIntentListParams params = PaymentIntentListParams.builder()
-            .build();
-        return PaymentIntent.list(params);
-    }
-
-    @Transactional
-    public String createPayment(PaymentDTO paymentDTO, long commisionId) throws StripeException, Exception {
+    public String createPayment(long commisionId) throws StripeException, Exception {
         Stripe.apiKey = secretKey;
         try {
             Commision commision = commisionRepository.findById(commisionId)
@@ -73,27 +55,35 @@ public class PaymentService {
             BaseUser activeUser = userService.findCurrentUser();
             String email = activeUser.getEmail();
 
-            if (paymentDTO == null ||paymentDTO.getAmount() == null || paymentDTO.getAmount() <= 0) {
+            if (commision.getPrice() == null || commision.getPrice() <= 0) {
                 throw new BadRequestException("La cantidad del pago no puede ser nulo o 0");
             }
 
             if (commision.getClient()==null || !client.getBaseUser().equals(activeUser)){
                 throw new AccessDeniedException("No puedes acceder a este recurso");
             }
-        
-            if (commision.getPaymentIntentId()!=null){
-                throw new BadRequestException("Esta comisión ya tiene un pago asociado");
-            }
 
             if (artist==null){
                 throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
             }
+
+            if (commision.getTotalPayments()>=commision.getCurrentPayments()){
+                throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
+            }
+
+            if (!(commision.isWaitingPayment())){
+                throw new BadRequestException("Esta comisión no espera un nuevo pago");
+            }
             
-            long totalAmount = Math.round(commision.getPrice() * 100);
+            long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
             long commissionAmount = Math.round(totalAmount * commisionPercentage);
 
+            RequestOptions requestOptions = RequestOptions.builder()
+                .setIdempotencyKey("some-unique-key-per-user-action")
+                .build();
+
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                .setAmount(paymentDTO.getAmount()) 
+                .setAmount(totalAmount) 
                 .setCurrency(currency)
                 .setReceiptEmail(email)
                 .setDescription(commision.getDescription())
@@ -105,8 +95,13 @@ public class PaymentService {
                                 .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
                                 .build())
                 .build();
-            PaymentIntent paymentIntent = PaymentIntent.create(params);
-            commision.setPaymentIntentId(paymentIntent.getId());
+            PaymentIntent paymentIntent = PaymentIntent.create(params, requestOptions);
+            if (commision.getCurrentPayments()==null){
+                commision.setCurrentPayments(1);
+            }
+            else{
+                commision.setCurrentPayments(commision.getCurrentPayments()+1);
+            }
             commisionRepository.save(commision);
             return paymentIntent.getClientSecret();
 
@@ -123,19 +118,6 @@ public class PaymentService {
         }
     }
 
-    @Transactional
-    public PaymentIntent confirmPayment(String paymentIntentId, String paymentMethod) throws StripeException {
-        Stripe.apiKey = secretKey;
-        PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-        PaymentIntentConfirmParams params = PaymentIntentConfirmParams.builder()
-                .setPaymentMethod(paymentMethod)
-                .build();
-        return paymentIntent.confirm(params);
-    }
-
-    public Long getCommissionIdByPaymentIntent(String paymentIntentId) {
-        return commisionRepository.findCommissionIdByPaymentIntentId(paymentIntentId);
-    }
 
     @Transactional
     public void processPayment(Long commissionId, PaymentIntent paymentIntent) {
@@ -157,10 +139,4 @@ public class PaymentService {
         phr.save(paymentHistory);
     }
 
-    @Transactional
-    public PaymentIntent cancelPayment(String paymentIntentId) throws StripeException {
-        Stripe.apiKey = secretKey;
-        PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-        return paymentIntent.cancel();
-    }
 }

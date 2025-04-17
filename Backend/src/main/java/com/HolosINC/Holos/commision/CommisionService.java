@@ -1,8 +1,6 @@
 package com.HolosINC.Holos.commision;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,9 @@ import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 
@@ -62,7 +62,10 @@ public class CommisionService {
             commision.setArtist(artist);
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
-            commision.setPaymentArrangement(EnumPaymentArrangement.INITIAL); // TODO - GESTIONAR PARA MÁS DE ESTE TIPO DE PAGO
+            commision.setPaymentArrangement(commisionDTO.getPaymentArrangement()); 
+            if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
+                commision.setTotalPayments(commisionDTO.getTotalPayments());
+            }
             commisionRepository.save(commision);
             return new CommissionDTO(commision);
         } catch (Exception e) {
@@ -82,6 +85,10 @@ public class CommisionService {
                 throw new IllegalArgumentException("No puedes editar una comisión que no te pertenece");
 
             commisionInBDD.setPrice(commisionDTO.getPrice());
+            commisionInBDD.setPaymentArrangement(commisionDTO.getPaymentArrangement());
+            if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
+                commisionInBDD.setTotalPayments(commisionDTO.getTotalPayments());
+            }
             return commisionRepository.save(commisionInBDD);
         } catch (Exception e) {
             throw new Exception(e);
@@ -107,7 +114,7 @@ public class CommisionService {
     }
 
 
-    @Transactional
+/*     @Transactional
     public Commision updateCommisionStatus(Long commisionId, boolean accept) throws Exception {
         try{
             Commision commision = commisionRepository.findById(commisionId)
@@ -143,10 +150,10 @@ public class CommisionService {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
-    }
+    } */
 
     @Transactional
-    public void waitingCommission(CommissionDTO priceChanged, Long commisionId) throws Exception {
+    public void waitingCommission(CommissionDTO updatedCommissionDTO, Long commisionId) throws Exception {
         try{
             Commision commision = commisionRepository.findById(commisionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
@@ -157,7 +164,11 @@ public class CommisionService {
                 }
                 if (commision.getStatus() == StatusCommision.WAITING_CLIENT) {
                     commision.setStatus(StatusCommision.WAITING_ARTIST);
-                    commision.setPrice(priceChanged.getPrice());
+                    commision.setPrice(updatedCommissionDTO.getPrice());
+                    commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
+                    if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
+                        commision.setTotalPayments(updatedCommissionDTO.getTotalPayments());
+                    }
                 } else {
                     throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
                 }
@@ -169,11 +180,42 @@ public class CommisionService {
                 if (commision.getStatus() == StatusCommision.REQUESTED ||
                         commision.getStatus() == StatusCommision.WAITING_ARTIST) {
                     commision.setStatus(StatusCommision.WAITING_CLIENT);
-                    commision.setPrice(priceChanged.getPrice());
+                    commision.setPrice(updatedCommissionDTO.getPrice());
+                    commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
+                    if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
+                        commision.setTotalPayments(updatedCommissionDTO.getTotalPayments());
+                    }
                 } else {
                     throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
                 }
             }
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void requestPayment(Long commisionId) throws Exception {
+        try{
+            Commision commision = commisionRepository.findById(commisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+            Long id = userService.findCurrentUser().getId();
+            if (artistService.isArtist(id)) {
+                if (!commision.getArtist().getBaseUser().getId().equals(id)) {
+                    throw new ResourceNotOwnedException("El artista no tiene permisos para poner en espera esta comisión.");
+                }
+                if (commision.isWaitingPayment()==true){
+                    throw new BadRequestException("Esta comisión ya tiene un pago solicitado");
+                }
+                if (commision.getPaymentArrangement()!=EnumPaymentArrangement.MODERATOR){
+                    throw new BadRequestException("No puedes solicitar un pago de una comisión cuyo tipo de pago no es moderador");
+                }
+                if (commision.getTotalPayments()<=commision.getCurrentPayments()){
+                    throw new BadRequestException("Esta comisión ya está completamente pagada");
+                }
+            }
+            commision.setWaitingPayment(true);
             commisionRepository.save(commision);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -261,7 +303,7 @@ public class CommisionService {
                     throw new IllegalArgumentException("El cliente no tiene permisos para aceptar esta comisión.");
                 }
                 if (commision.getStatus() == StatusCommision.NOT_PAID_YET) {
-                    commision.setStatus(slotsFull ? StatusCommision.IN_WAIT_LIST : StatusCommision.ACCEPTED);
+                    commision.setStatus(slotsFull ? StatusCommision.IN_WAIT_LIST : StatusCommision.ACCEPTED);                 
                     if (!slotsFull) {
                         StatusKanbanOrder statusKanban = commisionRepository
                                 .getFirstStatusKanbanOfArtist(commision.getArtist().getId()).orElseThrow( () -> 
