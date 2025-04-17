@@ -38,7 +38,7 @@ public class StripeWebhookService {
         user.setAuthority(Auth.ARTIST);
         userRepository.save(user);
 
-        artist.setSubscriptionId(subscriptionId);
+        artist.setSubscriptionId(null);
         artistRepository.save(artist);
     }
 
