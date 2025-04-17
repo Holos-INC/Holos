@@ -52,6 +52,9 @@ public class BaseUser {
     @Enumerated(EnumType.STRING)
     @NotNull
     protected Auth authority;
+    
+    @Size(max = 500)
+    private String description;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")

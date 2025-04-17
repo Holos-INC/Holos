@@ -139,7 +139,9 @@ export interface BaseUserDTO {
   username: string;
   email: string;
   phoneNumber: string;
+  description: string;
   imageProfile: string;
+  authorityName: string;
 }
 
 export interface CommissionDTO {
