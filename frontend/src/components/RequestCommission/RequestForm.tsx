@@ -20,11 +20,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
 interface RequestFormProps {
-  artist: Artist;
+  artist: ArtistDTO;
 }
 
 type FormValues = {
@@ -84,8 +85,11 @@ export default function RequestForm({ artist }: RequestFormProps) {
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
 
-      await createCommission(artist.id, commissionData, loggedInUser.token);
-      resetForm();
+      await createCommission(
+        artist.artistId,
+        commissionData,
+        loggedInUser.token
+      );
       setTimeout(() => {
         router.push(`/commissions`);
       }, 2000);

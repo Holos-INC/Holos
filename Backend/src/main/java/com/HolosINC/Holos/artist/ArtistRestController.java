@@ -71,12 +71,13 @@ class ArtistRestController {
         }
     }
 
-	@GetMapping(value = "username/{username}")
+	@GetMapping(value = "/username/{username}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
     public ResponseEntity<?> findByUsername(@PathVariable("username") String username) {
         try{
             Artist artist = artistService.findArtistByUsername(username);
-            return ResponseEntity.ok(artist);
+            ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
+            return ResponseEntity.ok(artistDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

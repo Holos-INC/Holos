@@ -138,7 +138,7 @@ export default function ExploreScreen() {
                 <TouchableOpacity
                   key={artist.id}
                   style={styles.artistCard}
-                  onPress={() => router.push(`/profile/${artist.id}`)}
+                  onPress={() => router.push(`/profile/${artist.username}`)}
                 >
                   <Image
                     source={{ uri: imageUri }}

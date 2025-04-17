@@ -40,9 +40,6 @@ public class Artist{
     @Column(name = "tableCommisionsPrice", columnDefinition = "LONGBLOB")
     private byte[] tableCommisionsPrice;
 
-    @Size(max = 500)
-    private String description;
-
     @Size(max = 100)
     private String linkToSocialMedia;
 

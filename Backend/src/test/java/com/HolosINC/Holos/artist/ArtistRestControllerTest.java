@@ -49,7 +49,7 @@ public class ArtistRestControllerTest {
         Artist artist = new Artist();
         artist.setId(1L);
         artist.setNumSlotsOfWork(5);
-        artist.setDescription("Artista especializado en retratos");
+        // artist.setDescription("Artista especializado en retratos");
 
         BaseUser baseUser = new BaseUser();
         baseUser.setName("Artista 1");

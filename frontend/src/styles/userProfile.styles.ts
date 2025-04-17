@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import colors from "../constants/colors";
 
 export const mobileStyles = StyleSheet.create({
   container: {
@@ -117,11 +118,9 @@ export const mobileStyles = StyleSheet.create({
     textAlign: "center",
   },
   label: {
-    alignSelf: "flex-start",
-    fontFamily: "Merriweather-Bold",
-    marginTop: 12,
-    fontSize: 24,
-    color: "#374151",
+    fontSize: 20,
+    fontFamily: "Montserrat-Bold",
+    color: colors.contentStrong,
   },
   input: {
     width: "100%",
@@ -270,11 +269,12 @@ export const desktopStyles = StyleSheet.create({
     textAlignVertical: "center",
   },
   label: {
-    alignSelf: "flex-start",
-    fontFamily: "Merriweather-Bold",
-    marginTop: 12,
-    fontSize: 24,
-    color: "#374151",
+    marginTop: 20,
+    marginBottom: 5,
+    fontSize: 20,
+    fontFamily: "Montserrat-Regular",
+    fontWeight: "600",
+    color: colors.contentStrong,
   },
   input: {
     width: "100%",
