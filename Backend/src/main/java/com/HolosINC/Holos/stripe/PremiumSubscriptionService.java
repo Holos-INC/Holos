@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.stripe;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +35,6 @@ public class PremiumSubscriptionService {
     private final BaseUserService userService;
     private final ArtistRepository artistRepository;
     
-
-    @Autowired
     public PremiumSubscriptionService(BaseUserService userService, ArtistRepository artistRepository) {
         this.userService = userService;
         this.artistRepository = artistRepository;

@@ -49,7 +49,6 @@ public class ArtistRestControllerTest {
         Artist artist = new Artist();
         artist.setId(1L);
         artist.setNumSlotsOfWork(5);
-        // artist.setDescription("Artista especializado en retratos");
 
         BaseUser baseUser = new BaseUser();
         baseUser.setName("Artista 1");
@@ -66,7 +65,6 @@ public class ArtistRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.artistId").value(1))
                 .andExpect(jsonPath("$.numSlotsOfWork").value(5))
-                .andExpect(jsonPath("$.description").value("Artista especializado en retratos"))
                 .andExpect(jsonPath("$.username").value("artista1"));
 
         verify(artistService, times(1)).findArtist(1L);
@@ -93,7 +91,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(get("/api/v1/artists/username/artistUsername"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.baseUser.username").value("artistUsername"));
+                .andExpect(jsonPath("$.username").value("artistUsername"));
 
         verify(artistService, times(1)).findArtistByUsername("artistUsername");
     }

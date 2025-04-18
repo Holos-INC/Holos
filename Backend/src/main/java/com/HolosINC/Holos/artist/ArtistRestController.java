@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.artist;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,6 @@ class ArtistRestController {
     
     private final ProfileService profileService;
 	
-    @Autowired
 	public ArtistRestController(ArtistService artistService, ProfileService profileService) {
         this.artistService = artistService;
         this.profileService = profileService;
@@ -49,7 +47,7 @@ class ArtistRestController {
 	
 	@GetMapping(value = "/{id}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-	public ResponseEntity<?> findById(@PathVariable("id") Long id) {
+	public ResponseEntity<?> findById(@PathVariable Long id) {
 		try{
             Artist artist = artistService.findArtist(id);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
@@ -73,7 +71,7 @@ class ArtistRestController {
 
 	@GetMapping(value = "/username/{username}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-    public ResponseEntity<?> findByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<?> findByUsername(@PathVariable String username) {
         try{
             Artist artist = artistService.findArtistByUsername(username);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
