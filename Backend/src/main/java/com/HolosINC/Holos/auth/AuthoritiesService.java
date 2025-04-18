@@ -62,10 +62,6 @@ public class AuthoritiesService {
 	
 		String strRoles = request.getAuthority().toUpperCase();
 		Auth role = Auth.valueOf(strRoles);
-
-		if (role == null) {
-			throw new IllegalArgumentException("Rol no válido: " + strRoles);
-		}
 		
 		user.setAuthority(role);
 

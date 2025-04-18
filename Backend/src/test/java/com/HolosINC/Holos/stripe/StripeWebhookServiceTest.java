@@ -82,7 +82,7 @@ public class StripeWebhookServiceTest {
         when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> {
-            stripeWebhookService.handleSubscriptionCreated(null);
+            stripeWebhookService.handleSubscriptionCreated(subscriptionId);
         });
         verify(userRepository, times(0)).save(any(BaseUser.class));
         verify(artistRepository, times(0)).save(any(Artist.class));

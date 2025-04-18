@@ -100,10 +100,6 @@ public class BaseUserService {
 
         Auth authority = Auth.valueOf(newRole.toUpperCase());
 
-        if(authority == null) {
-            throw new IllegalArgumentException("Invalid role: " + newRole);
-        }
-
         user.setAuthority(authority);
         return baseUserRepository.save(user);
     }
