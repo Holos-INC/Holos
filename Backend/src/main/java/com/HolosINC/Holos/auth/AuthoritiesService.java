@@ -108,7 +108,7 @@ public class AuthoritiesService {
 
 		if (user.getAuthority() == Auth.ARTIST ||
 			user.getAuthority() == Auth.ARTIST_PREMIUM) {
-			Artist artist = artistService.findArtist(user.getId());
+			Artist artist = artistService.findArtistByUserId(user.getId());
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(
