@@ -22,13 +22,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Introduccion
+## Introduction
 
-Bienvenidos a Holos, la aplicacion que conecta a clientes y artistas en un solo punto
-sin necesidad de tener aplicaciones distintas, ni de ir con cuidado para que no te estafen
+Welcome to Holos, the application where clients and artists connect with no need of numerous
+apps or with being scared of scams
 
-
-## Requisitos para operar sobre el repositorio
+## Requirements to operate over software
 
 To launch this repository you will first need this software:
 
