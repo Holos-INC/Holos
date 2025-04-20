@@ -160,4 +160,26 @@ public class ArtistRestControllerTest {
 
         verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
     }
+
+    @Test
+    public void testUpdateProfileFailure() throws Exception {
+        BaseUserDTO baseUserDTO = new BaseUserDTO();
+        baseUserDTO.setUsername("invalidUser");
+
+         when(profileService.updateProfile(any(BaseUserDTO.class)))
+            .thenThrow(new RuntimeException("No se pudo actualizar el perfil"));
+
+        mockMvc.perform(put("/api/v1/artists/update")
+                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(baseUserDTO)))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("No se pudo actualizar el perfil"));
+
+    verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
+}
+
+    @Test
+    public void testFindByUsernameEmpty() throws Exception {
+        mockMvc.perform(get("/api/v1/artists/username/"))
+                .andExpect(status().isNotFound()); // o 400 si lo manejas
+}
+
 }
