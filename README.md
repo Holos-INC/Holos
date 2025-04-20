@@ -1,32 +1,56 @@
-## Requisitos
+# HOLOS
+
+MIT License
+
+Copyright (c) 2025 HolosINC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Introduccion
+
+Bienvenidos a Holos, la aplicacion que conecta a clientes y artistas en un solo punto
+sin necesidad de tener aplicaciones distintas, ni de ir con cuidado para que no te estafen
+
+
+## Requisitos para operar sobre el repositorio
 
 To launch this repository you will first need this software:
 
-- Java 23
-- MariaDB 11.4
-- HeidiSQL (optional)
+- Java 17
+- MariaDB 11.4 / MySQL 8.0 (recommended)
 
-## Instalación
+Firstly, you have to clone the repo, supposing you previously have already manage all git 
+credentials
 
-### 1. Clone the repo
-
-```sh
+sh
+```
 git clone https://github.com/tu-usuario/holos.git
-cd holos
 ```
 
-### 2. Configure Database
-
-Open mysql command line:
+Secondly you will need to configure your database following the next commands opening mysql command line (or mariaDB):
 
 ```sh
 mysql -u root -p
+mariadb -u root -p
 ```
-
-if it shows an error check if MariaDB bin folder is added to the PATH:
-C:\Program Files\MariaDB 11.4\bin
-
-Create the database and user
+At this point a "Enter your password:" will appear on the CLI so you can introduce your root password.
+You will follow by creating the database with the commands especified below:
 
 ```SQL
 CREATE DATABASE holos_db;
@@ -35,12 +59,13 @@ GRANT ALL PRIVILEGES ON holos_db.* TO 'H0l0s_DB'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-### 3. Run the app
+Finally, to run the application is recommended to install the java extension package for VS Code, it will make everything easier
+Go to the HolosApplication.java and press run on the upper right section
 
-Install the java extension package for VS Code, it will make everything easier
+## Posible solutions to any error
 
-Go to the HolosApplication.java and press the run button over 'public static void'
+If some errors occurs during this proccess you can use any of this resources to solve it:
 
-## 3.1. Check database is connected (optional)
-
-To check if the database and the backend are connected use HeidiSQL, create a new connection with the application.properties user and password and see how the user table has appeared inside de holos_db database 
+1. Check if MariaDB or MySQL is in the PATH: C:\Program Files\MariaDB 11.4\bin
+2. Check you have the correct Java version, you can know this by tipping on the command line: java --version, if something strange happens check on the path for: C:\Program Files\Java\jdk-17\bin
+3. If u occurr onto an error related with mvn not found as a command check taht you have maven installed on your computer (installation page)[https://maven.apache.org/download.cgi], if so, check on the path for: C:\Program Files\apache-maven-3.9.9\bin
