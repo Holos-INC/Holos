@@ -27,7 +27,7 @@ public class CommissionEndToEndTests {
   public void setUp() {
     WebDriverManager.chromedriver().setup();
     driver = new ChromeDriver();
-    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     js = (JavascriptExecutor) driver;
   }
   @After
@@ -54,17 +54,17 @@ public class CommissionEndToEndTests {
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys("braul");
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys(Keys.ENTER);
     driver.findElement(By.cssSelector(".r-height-7r4507 > .css-accessibilityImage-9pa8cd")).click();
-    driver.findElement(By.cssSelector(".r-alignSelf-1kihuf0")).click();
-    driver.findElement(By.cssSelector(".r-verticalAlign-ad9o1y:nth-child(1)")).click();
-    driver.findElement(By.cssSelector(".r-verticalAlign-ad9o1y:nth-child(1)")).sendKeys("Cuadro spiderman");
-    driver.findElement(By.cssSelector(".r-minHeight-h3f8nf")).click();
-    driver.findElement(By.cssSelector(".r-minHeight-h3f8nf")).sendKeys("Quiero un cuadro de spiderman dando una voltereta");
-    driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(3)")).click();
-    driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(3)")).sendKeys("140");
-    driver.findElement(By.cssSelector("input:nth-child(5)")).click();
-    driver.findElement(By.cssSelector("input:nth-child(5)")).click();
-    driver.findElement(By.cssSelector("input:nth-child(5)")).sendKeys("19/04/2027");
-    driver.findElement(By.cssSelector(".r-padding-edyy15")).click();
+    driver.findElement(By.cssSelector(".r-marginBlock-bplmwz:nth-child(2)")).click();
+    driver.findElement(By.cssSelector(".r-borderColor-8n6xh2:nth-child(2)")).click();
+    driver.findElement(By.cssSelector(".r-borderColor-8n6xh2:nth-child(2)")).sendKeys("Cuadro spiderman");
+    driver.findElement(By.cssSelector(".r-minHeight-1aplaab")).click();
+    driver.findElement(By.cssSelector(".r-minHeight-1aplaab")).sendKeys("Quiero un cuadro de spiderman dando una voltereta");
+    driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(7)")).click();
+    driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(7)")).sendKeys("140");
+    driver.findElement(By.cssSelector("input:nth-child(9)")).click();
+    driver.findElement(By.cssSelector("input:nth-child(9)")).click();
+    driver.findElement(By.cssSelector("input:nth-child(9)")).sendKeys("19/04/2027");
+    driver.findElement(By.cssSelector(".r-backgroundColor-ythuku")).click();
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     wait.until(ExpectedConditions.alertIsPresent());  // Espera hasta que la alerta esté presente
@@ -80,19 +80,19 @@ public class CommissionEndToEndTests {
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(5) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(6) > .css-view-175oi2r:nth-child(3) .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
-    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-text-146c3p1:nth-child(2)")).click();
     
     {
-      WebElement element = driver.findElement(By.cssSelector(".r-marginBlock-bplmwz"));
+      WebElement element = driver.findElement(By.cssSelector(".r-transitionProperty-1i6wzkk:nth-child(3)"));
       Actions builder = new Actions(driver);
       builder.moveToElement(element).perform();
     }
-    driver.findElement(By.cssSelector(".r-marginBlock-bplmwz")).click();
+    driver.findElement(By.cssSelector(".r-transitionProperty-1i6wzkk:nth-child(3)")).click();
     {
       WebElement element = driver.findElement(By.tagName("body"));
       Actions builder = new Actions(driver);
       builder.moveToElement(element, 0, 0).perform();
     }
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r:nth-child(3) > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r:nth-child(1) > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r:nth-child(2) > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).click();
@@ -132,7 +132,7 @@ public class CommissionEndToEndTests {
   
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-text-146c3p1:nth-child(2)")).click();
-    driver.findElement(By.cssSelector(".r-marginBlock-bplmwz")).click();
+    driver.findElement(By.cssSelector(".r-color-jwli3a")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).sendKeys("emilio");
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(1)")).click();
@@ -187,7 +187,7 @@ driver.switchTo().defaultContent();
 
 driver.findElement(By.cssSelector("[data-testid='pay-button']")).click();
 WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-  By.cssSelector("[data-testid='successText']")
+  By.cssSelector("[data-testid='success-text']")
 ));
 
 String successText = successMessage.getText();
