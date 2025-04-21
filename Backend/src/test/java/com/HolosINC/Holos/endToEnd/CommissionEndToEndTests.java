@@ -1,16 +1,11 @@
-package com.HolosINC.Holos;
+package com.HolosINC.Holos.endToEnd;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
 import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNot.not;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -23,15 +18,10 @@ import static org.junit.Assert.assertEquals;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.Keys;
-import java.util.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
-import static org.junit.Assert.assertEquals;
 
 public class CommissionEndToEndTests {
   private WebDriver driver;
-  private Map<String, Object> vars;
   JavascriptExecutor js;
   @Before
   public void setUp() {
@@ -80,7 +70,6 @@ public class CommissionEndToEndTests {
     wait.until(ExpectedConditions.alertIsPresent());  // Espera hasta que la alerta esté presente
 
     try {
-        // Interactuar con la alerta
         Alert alert = driver.switchTo().alert();  // Cambiar al contexto de la alerta
         System.out.println("Texto de la alerta: " + alert.getText());  // Obtener el texto de la alerta
         alert.accept();  // Aceptar la alerta
@@ -127,12 +116,11 @@ public class CommissionEndToEndTests {
     driver.findElement(By.cssSelector(".r-margin-5scogr > .css-view-175oi2r")).click();
     WebElement inputField = driver.findElement(By.cssSelector(".r-flexGrow-16y2uox > .css-textinput-11aywtz"));
     inputField.click();
-    inputField.sendKeys(Keys.chord(Keys.CONTROL, "a")); // Seleccionar todo
-    inputField.sendKeys(Keys.DELETE); // Esto limpia el campo
-    inputField.sendKeys("150"); // Luego introduces el nuevo valor
+    inputField.sendKeys(Keys.chord(Keys.CONTROL, "a")); 
+    inputField.sendKeys(Keys.DELETE); 
+    inputField.sendKeys("150"); 
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-view-175oi2r")).click();
     wait.until(ExpectedConditions.alertIsPresent());  // Espera hasta que la alerta esté presente
-    //assertThat(driver.switchTo().alert().getText(), is("Precio actualizado con éxito"));
     try {
       // Interactuar con la alerta
       Alert alert = driver.switchTo().alert();  // Cambiar al contexto de la alerta
@@ -164,7 +152,6 @@ public class CommissionEndToEndTests {
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(5) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(6) > .css-view-175oi2r:nth-child(3) .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
-    //assertThat(driver.switchTo().alert().getText(), is("Comisión aceptada"));
     wait.until(ExpectedConditions.alertIsPresent());  // Espera hasta que la alerta esté presente
     try {
       // Interactuar con la alerta
@@ -191,7 +178,6 @@ expInput.sendKeys("1230");
 WebElement cvcInput = driver.findElement(By.name("cvc"));
 cvcInput.sendKeys("123");
 
-// 💡 Esperar a que el campo postal esté visible
 WebElement zipInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
     By.name("postal") // o "postalCode" si ese es el name exacto
 ));
@@ -199,10 +185,9 @@ zipInput.sendKeys("12345");
 
 driver.switchTo().defaultContent();
 
-//driver.findElement(By.cssSelector(".r-backgroundColor-oe20jz > .css-text-146c3p1")).click();
 driver.findElement(By.cssSelector("[data-testid='pay-button']")).click();
 WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-  By.cssSelector("[data-testid='successText']") // Ojo con el typo "sucessText"
+  By.cssSelector("[data-testid='successText']")
 ));
 
 String successText = successMessage.getText();

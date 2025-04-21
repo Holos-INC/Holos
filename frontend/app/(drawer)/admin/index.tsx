@@ -1,40 +1,43 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 export default function AdminDashboard() {
   const router = useRouter();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Panel de Administración</Text>
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Panel de Administración</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Acciones Rápidas</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Acciones Rápidas</Text>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => router.push("/admin/user-management")}
-          >
-            <Text style={styles.buttonText}>Gestionar Usuarios</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => router.push("/admin/user-management")}
+            >
+              <Text style={styles.buttonText}>Gestionar Usuarios</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => router.push("/admin/category-management")}
-          >
-            <Text style={styles.buttonText}>Gestionar Categorías</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => router.push("/admin/category-management")}
+            >
+              <Text style={styles.buttonText}>Gestionar Categorías</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={() => router.push("/admin/report-management")}
-          >
-            <Text style={styles.buttonText}>Gestión de reportes</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button}
+              onPress={() => router.push("/admin/report-management")}
+            >
+              <Text style={styles.buttonText}>Gestión de reportes</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </ProtectedRoute>
   );
 }
 
