@@ -229,5 +229,22 @@ public class ClientRestControllerTest {
 
         verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
     }
+    @Test
+public void testUpdateProfileFailure() throws Exception {
+    BaseUserDTO baseUserDTO = new BaseUserDTO();
+    baseUserDTO.setUsername("updatedUsername");
+
+    // Simulando un error en el servicio de perfil
+    when(profileService.updateProfile(any(BaseUserDTO.class))).thenThrow(new RuntimeException("Error actualizando el perfil"));
+
+    mockMvc.perform(put("/api/v1/users/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(baseUserDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error interno al actualizar el perfil: Error actualizando el perfil"));
+
+    verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
+}
+
 
 }
