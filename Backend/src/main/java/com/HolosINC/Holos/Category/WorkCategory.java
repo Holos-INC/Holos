@@ -27,10 +27,10 @@ public class WorkCategory{
 	protected Long id;
 
     @ManyToOne
-    @JoinColumn(name = "work_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Work work;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Category category;
 }

@@ -3,7 +3,6 @@ package com.HolosINC.Holos.client;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,7 @@ public class ClientService {
 	private CommisionRepository commisionRepository;
 
 	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository, ReportRepository reportRepository, CommisionRepository commisionRepository) {
+
 		this.clientRepository = clientRepository;
 		this.reportRepository = reportRepository;
 		this.commisionRepository = commisionRepository;

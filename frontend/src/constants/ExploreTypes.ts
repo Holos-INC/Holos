@@ -44,7 +44,6 @@ export interface Work {
   image: string;
 }
 
-
 export interface SearchWorkDTO {
   id: number;
   name: string;

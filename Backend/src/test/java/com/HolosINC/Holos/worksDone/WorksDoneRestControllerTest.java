@@ -2,7 +2,7 @@ package com.HolosINC.Holos.worksDone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
-import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -65,18 +65,11 @@ public class WorksDoneRestControllerTest {
                 artist = new Artist();
                 artist.setId(10L);
 
-                // Supongamos que su BaseUser tiene un método hasAuthority(...)
                 BaseUser baseUser = new BaseUser();
                 baseUser.setId(10L);
-                baseUser.setAuthority(new Authorities());
-                // Simularemos que, por defecto, NO es premium:
-                // Asegúrate de ajustar la lógica a como tu BaseUser maneje las "authorities".
-                // Por ejemplo:
-                // baseUser.setRoles(...) // O la forma real en que se indica la "authority"
+                baseUser.setAuthority(Auth.ARTIST);
 
                 artist.setBaseUser(baseUser);
-                artist.getBaseUser().getAuthority().setAuthority("ARTIST");
-                ;
 
                 worksDone = new WorksDone();
                 worksDone.setId(1L);
@@ -84,9 +77,6 @@ public class WorksDoneRestControllerTest {
                 worksDone.setArtist(artist);
         }
 
-        // ===========================================================
-        // 1) createWorksDone (POST /api/v1/worksdone) [multipart/form-data]
-        // ===========================================================
         @Test
         public void testCreateWorksDone_Success_NonPremiumWithLessThan7Works() throws Exception {
                 // Prepara el usuario y artista
@@ -172,9 +162,7 @@ public class WorksDoneRestControllerTest {
                 // Escenario: usuario premium => no importa cuántas obras tenga
                 when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
                 when(baseUserService.findArtist(10L)).thenReturn(artist);
-                artist.getBaseUser().getAuthority().setAuthority("ARTIST_PREMIUM");// Cambiado intencionalmente para
-                                                                                   // probarlo con premium
-                // Retornamos un número grande, da igual, es premium
+                artist.getBaseUser().setAuthority(Auth.ARTIST_PREMIUM);
                 when(worksDoneService.countByArtistId(10L)).thenReturn(10L);
 
                 when(worksDoneService.createWorksDone(any(WorksDone.class))).thenReturn(worksDone);
@@ -495,7 +483,7 @@ public class WorksDoneRestControllerTest {
                 // Escenario: usuario premium => siempre true
                 when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
                 when(baseUserService.findArtist(10L)).thenReturn(artist);
-                artist.getBaseUser().getAuthority().setAuthority("ARTIST_PREMIUM");
+                artist.getBaseUser().setAuthority(Auth.ARTIST_PREMIUM);
 
                 mockMvc.perform(get("/api/v1/worksdone/can-upload"))
                                 .andExpect(status().isOk())

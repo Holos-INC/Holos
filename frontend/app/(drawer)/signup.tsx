@@ -5,6 +5,7 @@ import { API_URL } from "@/src/constants/api";
 import { ScrollView } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
 import colors from '@/src/constants/colors';
+import { base64ToFile } from '@/src/components/convertionToBase64Image';
 
 export default function SignupScreen() {
   // Estados compartidos
@@ -77,37 +78,27 @@ export default function SignupScreen() {
     formData.append("user", JSON.stringify(userPayload));
 
     // Foto de perfil
-    const profileUriParts = selectedImage.split("/");
-    const profileFileName = profileUriParts[profileUriParts.length - 1];
-    const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
-    const profileMimeType = `image/${profileFileExtension}`;
+    // const profileUriParts = selectedImage.split("/");
+    // const profileFileName = profileUriParts[profileUriParts.length - 1];
+    // const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
+    // const profileMimeType = `image/${profileFileExtension}`;
 
-    formData.append("imageProfile", {
-      uri: selectedImage,
-      name: profileFileName,
-      type: profileMimeType,
-    } as any);
+    // formData.append("imageProfile", {
+    //   uri: selectedImage,
+    //   name: profileFileName,
+    //   type: profileMimeType,
+    // } as any);
+    
+    formData.append("imageProfile", base64ToFile(selectedImage, "image.png"));
 
     // Imagen del precio del tablero de comisiones
     if (role === 'artist' || role === 'artist_premium') {
-      const tableUriParts = tableCommissionsPrice.split("/");
-      const tableFileName = tableUriParts[tableUriParts.length - 1];
-      const tableFileExtension = tableFileName?.split(".").pop() || "jpg";
-      const tableMimeType = `image/${tableFileExtension}`;
-
-      formData.append("tableCommissionsPrice", {
-        uri: tableCommissionsPrice,
-        name: tableFileName,
-        type: tableMimeType,
-      } as any);
+      formData.append("tableCommissionsPrice", base64ToFile(tableCommissionsPrice, "image.png"));
     }
 
     try {
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
         body: formData,
       });
 

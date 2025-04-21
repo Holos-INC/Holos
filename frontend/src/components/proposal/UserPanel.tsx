@@ -26,9 +26,7 @@ export default function UserPanel({ username, image }: RequestFormProps) {
           borderRadius: 999,
           marginTop: 15,
         }}
-        onPress={() =>
-          console.log("() => router.push(`/profile/${user.username}`)")
-        }
+        onPress={() => router.push(`/profile/${username}`)}
       >
         <Text
           style={{

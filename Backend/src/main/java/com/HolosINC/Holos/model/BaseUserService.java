@@ -1,18 +1,14 @@
 package com.HolosINC.Holos.model;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.auth.Authorities;
-import com.HolosINC.Holos.auth.AuthoritiesRepository;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
@@ -20,9 +16,7 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
-    private AuthoritiesRepository authoritiesRepository;
 
-	@Autowired
 	public BaseUserService(BaseUserRepository baseUserRepository) {
 		this.baseUserRepository = baseUserRepository;
 	}
@@ -31,16 +25,12 @@ public class BaseUserService {
         return baseUserRepository.save(baseUser);
     }
 
-    public BaseUser login(String username, String password) {
-        Optional<BaseUser> user = baseUserRepository.login(username, password);
-        if (user.isEmpty()) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
-        return user.get();
-    }
-
     public Boolean existsUser(String username) {
         return baseUserRepository.findUserByUsername(username).isPresent();
+    }
+
+    public Boolean existsEmail(String email) {
+        return baseUserRepository.findByEmail(email).isPresent();
     }
 
     public BaseUser findById(Long id) {
@@ -86,6 +76,12 @@ public class BaseUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
+    @Transactional(readOnly = true)
+    public BaseUser getUserByUsername(String username) {
+        return baseUserRepository.findUserByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+    }
+
     @Transactional
     public BaseUser updateUserAdmins(Long id, BaseUser updatedUser) {
         return baseUserRepository.findById(id).map(user -> {
@@ -98,12 +94,11 @@ public class BaseUserService {
     }
     
     @Transactional
-    public BaseUser changeUserRole(Long id, String newRole) {
+    public BaseUser changeUserRole(Long id, String newRole) throws Exception{
         BaseUser user = baseUserRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
-        Authorities authority = authoritiesRepository.findByName(newRole)
-            .orElseThrow(() -> new ResourceNotFoundException("Authority", "name", newRole));
+        Auth authority = Auth.valueOf(newRole.toUpperCase());
 
         user.setAuthority(authority);
         return baseUserRepository.save(user);
