@@ -1,21 +1,19 @@
 
-// Atención esta en proceso de construcción!!!!!
+import { Commission } from "./CommissionTypes";
 
-export interface message {
-    id: number;
-    name: string;
-    username: string;
-    password: string;
-    email: string;
-    phoneNumber?: string;
-    imageProfile?: string;
-
-
+export interface Message {
     text: string,
-    createdAt: data,
-    user: {
-        name: message.user.name,
-        avatar: message.user.avatar || artistAvatar,
-    },
-    image: selectedImage || undefined, 
+    createdAt: string,
+    image: string | undefined,
+    commision: string 
+  }
+
+  export interface ReceiveChatMessage {
+    id: number;
+    creationDate: string;
+    text: string;
+    image: string;
+    commision: {
+      id: number;
+    };
   }

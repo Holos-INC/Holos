@@ -3,12 +3,12 @@ import { View, StyleSheet, Button, Image, TouchableOpacity, Modal } from 'react-
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useLocalSearchParams } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { getConversation, sendMessage, ChatMessage } from "@/src/services/chatService";
+import { getConversation, sendMessage } from "@/src/services/chatService";
 import * as ImagePicker from 'expo-image-picker';
 import LoadingScreen from '@/src/components/LoadingScreen';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-
+import { Message } from "@/src/constants/message";
 
  {/*Variables de imagenes*/}
 const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
@@ -21,7 +21,7 @@ export default function IndividualChatScreen({  }) {
         otherUsername?: string;
       };
 
-    const { commisionId, otherUsername } = params;
+    const { commisionId } = params;
     const { loggedInUser } = useContext(AuthenticationContext);
     
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -85,36 +85,30 @@ export default function IndividualChatScreen({  }) {
             text:  newMessages[0].text, 
             createdAt: new Date(),
             user: {
-                _id: 1,
-                name: "Usuario",
-                avatar: artistAvatar,
+                _id: loggedInUser.id,
+                name: loggedInUser.username,
+                avatar: loggedInUser.image,
             },
             image: selectedImage || undefined,
         };
 
 
-        {/*Formateo del json del GiftedChat al json de la base de datos*/}
-        const formattedMessage = {
-            id: message._id,
-            text: message.text,
-            createdAt: message.createdAt,
-            user: {
-                id: message.user._id,
-                name: message.user.name,
-                avatar: message.user.avatar || artistAvatar,
-            },
+        {/*Creación del mensaje para el backend*/}
+        const formattedMessage: Message = {
+            text: message.text ?? " ",
+            createdAt: message.createdAt.toISOString(),
             image: selectedImage || undefined, 
+            commision: commisionId
         };
     
         {/*Envío del mensajes al "backend" */}
         try {
            
-
-            const newMsg = await sendMessage(formattedMessage, loggedInUser.token);
+            await sendMessage(formattedMessage, loggedInUser.token);
 
             
             setMessages((previousMessages) =>
-                GiftedChat.append(previousMessages, [newMsg])
+                GiftedChat.append(previousMessages, [message])
             );
 
             setSelectedImage(undefined); 
