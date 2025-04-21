@@ -3,28 +3,28 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
-  useWindowDimensions,
   ScrollView,
   Pressable,
+  useWindowDimensions
 } from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { Button, IconButton, TextInput } from "react-native-paper";
-import * as yup from "yup";
 import { useCommissionDetails } from "@/src/hooks/useCommissionDetails";
-import { reject, toPay, waiting } from "@/src/services/commisionApi";
+import { reject, toPay, waiting, updatePayment } from "@/src/services/commisionApi"; 
 import { priceValidationSchema } from "@/src/utils/priceValidation";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import PaymentDetails from "@/src/components/checkout/PaymentDetails";
 import WIPPlaceholder from "@/src/components/WorkInProgress";
 import colors from "@/src/constants/colors";
-import { BaseUser, StatusCommission } from "@/src/constants/CommissionTypes";
+import { StatusCommission } from "@/src/constants/CommissionTypes";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { BASE_URL } from "@/src/constants/api";
 import { getUser } from "@/src/services/userApi";
 import UserPanel from "@/src/components/proposal/UserPanel";
 import TurnDotsIndicator from "@/src/components/proposal/TurnDotsIndicator";
 import { PayButton } from "@/src/components/proposal/PayButton";
+import { Feather } from '@expo/vector-icons'; // Usamos el paquete de iconos Feather
+import * as yup from "yup";
 
 export default function CommissionDetailsScreen() {
   const { commissionId } = useLocalSearchParams();
@@ -45,6 +45,12 @@ export default function CommissionDetailsScreen() {
   const [newPrice, setNewPrice] = useState("");
   const [showEditCard, setShowEditCard] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Estado para manejar los valores de los nuevos campos de pago
+  const [paymentArrangement, setPaymentArrangement] = useState("INITIAL");
+  const [totalPayments, setTotalPayments] = useState(1);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Estado para manejar la visibilidad del dropdown
+
 
   const handleAccept = async () => {
     if (!commission) return;
@@ -96,6 +102,18 @@ export default function CommissionDetailsScreen() {
       console.error("Error al actualizar el precio:", error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSavePaymentDetails = async () => {
+    if (!commission || !loggedInUser.token) return;
+    try {
+      await updatePayment(commission.id, paymentArrangement, totalPayments, loggedInUser.token);
+      await refreshCommission();
+      alert("Detalles de pago actualizados correctamente"); // Alerta de éxito
+    } catch (error: any) {
+      setErrorMessage(error.message);
+      console.error("Error al actualizar los detalles de pago:", error);
     }
   };
 
@@ -181,6 +199,7 @@ export default function CommissionDetailsScreen() {
               <TurnDotsIndicator isClientTurn={isClientTurn} />
             </View>
           </View>
+
           {showEditCard ? (
             <View style={[styles.card, { alignItems: "center" }]}>
               <View
@@ -301,6 +320,66 @@ export default function CommissionDetailsScreen() {
             </View>
           )}
 
+          {/* Edición de detalles de pago */}
+         <View style={[styles.card, { alignItems: "center" }]}>
+            <Text style={styles.label}>Selecciona el tipo de pago:</Text>
+
+            {/* El área clickeable ahora parece un botón */}
+            <Pressable
+              style={styles.button}
+              onPress={() => setIsDropdownVisible(!isDropdownVisible)}
+            >
+              <Text style={styles.buttonText}>
+                {paymentArrangement === "INITIAL" && "Pago Inicial"}
+                {paymentArrangement === "FINAL" && "Pago Final"}
+                {paymentArrangement === "FIFTYFIFTY" && "50/50"}
+                {paymentArrangement === "MODERATOR" && "Moderador"}
+              </Text>
+              <Feather name="chevron-down" size={20} color="white" />
+            </Pressable>
+
+            {/* Mostrar las opciones del dropdown */}
+            {isDropdownVisible && (
+              <View style={styles.dropdownOptions}>
+                <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
+                  <Text style={styles.option}>Pago Inicial</Text>
+                </Pressable>
+                <Pressable onPress={() => { setPaymentArrangement("FINAL"); setIsDropdownVisible(false); }}>
+                  <Text style={styles.option}>Pago Final</Text>
+                </Pressable>
+                <Pressable onPress={() => { setPaymentArrangement("FIFTYFIFTY"); setIsDropdownVisible(false); }}>
+                  <Text style={styles.option}>50/50</Text>
+                </Pressable>
+                <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
+                  <Text style={styles.option}>Moderador</Text>
+                </Pressable>
+              </View>
+            )}
+
+            {/* Mostrar campo de totalPayments si es MODERATOR */}
+            {paymentArrangement === "MODERATOR" && (
+              <TextInput
+                value={totalPayments.toString()}
+                onChangeText={(text) => setTotalPayments(parseInt(text))}
+                keyboardType="numeric"
+                placeholder="Número de pagos"
+                returnKeyType="done"
+                style={{
+                  backgroundColor: "transparent",
+                  padding: 10,
+                  borderWidth: 1,
+                  borderColor: colors.brandPrimary,  // Borde personalizado
+                  borderRadius: 5,
+                  marginBottom: 15,
+                }}
+              />
+            )}
+
+            <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
+              Guardar cambios de pago
+            </Button>
+          </View>
+
           {isClient ? (
             <View style={[styles.card, { gap: 20 }]}>
               <View>
@@ -353,12 +432,39 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     width: "100%",
   },
+  button: {
+    backgroundColor: colors.brandPrimary,
+    padding: 10,
+    borderRadius: 5,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+  },
   sides: {
     flex: 1,
     alignContent: "center",
     justifyContent: "center",
     padding: "10%",
     gap: 33,
+  },
+  dropdownOptions: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    marginTop: 5,
+    padding: 10,
+    borderColor: colors.brandPrimary,
+    borderWidth: 1,
+  },
+  option: {
+    paddingVertical: 8,
+    fontSize: 16,
+    color: colors.brandPrimary,
   },
   totalPrice: {
     fontSize: 16,

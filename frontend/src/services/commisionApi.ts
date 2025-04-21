@@ -179,4 +179,29 @@ export const getAcceptedCommissions = async (token: string): Promise<ClientCommi
     handleError(error, "Error fetching accepted commissions");
     throw error;
   }
+
+}
+
+  // Actualizar el arreglo de pagos de una comisión
+export const updatePayment = async (
+  commisionId: number,
+  paymentArrangement: string, // Se asume que es un string por el enum en el backend
+  totalPayments: number,       // En el frontend es un número
+  token: string
+): Promise<void> => {
+  try {
+    // Creando el objeto de datos a enviar al backend
+    const data = {
+      paymentArrangement,
+      totalPayments,
+    };
+
+    // Enviando la solicitud PUT al backend
+    await api.put(`${COMMISSION_URL}/${commisionId}/updatePayment`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    handleError(error, "Error updating payment arrangement");
+    throw error;
+  }
 };

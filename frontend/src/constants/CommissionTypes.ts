@@ -149,6 +149,8 @@ export interface CommissionDTO {
   price: number;
   status: StatusCommission;
   paymentArrangement: PaymentArrangement;
+  totalPayments: string;
+  currentPayment: number;
   milestoneDate: Date;
   artistUsername: string;
   clientUsername: string;

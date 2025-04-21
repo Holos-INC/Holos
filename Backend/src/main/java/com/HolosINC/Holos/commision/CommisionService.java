@@ -17,6 +17,7 @@ import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
+import com.HolosINC.Holos.commision.DTOs.PaymentUpdateDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -404,5 +405,16 @@ public class CommisionService {
     public boolean isStatusKanbanInUse(StatusKanbanOrder status) {
         return commisionRepository.existsByStatusKanban(status);
     }
+
+    public void updatePaymentArrangement(Long commisionId, PaymentUpdateDTO dto) {
+    Commision commision = commisionRepository.findById(commisionId)
+        .orElseThrow(() -> new ResourceNotFoundException("Commision not found"));
+
+    commision.setPaymentArrangement(dto.getPaymentArrangement());
+    commision.setTotalPayments(dto.getTotalPayments());
+
+    commisionRepository.save(commision);
+}
+
     
 }
