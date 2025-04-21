@@ -8,13 +8,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-
 
 import com.HolosINC.Holos.configuration.jwt.JwtUtils;
+import com.HolosINC.Holos.util.EntityToDTOMapper;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -55,6 +55,13 @@ public class BaseUserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<BaseUserDTO> getUserByUsername(@PathVariable String username) {
+        BaseUser user = baseUserService.getUserByUsername(username);
+        BaseUserDTO userDTO = EntityToDTOMapper.toBaseUserDTO(user);
+        return ResponseEntity.ok(userDTO);
     }
 
     @PutMapping("/administrator/users/{id}/role")

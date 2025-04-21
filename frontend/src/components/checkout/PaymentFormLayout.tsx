@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { CardElement } from "@stripe/react-stripe-js";
 import colors from "@/src/constants/colors";
 
 interface PaymentFormLayoutProps {
@@ -11,9 +10,15 @@ interface PaymentFormLayoutProps {
   error?: string | null;
   buttonLabel?: string;
   acceptedCards?: string[];
+  CardElement: React.ComponentType<any>;
 }
 
-const defaultAcceptedCards = ["Visa", "MasterCard", "American Express", "Diners"];
+const defaultAcceptedCards = [
+  "Visa",
+  "MasterCard",
+  "American Express",
+  "Diners",
+];
 
 const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
   title,
@@ -23,6 +28,7 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
   error,
   buttonLabel = "Pagar ahora",
   acceptedCards = defaultAcceptedCards,
+  CardElement,
 }) => {
   return (
     <View style={styles.container}>
@@ -30,7 +36,9 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
         <Text style={styles.instructionHeader}>{title}</Text>
         <View style={styles.instructionList}>
           {acceptedCards.map((card) => (
-            <Text key={card} style={styles.cardBrand}>· {card}</Text>
+            <Text key={card} style={styles.cardBrand}>
+              · {card}
+            </Text>
           ))}
         </View>
       </View>
@@ -48,7 +56,9 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
       </TouchableOpacity>
 
       {error && <Text style={styles.error}>{error}</Text>}
-      {success && <Text style={styles.success}>¡Pago realizado con éxito! 🎉</Text>}
+      {success && (
+        <Text style={styles.success}>¡Pago realizado con éxito! 🎉</Text>
+      )}
     </View>
   );
 };
@@ -60,7 +70,7 @@ const cardElementStyle = {
     fontSize: "16px",
     color: colors.contentStrong,
     fontFamily: "'Inter', sans-serif",
-    '::placeholder': { color: colors.accentInfo },
+    "::placeholder": { color: colors.accentInfo },
   },
   invalid: {
     color: colors.brandPrimary,
@@ -72,15 +82,16 @@ const styles = StyleSheet.create({
   container: {
     gap: 16,
     padding: 24,
-    backgroundColor: colors.surfaceBase,
+    backgroundColor: "#FFF",
     borderRadius: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 10,
     maxWidth: 500,
-    alignSelf: 'center',
-    width: '100%',
+    alignSelf: "center",
+    width: "100%",
+    shadowColor: colors.brandPrimary,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 6,
   },
   instructionBox: {
     backgroundColor: colors.surfaceMuted,

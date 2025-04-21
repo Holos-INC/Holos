@@ -140,7 +140,7 @@ export default function WorkDetailScreen() {
             <Text
               onPress={() => {
                 if (work.artistId) {
-                  router.push(`/profile/${work.artistId}`);
+                  router.push(`/profile/${work.artistSurname}`);
                 } else {
                   console.warn("No se encontró el artista");
                 }

@@ -94,10 +94,9 @@ public class AuthoritiesService {
 				// 	}
 				// }
 
-				artist.setDescription(request.getDescription());
 				artist.setLinkToSocialMedia(request.getLinkToSocialMedia());
-				artist.setNumSlotsOfWork(7);
-				// artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
+				artist.setNumSlotsOfWork(request.getNumSlotsOfWork());
+				artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
 				artist.setBaseUser(user);
 	
 				artistService.saveArtist(artist);
@@ -125,13 +124,12 @@ public class AuthoritiesService {
 		user.setEmail(request.getEmail() != null ? request.getEmail() : user.getEmail());
 		user.setPhoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : user.getPhoneNumber());
 		user.setImageProfile(request.getImageProfile() != null ? imageHandler.getBytes(request.getImageProfile()) : user.getImageProfile());
+		user.setDescription(request.getDescription() != null ? request.getDescription() : user.getDescription());
 
 		baseUserService.save(user);
 
 		if (user.getAuthority().getAuthority().toUpperCase().equals("ARTIST ") ||user.getAuthority().getAuthority().toUpperCase().equals("ARTIST_PREMIUM")) {
 			Artist artist = artistService.findArtist(user.getId());
-			artist.setDescription(
-					request.getDescription() != null ? request.getDescription() : artist.getDescription());
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(

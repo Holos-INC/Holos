@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
@@ -40,4 +41,10 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
     @Query("SELECT COUNT(c) > 0 FROM Commision c WHERE c.statusKanbanOrder = :status")
     boolean existsByStatusKanban(StatusKanbanOrder status);
 
+
+    // Buscar la comisión más antigua en IN_WAIT_LIST
+    Optional<Commision> findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision status);
+
+    @Query("SELECT c.id FROM Commision c WHERE c.paymentIntentId = :paymentIntentId")
+    Long findCommissionIdByPaymentIntentId(@Param("paymentIntentId") String paymentIntentId);
 }

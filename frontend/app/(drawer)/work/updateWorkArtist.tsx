@@ -261,7 +261,7 @@ await updateWorkdone(
 
   return (
     <View style={styles.container}>
-      <ProtectedRoute allowedRoles={["ARTIST"]}>
+      <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM"]}>
         {!isArtist ? enableUpload() : unableUpload()}
       </ProtectedRoute>
     </View>

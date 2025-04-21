@@ -23,6 +23,7 @@ import { updateUserClient } from "@/src/services/clientApi";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import { clientUser } from "@/src/constants/user";
 import { desktopStyles as styles } from "@/src/styles/userProfile.styles";
+import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string()
@@ -41,8 +42,7 @@ const validationSchema = Yup.object().shape({
     .required("El teléfono es obligatorio"),
   description: Yup.mixed().notRequired(),
   imageProfile: Yup.string().notRequired(),
-  tableCommissionsPrice: Yup.mixed().notRequired(),
-  linkToSocialMedia: Yup.mixed().notRequired(),
+  linkToSocialMedia: Yup.mixed().notRequired()
 });
 
 const userClientProfileScreen = () => {
@@ -104,7 +104,6 @@ const userClientProfileScreen = () => {
         firstName: values.firstName,
         email: values.email,
         phoneNumber: values.phoneNumber,
-        tableCommissionsPrice: values.tableCommissionsPrice,
         imageProfile: values.imageProfile,
         description: "",
         linkToSocialMedia: "",
@@ -133,7 +132,6 @@ const userClientProfileScreen = () => {
         phoneNumber: user.baseUser.phoneNumber ?? "0000000000",
         description: null,
         linkToSocialMedia: "",
-        tableCommissionsPrice: null,
         imageProfile: user.baseUser.imageProfile,
       }}
       validationSchema={validationSchema}
@@ -160,8 +158,7 @@ const userClientProfileScreen = () => {
             email: user.baseUser.email,
             phoneNumber: user.baseUser.phoneNumber ?? "0000000000",
             description: null,
-            linkToSocialMedia: "",
-            tableCommissionsPrice: null,
+            linkToSocialMedia:   "",
             imageProfile: user.baseUser.imageProfile,
           };
 
@@ -182,11 +179,7 @@ const userClientProfileScreen = () => {
                       imageProfile
                         ? { uri: imageProfile }
                         : user.baseUser.imageProfile
-                        ? {
-                            uri: `${BASE_URL}${atob(
-                              user.baseUser.imageProfile
-                            )}`,
-                          }
+                        ? { uri: `data:image/jpeg;base64,${user.baseUser.imageProfile}` }
                         : undefined
                     }
                     style={styles.imageProfile}

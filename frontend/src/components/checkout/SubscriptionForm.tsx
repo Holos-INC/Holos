@@ -3,6 +3,7 @@ import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { useStripePayment } from "@/src/hooks/useStripePayment";
 import { createSubscription } from "@/src/services/stripeApi";
 import PaymentFormLayout from "@/src/components/checkout/PaymentFormLayout";
+import StripeSafeWrapper from "./StripeSafeWrapper";
 
 const SubscriptionForm = () => {
   const [success, setSuccess] = useState(false);
@@ -23,15 +24,20 @@ const SubscriptionForm = () => {
   };
 
   return (
-    <PaymentFormLayout
-      title="Activa tu suscripción Premium"
-      onPress={handleSubscribe}
-      loading={loading}
-      error={error}
-      success={success}
-      buttonLabel="Suscribirme"
-      acceptedCards={["Visa", "MasterCard", "American Express", "Diners"]}
-    />
+    <StripeSafeWrapper>
+      {(CardElement) => (
+        <PaymentFormLayout
+          title="Activa tu suscripción Premium"
+          onPress={handleSubscribe}
+          loading={loading}
+          error={error}
+          success={success}
+          buttonLabel="Suscribirme"
+          acceptedCards={["Visa", "MasterCard", "American Express", "Diners"]}
+          CardElement={CardElement}
+        />
+      )}
+    </StripeSafeWrapper>
   );
 };
 

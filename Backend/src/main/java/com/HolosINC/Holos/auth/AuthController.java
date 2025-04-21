@@ -81,7 +81,7 @@ public class AuthController {
 		return ResponseEntity.ok(isValid);
 	}
 
-	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/signup", consumes = { "multipart/form-data" })
 	public ResponseEntity<MessageResponse> registerUser(
 			@RequestPart("user") String signupRequestJson,
 			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
