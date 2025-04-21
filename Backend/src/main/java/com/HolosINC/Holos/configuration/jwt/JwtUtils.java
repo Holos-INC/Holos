@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -43,9 +43,9 @@ public class JwtUtils {
 				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
 	}
 
-	public String generateTokenFromUsername(String username, Authorities authority) {
+	public String generateTokenFromUsername(String username, Auth authority) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("authorities", authority.getAuthority());
+		claims.put("authorities", authority);
 		return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();

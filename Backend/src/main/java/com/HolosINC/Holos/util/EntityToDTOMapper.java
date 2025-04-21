@@ -33,7 +33,7 @@ public static BaseUserDTO toBaseUserDTO(BaseUser baseUser) {
         baseUserDTO.setPhoneNumber(baseUser.getPhoneNumber());
         baseUserDTO.setDescription(baseUser.getDescription());
         baseUserDTO.setImageProfile(baseUser.getImageProfile());
-        baseUserDTO.setAuthorityName(baseUser.getAuthority().getAuthority());
+        baseUserDTO.setAuthorityName(baseUser.getAuthority().toString());
         return baseUserDTO;
     }
 }

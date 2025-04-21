@@ -1,7 +1,6 @@
 package com.HolosINC.Holos.report;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -25,8 +24,6 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-import org.springframework.http.HttpStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -31,6 +31,6 @@ public class ChatMessage {
     private byte[] image;
 
     @ManyToOne
-    @JoinColumn(name = "commision_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Commision commision;
 }

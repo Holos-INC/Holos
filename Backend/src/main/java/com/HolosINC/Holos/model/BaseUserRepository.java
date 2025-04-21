@@ -12,12 +12,12 @@ import com.HolosINC.Holos.client.Client;
 @Repository
 public interface BaseUserRepository extends JpaRepository<BaseUser, Long> {
 
-    @Query("SELECT u FROM BaseUser u WHERE u.username = :username AND u.password = :password")
-    Optional<BaseUser> login(String username, String password);
-
     @Query("SELECT u FROM BaseUser u WHERE u.username = :username")
     Optional<BaseUser> findUserByUsername(String username);
 
+    @Query("SELECT u FROM BaseUser u WHERE u.email = :email")
+    Optional<BaseUser> findByEmail(String email);
+    
     @Query("SELECT c FROM Client c WHERE c.baseUser.id = :id")
     Optional<Client> findClient(Long id);
 

@@ -1,9 +1,6 @@
 package com.HolosINC.Holos.model;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import com.HolosINC.Holos.auth.Authorities;
 
 import lombok.Data;
 
