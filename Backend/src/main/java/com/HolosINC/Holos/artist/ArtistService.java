@@ -14,11 +14,15 @@ import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.search.DTOs.SearchWorkDTO;
+import com.HolosINC.Holos.work.WorkRepository;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ArtistService {
@@ -29,13 +33,16 @@ public class ArtistService {
 	private final CommisionRepository commisionRepository;
 	private final StatusKanbanOrderService statusKanbanOrderService;
 	private final ArtistCategoryRepository artistCategoryRepository;
+	private final WorkRepository workRepository;
 
-	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, @Lazy StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository) {
+
+	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, @Lazy StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository, WorkRepository workRepository) {
 		this.artistRepository = artistRepository;
 		this.baseUserRepository = baseUserRepository;
 		this.commisionRepository = commisionRepository;
 		this.statusKanbanOrderService = statusKanbanOrderService;
 		this.artistCategoryRepository = artistCategoryRepository;
+		this.workRepository = workRepository;
 	}
 
 	@Transactional
@@ -87,6 +94,14 @@ public class ArtistService {
 			}
 
 			commisionRepository.deleteAll(commisions);
+
+			Page<SearchWorkDTO> worksPage = workRepository.searchByArtist(artistId.intValue(), Pageable.unpaged());
+
+			for (SearchWorkDTO dto : worksPage.getContent()) {
+				Long workId = dto.getId();
+				workRepository.deleteById(workId);
+			}
+
 
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
