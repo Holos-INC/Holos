@@ -2,6 +2,7 @@
 import { API_URL } from "@/src/constants/api";
 import api from "@/src/services/axiosInstance";
 import { handleError } from "@/src/utils/handleError";
+import { base64ToFile } from "@/src/components/convertionToBase64Image";
 
 // Definición del tipo para el mensaje de chat.
 export interface ChatMessage {
@@ -44,6 +45,8 @@ export const getConversation = async (
     const response = await api.get(`${API_URL}/messages/chat/${commisionId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    console.log("Esto proviene de la llamada a la API:" + response.data.length);
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching conversation");
@@ -61,8 +64,8 @@ export const getConversation = async (
 export const sendMessage = async (
   commisionId: number,
   text: string,
-  image?: { uri: string; type: string; name: string },
-  token?: string
+  image?:string,
+  loggedUser: string
 ): Promise<ChatMessage> => {
   try {
     const formData = new FormData();
@@ -73,21 +76,12 @@ export const sendMessage = async (
 
     formData.append("chatMessage", JSON.stringify(chatMessage));
 
-    if (image) {
-      formData.append("image", {
-        uri: image.uri,
-        type: image.type,
-        name: image.name,
-      } as any);
-    } else {
-      // Usamos un dummy de 1x1 píxel transparente en formato PNG (base64)
-      const dummyBase64 =
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj+P///38ACfsD/8vNPmEAAAAASUVORK5CYII=";
-      const dummyBlob = base64ToBlob(dummyBase64, "image/png");
-      // En entornos web, podemos crear un objeto File a partir del Blob
-      const dummyFile = new File([dummyBlob], "dummy.png", { type: "image/png" });
-      formData.append("image", dummyFile);
-    }
+ 
+      if (image.length && image.length > 0) {
+         const imageProfileData = base64ToFile(image, "image.png");
+         formData.append("imageProfile", imageProfileData);
+       }
+    
 
     const response = await api.post(`${API_URL}/messages`, formData, {
       headers: {

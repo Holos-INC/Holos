@@ -1,183 +1,237 @@
-// app/chats/[commisionId].tsx
-import React, { useEffect, useState, useContext } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  ActivityIndicator,
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { View, StyleSheet, Button, Image, TouchableOpacity, Modal } from 'react-native';
+import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useLocalSearchParams } from "expo-router";
-import { getConversation, sendMessage, ChatMessage } from "@/src/services/chatService";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { styles } from "@/src/styles/Chat.styles";
+import { getConversation, sendMessage, ChatMessage } from "@/src/services/chatService";
+import * as ImagePicker from 'expo-image-picker';
+import LoadingScreen from '@/src/components/LoadingScreen';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 
-type ExtendedChatMessage = ChatMessage & { sentByMe?: boolean };
+ {/*Variables de imagenes*/}
+const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
+const icon ="📷 "
 
-const STORAGE_KEY = (commId: string, userId: string) => `sentMessages_${commId}_${userId}`;
+export default function IndividualChatScreen({  }) {
 
-export default function ChatScreen() {
-  const params = useLocalSearchParams() as {
-    commisionId?: string;
-    otherUsername?: string;
-  };
-  const { commisionId, otherUsername } = params;
+      const params = useLocalSearchParams() as {
+        commisionId?: string;
+        otherUsername?: string;
+      };
 
-  const { loggedInUser } = useContext(AuthenticationContext);
+    const { commisionId, otherUsername } = params;
+    const { loggedInUser } = useContext(AuthenticationContext);
+    
+    const [messages, setMessages] = useState<IMessage[]>([]);
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+    const [inputText, setInputText] = useState<string>(""); 
+    const [loading, setLoading] = useState<boolean>(true);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [imageToPreview, setImageToPreview] = useState<string | null>(null);
 
-  const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
-  const [text, setText] = useState("");
-  const [selectedImage, setSelectedImage] = useState<{ uri: string; type: string; name: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+    {/*Obtención del historial del chat*/}
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+              if (!commisionId) return;
+          
+              const data = await getConversation(Number(commisionId), loggedInUser.token);
+              console.log("Mensajes recibidos del backend:", data);
+          
+              const currentUserId = loggedInUser.id;
+          
+              const formattedMessages: IMessage[] = data
+                .map((msg: any) => {
+                  const isFromArtist = msg.commision.artist.id === currentUserId;
+                  const sender = isFromArtist ? msg.commision.artist : msg.commision.client;
+          
+                  return {
+                    _id: msg.id,
+                    text: msg.text,
+                    createdAt: new Date(msg.creationDate),
+                    user: {
+                      _id: sender.id,
+                      name: isFromArtist ? msg.commision.artist.baseUser.username : msg.commision.artist.baseUser.username,
+                      avatar: sender.baseUser?.imageProfile || artistAvatar,
+                    },
+                    image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
+                  };
+                })
+                .sort((a: IMessage, b: IMessage) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          
+              setMessages(formattedMessages);
+              setSelectedImage(undefined);
+            } catch (error) {
+              console.error("Error obteniendo mensajes:", error);
+            }
+          };
 
-  const saveSentMessageId = (msgId: number) => {
-    try {
-      const key = STORAGE_KEY(commisionId!, loggedInUser.id.toString());
-      const stored = localStorage.getItem(key);
-      let ids: number[] = stored ? JSON.parse(stored) : [];
-      if (!ids.includes(msgId)) {
-        ids.push(msgId);
-        localStorage.setItem(key, JSON.stringify(ids));
-      }
-    } catch (error) {
-      console.error("Error guardando mensajes enviados:", error);
-    }
-  };
+        fetchMessages();
+        setLoading(false);
+    }, []);
 
-  const getSentMessageIds = (): number[] => {
-    try {
-      const key = STORAGE_KEY(commisionId!, loggedInUser.id.toString());
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error("Error recuperando mensajes enviados:", error);
-      return [];
-    }
-  };
+        
+        
+    {/*Publicación de los mensajes*/}
+    const onSend = useCallback(async (newMessages: IMessage[] = []) => {
 
-  const markMessages = (msgs: ChatMessage[]): ExtendedChatMessage[] => {
-    const sentIds = new Set(getSentMessageIds());
-    return msgs.map((msg) => ({ ...msg, sentByMe: sentIds.has(msg.id) }));
-  };
+        if (newMessages.length === 0 && !selectedImage) return; 
 
-  const fetchMessages = async () => {
-    if (!commisionId) return;
-    try {
-      const conv = await getConversation(Number(commisionId), loggedInUser.token);
-      setMessages(markMessages(conv));
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        {/*Creación del mensaje*/}
+        const message = {
+            _id: new Date().getTime(), 
+            text:  newMessages[0].text, 
+            createdAt: new Date(),
+            user: {
+                _id: 1,
+                name: "Usuario",
+                avatar: artistAvatar,
+            },
+            image: selectedImage || undefined,
+        };
 
-  useEffect(() => {
-    if (!commisionId) return;
-    fetchMessages();
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [commisionId]);
 
-  const handleSend = async () => {
-    if (text.trim().length === 0 && !selectedImage) return;
-    try {
-      const newMsg = await sendMessage(Number(commisionId), text, selectedImage || undefined, loggedInUser.token);
-      saveSentMessageId(newMsg.id);
-      setMessages((prev) => [{ ...newMsg, sentByMe: true }, ...prev]);
-      setText("");
-      setSelectedImage(null);
-    } catch (error) {
-      console.error("Error al enviar mensaje:", error);
-    }
-  };
+        {/*Formateo del json del GiftedChat al json de la base de datos*/}
+        const formattedMessage = {
+            id: message._id,
+            text: message.text,
+            createdAt: message.createdAt,
+            user: {
+                id: message.user._id,
+                name: message.user.name,
+                avatar: message.user.avatar || artistAvatar,
+            },
+            image: selectedImage || undefined, 
+        };
+    
+        {/*Envío del mensajes al "backend" */}
+        try {
+           
 
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.7,
-      });
-      if (!result.canceled) {
-        const asset = result.assets[0];
-        setSelectedImage({ uri: asset.uri, type: "image/jpeg", name: asset.fileName || "photo.jpg" });
-      }
-    } catch (error) {
-      console.error("Error al seleccionar imagen:", error);
-    }
-  };
+            const newMsg = await sendMessage(formattedMessage, loggedInUser.token);
 
-  const renderItem = ({ item }: { item: ExtendedChatMessage }) => {
-    const isSentByMe = item.sentByMe === true;
+            
+            setMessages((previousMessages) =>
+                GiftedChat.append(previousMessages, [newMsg])
+            );
+
+            setSelectedImage(undefined); 
+          
+        } catch (error) {
+            console.error("Error enviando mensaje:", error);
+        }
+    }, [selectedImage]); 
+
+     {/*Permite seleccionar imagenes*/}
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled && result.assets.length > 0) {
+            setSelectedImage(result.assets[0].uri); 
+        }
+    };
+
+    const downloadImage = async (uri: string) => {
+        try {
+          const { status } = await MediaLibrary.requestPermissionsAsync();
+          if (status !== 'granted') {
+            alert("Se necesita permiso para guardar la imagen");
+            return;
+          }
+      
+          const filename = uri.substring(uri.lastIndexOf('/') + 1);
+          const fileUri = FileSystem.documentDirectory + filename;
+      
+          const downloadResumable = await FileSystem.downloadAsync(uri, fileUri);
+      
+          const asset = await MediaLibrary.createAssetAsync(downloadResumable.uri);
+          await MediaLibrary.createAlbumAsync('ChatApp', asset, false);
+      
+          alert("Imagen guardada en la galería");
+        } catch (err) {
+          console.error("Error al descargar la imagen:", err);
+          alert("Error al guardar la imagen");
+        }
+      };
+
+ if (loading) return <LoadingScreen />;
+
     return (
-      <View style={styles.messageRow}>
-        <View
-          style={[
-            styles.messageBubble,
-            isSentByMe ? styles.messageBubbleMe : styles.messageBubbleOther,
-          ]}
-        >
-          {item.text ? <Text style={styles.messageText}>{item.text}</Text> : null}
-          {item.image && (
-            <Image
-              source={{ uri: `data:image/jpeg;base64,${item.image}` }}
-              style={styles.messageImage}
+        <View style={styles.container}>
+            <GiftedChat
+                messages={messages}
+                onSend={(messages: IMessage[]) => onSend(messages)}
+                user={{ _id: 1, name: "Usuario", avatar: artistAvatar }}
+                showUserAvatar={true}
+                text={((selectedImage && inputText !== icon ) && inputText.length ===0 ) ? icon : inputText}
+                onInputTextChanged={(text) => setInputText(text)}
+                textInputProps={{
+                    placeholder: "Escribe un mensaje...",
+                    editable: true,
+                }}
+
+                renderMessageImage={(props) => {
+                    const uri = props.currentMessage?.image;
+                    return (
+                      <TouchableOpacity onPress={() => {
+                        setImageToPreview(uri ?? null);
+                        setModalVisible(true);
+                      }}>
+                        <Image
+                          source={{ uri }}
+                          style={{ width: 200, height: 200, borderRadius: 10, margin: 5 }}
+                          resizeMode="cover"
+                        />
+                      </TouchableOpacity>
+                    );
+                  }}
+            
             />
-          )}
-          <Text style={styles.messageDate}>
-            {new Date(item.creationDate).toLocaleString()}
-          </Text>
+            <View style={styles.imagePickerContainer}>
+                <Button title="Seleccionar Imagen" onPress={pickImage} />
+                {selectedImage && <Image source={{ uri: selectedImage }} style={styles.imagePreview} />}
+            </View>
+
+            {modalVisible && imageToPreview && (
+                <Modal visible={modalVisible} transparent={true}>
+                    <View style={{ flex: 1, backgroundColor: "#000000cc", justifyContent: "center", alignItems: "center" }}>
+                    <Image
+                        source={{ uri: imageToPreview }}
+                        style={{ width: 300, height: 300, borderRadius: 15 }}
+                        resizeMode="contain"
+                    />
+                    <Button title="Descargar imagen" onPress={() => downloadImage(imageToPreview)} />
+                    <Button title="Cerrar" onPress={() => setModalVisible(false)} />
+                    </View>
+                </Modal>
+)}
         </View>
-      </View>
+
+        
     );
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      {/* Imagen de fondo en el centro */}
-      <Image
-        source={require("@/assets/images/logo.png")} 
-        style={styles.backgroundLogo}
-      />
-
-      {/* Lista de mensajes (invertida) */}
-      <FlatList
-        data={messages}
-        keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
-        renderItem={renderItem}
-        inverted
-      />
-
-      {/* Barra de entrada de texto/imágenes */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Escribe un mensaje..."
-          value={text}
-          onChangeText={setText}
-        />
-        <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Enviar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 }
 
+const styles = StyleSheet.create({
+    container: { 
+        flex: 1,
+        backgroundColor: "#f5f5f5"
+        },
 
+    imagePickerContainer: { 
+        padding: 10,
+        alignItems: 'center'
+        },
+
+    imagePreview: { 
+        width: 100,
+        height: 100,
+        marginTop: 10,
+        borderRadius: 10
+        }
+});
