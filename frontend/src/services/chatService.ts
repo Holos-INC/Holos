@@ -40,10 +40,13 @@ export const sendMessage = async (
     const formData = new FormData();
     const { image, ...restOfmessage } = message;
     formData.append("chatMessage", JSON.stringify(restOfmessage));
+    console.log("restOfmessage:", restOfmessage);
+
 
     if (image && image.length > 0) {
       const imageProfileData = base64ToFile(image, "image.png");
       formData.append("imageProfile", imageProfileData);
+      console.log("formData entries:" + imageProfileData);
     }
     
 

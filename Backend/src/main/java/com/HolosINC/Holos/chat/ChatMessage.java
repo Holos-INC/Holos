@@ -23,11 +23,11 @@ public class ChatMessage {
     private LocalDateTime creationDate = LocalDateTime.now();
 
     @Size(max = 125)
-    @Column(updatable = false, columnDefinition = "LONGBLOB")
+    @Column(updatable = false, length = 125)
     private String text;
 
     @Lob
-    @Column(updatable = false)
+    @Column(name = "image", columnDefinition = "LONGBLOB", updatable = false)
     private byte[] image;
 
     @ManyToOne

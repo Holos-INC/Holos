@@ -9,10 +9,12 @@ import LoadingScreen from '@/src/components/LoadingScreen';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { Message } from "@/src/constants/message";
+import { Platform } from "react-native";
 
  {/*Variables de imagenes*/}
 const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
-const icon ="📷 "
+const icon =". "
+const isWeb = Platform.OS === "web"
 
 export default function IndividualChatScreen({  }) {
 
@@ -131,28 +133,42 @@ export default function IndividualChatScreen({  }) {
         }
     };
 
-    const downloadImage = async (uri: string) => {
-        try {
-          const { status } = await MediaLibrary.requestPermissionsAsync();
-          if (status !== 'granted') {
-            alert("Se necesita permiso para guardar la imagen");
-            return;
-          }
-      
-          const filename = uri.substring(uri.lastIndexOf('/') + 1);
-          const fileUri = FileSystem.documentDirectory + filename;
-      
-          const downloadResumable = await FileSystem.downloadAsync(uri, fileUri);
-      
-          const asset = await MediaLibrary.createAssetAsync(downloadResumable.uri);
-          await MediaLibrary.createAlbumAsync('ChatApp', asset, false);
-      
-          alert("Imagen guardada en la galería");
-        } catch (err) {
-          console.error("Error al descargar la imagen:", err);
-          alert("Error al guardar la imagen");
-        }
-      };
+    const downloadImageWeb  = (uri: string, filename = "imagen.png") => {
+      const link = document.createElement("a");
+      link.href = uri;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    const downloadImageMobile = async (uri: string) => {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+    
+      if (status !== 'granted') {
+        alert("Se necesita permiso para guardar la imagen");
+        return;
+      }
+    
+      const filename = uri.substring(uri.lastIndexOf('/') + 1);
+      const fileUri = FileSystem.documentDirectory + filename;
+    
+      const downloadResumable = await FileSystem.downloadAsync(uri, fileUri);
+      const asset = await MediaLibrary.createAssetAsync(downloadResumable.uri);
+      await MediaLibrary.createAlbumAsync('ChatApp', asset, false);
+    
+      alert("Imagen guardada en la galería");
+    };
+
+
+    const downloadImage = (uri: string) => {
+      if (isWeb) {
+        downloadImageWeb(uri);
+      } else {
+        downloadImageMobile(uri);
+      }
+    };
+
 
  if (loading) return <LoadingScreen />;
 
