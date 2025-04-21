@@ -1,10 +1,26 @@
 import api from "./axiosInstance"; // Assuming you have an axios instance set up
-import { BaseUser, BaseUserDTO, User } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
+import {BaseUserDTO, User } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
 import { API_URL } from "@/src/constants/api";
 
 const USER_URL = `${API_URL}/baseUser`;
 const ADMINISTRATOR_USER_URL = `${API_URL}/baseUser/administrator/users`;
+enum Authority {
+  ADMIN = "ADMIN",
+  CLIENT = "CLIENT",
+  ARTIST = "ARTIST",
+  ARTIST_PREMIUM = "ARTIST_PREMIUM",
+}
 
+interface BaseUser {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  phoneNumber?: string;
+  imageProfile?: string;
+  createdUser: string;
+  authority: Authority;
+}
 export const getAllUsers = async (token: string): Promise<BaseUser[]> => {
   const response = await api.get(ADMINISTRATOR_USER_URL, {
     headers: { Authorization: `Bearer ${token}` },
