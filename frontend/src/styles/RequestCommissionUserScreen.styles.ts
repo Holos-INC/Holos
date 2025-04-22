@@ -1,103 +1,201 @@
 import { StyleSheet } from "react-native";
+import COLORS from "@/src/constants/colors";
 
 export const styles = StyleSheet.create({
-  dateButton: {
-    padding: 12,
-    backgroundColor: "#EEE",
-    borderRadius: 8,
-    marginTop: 10,
-    alignItems: "center",
-  },
-  dateButtonText: {
-    fontSize: 14,
-    color: "#333",
-  },  
-  errorText: {
-    color: 'red',
-    marginBottom: 8,
-  },  
-  scrollContainer: {
-    alignItems: "center",
-    padding: 20,
-    gap: 20,
-  },
-  commissionContainer: {
-    alignItems: "center",
-    width: "90%",
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  commissionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
   formContainer: {
-    width: "90%",
-    alignSelf: "center",
-    gap: 10,
+    backgroundColor: COLORS.surfaceBase,
+    padding: 16,
+    borderRadius: 12,
+    margin: 16,
+    gap: 12,
   },
+
   title: {
     backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 14,
     borderWidth: 1,
-    borderColor: "#ddd",
-    textAlignVertical: "top",
+    borderColor: COLORS.surfaceMuted,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 16,
+    color: COLORS.contentStrong,
   },
+
   input: {
     backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 14,
     borderWidth: 1,
-    borderColor: "#ddd",
-    minHeight: 100,
+    borderColor: COLORS.surfaceMuted,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 16,
+    color: COLORS.contentStrong,
+    minHeight: 90,
     textAlignVertical: "top",
   },
-  previewContainer: {
-    backgroundColor: "#f8f8f8",
-    borderRadius: 10,
+
+  dateButton: {
+    backgroundColor: COLORS.brandSecondary,
+    padding: 10,
+    borderRadius: 8,
     alignItems: "center",
-    justifyContent: "center",
-    height: 150,
-    borderWidth: 1,
-    borderColor: "#ddd",
   },
+
+  dateButtonText: {
+    color: "white",
+    fontWeight: "500",
+  },
+
+  errorText: {
+    color: COLORS.semanticError || "red",
+    fontSize: 12,
+  },
+
+  previewContainer: {
+    backgroundColor: COLORS.surfaceMuted,
+    borderRadius: 8,
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   previewImage: {
     width: "100%",
     height: "100%",
-    borderRadius: 10,
-    resizeMode: "contain",
+    borderRadius: 8,
   },
+
   placeholderText: {
-    color: "#999",
+    color: COLORS.brandSecondary,
+    fontSize: 14,
   },
+
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-  },
-  imageButton: {
-    backgroundColor: "#FECEF1",
-    padding: 10,
-    borderRadius: 50,
+    justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 16,
+    gap: 12,
   },
-  sendButton: {
-    backgroundColor: "#173C75",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+
+  cameraButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.brandPrimary,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    flex: 1,
   },
-  buttonText: {
+
+  cameraButtonText: {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "500",
+    fontSize: 14,
+  },
+
+  submitButton: {
+    backgroundColor: COLORS.accentInfo,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+
+  submitButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
+  webDateInput: {
+    padding: 8,
+    borderRadius: 6,
+    borderColor: COLORS.brandSecondary,
+    borderWidth: 1,
+  },
+
+  textArea: {
+    minHeight: 90,
+    textAlignVertical: "top",
+  },
+
+  label: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: COLORS.brandPrimary,
+    marginBottom: 4,
+    marginTop: 8,
+  },
+
+  subtext: {
+    fontSize: 16,
+    color: COLORS.brandSecondary,
+  },
+
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: COLORS.brandPrimary,
+    textAlign: "center",
+    marginTop: 16,
+    marginBottom: 12,
+  },
+
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 16,
+    gap: 12,
+  },
+
+  cancelButton: {
+    backgroundColor: COLORS.semanticError,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+
+  cancelButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
+  priceTableContainer: {
+    backgroundColor: COLORS.surfaceBase,
+    padding: 16,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 24,
+    gap: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  priceTableText: {
+    fontSize: 16,
+    color: COLORS.brandSecondary,
+  },
+
+  priceTableImage: {
+    width: "100%",
+    maxWidth: 400,
+    paddingHorizontal: 750,
+    aspectRatio: 1.5,
+    resizeMode: "contain",
+  },
+
+  imageWrapper: {
+    marginVertical: 12,
+    alignItems: "center",
+    paddingHorizontal: 16,
   },
 });

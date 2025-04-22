@@ -46,6 +46,7 @@ export function decodeImagePath(encodedPath: string): string {
 export interface ArtistMin {
   id: number;
   name: string;
+  username: string;
   baseUserid?: number;
   location?: string;
   imageProfile?: string;
@@ -63,6 +64,7 @@ export async function getTopThreeArtists(): Promise<ArtistMin[]> {
         description: artist?.description,
         imageProfile: artist?.baseUser?.imageProfile,
         name: artist.baseUser?.name,
+        username: artist.baseUser?.username,
       })
     );
     return artists;

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ public class ChatMessageService {
     private final BaseUserService baseUserService;
     private final CommisionRepository commisionRepository;
 
-    @Autowired
     public ChatMessageService(ChatMessageRepository chatMessageRepository, BaseUserService baseUserService, CommisionRepository commisionRepository) {
         this.commisionRepository = commisionRepository;
         this.chatMessageRepository = chatMessageRepository;
@@ -50,10 +48,8 @@ public class ChatMessageService {
     @Transactional(readOnly = true)
     public List<ChatMessage> findConversationByCommisionId(Long commisionId) throws Exception{
         BaseUser user = baseUserService.findCurrentUser();
-        Commision commision = commisionRepository.findById(commisionId).orElse(null);
-        if (commision == null) {
-            throw new ResourceNotFoundException("Commision", "id", commisionId);
-        }
+        Commision commision = commisionRepository.findById(commisionId).orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+
         if (commision.getArtist().getBaseUser().getId() != user.getId() && commision.getClient().getBaseUser().getId() != user.getId()) {
             throw new AccessDeniedException("You don't have access to this commision");
         }

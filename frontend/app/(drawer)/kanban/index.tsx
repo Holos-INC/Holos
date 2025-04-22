@@ -82,7 +82,7 @@ const KanbanScreen: React.FC = () => {
   if (loading) return <LoadingScreen/>
 
   return (
-    <ProtectedRoute allowedRoles={['ARTIST']}>
+    <ProtectedRoute allowedRoles={['ARTIST', 'ARTIST_PREMIUM']}>
       <View style={{flex: 1}}>
         <KanbanBoard
           columns={columns}

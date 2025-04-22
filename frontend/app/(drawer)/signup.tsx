@@ -11,9 +11,10 @@ import {
 } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
 import { API_URL } from "@/src/constants/api";
-import { ScrollView } from "react-native-gesture-handler";
-import * as ImagePicker from "expo-image-picker";
-import colors from "@/src/constants/colors";
+import { ScrollView } from 'react-native-gesture-handler';
+import * as ImagePicker from 'expo-image-picker';
+import colors from '@/src/constants/colors';
+import { base64ToFile } from '@/src/components/convertionToBase64Image';
 
 export default function SignupScreen() {
   // Estados compartidos
@@ -30,7 +31,7 @@ export default function SignupScreen() {
   const navigation = useNavigation();
 
   // Estados específicos para artistas
-  // const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
+  const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
   const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
 
   const router = useRouter();
@@ -45,28 +46,31 @@ export default function SignupScreen() {
   }, [password, confirmPassword]);
 
   const handleSignup = async () => {
-    {
-      if (!acceptTerms) {
-        console.log("Error: Términos y condiciones no aceptados");
-        alert("Debes aceptar los Términos y Condiciones");
-      }
-
-      if (passwordError) {
-        alert("Las contraseñas no coinciden");
-      }
-
-      if (!password || !confirmPassword) {
-        alert("Debes ingresar y confirmar la contraseña");
-      }
-
-      // if (!selectedImage) {
-      //   alert("Selecciona una foto de perfil");
-      // }
+    // Validaciones
+    if (!acceptTerms) {
+      alert("Debes aceptar los Términos y Condiciones");
+      return;
     }
 
-    // if (role === "artist" && !tableCommissionsPrice) {
-    //   alert("Selecciona una imagen para el precio del tablero de comisiones");
-    // }
+    if (passwordError) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      alert("Debes ingresar y confirmar la contraseña");
+      return;
+    }
+
+    if (!selectedImage) {
+      alert("Selecciona una foto de perfil");
+      return;
+    }
+
+    if ((role === 'artist' || role === 'artist_premium') && !tableCommissionsPrice) {
+      alert("Selecciona una imagen para el precio del tablero de comisiones");
+      return;
+    }
 
     const userPayload = {
       firstName,
@@ -75,36 +79,29 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      // numSlotsOfWork: role === "artist" ? numSlotsOfWork : undefined,
+      numSlotsOfWork: (role === 'artist' || role === 'artist_premium') ? numSlotsOfWork : undefined,
     };
 
     const formData = new FormData();
     formData.append("user", JSON.stringify(userPayload));
 
     // Foto de perfil
-    const profileUriParts = selectedImage.split("/");
-    const profileFileName = profileUriParts[profileUriParts.length - 1];
-    const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
-    const profileMimeType = `image/${profileFileExtension}`;
+    // const profileUriParts = selectedImage.split("/");
+    // const profileFileName = profileUriParts[profileUriParts.length - 1];
+    // const profileFileExtension = profileFileName?.split(".").pop() || "jpg";
+    // const profileMimeType = `image/${profileFileExtension}`;
 
-    formData.append(imageProfile, {
-      uri: selectedImage,
-      name: profileFileName,
-      type: profileMimeType,
-    } as any);
+    // formData.append("imageProfile", {
+    //   uri: selectedImage,
+    //   name: profileFileName,
+    //   type: profileMimeType,
+    // } as any);
+    
+    formData.append("imageProfile", base64ToFile(selectedImage, "image.png"));
 
     // Imagen del precio del tablero de comisiones
-    if (role === "artist") {
-      const tableUriParts = tableCommissionsPrice.split("/");
-      const tableFileName = tableUriParts[tableUriParts.length - 1];
-      const tableFileExtension = tableFileName?.split(".").pop() || "jpg";
-      const tableMimeType = `image/${tableFileExtension}`;
-
-      formData.append("tableCommissionsPrice", {
-        uri: tableCommissionsPrice,
-        name: tableFileName,
-        type: tableMimeType,
-      } as any);
+    if (role === 'artist' || role === 'artist_premium') {
+      formData.append("tableCommissionsPrice", base64ToFile(tableCommissionsPrice, "image.png"));
     }
 
     try {
@@ -114,9 +111,6 @@ export default function SignupScreen() {
 
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
         body: formData,
       });
 
@@ -278,7 +272,7 @@ export default function SignupScreen() {
           </View>
         </View>
 
-        {/* {role === "artist" && (
+        {role === 'artist' || role === 'artist_premium' ? (
           <>
             <View style={styles.formRow}>
               <View style={styles.inputGroup}>
@@ -327,7 +321,7 @@ export default function SignupScreen() {
               </View>
             </View>
           </>
-        )} */}
+        ) : null}
 
         <View style={styles.roleContainer}>
           <Text style={styles.label}>Rol actual: {role}</Text>
@@ -349,6 +343,15 @@ export default function SignupScreen() {
               onPress={() => setRole("artist")}
             >
               <Text style={styles.roleButtonText}>ARTIST</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.roleButton,
+                role === 'artist_premium' && styles.roleButtonActive
+              ]}
+              onPress={() => setRole('artist_premium')}
+            >
+              <Text style={styles.roleButtonText}>ARTIST PREMIUM</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -3,7 +3,8 @@ package com.HolosINC.Holos.auth;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,25 +39,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "The Authentication API based on JWT")
 public class AuthController {
-
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
-    private final AuthoritiesService authService;
-    
-    @Autowired
-    public AuthController(AuthenticationManager authenticationManager,
-                          JwtUtils jwtUtils, PasswordEncoder encoder,
-                          AuthoritiesService authService) {
-        this.jwtUtils = jwtUtils;
-        this.authenticationManager = authenticationManager;
-        this.authService = authService;
-    }
+	private final AuthenticationManager authenticationManager;
+	private final JwtUtils jwtUtils;
+	private final AuthoritiesService authService;
+	
+	public AuthController(AuthenticationManager authenticationManager,
+			JwtUtils jwtUtils, PasswordEncoder encoder,
+			AuthoritiesService authService) {
+		this.jwtUtils = jwtUtils;
+		this.authenticationManager = authenticationManager;
+		this.authService = authService;
+	}
 
     @Operation(
         summary = "Authenticate user",
@@ -110,7 +108,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Error during registration", content = @Content(mediaType = "application/json"))
         }
     )
-    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/signup", consumes = { "multipart/form-data" })
     public ResponseEntity<MessageResponse> registerUser(
             @RequestPart("user") String signupRequestJson,
             @RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
