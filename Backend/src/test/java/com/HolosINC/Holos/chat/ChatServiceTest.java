@@ -170,4 +170,6 @@ public class ChatServiceTest {
         assertEquals(2, result.get(1L).size());
         verify(chatMessageRepository, times(1)).findAll();
     }
+    //cobertura completa
 }
+

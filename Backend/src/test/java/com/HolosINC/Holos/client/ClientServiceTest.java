@@ -174,5 +174,7 @@ public class ClientServiceTest {
 
         verify(clientRepository, never()).delete(any(Client.class));
     }    
+    //check
+     
 
 }

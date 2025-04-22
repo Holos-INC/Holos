@@ -245,6 +245,6 @@ public void testUpdateProfileFailure() throws Exception {
 
     verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
 }
-
+//check
 
 }
