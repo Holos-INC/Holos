@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
-import { postWorkdone, getAbilityPost } from "@/src/services/uploadNewWorkArtist";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
+import {
+  postWorkdone,
+  getAbilityPost,
+} from "@/src/services/uploadNewWorkArtist";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { useRouter, useNavigation } from "expo-router";
 import { styles } from "@/src/styles/UploadNewWorkArtist";
@@ -32,7 +42,10 @@ export default function UploadWorkArtist() {
           const data = await getAbilityPost(loggedInUser.token);
           setAbilityPost(data);
         } catch (error) {
-          console.error("Error fetching whether the artist is allowed to post:", error);
+          console.error(
+            "Error fetching whether the artist is allowed to post:",
+            error
+          );
         }
       };
       fetchAbilityPost();
@@ -41,10 +54,15 @@ export default function UploadWorkArtist() {
 
   const uploadNewWorkValidationSchema = object({
     name: string().trim().required("El título de la obra es requerido"),
-    description: string().trim().required("La descripción de la obra es requerida"),
+    description: string()
+      .trim()
+      .required("La descripción de la obra es requerida"),
     price: string()
       .required("La obra debe tener un precio")
-      .matches(/^[0-9]+([.,][0-9]{1,2})?$/, "Debe ser un número válido con hasta 2 decimales"),
+      .matches(
+        /^[0-9]+([.,][0-9]{1,2})?$/,
+        "Debe ser un número válido con hasta 2 decimales"
+      ),
     image: string().trim().required("La imagen de la obra es requerida"),
   });
 
@@ -155,7 +173,9 @@ export default function UploadWorkArtist() {
                 onBlur={handleBlur("price")}
               />
               {errors.price && touched.price && (
-                <Text style={styles.errorText}>Por favor, inserte un valor válido</Text>
+                <Text style={styles.errorText}>
+                  Por favor, inserte un valor válido
+                </Text>
               )}
 
               <Text style={styles.formLabel}>Imagen de la obra</Text>
@@ -176,25 +196,37 @@ export default function UploadWorkArtist() {
               )}
 
               <View style={{ alignItems: "center", marginTop: 16 }}>
-                <TouchableOpacity
-                  style={styles.cameraButton}
-                  onPress={() => pickImage(setFieldValue, setSelectedImage)}
-                >
-                  <Icon name="photo-camera" size={20} color="white" />
-                  <Text style={styles.cameraButtonText}>Subir Imagen</Text>
-                </TouchableOpacity>
+                {values.image ? (
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => {
+                      setSelectedImage(null);
+                      setFieldValue("image", "");
+                    }}
+                  >
+                    <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.cameraButton}
+                    onPress={() => pickImage(setFieldValue, setSelectedImage)}
+                  >
+                    <Icon name="photo-camera" size={20} color="white" />
+                    <Text style={styles.cameraButtonText}>Subir Imagen</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
               <View style={styles.buttonRow}>
                 <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => {
-                      resetForm();
-                      router.push("/");
-                    }}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancelar</Text>
-                  </TouchableOpacity>
+                  style={styles.cancelButton}
+                  onPress={() => {
+                    resetForm();
+                    router.push("/");
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.sendButton}
@@ -213,7 +245,9 @@ export default function UploadWorkArtist() {
   const unableUpload = () => {
     return (
       <View style={styles.containerUnableUpload}>
-        <Text style={styles.textContainerUnableUpload}>Acceso no permitido.</Text>
+        <Text style={styles.textContainerUnableUpload}>
+          Acceso no permitido.
+        </Text>
       </View>
     );
   };
