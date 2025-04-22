@@ -5,7 +5,8 @@ export interface Message {
     text: string,
     createdAt: string,
     image: string | undefined,
-    commision: Commission 
+    commision: string | undefined,
+    creator_id: string 
   }
 
   export interface ReceiveChatMessage {

@@ -10,11 +10,14 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { Message } from "@/src/constants/message";
 import { Platform } from "react-native";
+import { Commission } from '@/src/constants/CommissionTypes';
+
 
  {/*Variables de imagenes*/}
 const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
 const icon =". "
 const isWeb = Platform.OS === "web"
+
 
 export default function IndividualChatScreen({  }) {
 
@@ -32,6 +35,9 @@ export default function IndividualChatScreen({  }) {
     const [loading, setLoading] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [imageToPreview, setImageToPreview] = useState<string | null>(null);
+    const [commision, setCommision] = useState<Commission | null >(null);
+    const currentUserId = loggedInUser.id;
+    const [chatOwner, setChatOwner] = useState<string | null>(null);
 
     {/*Obtención del historial del chat*/}
     useEffect(() => {
@@ -40,22 +46,26 @@ export default function IndividualChatScreen({  }) {
               if (!commisionId) return;
           
               const data = await getConversation(Number(commisionId), loggedInUser.token);
-              console.log("Mensajes recibidos del backend:", data);
-          
-              const currentUserId = loggedInUser.id;
+
+              console.log(data)
+          if (data.length < 0 ) return; 
+            
+
+           
+            const commRaw = data[0].commision as Commission;
+            setCommision(commRaw);
           
               const formattedMessages: IMessage[] = data
                 .map((msg: any) => {
-                  const isFromArtist = msg.commision.artist.id === currentUserId;
-                  const sender = isFromArtist ? msg.commision.artist : msg.commision.client;
-          
+                  const isFromArtist = commRaw.artist.id === currentUserId;
+                  const sender = isFromArtist ? commRaw.artist : commRaw.client;
                   return {
                     _id: msg.id,
                     text: msg.text,
                     createdAt: new Date(msg.creationDate),
                     user: {
                       _id: sender.id,
-                      name: isFromArtist ? msg.commision.artist.baseUser.username : msg.commision.artist.baseUser.username,
+                      name: isFromArtist ? commRaw.artist.baseUser.username : commRaw.client.baseUser.username,
                       avatar: sender.baseUser?.imageProfile || artistAvatar,
                     },
                     image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
@@ -65,21 +75,27 @@ export default function IndividualChatScreen({  }) {
           
               setMessages(formattedMessages);
               setSelectedImage(undefined);
+
             } catch (error) {
               console.error("Error obteniendo mensajes:", error);
             }
           };
 
+    
+           
+
         fetchMessages();
         setLoading(false);
-    }, []);
-
-        
+    }, [loggedInUser]);        
         
     {/*Publicación de los mensajes*/}
     const onSend = useCallback(async (newMessages: IMessage[] = []) => {
 
         if (newMessages.length === 0 && !selectedImage) return; 
+        if (!commision) return;
+     
+        const chatOwner = currentUserId === commision.artist.id ? commision.artist : commision.client;
+        
 
         {/*Creación del mensaje*/}
         const message = {
@@ -89,10 +105,11 @@ export default function IndividualChatScreen({  }) {
             user: {
                 _id: loggedInUser.id,
                 name: loggedInUser.username,
-                avatar: loggedInUser.image,
+                avatar: chatOwner.baseUser.imageProfile,
             },
             image: selectedImage || undefined,
         };
+
 
 
         {/*Creación del mensaje para el backend*/}
@@ -100,8 +117,11 @@ export default function IndividualChatScreen({  }) {
             text: message.text ?? " ",
             createdAt: message.createdAt.toISOString(),
             image: selectedImage || undefined, 
-            commision: commisionId
+            commision: commisionId,
+            creator_id: currentUserId
         };
+
+
     
         {/*Envío del mensajes al "backend" */}
         try {
@@ -169,6 +189,16 @@ export default function IndividualChatScreen({  }) {
       }
     };
 
+    const getImageProfile = (): string | undefined => {
+      if (!commision) return undefined;
+    
+      const chatOwner = currentUserId === commision.artist.id
+        ? commision.artist
+        : commision.client;
+    
+      return chatOwner.baseUser?.imageProfile;
+    };
+
 
  if (loading) return <LoadingScreen />;
 
@@ -177,7 +207,7 @@ export default function IndividualChatScreen({  }) {
             <GiftedChat
                 messages={messages}
                 onSend={(messages: IMessage[]) => onSend(messages)}
-                user={{ _id: 1, name: "Usuario", avatar: artistAvatar }}
+                user={{ _id: loggedInUser.id, name: loggedInUser.username, avatar: getImageProfile() || artistAvatar }}
                 showUserAvatar={true}
                 text={((selectedImage && inputText !== icon ) && inputText.length ===0 ) ? icon : inputText}
                 onInputTextChanged={(text) => setInputText(text)}
