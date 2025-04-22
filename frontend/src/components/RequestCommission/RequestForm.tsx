@@ -45,7 +45,10 @@ export default function RequestForm({ artist }: RequestFormProps) {
     description: string().required("La descripción es necesaria"),
     price: string()
       .required("El precio es necesario")
-      .matches(/^[0-9]+([.,][0-9]{1,2})?$/, "Debe ser un número válido con hasta 2 decimales"),
+      .matches(
+        /^[0-9]+([.,][0-9]{1,2})?$/,
+        "Debe ser un número válido con hasta 2 decimales"
+      ),
     image: string(),
     milestoneDate: date()
       .nullable()
@@ -115,11 +118,13 @@ export default function RequestForm({ artist }: RequestFormProps) {
       {/* Tarjeta de la tabla de precios */}
       <View style={styles.priceTableContainer}>
         <Text style={styles.label}>
-          Precios orientativos establecidos por el artista según el tipo de obra:
+          Precios orientativos establecidos por el artista según el tipo de
+          obra:
         </Text>
 
         <Text style={styles.priceTableText}>
-          Puedes usar esta tabla para ayudarte a decidir el precio de tu encargo.
+          Puedes usar esta tabla para ayudarte a decidir el precio de tu
+          encargo.
         </Text>
 
         <View style={styles.imageWrapper}>
@@ -190,7 +195,8 @@ export default function RequestForm({ artist }: RequestFormProps) {
               Precio que cree adecuado pagar por la Obra:
             </Text>
             <Text style={styles.subtext}>
-              El artista tendrá derecho a negociar el precio si lo cree necesario
+              El artista tendrá derecho a negociar el precio si lo cree
+              necesario
             </Text>
             <TextInput
               style={styles.title}
@@ -282,13 +288,22 @@ export default function RequestForm({ artist }: RequestFormProps) {
             </View>
 
             {/* Botón de subir imagen */}
-            <TouchableOpacity
-              style={styles.cameraButton}
-              onPress={() => pickImage(setFieldValue)}
-            >
-              <Icon name="photo-camera" size={20} color="white" />
-              <Text style={styles.cameraButtonText}>Subir Imagen</Text>
-            </TouchableOpacity>
+            {values.image ? (
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => setFieldValue("image", "")}
+              >
+                <Text style={styles.removeButtonText}>Quitar imagen</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.cameraButton}
+                onPress={() => pickImage(setFieldValue)}
+              >
+                <Icon name="photo-camera" size={20} color="white" />
+                <Text style={styles.cameraButtonText}>Subir Imagen</Text>
+              </TouchableOpacity>
+            )}
 
             {/* Botones de acción */}
             <View style={styles.buttonRow}>

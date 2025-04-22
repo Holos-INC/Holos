@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, Image, ScrollView, StyleSheet, TouchableOpacity, Platform,} from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
@@ -16,12 +25,21 @@ import { clientUser } from "@/src/constants/user";
 import { desktopStyles as styles } from "@/src/styles/userProfile.styles";
 import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 
-
 const validationSchema = Yup.object().shape({
-  firstName: Yup.string().trim("El nombre no puede tener solo espacios").required("El nombre es obligatorio"),
+  firstName: Yup.string()
+    .trim("El nombre no puede tener solo espacios")
+    .required("El nombre es obligatorio"),
   username: Yup.mixed().notRequired(),
-  email: Yup.string().trim("El correo no puede tener solo espacios").email("Formato de correo inválido").required("El correo es obligatorio"),
-  phoneNumber: Yup.string().trim("El teléfono no puede tener solo espacios").matches(/^[0-9]+$/, "Solo se permiten números").min(9, "Debe tener al menos 7 dígitos").max(12, "Debe tener como máximo 12 dígitos").required("El teléfono es obligatorio"),
+  email: Yup.string()
+    .trim("El correo no puede tener solo espacios")
+    .email("Formato de correo inválido")
+    .required("El correo es obligatorio"),
+  phoneNumber: Yup.string()
+    .trim("El teléfono no puede tener solo espacios")
+    .matches(/^[0-9]+$/, "Solo se permiten números")
+    .min(9, "Debe tener al menos 7 dígitos")
+    .max(12, "Debe tener como máximo 12 dígitos")
+    .required("El teléfono es obligatorio"),
   description: Yup.mixed().notRequired(),
   imageProfile: Yup.string().notRequired(),
   linkToSocialMedia: Yup.mixed().notRequired()
@@ -35,7 +53,6 @@ const userClientProfileScreen = () => {
   const [imageProfile, setImageProfile] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-  
 
   const [fontsLoaded] = useFonts({
     "Merriweather-Bold": require("../../../assets/fonts/Merriweather_24pt-Bold.ttf"),
@@ -45,12 +62,11 @@ const userClientProfileScreen = () => {
     navigation.setOptions("Su perfil");
   }, [navigation]);
 
-
-
   useEffect(() => {
+    if (!loggedInUser.token) return;
     const fetchData = async () => {
       try {
-        const userInfo = await getUser(loggedInUser.token); 
+        const userInfo = await getUser(loggedInUser.token);
         setUser(userInfo);
       } catch (error) {
         console.error(error);
@@ -60,7 +76,6 @@ const userClientProfileScreen = () => {
     };
     fetchData();
   }, [loggedInUser.token]);
-
 
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
@@ -72,7 +87,7 @@ const userClientProfileScreen = () => {
       aspect: [1, 1],
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const img = result.assets[0].uri;
       setFieldValue(field, img);
@@ -80,9 +95,7 @@ const userClientProfileScreen = () => {
     }
   };
 
-
   if (!fontsLoaded || loading || !user) return <LoadingScreen />;
-
 
   const sendWork = async (values: clientUser, resetForm: () => void) => {
     try {
@@ -94,23 +107,24 @@ const userClientProfileScreen = () => {
         imageProfile: values.imageProfile,
         description: "",
         linkToSocialMedia: "",
-            };
-            
-      await updateUserClient(clientUser, loggedInUser.token );
-      popUpMovilWindows("Éxito", " Enviado correctamente");
-      setShouldRefresh(prev => !prev);
-      setIsEditing(!isEditing)
-    } catch (error: any) {
-      console.log(error)
-      popUpMovilWindows("Error", "No se puede actualizar el perfil. Intentelo de nuevo más tarde");
-    }
-  
-  };
+      };
 
+      await updateUserClient(clientUser, loggedInUser.token);
+      popUpMovilWindows("Éxito", " Enviado correctamente");
+      setShouldRefresh((prev) => !prev);
+      setIsEditing(!isEditing);
+    } catch (error: any) {
+      console.log(error);
+      popUpMovilWindows(
+        "Error",
+        "No se puede actualizar el perfil. Intentelo de nuevo más tarde"
+      );
+    }
+  };
 
   return (
     <Formik
-    enableReinitialize={true}
+      enableReinitialize={true}
       initialValues={{
         firstName: user.baseUser.name,
         username: user.baseUser.username,
@@ -133,11 +147,11 @@ const userClientProfileScreen = () => {
         setFieldValue,
         setValues,
         setErrors,
-        setTouched
+        setTouched,
       }) => {
         const cancelChange = () => {
           if (!user) return;
-  
+
           const originalValues = {
             firstName: user.baseUser.name,
             username: user.baseUser.username,
@@ -147,14 +161,14 @@ const userClientProfileScreen = () => {
             linkToSocialMedia:   "",
             imageProfile: user.baseUser.imageProfile,
           };
-  
+
           setValues(originalValues);
           setErrors({});
           setTouched({});
           setImageProfile(null);
           setIsEditing(false);
         };
-  
+
         return (
           <ScrollView style={styles.scrollView}>
             <View style={styles.container}>
@@ -170,19 +184,23 @@ const userClientProfileScreen = () => {
                     }
                     style={styles.imageProfile}
                   />
-                  {isEditing?
-                  <TouchableOpacity
-                    onPress={() => pickImage(setFieldValue, "imageProfile")}
-                    style={styles.stripeButtonSmall}
-                  >
-                    <Text style={styles.stripeButtonText}>Cambiar Foto de Perfil</Text>
-                  </TouchableOpacity>
-                  : <></>}
+                  {isEditing ? (
+                    <TouchableOpacity
+                      onPress={() => pickImage(setFieldValue, "imageProfile")}
+                      style={styles.stripeButtonSmall}
+                    >
+                      <Text style={styles.stripeButtonText}>
+                        Cambiar Foto de Perfil
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <></>
+                  )}
                 </View>
-  
+
                 <View style={styles.formSection}>
                   <Text style={styles.title}>Editar Perfil de Cliente</Text>
-  
+
                   <Text style={styles.label}>Nombre</Text>
                   <TextInput
                     style={styles.input}
@@ -190,13 +208,17 @@ const userClientProfileScreen = () => {
                     onChangeText={handleChange("firstName")}
                     onBlur={handleBlur("firstName")}
                   />
-                  {touched.firstName && errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
-  
-                 <Text style={styles.label}>Usuario</Text>
-                <View style={styles.readOnlyBox}>
-                  <Text style={styles.readOnlyText}>{user.baseUser.username}</Text>
-                 </View>
-  
+                  {touched.firstName && errors.firstName && (
+                    <Text style={styles.error}>{errors.firstName}</Text>
+                  )}
+
+                  <Text style={styles.label}>Usuario</Text>
+                  <View style={styles.readOnlyBox}>
+                    <Text style={styles.readOnlyText}>
+                      {user.baseUser.username}
+                    </Text>
+                  </View>
+
                   <Text style={styles.label}>Correo Electrónico</Text>
                   <TextInput
                     style={styles.input}
@@ -205,8 +227,10 @@ const userClientProfileScreen = () => {
                     onBlur={handleBlur("email")}
                     keyboardType="email-address"
                   />
-                  {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
-  
+                  {touched.email && errors.email && (
+                    <Text style={styles.error}>{errors.email}</Text>
+                  )}
+
                   <Text style={styles.label}>Teléfono</Text>
                   <TextInput
                     style={styles.input}
@@ -218,23 +242,38 @@ const userClientProfileScreen = () => {
                   {touched.phoneNumber && errors.phoneNumber && (
                     <Text style={styles.error}>{errors.phoneNumber}</Text>
                   )}
-  
+
                   <View style={styles.buttonContainer}>
                     {isEditing ? (
                       <>
-                      <TouchableOpacity onPress={() => handleSubmit()} style={styles.stripeButton}>
-                        <Text style={styles.stripeButtonText}>Guardar Cambios</Text>
+                        <TouchableOpacity
+                          onPress={() => handleSubmit()}
+                          style={styles.stripeButton}
+                        >
+                          <Text style={styles.stripeButtonText}>
+                            Guardar Cambios
+                          </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          onPress={cancelChange}
+                          style={styles.stripeButton}
+                        >
+                          <Text style={styles.stripeButtonText}>
+                            Cancelar los cambios
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => setIsEditing(true)}
+                        style={styles.stripeButton}
+                      >
+                        <Text style={styles.stripeButtonText}>
+                          Editar Perfil
+                        </Text>
                       </TouchableOpacity>
-                      
-                      <TouchableOpacity onPress={cancelChange} style={styles.stripeButton}>
-                        <Text style={styles.stripeButtonText}>Cancelar los cambios</Text>
-                      </TouchableOpacity>
-                        </>
-                      ) : (
-                     <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.stripeButton}>
-                      <Text style={styles.stripeButtonText}>Editar Perfil</Text>
-                      </TouchableOpacity>
-                      )}
+                    )}
                   </View>
                 </View>
               </View>
@@ -246,5 +285,4 @@ const userClientProfileScreen = () => {
   );
 };
 
-  export default userClientProfileScreen;
-  
+export default userClientProfileScreen;

@@ -94,7 +94,7 @@ public class StripeWebhookServiceTest {
         Artist artist = new Artist();
         artist.setSubscriptionId(subscriptionId);
 
-        when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.of(artist));
+        when(artistRepository.findBySubscriptionId(any())).thenReturn(Optional.of(artist));
 
         assertThrows(ResourceNotFoundException.class, () -> {
             stripeWebhookService.handleSubscriptionCreated(null);

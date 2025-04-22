@@ -52,7 +52,7 @@ public class CommisionController {
         }
     }
 
-    @GetMapping("/historyOfCommisions")
+    @GetMapping("/historyOfCommisions/mine")
     public ResponseEntity<HistoryCommisionsDTO> getClientCommissions() throws Exception {
         try {
             HistoryCommisionsDTO commissions = commisionService.getHistoryOfCommissions();
