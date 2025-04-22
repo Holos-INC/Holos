@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
 import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import { styles } from "@/src/styles/UploadNewWorkArtist";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
@@ -16,12 +23,12 @@ import { AuthenticationContext } from "@/src/contexts/AuthContext";
  * Ajusta según tu forma de navegación.
  */
 interface RouteParams {
-    artistId?: string;
-    worksDoneId?: string;
-    currentName?: string;
-    currentDescription?: string;
-    currentPrice?: string;
-  }
+  artistId?: string;
+  worksDoneId?: string;
+  currentName?: string;
+  currentDescription?: string;
+  currentPrice?: string;
+}
 // const MaskedInput: any = TextInputMask;
 const cameraIcon = "photo-camera";
 
@@ -29,7 +36,7 @@ export default function UpdateWorkArtist() {
   const { isArtist, loggedInUser } = useContext(AuthenticationContext);
   const router = useRouter();
   const navigation = useNavigation();
-  const searchParams = useLocalSearchParams(); 
+  const searchParams = useLocalSearchParams();
   // Obtenemos los parámetros de la ruta
   const {
     artistId,
@@ -98,26 +105,28 @@ export default function UpdateWorkArtist() {
   ) => {
     try {
       if (!artistId || !worksDoneId) {
-        popUpMovilWindows("Error", "Faltan parámetros para actualizar la obra.");
+        popUpMovilWindows(
+          "Error",
+          "Faltan parámetros para actualizar la obra."
+        );
         return;
       }
 
       // Objeto con los datos de la obra (newWorkArtist)
-const workToUpdate = {
-  name: values.name,
-  description: values.description,
-  price: values.price,
-};
+      const workToUpdate = {
+        name: values.name,
+        description: values.description,
+        price: values.price,
+      };
 
-// Llamada correcta al servicio:
-await updateWorkdone(
-  workToUpdate,         // <-- newWorkArtist
-  selectedImage,        // <-- string | null
-  Number(artistId),     // <-- number
-  Number(worksDoneId),  // <-- number
-  loggedInUser.token    // <-- string
-);
-
+      // Llamada correcta al servicio:
+      await updateWorkdone(
+        workToUpdate, // <-- newWorkArtist
+        selectedImage, // <-- string | null
+        Number(artistId), // <-- number
+        Number(worksDoneId), // <-- number
+        loggedInUser.token // <-- string
+      );
 
       popUpMovilWindows("Éxito", "¡Obra actualizada correctamente!");
 
@@ -206,7 +215,9 @@ await updateWorkdone(
               </Text>
 
               {errors.price && touched.price && (
-                <Text style={styles.errorText}>Por favor, inserte un valor</Text>
+                <Text style={styles.errorText}>
+                  Por favor, inserte un valor
+                </Text>
               )}
 
               {/* Preview de la imagen */}
@@ -226,13 +237,23 @@ await updateWorkdone(
 
               {/* Botones */}
               <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  onPress={() =>
-                    pickImage(setFieldValue, (uri) => setSelectedImage(uri))
-                  }
-                >
-                  <Icon name={cameraIcon} style={styles.iconButton} />
-                </TouchableOpacity>
+                {values.image ? (
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => {
+                      setSelectedImage(null);
+                      setFieldValue("image", "");
+                    }}
+                  >
+                    <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() =>
+                      pickImage(setFieldValue, (uri) => setSelectedImage(uri))
+                    }
+                  ></TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={styles.sendButton}
