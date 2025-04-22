@@ -29,8 +29,6 @@ public class ChatMessageController {
     public ResponseEntity<?> createChatMessage(
             @RequestPart("chatMessage") String chatMessageJson,
             @RequestPart(value = "imageProfile", required = false) MultipartFile imageFile) {
-        System.out.println("chatMessageJson: " + chatMessageJson);
-
         try {
             ObjectMapper mapper = new ObjectMapper();
             ChatMessageRequestDTO messageDTO = mapper.readValue(chatMessageJson, ChatMessageRequestDTO.class);

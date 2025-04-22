@@ -36,6 +36,8 @@ public class ChatMessageService {
     @Transactional
     public ChatMessage createChatMessage(ChatMessage chatMessage) throws Exception {
         BaseUser user = baseUserService.findCurrentUser();
+        chatMessage.setSenderId(user.getId());
+        chatMessage.setSenderName(user.getUsername());
         try {
             if (user == null) {
                 throw new AccessDeniedException("You must be logged in to send a message");
