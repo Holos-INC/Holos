@@ -48,8 +48,9 @@ export default function CommissionDetailsScreen() {
 
   // Estado para manejar los valores de los nuevos campos de pago
   const [paymentArrangement, setPaymentArrangement] = useState("INITIAL");
-  const [totalPayments, setTotalPayments] = useState(1);
+  const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Estado para manejar la visibilidad del dropdown
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
 
   const handleAccept = async () => {
@@ -108,9 +109,15 @@ export default function CommissionDetailsScreen() {
   const handleSavePaymentDetails = async () => {
     if (!commission || !loggedInUser.token) return;
     try {
-      await updatePayment(commission.id, paymentArrangement, totalPayments, loggedInUser.token);
-      await refreshCommission();
-      alert("Detalles de pago actualizados correctamente"); // Alerta de éxito
+      const numPayments = parseInt(totalPayments, 10);
+      if ((numPayments <= 2 || numPayments > 10) && paymentArrangement === "MODERATOR") {
+        alert("El número de pagos debe ser mayor que 2 y menos o igual a 10");
+      } else {
+        await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token);
+        await refreshCommission();
+        alert("Detalles de pago actualizados correctamente"); // Alerta de éxito
+        setIsButtonDisabled(true);
+      }
     } catch (error: any) {
       setErrorMessage(error.message);
       console.error("Error al actualizar los detalles de pago:", error);
@@ -157,12 +164,25 @@ export default function CommissionDetailsScreen() {
     ? (basePrice * 1.06).toFixed(2)
     : basePrice.toFixed(2);
 
-  const parsedInput = parseFloat(newPrice);
+  const parsedInput = parseInt(newPrice);
   const canSend =
-    !saving &&
-    !isNaN(parsedInput) &&
-    newPrice.trim() !== "" &&
-    parseFloat(newPrice) !== parseFloat(displayedPrice);
+    !saving && parsedInput > 2  && parsedInput <= 10 &&
+    parseInt(newPrice) !== parseInt(displayedPrice);
+
+    const calculateAmountToPay = () => {
+      switch (paymentArrangement) {
+        case "INITIAL":
+          return `Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
+        case "FINAL":
+          return `Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
+        case "FIFTYFIFTY":
+          return `Tiene que realizar 2 pagos de ${((parseFloat(newPrice|| "0") * 1.06) / 2).toFixed(2)}€ cada uno`;
+        case "MODERATOR":
+          return `Tiene que realizar ${totalPayments} pagos de ${((parseFloat(newPrice|| "0") * 1.06) / parseInt(totalPayments)).toFixed(2)}€ cada uno`;
+        default:
+          return "";
+      }
+    };
 
   return (
     <ScrollView
@@ -323,6 +343,7 @@ export default function CommissionDetailsScreen() {
           {/* Edición de detalles de pago */}
          <View style={[styles.card, { alignItems: "center" }]}>
             <Text style={styles.label}>Selecciona el tipo de pago:</Text>
+            <Text style= {{ color: 'gray', marginTop: 10, marginBottom: 10}}>Recuerda que una vez que guardes los cambios, no podrás volver a cambiar el número de pagos</Text>
 
             {/* El área clickeable ahora parece un botón */}
             <Pressable
@@ -339,7 +360,7 @@ export default function CommissionDetailsScreen() {
             </Pressable>
 
             {/* Mostrar las opciones del dropdown */}
-            {isDropdownVisible && (
+            {isDropdownVisible && !isButtonDisabled && (
               <View style={styles.dropdownOptions}>
                 <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
                   <Text style={styles.option}>Pago Inicial</Text>
@@ -356,14 +377,33 @@ export default function CommissionDetailsScreen() {
               </View>
             )}
 
+             {/* Mostrar la descripción correspondiente */}
+  {paymentArrangement === "INITIAL" && (
+    <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
+  )}
+  {paymentArrangement === "FINAL" && (
+    <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
+  )}
+  {paymentArrangement === "FIFTYFIFTY" && (
+    <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
+  )}
+  {paymentArrangement === "MODERATOR" && (
+    <Text style={styles.description}>
+      Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
+    </Text>
+  )}
+
             {/* Mostrar campo de totalPayments si es MODERATOR */}
-            {paymentArrangement === "MODERATOR" && (
+            {paymentArrangement === "MODERATOR" && !isButtonDisabled &&(
               <TextInput
-                value={totalPayments.toString()}
-                onChangeText={(text) => setTotalPayments(parseInt(text))}
-                keyboardType="numeric"
-                placeholder="Número de pagos"
-                returnKeyType="done"
+              value={totalPayments}
+              onChangeText={setTotalPayments} // Se actualiza como string
+              mode="outlined"
+              keyboardType="numeric"
+              placeholder="Número de pagos"
+              outlineColor={colors.brandPrimary}
+              activeOutlineColor={colors.brandPrimary}
+              returnKeyType="done"
                 style={{
                   backgroundColor: "transparent",
                   padding: 10,
@@ -371,13 +411,32 @@ export default function CommissionDetailsScreen() {
                   borderColor: colors.brandPrimary,  // Borde personalizado
                   borderRadius: 5,
                   marginBottom: 15,
+                  color: 'black',
                 }}
+                theme={{
+                  colors: {
+                    text: 'black',             // <-- texto escrito
+                    placeholder: 'black',      // <-- placeholder
+                    primary: colors.brandPrimary, // <-- color de la línea activa
+                  },
+                }}
+                underlineColor="transparent"
               />
             )}
 
-            <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
-              Guardar cambios de pago
+    {!isButtonDisabled && (
+        <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
+          Guardar cambios de pago
             </Button>
+    )}
+    {isButtonDisabled && (
+  <Text style={{ color: 'gray', marginTop: 10 }}>Los cambios han sido guardados</Text>
+    )}
+
+  <Text style={styles.description}>
+    {calculateAmountToPay()}
+  </Text>
+
           </View>
 
           {isClient ? (
@@ -491,4 +550,11 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 6,
   },
+  description: {
+    fontSize: 14,
+    color: colors.contentStrong,
+    marginTop: 10,
+    fontStyle: "italic",
+    marginBottom: 10,
+  }
 });

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView, Pressable } from "react-native";
+import {Button, TextInput} from "react-native-paper";
 import { postWorkdone, getAbilityPost } from "@/src/services/uploadNewWorkArtist";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
 import {styles} from "@/src/styles/UploadNewWorkArtist";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -12,16 +13,36 @@ import * as ImagePicker from "expo-image-picker";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import {newWorkArtist } from "@/src/constants/uploadNewWorkArtist";
 import { useFocusEffect } from '@react-navigation/native';
+import { Feather } from "@expo/vector-icons";
+import colors from "@/src/constants/colors";
+import { useCommissionDetails } from "@/src/hooks/useCommissionDetails";
+import { createCommission } from "@/src/services/commisionApi";
+import { Commission, PaymentArrangement } from "@/src/constants/CommissionTypes";
 
 const cameraIcon = "photo-camera";
 
 export default function UploadWorkArtist() {
+  const { commissionId } = useLocalSearchParams();
   const { isArtist, loggedInUser } = useContext(AuthenticationContext);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
   const navigation = useNavigation();
   const [inputValue, setInputValue] = useState<string>("");
   const [abilityPost, setabilityPost] = useState<Boolean>(false);
+  const [paymentArrangement, setPaymentArrangement] = useState<PaymentArrangement>(PaymentArrangement.INITIAL);
+  const [totalPayments, setTotalPayments] = useState(4);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const {
+      commission,
+      setCommission,
+      loading,
+      errorMessage,
+      setErrorMessage,
+      refreshCommission,
+    } = useCommissionDetails(commissionId);
+
 
   useEffect(() => {
     navigation.setOptions("Subir una nueva obra al portafolio");
@@ -41,6 +62,36 @@ export default function UploadWorkArtist() {
     }, []) 
   );
 
+  const handleCreateCommission = async () => {
+    if (!loggedInUser.token || !commission) return;
+  
+    try {
+      let totalPayments = 1;
+  
+      if (paymentArrangement === "FIFTYFIFTY") {
+        totalPayments = 2;
+      } else if (paymentArrangement === "MODERATOR") {
+        if (isNaN(totalPayments) || totalPayments < 3 || totalPayments > 10) {
+          alert("El número de pagos debe ser entre 3 y 10 para el modo moderador.");
+          return;
+        }
+      }
+  
+      const commissionData: Partial<Commission> = {
+        paymentArrangement,
+        totalPayments, 
+      };
+  
+      const newCommission = await createCommission(commissionData, loggedInUser.id);
+      await refreshCommission();
+      alert("Comisión creada correctamente con ID: " + newCommission.id);
+      
+    } catch (error: any) {
+      console.error("Error al crear la comisión:", error);
+      setErrorMessage(error.message || "Error al crear la comisión");
+    }
+  };
+  
 
   const uploadNewWorkValidationSchema = object({
     name: string().trim().required("El título de la obra es requerido"),
@@ -152,6 +203,81 @@ export default function UploadWorkArtist() {
               </Text>
 
             {errors.price && touched.price && (<Text style={styles.errorText}>Por favor, inserte un valor</Text>)}
+
+            <Pressable
+                style={styles.button}
+                onPress={() => setIsDropdownVisible(!isDropdownVisible)}
+              >
+                <Text style={styles.buttonText}>
+                  {paymentArrangement === "INITIAL" && "Pago Inicial"}
+                  {paymentArrangement === "FINAL" && "Pago Final"}
+                  {paymentArrangement === "FIFTYFIFTY" && "50/50"}
+                  {paymentArrangement === "MODERATOR" && "Moderador"}
+                </Text>
+                <Feather name="chevron-down" size={20} color="white" />
+              </Pressable>
+
+              {isDropdownVisible && (
+  <View style={styles.dropdownOptions}>
+    <Pressable onPress={() => { setPaymentArrangement(PaymentArrangement.INITIAL); setIsDropdownVisible(false); }}>
+      <Text style={styles.option}>Pago Inicial</Text>
+    </Pressable>
+    <Pressable onPress={() => { setPaymentArrangement(PaymentArrangement.FINAL); setIsDropdownVisible(false); }}>
+      <Text style={styles.option}>Pago Final</Text>
+    </Pressable>
+    <Pressable onPress={() => { setPaymentArrangement(PaymentArrangement.FIFTYFIFTY); setIsDropdownVisible(false); }}>
+      <Text style={styles.option}>50/50</Text>
+    </Pressable>
+    <Pressable onPress={() => { setPaymentArrangement(PaymentArrangement.MODERATOR); setIsDropdownVisible(false); }}>
+      <Text style={styles.option}>Moderador</Text>
+    </Pressable>
+  </View>
+)}
+
+{paymentArrangement === "INITIAL" && (
+  <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
+)}
+{paymentArrangement === "FINAL" && (
+  <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
+)}
+{paymentArrangement === "FIFTYFIFTY" && (
+  <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
+)}
+{paymentArrangement === "MODERATOR" && (
+  <Text style={styles.description}>
+    Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
+  </Text>
+)}
+
+{paymentArrangement === "MODERATOR" && (
+  <TextInput
+    value={String(totalPayments)}
+    mode="outlined"
+    keyboardType="numeric"
+    placeholder="Número de pagos"
+    outlineColor={colors.brandPrimary}
+    activeOutlineColor={colors.brandPrimary}
+    returnKeyType="done"
+    style={{
+      backgroundColor: "transparent",
+      padding: 10,
+      borderWidth: 1,
+      borderColor: colors.brandPrimary,
+      borderRadius: 5,
+      marginBottom: 15,
+      color: 'black',
+    }}
+  />
+)}
+
+{!isButtonDisabled && (
+  <Button onPress={handleCreateCommission} buttonColor={colors.brandPrimary} textColor="white">
+    Guardar cambios de pago
+  </Button>
+)}
+
+
+            
               {/* Image Preview */}
               <View style={styles.previewImageContainer}>
                 {values.image ? (
@@ -176,6 +302,8 @@ export default function UploadWorkArtist() {
       </Formik>
     );
   };
+
+  
 
   const unableUpload = () => {
     return (

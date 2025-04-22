@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import colors from "@/src/constants/colors";
 
 export const styles = StyleSheet.create({
   container: {
@@ -165,6 +166,70 @@ export const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     padding: 20,
     },
+      button: {
+        backgroundColor: colors.brandPrimary,
+        padding: 10,
+        borderRadius: 5,
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 15,
+      },
+      buttonText: {
+        color: "white",
+        fontSize: 16,
+      },
+      sides: {
+        flex: 1,
+        alignContent: "center",
+        justifyContent: "center",
+        padding: "10%",
+        gap: 33,
+      },
+      dropdownOptions: {
+        backgroundColor: 'white',
+        borderRadius: 5,
+        marginTop: 5,
+        padding: 10,
+        borderColor: colors.brandPrimary,
+        borderWidth: 1,
+      },
+      option: {
+        paddingVertical: 8,
+        fontSize: 16,
+        color: colors.brandPrimary,
+      },
+      totalPrice: {
+        fontSize: 16,
+        color: colors.contentStrong,
+        marginBottom: 10,
+      },
+      label: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: colors.brandPrimary,
+      },
+      card: {
+        padding: 25,
+        backgroundColor: "white",
+        width: "100%",
+        borderRadius: 20,
+        shadowColor: colors.brandPrimary,
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.25,
+        shadowRadius: 15,
+        elevation: 6,
+      },
+      description: {
+        fontSize: 14,
+        color: colors.contentStrong,
+        marginTop: 10,
+        fontStyle: "italic",
+        marginBottom: 10,
+      }
+
+
 
     
 

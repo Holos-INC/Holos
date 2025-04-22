@@ -77,6 +77,7 @@ export interface Commission extends Work {
   milestoneDate: String;
   acceptedDateByArtist: string; // Stored as ISO date string
   paymentArrangement: PaymentArrangement;
+  totalPayments: number;
   statusKanbanOrder: StatusKanbanOrder;
   client: Client;
 }
