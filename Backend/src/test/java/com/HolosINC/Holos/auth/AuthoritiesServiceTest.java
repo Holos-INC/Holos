@@ -143,15 +143,15 @@ public void testCreateUserEmailExists() {
     request.setUsername("newUser");
     request.setEmail("existing@example.com");
 
-    when(authoritiesRepository.existsBaseUserByUsername("newUser")).thenReturn(false);
-    when(authoritiesRepository.existsBaseUserByUsername("existing@example.com")).thenReturn(true);
+    when(baseUserService.existsUser("newUser")).thenReturn(false);
+    when(baseUserService.existsEmail("existing@example.com")).thenReturn(true);
 
     assertThrows(IllegalArgumentException.class, () -> {
         authoritiesService.createUser(request);
     });
 
-    verify(authoritiesRepository, times(1)).existsBaseUserByUsername("newUser");
-    verify(authoritiesRepository, times(1)).existsBaseUserByUsername("existing@example.com");
+    verify(baseUserService, times(1)).existsUser("newUser");
+    verify(baseUserService, times(1)).existsEmail("existing@example.com");
 }
 @Test
 public void testCreateUserSuccessForClient() throws Exception {   //no estoy muy seguro de este test , revisar
@@ -180,10 +180,6 @@ public void testCreateUserSuccessForClient() throws Exception {   //no estoy muy
     request.setTableCommisionsPrice(mockTable);
 
     // Simulamos que el repositorio de autoridades devuelve el rol "CLIENT"
-    Authorities authority = new Authorities();
-    authority.setAuthority("CLIENT");
-
-    when(authoritiesRepository.findByName("CLIENT")).thenReturn(Optional.of(authority));
     when(encoder.encode("password")).thenReturn("encodedPassword");
     when(imageHandler.getBytes(any())).thenReturn(new byte[0]);
 

@@ -235,8 +235,8 @@ public class ArtistServiceTest {
 
         artistService.deleteArtist(1L);
 
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(10);
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(11);
+        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(10L);
+        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(11L);
         verify(artistCategoryRepository, times(1)).deleteAll(List.of(category1));
         verify(baseUserRepository, times(1)).deleteById(1L);
         verify(artistRepository, times(1)).delete(artist);

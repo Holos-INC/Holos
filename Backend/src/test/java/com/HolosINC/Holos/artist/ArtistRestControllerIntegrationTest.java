@@ -46,7 +46,6 @@ public class ArtistRestControllerIntegrationTest {
 
         Artist artist = new Artist();
         artist.setBaseUser(user);
-        artist.setDescription("Integration test artist");
         artist.setNumSlotsOfWork(3);
         artist = artistRepository.save(artist);
 
