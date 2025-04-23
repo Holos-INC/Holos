@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.auth.payload.request.SignupRequest;
+import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.model.BaseUser;
@@ -135,4 +136,62 @@ public class AuthoritiesServiceTest {
 
         verify(baseUserService, never()).delete(anyLong());
     }
+
+    @Test
+public void testCreateUserEmailExists() {
+    SignupRequest request = new SignupRequest();
+    request.setUsername("newUser");
+    request.setEmail("existing@example.com");
+
+    when(baseUserService.existsUser("newUser")).thenReturn(false);
+    when(baseUserService.existsEmail("existing@example.com")).thenReturn(true);
+
+    assertThrows(IllegalArgumentException.class, () -> {
+        authoritiesService.createUser(request);
+    });
+
+    verify(baseUserService, times(1)).existsUser("newUser");
+    verify(baseUserService, times(1)).existsEmail("existing@example.com");
+}
+@Test
+public void testCreateUserSuccessForClient() throws Exception {   //no estoy muy seguro de este test , revisar
+    // Preparamos los datos del request de registro
+    SignupRequest request = new SignupRequest();
+    request.setUsername("clientUser");
+    request.setPassword("password");
+    request.setEmail("client@example.com");
+    request.setAuthority("CLIENT");
+    request.setFirstName("Client");
+    request.setPhoneNumber("987654321");
+
+    // Creamos archivos de imagen y tabla (aunque no los utilizamos en este caso)
+    MultipartFile mockImage = mock(MultipartFile.class);
+    MultipartFile mockTable = mock(MultipartFile.class);
+
+    // Simulamos que el tamaño de la imagen y la tabla es válido
+    when(mockImage.getSize()).thenReturn(1024L);
+    when(mockImage.isEmpty()).thenReturn(false);
+    when(mockTable.getSize()).thenReturn(1024L);
+    when(mockTable.isEmpty()).thenReturn(false);
+    when(mockTable.getBytes()).thenReturn(new byte[0]);
+
+    // Asignamos los archivos al request
+    request.setImageProfile(mockImage);
+    request.setTableCommisionsPrice(mockTable);
+
+    // Simulamos que el repositorio de autoridades devuelve el rol "CLIENT"
+    when(encoder.encode("password")).thenReturn("encodedPassword");
+    when(imageHandler.getBytes(any())).thenReturn(new byte[0]);
+
+    // Ejecutamos el método createUser
+    authoritiesService.createUser(request);
+
+    // Verificamos que el usuario se haya guardado en baseUserService
+    verify(baseUserService, times(1)).save(any(BaseUser.class));
+    
+    // Verificamos que el servicio clientService haya guardado el cliente correctamente
+    verify(clientService, times(1)).saveClient(any(Client.class));
+}
+
+
 }
