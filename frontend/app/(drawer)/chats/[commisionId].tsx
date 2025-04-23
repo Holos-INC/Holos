@@ -266,8 +266,6 @@ export default function IndividualChatScreen({  }) {
                 messages={messages}
                 onSend={(messages: IMessage[]) => onSend(messages)}
                 user={{ _id: loggedInUser.id, name: loggedInUser.username }}
-                showUserAvatar={false}
-                showAvatarForEveryMessage={false}
                 renderAvatar={() => null} 
                 text={ canSendMessage
                   ? (((selectedImage && inputText !== icon ) && inputText.length == 0 ) ? icon : inputText): ""}
