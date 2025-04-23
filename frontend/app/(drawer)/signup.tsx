@@ -11,10 +11,10 @@ import {
 } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
 import { API_URL } from "@/src/constants/api";
-import { ScrollView } from 'react-native-gesture-handler';
-import * as ImagePicker from 'expo-image-picker';
-import colors from '@/src/constants/colors';
-import { base64ToFile } from '@/src/components/convertionToBase64Image';
+import { ScrollView } from "react-native-gesture-handler";
+import * as ImagePicker from "expo-image-picker";
+import colors from "@/src/constants/colors";
+import { base64ToFile } from "@/src/components/convertionToBase64Image";
 
 export default function SignupScreen() {
   // Estados compartidos
@@ -67,7 +67,10 @@ export default function SignupScreen() {
       return;
     }
 
-    if ((role === 'artist' || role === 'artist_premium') && !tableCommissionsPrice) {
+    if (
+      (role === "artist" || role === "artist_premium") &&
+      !tableCommissionsPrice
+    ) {
       alert("Selecciona una imagen para el precio del tablero de comisiones");
       return;
     }
@@ -79,7 +82,10 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      numSlotsOfWork: (role === 'artist' || role === 'artist_premium') ? numSlotsOfWork : undefined,
+      numSlotsOfWork:
+        role === "artist" || role === "artist_premium"
+          ? numSlotsOfWork
+          : undefined,
     };
 
     const formData = new FormData();
@@ -96,12 +102,15 @@ export default function SignupScreen() {
     //   name: profileFileName,
     //   type: profileMimeType,
     // } as any);
-    
+
     formData.append("imageProfile", base64ToFile(selectedImage, "image.png"));
 
     // Imagen del precio del tablero de comisiones
-    if (role === 'artist' || role === 'artist_premium') {
-      formData.append("tableCommissionsPrice", base64ToFile(tableCommissionsPrice, "image.png"));
+    if (role === "artist" || role === "artist_premium") {
+      formData.append(
+        "tableCommissionsPrice",
+        base64ToFile(tableCommissionsPrice, "image.png")
+      );
     }
 
     try {
@@ -259,20 +268,23 @@ export default function SignupScreen() {
             </TouchableOpacity>
 
             {selectedImage && (
-              <Image
-                source={{ uri: selectedImage }}
-                style={{
-                  width: 100,
-                  height: 100,
-                  marginTop: 10,
-                  borderRadius: 8,
-                }}
-              />
+              <>
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={styles.previewImage}
+                />
+                <TouchableOpacity
+                  style={styles.removeButton}
+                  onPress={() => setSelectedImage("")}
+                >
+                  <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                </TouchableOpacity>
+              </>
             )}
           </View>
         </View>
 
-        {role === 'artist' || role === 'artist_premium' ? (
+        {role === "artist" || role === "artist_premium" ? (
           <>
             <View style={styles.formRow}>
               <View style={styles.inputGroup}>
@@ -308,15 +320,18 @@ export default function SignupScreen() {
                 </TouchableOpacity>
 
                 {tableCommissionsPrice && (
-                  <Image
-                    source={{ uri: tableCommissionsPrice }}
-                    style={{
-                      width: 100,
-                      height: 100,
-                      marginTop: 10,
-                      borderRadius: 8,
-                    }}
-                  />
+                  <>
+                    <Image
+                      source={{ uri: tableCommissionsPrice }}
+                      style={styles.previewImage}
+                    />
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => setTableCommissionsPrice("")}
+                    >
+                      <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                    </TouchableOpacity>
+                  </>
                 )}
               </View>
             </View>
@@ -347,9 +362,9 @@ export default function SignupScreen() {
             <TouchableOpacity
               style={[
                 styles.roleButton,
-                role === 'artist_premium' && styles.roleButtonActive
+                role === "artist_premium" && styles.roleButtonActive,
               ]}
-              onPress={() => setRole('artist_premium')}
+              onPress={() => setRole("artist_premium")}
             >
               <Text style={styles.roleButtonText}>ARTIST PREMIUM</Text>
             </TouchableOpacity>
@@ -524,5 +539,26 @@ const styles = StyleSheet.create({
     color: colors.brandPrimary,
     textDecorationLine: "underline",
     fontWeight: "bold",
+  },
+  previewImage: {
+    width: 100,
+    height: 100,
+    marginTop: 10,
+    borderRadius: 8,
+    alignSelf: "center",
+  },
+
+  removeButton: {
+    marginTop: 8,
+    alignSelf: "center",
+    backgroundColor: `${colors.brandPrimary}20`, // Color suave con transparencia
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+
+  removeButtonText: {
+    color: colors.brandPrimary,
+    fontWeight: "600",
   },
 });
