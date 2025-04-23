@@ -7,22 +7,24 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.EntityToDTOMapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProfileService {
-    @Autowired
-    private BaseUserService baseUserService;
 
-    @Autowired
+    private BaseUserService baseUserService;
     private ArtistService artistService;
+
+    public ProfileService(BaseUserService baseUserService, ArtistService artistService) {
+        this.baseUserService = baseUserService;
+        this.artistService = artistService;
+    }
 
     @Transactional
     public BaseUserDTO updateProfile(BaseUserDTO baseUserDTO) throws Exception {
         BaseUser currentUser = baseUserService.findCurrentUser();
-        Artist artist = artistService.findArtist(currentUser.getId());
+        Artist artist = artistService.findArtistByUserId(currentUser.getId());
 
         if (artist != null) {
             artist.getBaseUser().setName(baseUserDTO.getName());

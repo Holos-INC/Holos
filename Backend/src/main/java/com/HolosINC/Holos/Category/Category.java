@@ -29,6 +29,6 @@ public class Category{
     private String description;
 
     @Lob
-    @Column(name = "image", columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] image;
 }

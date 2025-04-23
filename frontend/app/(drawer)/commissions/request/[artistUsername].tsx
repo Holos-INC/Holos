@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ActivityIndicator, ScrollView } from "react-native";
-import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
-import UserPanel from "@/src/components/RequestCommission/UserPanel";
+import { ScrollView } from "react-native";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
 import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
-
-const commissionTablePrice = "@/assets/images/image.png";
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
 
 export default function RequestCommissionUserScreen() {
   const { artistUsername } = useLocalSearchParams();
-  const [artist, setArtist] = useState<Artist | null>(null);
+  const [artist, setArtist] = useState<ArtistDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const toStringParam = (param: string | string[]) => typeof param === 'string' ? param : param[0];
+  const toStringParam = (param: string | string[]) =>
+    typeof param === "string" ? param : param[0];
 
   useEffect(() => {
     if (!artistUsername) {
@@ -26,7 +24,9 @@ export default function RequestCommissionUserScreen() {
 
     const fetchData = async () => {
       try {
-        const artistData: Artist = await getArtistByUsername(toStringParam(artistUsername));
+        const artistData: ArtistDTO = await getArtistByUsername(
+          toStringParam(artistUsername)
+        );
         setArtist(artistData);
       } catch (error) {
         console.error("Error al buscar artista:", error);
@@ -39,23 +39,14 @@ export default function RequestCommissionUserScreen() {
   }, [artistUsername]);
 
   useEffect(() => {
-    navigation.setOptions({ title: `¡Haz un pedido a ${artist?.baseUser.username}!` });
-    }, [navigation, artist]);
+    navigation.setOptions({ title: `¡Haz un pedido a ${artist?.username}!` });
+  }, [navigation, artist]);
 
-  if (loading) return <LoadingScreen/>
+  if (loading) return <LoadingScreen />;
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {artist && <UserPanel artist={artist} />}
-
-        <View style={styles.commissionContainer}>
-          <Text style={styles.commissionTitle}>Precio de la comisión</Text>
-          <Image source={require(commissionTablePrice)} resizeMode="contain" />
-        </View>
-
-        {artist && <RequestForm artist={artist} />}
-      </ScrollView>
+      <ScrollView>{artist && <RequestForm artist={artist} />}</ScrollView>
     </ProtectedRoute>
   );
 }

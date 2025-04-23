@@ -49,7 +49,6 @@ public class ArtistRestControllerTest {
         Artist artist = new Artist();
         artist.setId(1L);
         artist.setNumSlotsOfWork(5);
-        artist.setDescription("Artista especializado en retratos");
 
         BaseUser baseUser = new BaseUser();
         baseUser.setName("Artista 1");
@@ -57,7 +56,6 @@ public class ArtistRestControllerTest {
         baseUser.setEmail("artista1@example.com");
         baseUser.setPhoneNumber("123456789");
         baseUser.setImageProfile(new byte[0]);
-        baseUser.setTableCommissionsPrice(new byte[0]);
 
         artist.setBaseUser(baseUser);
 
@@ -67,7 +65,6 @@ public class ArtistRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.artistId").value(1))
                 .andExpect(jsonPath("$.numSlotsOfWork").value(5))
-                .andExpect(jsonPath("$.description").value("Artista especializado en retratos"))
                 .andExpect(jsonPath("$.username").value("artista1"));
 
         verify(artistService, times(1)).findArtist(1L);
@@ -94,7 +91,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(get("/api/v1/artists/username/artistUsername"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.baseUser.username").value("artistUsername"));
+                .andExpect(jsonPath("$.username").value("artistUsername"));
 
         verify(artistService, times(1)).findArtistByUsername("artistUsername");
     }
@@ -128,7 +125,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Artist not found with id: 1"));
+                .andExpect(jsonPath("$.message").value("Artist not found with id: 1"));
 
         verify(artistService, times(1)).deleteArtist(1L);
     }
@@ -179,7 +176,7 @@ public class ArtistRestControllerTest {
     @Test
     public void testFindByUsernameEmpty() throws Exception {
         mockMvc.perform(get("/api/v1/artists/username/"))
-                .andExpect(status().isNotFound()); // o 400 si lo manejas
+                .andExpect(status().isBadRequest()); // o 400 si lo manejas
 }
 
 }

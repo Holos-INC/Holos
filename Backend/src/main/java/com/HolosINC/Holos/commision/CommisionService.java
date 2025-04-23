@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +11,7 @@ import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.client.ClientService;
@@ -33,7 +33,6 @@ public class CommisionService {
     private final StatusKanbanOrderService statusKanbanOrderService;
     private final ClientService clientService;
 
-    @Autowired
     public CommisionService(CommisionRepository commisionRepository, ArtistService artistService,
             BaseUserService userService, ClientRepository clientRepository, ClientService clientService,
             StatusKanbanOrderService statusKanbanOrderService) {
@@ -54,10 +53,10 @@ public class CommisionService {
         try {
             Commision commision = commisionDTO.createCommision();
             Artist artist = artistService.findArtist(artistId);
-            Client client = clientRepository.findById(userService.findCurrentUser().getId())
+            Client client = clientRepository.findClientByUserId(userService.findCurrentUser().getId())
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId()));
-            if (artist == null || !artist.getBaseUser().hasAnyAuthority("ARTIST"))
+            if (artist == null || (!(artist.getBaseUser().getAuthority() == Auth.ARTIST) && !(artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM)))
                 throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
             commision.setArtist(artist);
             commision.setClient(client);
@@ -307,9 +306,10 @@ public class CommisionService {
             BaseUser user = userService.findCurrentUser();
             HistoryCommisionsDTO historyCommisionsDTO = new HistoryCommisionsDTO();
 
-            if (user.hasAuthority("ARTIST"))
+            if (user.getAuthority() == Auth.ARTIST ||
+                    user.getAuthority() == Auth.ARTIST_PREMIUM)
                 fillDataForArtist(user.getId(), historyCommisionsDTO);
-            else if (user.hasAuthority("CLIENT"))
+            else if (user.getAuthority() == Auth.CLIENT)
                 fillDataForClient(user.getId(), historyCommisionsDTO);
             else
                 throw new IllegalAccessException(

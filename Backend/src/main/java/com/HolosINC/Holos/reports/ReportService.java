@@ -2,7 +2,6 @@ package com.HolosINC.Holos.reports;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
@@ -22,7 +21,6 @@ public class ReportService {
     private final WorkService worskService;
     private final BaseUserService baseUserService;
 
-    @Autowired
     public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
         this.reportRepository = reportRepository;
         this.reportTypeRepository = reportTypeRepository;

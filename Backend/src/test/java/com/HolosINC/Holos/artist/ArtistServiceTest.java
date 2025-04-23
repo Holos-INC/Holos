@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -165,7 +166,7 @@ public class ArtistServiceTest {
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
         when(commisionRepository.findAll()).thenReturn(List.of(commision));
 
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(AccessDeniedException.class, () -> {
             artistService.deleteArtist(1L);
         });
 
@@ -208,7 +209,7 @@ public class ArtistServiceTest {
     public void testDeleteArtistInternalError() throws Exception {
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
     // Simulamos fallo interno al buscar comisiones
-        when(commisionRepository.findAll()).thenThrow(new RuntimeException("Fallo interno"));
+        when(commisionRepository.findAll()).thenThrow(new ResourceNotFoundException("Error: El artista con ID 1 no existe."));
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             artistService.deleteArtist(1L);
@@ -234,8 +235,8 @@ public class ArtistServiceTest {
 
         artistService.deleteArtist(1L);
 
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(10);
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(11);
+        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(10L);
+        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(11L);
         verify(artistCategoryRepository, times(1)).deleteAll(List.of(category1));
         verify(baseUserRepository, times(1)).deleteById(1L);
         verify(artistRepository, times(1)).delete(artist);

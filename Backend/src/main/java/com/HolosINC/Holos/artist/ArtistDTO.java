@@ -4,6 +4,7 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,25 +22,12 @@ public class ArtistDTO extends BaseUserDTO {
 
     private byte[] tableCommisionsPrice;
     
+    @Size(max = 500)
     private String description;
     
+    @Size(max = 100)
     private String linkToSocialMedia;
 
+    @NotNull
     private Long artistId;
 }
-
-/*
-    private Long artistId;
-    private Long baseUserId;
-
-    private String name;
-    private String username;
-    private String email;
-    private String phoneNumber;
-
-    private byte[] imageProfile;
-    private Integer numSlotsOfWork;
-    private byte[] tableCommisionsPrice;
-    private String description;
-    private String linkToSocialMedia;
-*/

@@ -5,7 +5,6 @@ import {
   TextInput,
   Image,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   Platform,
   useWindowDimensions,
@@ -88,7 +87,7 @@ const userArtistProfileScreen = () => {
 
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
-    field: "imageProfile" | "tableCommisionsPrice"
+    field: "imageProfile" | "tableCommissionsPrice"
   ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -102,7 +101,7 @@ const userArtistProfileScreen = () => {
       setFieldValue(field, img);
       if (field === "imageProfile") {
         setImageProfile(img);
-      } else if (field === "tableCommisionsPrice") {
+      } else if (field === "tableCommissionsPrice") {
         setTableCommisionsPrice(img);
       } else {
         console.warn("Campo de imagen no reconocido:", field);
@@ -148,7 +147,7 @@ const userArtistProfileScreen = () => {
         phoneNumber: artist?.phoneNumber || "",
         description: artist?.description || "",
         linkToSocialMedia: artist?.linkToSocialMedia || "",
-        tableCommissionsPrice: artist?.tableCommisionsPrice || "",
+        tableCommissionsPrice: artist?.tableCommissionsPrice || "",
         imageProfile: artist?.imageProfile || "",
         numSlotsOfWork: artist?.numSlotsOfWork || 0,
       }}
@@ -177,7 +176,7 @@ const userArtistProfileScreen = () => {
             phoneNumber: artist.phoneNumber,
             description: artist.description,
             linkToSocialMedia: artist.linkToSocialMedia,
-            tableCommissionsPrice: artist.tableCommisionsPrice,
+            tableCommissionsPrice: artist.tableCommissionsPrice,
             imageProfile: artist.imageProfile,
             numSlotsOfWork: artist.numSlotsOfWork,
           };
@@ -200,7 +199,7 @@ const userArtistProfileScreen = () => {
                       imageProfile
                         ? { uri: imageProfile }
                         : artist?.imageProfile
-                        ? { uri: `${BASE_URL}${atob(artist.imageProfile)}` }
+                        ? { uri: `data:image/jpeg;base64,${artist.imageProfile}` }
                         : undefined
                     }
                     style={styles.imageProfile}
@@ -303,12 +302,8 @@ const userArtistProfileScreen = () => {
                     source={
                       tableCommisionsPrice
                         ? { uri: tableCommisionsPrice }
-                        : artist.tableCommisionsPrice
-                        ? {
-                            uri: `${BASE_URL}${atob(
-                              artist.tableCommisionsPrice
-                            )}`,
-                          }
+                        : artist.tableCommissionsPrice
+                        ? { uri: `data:image/jpeg;base64,${artist.tableCommissionsPrice}`}
                         : undefined
                     }
                     style={styles.priceImage}
@@ -323,7 +318,7 @@ const userArtistProfileScreen = () => {
                         )}
                       <TouchableOpacity
                         onPress={() =>
-                          pickImage(setFieldValue, "tableCommisionsPrice")
+                          pickImage(setFieldValue, "tableCommissionsPrice")
                         }
                         style={styles.stripeButton}
                       >

@@ -1,5 +1,14 @@
 package com.HolosINC.Holos.search;
 
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 import com.HolosINC.Holos.search.DTOs.SearchWorkDTO;
@@ -10,10 +19,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/search")
@@ -23,7 +28,6 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    @Autowired
     public SearchController(SearchService searchService) {
         this.searchService = searchService;
     }

@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.Profile;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +18,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/profile")
 public class ProfileController {
 
-    @Autowired
     private ProfileService profileService;
+
+    public ProfileController(ProfileService profileService) {
+        this.profileService = profileService;
+    }
 
     @PutMapping("/update")
     @Operation(summary = "Actualizar perfil", 

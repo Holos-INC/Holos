@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.artist;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +23,8 @@ class ArtistRestController {
 
     private final ArtistService artistService;
     private final ProfileService profileService;
-
-    @Autowired
-    public ArtistRestController(ArtistService artistService, ProfileService profileService) {
+	
+	public ArtistRestController(ArtistService artistService, ProfileService profileService) {
         this.artistService = artistService;
         this.profileService = profileService;
     }
@@ -82,8 +80,21 @@ class ArtistRestController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-    }
+	}
 
+    @GetMapping(value = "/byBaseUser/{baseUserId}")
+	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
+	public ResponseEntity<?> findByBaseUserId(@PathVariable Long id) {
+		try{
+            Artist artist = artistService.findArtistByUserId(id);
+            ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
+            return ResponseEntity.ok().body(artistDTO);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+	}
+    
     @DeleteMapping("/administrator/artists/{id}")
     @Operation(
         summary = "Delete artist by ID (admin only)",
@@ -130,7 +141,8 @@ class ArtistRestController {
     public ResponseEntity<?> findByUsername(@PathVariable("username") String username) {
         try {
             Artist artist = artistService.findArtistByUsername(username);
-            return ResponseEntity.ok(artist);
+            ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
+            return ResponseEntity.ok(artistDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }

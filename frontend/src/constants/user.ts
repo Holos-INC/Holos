@@ -17,6 +17,5 @@ export interface artistUser {
     phoneNumber: string ;
     description: string |  null ;
     linkToSocialMedia: string |  null ;
-    tableCommissionsPrice: null;
     imageProfile: string | undefined;  
   }

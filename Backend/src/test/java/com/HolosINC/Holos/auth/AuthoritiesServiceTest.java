@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,8 +20,8 @@ import com.HolosINC.Holos.auth.payload.request.SignupRequest;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientService;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
-import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
+import com.HolosINC.Holos.model.BaseUserRepository;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.ImageHandler;
 
@@ -39,10 +37,10 @@ public class AuthoritiesServiceTest {
     private ArtistService artistService;
 
     @Mock
-    private ClientService clientService;
+    private BaseUserRepository baseUserRepository;
 
     @Mock
-    private AuthoritiesRepository authoritiesRepository;
+    private ClientService clientService;
 
     @Mock
     private ImageHandler imageHandler;
@@ -53,36 +51,9 @@ public class AuthoritiesServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        authoritiesService = new AuthoritiesService(
-                encoder, baseUserService, artistService,
-                clientService, authoritiesRepository);
+        authoritiesService = new AuthoritiesService(encoder, baseUserService, artistService, clientService, imageHandler);
 
         ReflectionTestUtils.setField(authoritiesService, "imageHandler", imageHandler);
-    }
-
-    @Test
-    public void testFindByAuthoritySuccess() {
-        Authorities authority = new Authorities();
-        authority.setAuthority("ADMIN");
-
-        when(authoritiesRepository.findByName("ADMIN")).thenReturn(Optional.of(authority));
-
-        Authorities result = authoritiesService.findByAuthority("ADMIN");
-
-        assertNotNull(result);
-        assertEquals("ADMIN", result.getAuthority());
-        verify(authoritiesRepository, times(1)).findByName("ADMIN");
-    }
-
-    @Test
-    public void testFindByAuthorityNotFound() {
-        when(authoritiesRepository.findByName("UNKNOWN")).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> {
-            authoritiesService.findByAuthority("UNKNOWN");
-        });
-
-        verify(authoritiesRepository, times(1)).findByName("UNKNOWN");
     }
 
     @Test
@@ -107,10 +78,6 @@ public class AuthoritiesServiceTest {
         request.setImageProfile(mockImage);
         request.setTableCommisionsPrice(mockTable);
 
-        Authorities authority = new Authorities();
-        authority.setAuthority("ARTIST");
-
-        when(authoritiesRepository.findByName("ARTIST")).thenReturn(Optional.of(authority));
         when(encoder.encode("password")).thenReturn("encodedPassword");
         when(imageHandler.getBytes(any())).thenReturn(new byte[0]);
 
@@ -121,28 +88,11 @@ public class AuthoritiesServiceTest {
     }
 
     @Test
-    public void testCreateUserUsernameExists() {
-        SignupRequest request = new SignupRequest();
-        request.setUsername("existingUser");
-        request.setEmail("existing@example.com");
-
-        when(authoritiesRepository.existsBaseUserByUsername("existingUser")).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            authoritiesService.createUser(request);
-        });
-
-        verify(authoritiesRepository, times(1)).existsBaseUserByUsername("existingUser");
-    }
-
-    @Test
     public void testDeleteUserSuccessForArtist() throws Exception {
         BaseUser user = new BaseUser();
-        Authorities authority = new Authorities();
-        authority.setAuthority("ARTIST");
 
         user.setId(1L);
-        user.setAuthority(authority);
+        user.setAuthority(Auth.ARTIST);
 
         Artist artist = new Artist();
         artist.setId(1L);
@@ -160,7 +110,7 @@ public class AuthoritiesServiceTest {
     public void testDeleteUserAccessDenied() {
         BaseUser user = new BaseUser();
         user.setId(2L);
-        user.setAuthority(authoritiesRepository.findByName("CLIENT").orElse(null));
+        user.setAuthority(Auth.CLIENT);
 
         when(baseUserService.findCurrentUser()).thenReturn(user);
 
@@ -174,11 +124,9 @@ public class AuthoritiesServiceTest {
     @Test
     public void testDeleteUserAdminNotAllowed() {
         BaseUser user = new BaseUser();
-        Authorities authority = new Authorities();
-        authority.setAuthority("ADMIN");
 
         user.setId(1L);
-        user.setAuthority(authority);
+        user.setAuthority(Auth.ADMIN);
 
         when(baseUserService.findCurrentUser()).thenReturn(user);
 
@@ -195,15 +143,15 @@ public void testCreateUserEmailExists() {
     request.setUsername("newUser");
     request.setEmail("existing@example.com");
 
-    when(authoritiesRepository.existsBaseUserByUsername("newUser")).thenReturn(false);
-    when(authoritiesRepository.existsBaseUserByUsername("existing@example.com")).thenReturn(true);
+    when(baseUserService.existsUser("newUser")).thenReturn(false);
+    when(baseUserService.existsEmail("existing@example.com")).thenReturn(true);
 
     assertThrows(IllegalArgumentException.class, () -> {
         authoritiesService.createUser(request);
     });
 
-    verify(authoritiesRepository, times(1)).existsBaseUserByUsername("newUser");
-    verify(authoritiesRepository, times(1)).existsBaseUserByUsername("existing@example.com");
+    verify(baseUserService, times(1)).existsUser("newUser");
+    verify(baseUserService, times(1)).existsEmail("existing@example.com");
 }
 @Test
 public void testCreateUserSuccessForClient() throws Exception {   //no estoy muy seguro de este test , revisar
@@ -232,10 +180,6 @@ public void testCreateUserSuccessForClient() throws Exception {   //no estoy muy
     request.setTableCommisionsPrice(mockTable);
 
     // Simulamos que el repositorio de autoridades devuelve el rol "CLIENT"
-    Authorities authority = new Authorities();
-    authority.setAuthority("CLIENT");
-
-    when(authoritiesRepository.findByName("CLIENT")).thenReturn(Optional.of(authority));
     when(encoder.encode("password")).thenReturn("encodedPassword");
     when(imageHandler.getBytes(any())).thenReturn(new byte[0]);
 
