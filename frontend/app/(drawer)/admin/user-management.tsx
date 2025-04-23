@@ -19,27 +19,9 @@ import { getAllUsers, updateUser, deleteUser } from "@/src/services/userApi"; //
 import { deleteClient } from "@/src/services/clientApi";
 import { deleteArtist } from "@/src/services/artistApi";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import {BaseUser, Authority } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import * as yup from "yup";
-
-enum Authority {
-  ADMIN = "ADMIN",
-  CLIENT = "CLIENT",
-  ARTIST = "ARTIST",
-  ARTIST_PREMIUM = "ARTIST_PREMIUM",
-}
-
-interface BaseUser {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  createdUser: string;
-  authority: Authority;
-}
-
 export default function UserManagement() {
   const router = useRouter();
   const [users, setUsers] = useState<BaseUser[]>([]);
