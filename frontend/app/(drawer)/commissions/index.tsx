@@ -174,7 +174,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                           ? comm.artistUsername || "Artista desconocido"
                           : comm.clientUsername || "Cliente desconocido"}
                       </Text>
-                      <Text style={styles.text}>{comm.description}</Text>
+                      <Text style={styles.text}>Título: {comm.name || "Sin título"}</Text>
+                      <Text style={styles.text}>Descripción: {comm.description}</Text>
+                      <Text style={styles.text}>Estado de la solicitud: {getStatusText(comm.status)}</Text>
                     </View>
                     <View style={styles.actions}>
                       <TouchableOpacity
@@ -263,6 +265,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                             ? comm.artistUsername || "Artista desconocido"
                             : comm.clientUsername || "Cliente desconocido"}
                         </Text>
+                        <Text style={styles.text}>Título: {comm.name || "Sin título"}</Text>
                         <Text style={styles.text}>Descripción: {comm.description}</Text>
                       </View>
                       <View style={styles.actions}>
