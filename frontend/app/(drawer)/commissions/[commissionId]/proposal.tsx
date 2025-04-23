@@ -51,7 +51,8 @@ export default function CommissionDetailsScreen() {
   const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Estado para manejar la visibilidad del dropdown
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-
+  const [editing, setEditing] = useState(false); // al principio no está editando
+  
 
   const handleAccept = async () => {
     if (!commission) return;
@@ -105,7 +106,6 @@ export default function CommissionDetailsScreen() {
       setSaving(false);
     }
   };
-
   const handleSavePaymentDetails = async () => {
     if (!commission || !loggedInUser.token) return;
     try {
@@ -166,7 +166,7 @@ export default function CommissionDetailsScreen() {
 
   const parsedInput = parseInt(newPrice);
   const canSend =
-    !saving && parsedInput > 2  && parsedInput <= 10 &&
+    !saving &&
     parseInt(newPrice) !== parseInt(displayedPrice);
 
     const calculateAmountToPay = () => {
@@ -340,44 +340,45 @@ export default function CommissionDetailsScreen() {
             </View>
           )}
 
-          {/* Edición de detalles de pago */}
-         <View style={[styles.card, { alignItems: "center" }]}>
-            <Text style={styles.label}>Selecciona el tipo de pago:</Text>
-            <Text style= {{ color: 'gray', marginTop: 10, marginBottom: 10}}>Recuerda que una vez que guardes los cambios, no podrás volver a cambiar el número de pagos</Text>
+<View style={[styles.card, { alignItems: "center" }]}>
+  <Text style={styles.label}>Selecciona el tipo de pago:</Text>
+  <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
+    Recuerda que una vez que guardes los cambios, no podrás volver a cambiar el número de pagos
+  </Text>
 
-            {/* El área clickeable ahora parece un botón */}
-            <Pressable
-              style={styles.button}
-              onPress={() => setIsDropdownVisible(!isDropdownVisible)}
-            >
-              <Text style={styles.buttonText}>
-                {paymentArrangement === "INITIAL" && "Pago Inicial"}
-                {paymentArrangement === "FINAL" && "Pago Final"}
-                {paymentArrangement === "FIFTYFIFTY" && "50/50"}
-                {paymentArrangement === "MODERATOR" && "Moderador"}
-              </Text>
-              <Feather name="chevron-down" size={20} color="white" />
-            </Pressable>
+  {/* Solo permite seleccionar si es su turno */}
+  <Pressable
+    style={[styles.button, { opacity: yourTurn ? 1 : 0.5 }]}
+    onPress={() => yourTurn && setIsDropdownVisible(!isDropdownVisible)}
+    disabled={!yourTurn}
+  >
+    <Text style={styles.buttonText}>
+      {paymentArrangement === "INITIAL" && "Pago Inicial"}
+      {paymentArrangement === "FINAL" && "Pago Final"}
+      {paymentArrangement === "FIFTYFIFTY" && "50/50"}
+      {paymentArrangement === "MODERATOR" && "Moderador"}
+    </Text>
+    <Feather name="chevron-down" size={20} color="white" />
+  </Pressable>
 
-            {/* Mostrar las opciones del dropdown */}
-            {isDropdownVisible && !isButtonDisabled && (
-              <View style={styles.dropdownOptions}>
-                <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
-                  <Text style={styles.option}>Pago Inicial</Text>
-                </Pressable>
-                <Pressable onPress={() => { setPaymentArrangement("FINAL"); setIsDropdownVisible(false); }}>
-                  <Text style={styles.option}>Pago Final</Text>
-                </Pressable>
-                <Pressable onPress={() => { setPaymentArrangement("FIFTYFIFTY"); setIsDropdownVisible(false); }}>
-                  <Text style={styles.option}>50/50</Text>
-                </Pressable>
-                <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
-                  <Text style={styles.option}>Moderador</Text>
-                </Pressable>
-              </View>
-            )}
+  {isDropdownVisible && yourTurn && (
+    <View style={styles.dropdownOptions}>
+      <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>Pago Inicial</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("FINAL"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>Pago Final</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("FIFTYFIFTY"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>50/50</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>Moderador</Text>
+      </Pressable>
+    </View>
+  )}
 
-             {/* Mostrar la descripción correspondiente */}
+  {/* Descripciones */}
   {paymentArrangement === "INITIAL" && (
     <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
   )}
@@ -393,51 +394,84 @@ export default function CommissionDetailsScreen() {
     </Text>
   )}
 
-            {/* Mostrar campo de totalPayments si es MODERATOR */}
-            {paymentArrangement === "MODERATOR" && !isButtonDisabled &&(
-              <TextInput
-              value={totalPayments}
-              onChangeText={setTotalPayments} // Se actualiza como string
-              mode="outlined"
-              keyboardType="numeric"
-              placeholder="Número de pagos"
-              outlineColor={colors.brandPrimary}
-              activeOutlineColor={colors.brandPrimary}
-              returnKeyType="done"
-                style={{
-                  backgroundColor: "transparent",
-                  padding: 10,
-                  borderWidth: 1,
-                  borderColor: colors.brandPrimary,  // Borde personalizado
-                  borderRadius: 5,
-                  marginBottom: 15,
-                  color: 'black',
-                }}
-                theme={{
-                  colors: {
-                    text: 'black',             // <-- texto escrito
-                    placeholder: 'black',      // <-- placeholder
-                    primary: colors.brandPrimary, // <-- color de la línea activa
-                  },
-                }}
-                underlineColor="transparent"
-              />
-            )}
+  {/* Campo adicional solo si está permitido */}
+  {paymentArrangement === "MODERATOR" && yourTurn && (
+    <TextInput
+      value={totalPayments}
+      onChangeText={setTotalPayments}
+      mode="outlined"
+      keyboardType="numeric"
+      placeholder="Número de pagos"
+      outlineColor={colors.brandPrimary}
+      activeOutlineColor={colors.brandPrimary}
+      returnKeyType="done"
+      style={{
+        backgroundColor: "transparent",
+        padding: 10,
+        borderWidth: 1,
+        borderColor: colors.brandPrimary,
+        borderRadius: 5,
+        marginBottom: 15,
+        color: 'black',
+      }}
+      theme={{
+        colors: {
+          text: 'black',
+          placeholder: 'black',
+          primary: colors.brandPrimary,
+        },
+      }}
+      underlineColor="transparent"
+    />
+  )}
 
-    {!isButtonDisabled && (
-        <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
-          Guardar cambios de pago
-            </Button>
-    )}
-    {isButtonDisabled && (
-  <Text style={{ color: 'gray', marginTop: 10 }}>Los cambios han sido guardados</Text>
-    )}
+  {!yourTurn && isButtonDisabled && (
+    <Text style={{ color: 'gray', marginTop: 10 }}>Los cambios han sido guardados, esperando respuesta de negociación</Text>
+  )}
 
   <Text style={styles.description}>
     {calculateAmountToPay()}
   </Text>
 
-          </View>
+  {yourTurn && (
+  <>
+    {/* Solo aparece si ya hay una propuesta distinta guardada */}
+    {!editing && (
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Button
+          onPress={async () => {
+            await handleAccept();
+            await handleSavePaymentDetails();
+          }}
+          buttonColor={colors.contentStrong}
+          textColor="white"
+        >
+          Aceptar
+        </Button>
+        <Button
+          onPress={() => setEditing(true)}
+          buttonColor={colors.brandPrimary}
+          textColor="white"
+        >
+          Rechazar / Contraoferta
+        </Button>
+      </View>
+    )}
+
+    {/* Si el usuario decide hacer contraoferta, puede cambiar */}
+    {editing && (
+      <Button
+        onPress={handleSavePaymentDetails}
+        buttonColor={colors.brandPrimary}
+        textColor="white"
+      >
+        Guardar nueva propuesta
+      </Button>
+    )}
+  </>
+)}
+</View>
+
 
           {isClient ? (
             <View style={[styles.card, { gap: 20 }]}>
