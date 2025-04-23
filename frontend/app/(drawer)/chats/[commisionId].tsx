@@ -158,7 +158,7 @@ export default function IndividualChatScreen({  }) {
       }, 2000); // cada 2 segundos
     
       return () => clearInterval(interval);
-    }, [commisionId, loggedInUser, messages]);
+    }, [commisionId, loggedInUser]);
 
     
         
