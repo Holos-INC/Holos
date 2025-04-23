@@ -13,6 +13,7 @@ public class ChatMessageResponseDTO {
     private Long commisionId;
     private Long senderId;
     private String senderName;
+    private String statusCommision;
 
     public ChatMessageResponseDTO(ChatMessage msg) {
         this.id = msg.getId();
@@ -22,5 +23,6 @@ public class ChatMessageResponseDTO {
         this.commisionId = msg.getCommision().getId();
         this.senderId = msg.getSenderId();
         this.senderName = msg.getSenderName();
+        this.statusCommision = msg.getCommision().getStatus().toString();
     }
 }
