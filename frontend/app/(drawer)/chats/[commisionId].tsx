@@ -1,29 +1,33 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { View, StyleSheet, Button, Image, TouchableOpacity, Modal } from 'react-native';
+import { View, Button, Image, TouchableOpacity, Modal } from 'react-native';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams,  useNavigation } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { getConversation, sendMessage } from "@/src/services/chatService";
+import { getConversation, sendMessage, getNewMessages } from "@/src/services/chatService";
 import * as ImagePicker from 'expo-image-picker';
 import LoadingScreen from '@/src/components/LoadingScreen';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-import { Message } from "@/src/constants/message";
+import { MessageChat, MessageRecieved } from "@/src/constants/message";
 import { Platform } from "react-native";
-import { Commission } from '@/src/constants/CommissionTypes';
+import { Send } from 'react-native-gifted-chat';
+import { Ionicons } from '@expo/vector-icons';
+import popUpMovilWindows  from "@/src/components/PopUpAlertMovilWindows";
+import { Message } from 'react-native-gifted-chat';
+import { styles } from "@/src/styles/Chat.styles";
+
 
 
  {/*Variables de imagenes*/}
-const artistAvatar= "https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295395_960_720.png "
-const icon =". "
+
 const isWeb = Platform.OS === "web"
+const icon ="📷"
 
 
 export default function IndividualChatScreen({  }) {
 
       const params = useLocalSearchParams() as {
         commisionId?: string;
-        otherUsername?: string;
       };
 
     const { commisionId } = params;
@@ -35,38 +39,32 @@ export default function IndividualChatScreen({  }) {
     const [loading, setLoading] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [imageToPreview, setImageToPreview] = useState<string | null>(null);
-    const [commision, setCommision] = useState<Commission | null >(null);
     const currentUserId = loggedInUser.id;
-    const [chatOwner, setChatOwner] = useState<string | null>(null);
+    const [lastFetchedDate, setLastFetchedDate] = useState<string | null>(null);
+    const [canSendMessage, setcanSendMessage] = useState<boolean>(false);
+    const navigation = useNavigation();
+
 
     {/*Obtención del historial del chat*/}
     useEffect(() => {
         const fetchMessages = async () => {
             try {
               if (!commisionId) return;
+              
+              const dataMessage = await getConversation(Number(commisionId), loggedInUser.token);
           
-              const data = await getConversation(Number(commisionId), loggedInUser.token);
+              
+          if (dataMessage.length < 0 ) return; 
 
-              console.log(data)
-          if (data.length < 0 ) return; 
-            
-
-           
-            const commRaw = data[0].commision as Commission;
-            setCommision(commRaw);
-          
-              const formattedMessages: IMessage[] = data
-                .map((msg: any) => {
-                  const isFromArtist = commRaw.artist.id === currentUserId;
-                  const sender = isFromArtist ? commRaw.artist : commRaw.client;
+              const formattedMessages: IMessage[] = dataMessage
+                .map((msg: MessageRecieved) => {
                   return {
                     _id: msg.id,
                     text: msg.text,
                     createdAt: new Date(msg.creationDate),
                     user: {
-                      _id: sender.id,
-                      name: isFromArtist ? commRaw.artist.baseUser.username : commRaw.client.baseUser.username,
-                      avatar: sender.baseUser?.imageProfile || artistAvatar,
+                      _id: msg.senderId,
+                      name: msg.senderName,
                     },
                     image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
                   };
@@ -75,64 +73,131 @@ export default function IndividualChatScreen({  }) {
           
               setMessages(formattedMessages);
               setSelectedImage(undefined);
+               
+              if(dataMessage[0].statusCommision == 'ACCEPTED'){
+                setcanSendMessage(true)
+                if (dataMessage.length > 0) {
+                  setLastFetchedDate(dataMessage[0].creationDate); 
+                }
+              }
 
             } catch (error) {
               console.error("Error obteniendo mensajes:", error);
             }
           };
 
-    
-           
-
         fetchMessages();
         setLoading(false);
-    }, [loggedInUser]);        
+
+        navigation.setOptions({ title: "Chat" });
+    }, [loggedInUser, commisionId]); 
+    
+    
+    
+    useEffect(() => {
+      if (!commisionId || !loggedInUser || messages.length === 0 || !lastFetchedDate) return;
+    
+      const interval = setInterval(async () => {
+        try {
+         
+          const newMessages = await getNewMessages(
+            Number(commisionId),
+            loggedInUser.token,
+            lastFetchedDate
+          );
+          if (newMessages.length > 0) {
+            const formattedNewMessages: IMessage[] = newMessages.map((msg: MessageRecieved) => {
+              const isFromArtist = msg.senderId === currentUserId;
+              return {
+                _id: msg.id,
+                text: msg.text,
+                createdAt: new Date(msg.creationDate),
+                user: {
+                  _id: msg.senderId,
+                  name: msg.senderName,
+                },
+                image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
+              };
+            });
+    
+            setMessages((prevMessages) => {
+              const nuevosSinDuplicados = formattedNewMessages.filter(
+                (msg) =>
+                  !prevMessages.some(
+                    (m) =>
+                      m.user._id === msg.user._id &&
+                      new Date(m.createdAt).getTime() === new Date(msg.createdAt).getTime()
+                  )
+              );
+    
+              if (nuevosSinDuplicados.length > 0) {
+                const latestDate = nuevosSinDuplicados[0].createdAt.toString();
+                setLastFetchedDate(latestDate);
+              }
+
+
+              
+    
+              return GiftedChat.append(prevMessages, nuevosSinDuplicados);
+            });
+
+            if(newMessages[0].statusCommision == 'ACCEPTED' && canSendMessage == true ){
+             
+              if (newMessages.length > 0) {
+                setLastFetchedDate(newMessages[0].creationDate); 
+              }
+            }else{
+              setcanSendMessage(false);
+              clearInterval(interval)
+            }
+
+          }
+        } catch (err) {
+          console.error(" Error al obtener nuevos mensajes:", err);
+        }
+      }, 2000); // cada 2 segundos
+    
+      return () => clearInterval(interval);
+    }, [commisionId, loggedInUser, messages]);
+
+    
         
     {/*Publicación de los mensajes*/}
     const onSend = useCallback(async (newMessages: IMessage[] = []) => {
 
         if (newMessages.length === 0 && !selectedImage) return; 
-        if (!commision) return;
+        const messageSend = newMessages[0]; 
+        const textContent = messageSend.text.replace(icon, "").trim(); 
+
      
-        const chatOwner = currentUserId === commision.artist.id ? commision.artist : commision.client;
+
+        if (textContent.trim().length === 0 && !selectedImage) {
+          popUpMovilWindows("Mensaje inválido", "No se puede enviar un mensaje vacío.");
+          return;
+        }
         
+        if (textContent.length > 125) {
+          popUpMovilWindows("Mensaje demasiado largo", "El mensaje no puede tener más de 125 caracteres.");
+          return;
+        }
 
-        {/*Creación del mensaje*/}
-        const message = {
-            _id: new Date().getTime(), 
-            text:  newMessages[0].text, 
-            createdAt: new Date(),
-            user: {
-                _id: loggedInUser.id,
-                name: loggedInUser.username,
-                avatar: chatOwner.baseUser.imageProfile,
-            },
-            image: selectedImage || undefined,
-        };
-
-
+        if (textContent.length > 125) {
+          popUpMovilWindows("Mensaje demasiado largo", "El mensaje no puede tener más de 125 caracteres.");
+          return;
+        }
 
         {/*Creación del mensaje para el backend*/}
-        const formattedMessage: Message = {
-            text: message.text ?? " ",
-            createdAt: message.createdAt.toISOString(),
+        const formattedMessage: MessageChat = {
+            text: textContent,
+            createdAt: messageSend.createdAt.toString(),
             image: selectedImage || undefined, 
-            commision: commisionId,
-            creator_id: currentUserId
+            commision: commisionId,   
         };
-
-
     
         {/*Envío del mensajes al "backend" */}
         try {
-           
-            await sendMessage(formattedMessage, loggedInUser.token);
-
-            
-            setMessages((previousMessages) =>
-                GiftedChat.append(previousMessages, [message])
-            );
-
+       console.log(formattedMessage)
+          await sendMessage(formattedMessage, loggedInUser.token);
             setSelectedImage(undefined); 
           
         } catch (error) {
@@ -189,15 +254,7 @@ export default function IndividualChatScreen({  }) {
       }
     };
 
-    const getImageProfile = (): string | undefined => {
-      if (!commision) return undefined;
-    
-      const chatOwner = currentUserId === commision.artist.id
-        ? commision.artist
-        : commision.client;
-    
-      return chatOwner.baseUser?.imageProfile;
-    };
+  
 
 
  if (loading) return <LoadingScreen />;
@@ -205,15 +262,59 @@ export default function IndividualChatScreen({  }) {
     return (
         <View style={styles.container}>
             <GiftedChat
+            key={`chat-${loggedInUser.id}`}
                 messages={messages}
                 onSend={(messages: IMessage[]) => onSend(messages)}
-                user={{ _id: loggedInUser.id, name: loggedInUser.username, avatar: getImageProfile() || artistAvatar }}
-                showUserAvatar={true}
-                text={((selectedImage && inputText !== icon ) && inputText.length ===0 ) ? icon : inputText}
+                user={{ _id: loggedInUser.id, name: loggedInUser.username }}
+                showUserAvatar={false}
+                showAvatarForEveryMessage={false}
+                renderAvatar={() => null} 
+                text={ canSendMessage
+                  ? (((selectedImage && inputText !== icon ) && inputText.length == 0 ) ? icon : inputText): ""}
                 onInputTextChanged={(text) => setInputText(text)}
                 textInputProps={{
-                    placeholder: "Escribe un mensaje...",
+                    placeholder: canSendMessage ? "Escribe un mensaje...": "Ya no se puede enviar mensajes",
                     editable: true,
+                }}
+          
+                renderSend={(props) => {
+                    return (
+                      <Send {...props}>
+                        <View style={{ marginRight: 10, marginBottom: 5 }}>
+                          <Ionicons name="send" size={28} color="#007aff" />
+                        </View>
+                      </Send>
+                    );
+                  
+                 
+                }}
+
+                renderMessage={(props) => {
+                  const isCurrentUser = props.currentMessage?.user._id === loggedInUser.id;
+                
+                  return (
+                    <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
+                      paddingHorizontal: 10, // Espacio entre burbuja y borde de pantalla
+                    }}
+                  >
+                    <View
+                      style={{
+                        maxWidth: '80%',
+                      }}
+                    >
+                      <Message
+                        {...props}
+                        containerStyle={{
+                          left: { marginLeft: 0, paddingLeft: 0 },
+                          right: { marginRight: 0, paddingRight: 0 },
+                        }}
+                      />
+                    </View>
+                  </View>
+                  );
                 }}
 
                 renderMessageImage={(props) => {
@@ -233,10 +334,17 @@ export default function IndividualChatScreen({  }) {
                   }}
             
             />
-            <View style={styles.imagePickerContainer}>
-                <Button title="Seleccionar Imagen" onPress={pickImage} />
-                {selectedImage && <Image source={{ uri: selectedImage }} style={styles.imagePreview} />}
-            </View>
+           {canSendMessage && (
+                 <View style={styles.imagePickerContainer}>
+                 <Button title="Seleccionar Imagen" onPress={pickImage} />
+                {selectedImage && (
+                    <Image
+                   source={{ uri: selectedImage }}
+                  style={styles.imagePreview}
+                    />
+                  )}
+                  </View>
+                  )}
 
             {modalVisible && imageToPreview && (
                 <Modal visible={modalVisible} transparent={true}>
@@ -250,28 +358,11 @@ export default function IndividualChatScreen({  }) {
                     <Button title="Cerrar" onPress={() => setModalVisible(false)} />
                     </View>
                 </Modal>
-)}
+                )}
         </View>
 
         
     );
 }
 
-const styles = StyleSheet.create({
-    container: { 
-        flex: 1,
-        backgroundColor: "#f5f5f5"
-        },
 
-    imagePickerContainer: { 
-        padding: 10,
-        alignItems: 'center'
-        },
-
-    imagePreview: { 
-        width: 100,
-        height: 100,
-        marginTop: 10,
-        borderRadius: 10
-        }
-});

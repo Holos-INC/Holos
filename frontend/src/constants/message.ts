@@ -1,20 +1,22 @@
 
-import { Commission } from "./CommissionTypes";
+import { StatusCommission } from "./CommissionTypes";
 
-export interface Message {
+export interface MessageChat {
     text: string,
     createdAt: string,
     image: string | undefined,
-    commision: string | undefined,
-    creator_id: string 
+    commision: string | undefined
   }
 
-  export interface ReceiveChatMessage {
-    id: number;
-    creationDate: string;
-    text: string;
-    image: string;
-    commision: {
-      id: number;
-    };
+
+  export interface MessageRecieved {
+    id: number, 
+    text: string,
+    creationDate: string,
+    image: string | undefined,
+    commisionId: number,
+    senderId: number,
+    senderName: string,
+    statusCommision: StatusCommission
+ 
   }

@@ -3,7 +3,7 @@ import { API_URL } from "@/src/constants/api";
 import api from "@/src/services/axiosInstance";
 import { handleError } from "@/src/utils/handleError";
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
-import { Message, ReceiveChatMessage } from "@/src/constants/message";
+import { Message, ReceiveChatMessage, MessageRecieved } from "@/src/constants/message";
 
 
 /**
@@ -13,7 +13,7 @@ import { Message, ReceiveChatMessage } from "@/src/constants/message";
 export const getConversation = async (
   commisionId: number,
   token: string
-): Promise<ReceiveChatMessage[]> => {
+): Promise<MessageRecieved[]> => {
   try {
     const response = await api.get(`${API_URL}/messages/chat/${commisionId}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -62,3 +62,35 @@ export const sendMessage = async (
     throw error;
   }
 };
+
+
+
+function formatDateForBackend(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toISOString().split(".")[0];
+}
+
+export const getNewMessages = async (
+  commisionId: number,
+  token: string,
+  lastMessageDate: string
+): Promise<MessageRecieved[]> => {
+  try {
+    const formattedDate = formatDateForBackend(lastMessageDate);
+    const response = await api.get( `${API_URL}/messages/chat/${commisionId}/since?lastMessageDate=${encodeURIComponent(formattedDate)}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        
+      },
+    }
+  );
+
+  return response.data;
+  } catch (error) {
+    handleError(error, "Error sending message");
+    throw error;
+  }
+};
+
