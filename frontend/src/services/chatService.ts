@@ -3,7 +3,7 @@ import { API_URL } from "@/src/constants/api";
 import api from "@/src/services/axiosInstance";
 import { handleError } from "@/src/utils/handleError";
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
-import { Message, ReceiveChatMessage, MessageRecieved } from "@/src/constants/message";
+import { MessageChat, MessageRecieved } from "@/src/constants/message";
 
 
 /**
@@ -33,20 +33,18 @@ export const getConversation = async (
  * El token se envía en el header Authorization.
  */
 export const sendMessage = async (
-  message: Message,
+  message: MessageChat,
   loggedUser: string
-): Promise<ReceiveChatMessage> => {
+): Promise<MessageRecieved> => {
   try {
     const formData = new FormData();
     const { image, ...restOfmessage } = message;
     formData.append("chatMessage", JSON.stringify(restOfmessage));
-    console.log("restOfmessage:", restOfmessage);
 
 
     if (image && image.length > 0) {
       const imageProfileData = base64ToFile(image, "image.png");
       formData.append("imageProfile", imageProfileData);
-      console.log("formData entries:" + imageProfileData);
     }
     
 
@@ -56,6 +54,7 @@ export const sendMessage = async (
         Authorization: `Bearer ${loggedUser}`,
       },
     });
+   
     return response.data;
   } catch (error) {
     handleError(error, "Error sending message");
@@ -86,7 +85,6 @@ export const getNewMessages = async (
       },
     }
   );
-
   return response.data;
   } catch (error) {
     handleError(error, "Error sending message");

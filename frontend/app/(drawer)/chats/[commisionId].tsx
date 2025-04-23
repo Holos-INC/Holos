@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import popUpMovilWindows  from "@/src/components/PopUpAlertMovilWindows";
 import { Message } from 'react-native-gifted-chat';
 import { styles } from "@/src/styles/Chat.styles";
+import { getCommissionById } from "@/src/services/commisionApi";
 
 
 
@@ -39,10 +40,10 @@ export default function IndividualChatScreen({  }) {
     const [loading, setLoading] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [imageToPreview, setImageToPreview] = useState<string | null>(null);
-    const currentUserId = loggedInUser.id;
-    const [lastFetchedDate, setLastFetchedDate] = useState<string | null>(null);
-    const [canSendMessage, setcanSendMessage] = useState<boolean>(false);
+    const [lastFetchedDate, setLastFetchedDate] = useState<string >(new Date().toString());
+    const [canSendMessage, setcanSendMessage] = useState<boolean >();
     const navigation = useNavigation();
+    
 
 
     {/*Obtención del historial del chat*/}
@@ -50,8 +51,16 @@ export default function IndividualChatScreen({  }) {
         const fetchMessages = async () => {
             try {
               if (!commisionId) return;
-              
+
+              const dataCommision = await getCommissionById(Number(commisionId));
+
               const dataMessage = await getConversation(Number(commisionId), loggedInUser.token);
+          
+            if(dataCommision.status == 'ACCEPTED'){
+                setcanSendMessage(true)
+              }
+
+
           
               
           if (dataMessage.length < 0 ) return; 
@@ -73,13 +82,7 @@ export default function IndividualChatScreen({  }) {
           
               setMessages(formattedMessages);
               setSelectedImage(undefined);
-               
-              if(dataMessage[0].statusCommision == 'ACCEPTED'){
-                setcanSendMessage(true)
-                if (dataMessage.length > 0) {
-                  setLastFetchedDate(dataMessage[0].creationDate); 
-                }
-              }
+              setLastFetchedDate(dataMessage[0].creationDate); 
 
             } catch (error) {
               console.error("Error obteniendo mensajes:", error);
@@ -95,16 +98,20 @@ export default function IndividualChatScreen({  }) {
     
     
     useEffect(() => {
-      if (!commisionId || !loggedInUser || messages.length === 0 || !lastFetchedDate) return;
+      if (!commisionId || !loggedInUser ) return;
     
       const interval = setInterval(async () => {
         try {
-         
+        
           const newMessages = await getNewMessages(
             Number(commisionId),
             loggedInUser.token,
             lastFetchedDate
           );
+
+          
+
+
           if (newMessages.length > 0) {
             const formattedNewMessages: IMessage[] = newMessages.map((msg: MessageRecieved) => {
               return {
@@ -139,12 +146,11 @@ export default function IndividualChatScreen({  }) {
     
               return GiftedChat.append(prevMessages, nuevosSinDuplicados);
             });
-
+          
             if(newMessages[0].statusCommision == 'ACCEPTED' && canSendMessage == true ){
              
-              if (newMessages.length > 0) {
+              
                 setLastFetchedDate(newMessages[0].creationDate); 
-              }
             }else{
               setcanSendMessage(false);
               clearInterval(interval)
@@ -154,10 +160,10 @@ export default function IndividualChatScreen({  }) {
         } catch (err) {
           console.error(" Error al obtener nuevos mensajes:", err);
         }
-      }, 2000); // cada 2 segundos
+      }, 500); // cada medio segundo
     
       return () => clearInterval(interval);
-    }, [commisionId, loggedInUser, messages]);
+    }, [canSendMessage]);
 
     
         
@@ -195,7 +201,7 @@ export default function IndividualChatScreen({  }) {
     
         {/*Envío del mensajes al "backend" */}
         try {
-       console.log(formattedMessage)
+   
           await sendMessage(formattedMessage, loggedInUser.token);
             setSelectedImage(undefined); 
           
