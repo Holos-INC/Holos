@@ -107,7 +107,6 @@ export default function IndividualChatScreen({  }) {
           );
           if (newMessages.length > 0) {
             const formattedNewMessages: IMessage[] = newMessages.map((msg: MessageRecieved) => {
-              const isFromArtist = msg.senderId === currentUserId;
               return {
                 _id: msg.id,
                 text: msg.text,
@@ -158,7 +157,7 @@ export default function IndividualChatScreen({  }) {
       }, 2000); // cada 2 segundos
     
       return () => clearInterval(interval);
-    }, [commisionId, loggedInUser]);
+    }, [commisionId, loggedInUser, messages]);
 
     
         
