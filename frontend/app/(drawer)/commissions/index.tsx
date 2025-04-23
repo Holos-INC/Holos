@@ -24,30 +24,33 @@ const isBigScreen = width >= 1024;
 const MOBILE_PROFILE_ICON_SIZE = 40;
 const MOBILE_CARD_PADDING = 12;
 
+
 export default function ArtistRequestOrders({ route, navigation }: any) {
   const { loggedInUser } = useContext(AuthenticationContext);
-  const router = useRouter(); // Usamos useRouter de expo-router
+  const router = useRouter();
 
-  // 3. Tipar el estado como arreglo de Commission
   const [commissions, setCommissions] = useState<HistoryCommisionsDTO>({
     requested: [],
     accepted: [],
     history: [],
     error: "",
   });
+
+  const [selectedTab, setSelectedTab] = useState<"detalles" | "espera" | "finalizadas">("detalles");
   const [loading, setLoading] = useState(true);
+
   const isArtist =
     Array.isArray(loggedInUser?.roles) &&
-    (loggedInUser.roles.includes("ARTIST") ||
-      loggedInUser.roles.includes("ARTIST_PREMIUM"));
+    (loggedInUser.roles.includes("ARTIST") || loggedInUser.roles.includes("ARTIST_PREMIUM"));
+
   const isClient =
     Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
 
   const fetchCommissions = async () => {
+    if (!loggedInUser?.token) return;
+
     try {
-      const data: HistoryCommisionsDTO = await getAllRequestedCommissions(
-        loggedInUser.token
-      );
+      const data: HistoryCommisionsDTO = await getAllRequestedCommissions(loggedInUser.token);
       setCommissions(data);
     } catch (error) {
       Alert.alert("Error", "Error al obtener las comisiones.");
@@ -57,7 +60,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   };
 
   useEffect(() => {
-    fetchCommissions();
+    if (loggedInUser?.token) {
+      fetchCommissions();
+    }
   }, [loggedInUser]);
 
   const getStatusText = (status: string) => {
@@ -85,9 +90,8 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     }
   };
 
-  // Filtra según estado
-  const newRequests = commissions.requested;
-  const respondedRequests = commissions.history;
+  const newRequests = commissions?.requested || [];
+  const respondedRequests = commissions?.history || [];
 
   if (loading) {
     return (
@@ -97,112 +101,184 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     );
   }
 
+  
+
   return (
     <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM", "CLIENT"]}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            {" "}
-            {/* Usamos router.back() para retroceder */}
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#000000" />
             <Text style={styles.backButtonText}>ATRÁS</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.separator} />
-
+  
         <ScrollView style={styles.content}>
           <Text style={styles.sectionTitle}>EN CURSO</Text>
           <ClientCommissionsScreen commissions={commissions.accepted} />
-
+          
           <View style={styles.separator} />
-          <Text style={styles.sectionTitle}>
-            {isArtist ? "NUEVAS SOLICITUDES" : "PAGOS PENDIENTES"}
-          </Text>
-          {newRequests.length === 0 ? (
-            <Text style={styles.noRequestsText}>
-              No hay nuevas solicitudes.
-            </Text>
-          ) : (
-            newRequests.map((comm) => (
-              <View key={comm.id} style={styles.card}>
-                <View style={styles.profileContainer}>
-                  <Image
-                    source={{
-                      uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO",
-                    }}
-                    style={styles.profileImage}
-                  />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={styles.textName}>
-                    {isClient
-                      ? comm.artistUsername || "Artista desconocido"
-                      : comm.clientUsername || "Cliente desconocido"}
-                  </Text>
-                  <Text style={styles.text}>{comm.description}</Text>
-                </View>
-                <View style={styles.actions}>
-                  <TouchableOpacity
-                    style={styles.detailsButton}
-                    onPress={() => {
-                      router.push({
-                        pathname: `/commissions/[commissionId]/proposal`,
-                        params: { commissionId: comm.id },
-                      });
-                    }}
-                  >
-                    <Text style={styles.detailsButtonText}>VER DETALLE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
+          <View style={styles.tabButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.tabButton, selectedTab === "detalles" && styles.activeTabButton]}
+              onPress={() => setSelectedTab("detalles")}
+            >
+              <Text
+                style={[styles.tabButtonText, selectedTab === "detalles" && styles.activeTabButtonText]}
+              >
+                {isArtist ? "Nuevas solicitudes" : "Pagos pendientes"}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, selectedTab === "espera" && styles.activeTabButton]}
+              onPress={() => setSelectedTab("espera")}
+            >
+              <Text
+                style={[styles.tabButtonText, selectedTab === "espera" && styles.activeTabButtonText]}
+              >
+                Lista de Espera
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, selectedTab === "finalizadas" && styles.activeTabButton]}
+              onPress={() => setSelectedTab("finalizadas")}
+            >
+              <Text
+                style={[styles.tabButtonText, selectedTab === "finalizadas" && styles.activeTabButtonText]}
+              >
+                Finalizadas
+              </Text>
+            </TouchableOpacity>
+          </View>
+  
+          {/* Contenido dinámico por tab */}
+          {selectedTab === "detalles" && (
+            <>
+              <Text style={styles.sectionTitle}>
+                {isArtist ? "NUEVAS SOLICITUDES" : "PAGOS PENDIENTES"}
+              </Text>
+              {newRequests.length === 0 ? (
+                <Text style={styles.noRequestsText}>No hay nuevas solicitudes.</Text>
+              ) : (
+                newRequests.map((comm) => (
+                  <View key={comm.id} style={styles.card}>
+                    <View style={styles.profileContainer}>
+                      <Image
+                        source={{ uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO" }}
+                        style={styles.profileImage}
+                      />
+                    </View>
+                    <View style={styles.textContainer}>
+                      <Text style={styles.textName}>
+                        {isClient
+                          ? comm.artistUsername || "Artista desconocido"
+                          : comm.clientUsername || "Cliente desconocido"}
+                      </Text>
+                      <Text style={styles.text}>{comm.description}</Text>
+                    </View>
+                    <View style={styles.actions}>
+                      <TouchableOpacity
+                        style={styles.detailsButton}
+                        onPress={() =>
+                          router.push({
+                            pathname: `/commissions/[commissionId]/proposal`,
+                            params: { commissionId: comm.id },
+                          })
+                        }
+                      >
+                        <Text style={styles.detailsButtonText}>VER DETALLE</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))
+              )}
+            </>
           )}
-
-          <View style={styles.separator} />
-
-          <Text style={styles.sectionTitle}>
-            SOLICITUDES ACEPTADAS/DENEGADAS
-          </Text>
-          {respondedRequests.length === 0 ? (
-            <Text style={styles.noRequestsText}>
-              No hay solicitudes respondidas.
-            </Text>
-          ) : (
-            respondedRequests.map((comm) => (
-              <View key={comm.id} style={styles.card}>
-                <View style={styles.profileContainer}>
-                  <Image
-                    source={{
-                      uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO",
-                    }}
-                    style={styles.profileImage}
-                  />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={styles.textName}>
-                    {isClient
-                      ? comm.artistUsername || "Artista desconocido"
-                      : comm.clientUsername || "Cliente desconocido"}
-                  </Text>
-                  <Text style={styles.text}>
-                    Descripción: {comm.description}
-                  </Text>
-                </View>
-                <View style={styles.actions}>
-                  <Text style={styles.responseText}>
-                    {getStatusText(comm.status)}
-                  </Text>
-                </View>
-              </View>
-            ))
+  
+          {selectedTab === "espera" && (
+            <>
+              <Text style={styles.sectionTitle}>EN LISTA DE ESPERA</Text>
+              {commissions.history.filter((comm) => comm.status === "IN_WAIT_LIST").length === 0 ? (
+                <Text style={styles.noRequestsText}>No hay comisiones en lista de espera.</Text>
+              ) : (
+                commissions.history
+                  .filter((comm) => comm.status === "IN_WAIT_LIST")
+                  .sort(
+                    (a, b) =>
+                      new Date(a.acceptedDateByArtist).getTime() -
+                      new Date(b.acceptedDateByArtist).getTime()
+                  )                  
+                  .map((comm) => (
+                    <View key={comm.id} style={styles.card}>
+                      <View style={styles.profileContainer}>
+                        <Image
+                          source={{ uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO" }}
+                          style={styles.profileImage}
+                        />
+                      </View>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.textName}>
+                          {isClient
+                            ? comm.artistUsername || "Artista desconocido"
+                            : comm.clientUsername || "Cliente desconocido"}
+                        </Text>
+                        <Text style={styles.text}>Título: {comm.name || "Sin título"}</Text>
+                        <Text style={styles.text}>Descripción: {comm.description}</Text>
+                        <Text style={styles.text}>
+                          Aceptada el:{" "}
+                          {comm.acceptedDateByArtist
+                            ? new Date(comm.acceptedDateByArtist).toLocaleDateString("es-ES", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            : "Fecha desconocida"}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+              )}
+            </>
+          )}
+  
+          {selectedTab === "finalizadas" && (
+            <>
+              <Text style={styles.sectionTitle}>FINALIZADAS / RESPONDIDAS</Text>
+              {respondedRequests.length === 0 ? (
+                <Text style={styles.noRequestsText}>No hay solicitudes respondidas.</Text>
+              ) : (
+                respondedRequests
+                  .filter((comm) => comm.status === "REJECTED" || comm.status === "CANCELED" || comm.status === "ENDED")
+                  .map((comm) => (
+                    <View key={comm.id} style={styles.card}>
+                      <View style={styles.profileContainer}>
+                        <Image
+                          source={{ uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO" }}
+                          style={styles.profileImage}
+                        />
+                      </View>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.textName}>
+                          {isClient
+                            ? comm.artistUsername || "Artista desconocido"
+                            : comm.clientUsername || "Cliente desconocido"}
+                        </Text>
+                        <Text style={styles.text}>Descripción: {comm.description}</Text>
+                      </View>
+                      <View style={styles.actions}>
+                        <Text style={styles.responseText}>{getStatusText(comm.status)}</Text>
+                      </View>
+                    </View>
+                  ))
+              )}
+            </>
           )}
         </ScrollView>
       </View>
     </ProtectedRoute>
   );
+  
+
 }
 
 const styles = StyleSheet.create({
@@ -308,4 +384,26 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     marginHorizontal: 20,
   },
+  tabButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 10,
+  },
+  tabButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    backgroundColor: "#E0E0E0",
+  },
+  activeTabButton: {
+    backgroundColor: "#183771",
+  },
+  tabButtonText: {
+    color: "#333",
+    fontWeight: "bold",
+  },
+  activeTabButtonText: {
+    color: "#FECEF1",
+  },
+  
 });

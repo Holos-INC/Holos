@@ -44,7 +44,7 @@ export enum StatusCommission {
   WAITING_ARTIST = "WAITING_ARTIST",
   NOT_PAID_YET = "NOT_PAID_YET",
   IN_WAIT_LIST = "IN_WAIT_LIST",
-  ENDED = "Finalizado",
+  ENDED = "ENDED",
 }
 
 export enum PaymentArrangement {
@@ -122,6 +122,8 @@ export interface CommissionProtected {
   artistUsername: string;
 
   clientUsername: string;
+
+  acceptedDateByArtist: Date; 
 }
 
 export interface CommissionInProgress {
