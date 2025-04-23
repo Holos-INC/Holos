@@ -65,7 +65,7 @@ export const updateUserArtist = async (
     formData.append("imageProfile", imageProfileData);
   }
 
-  if (!user.imageProfile.length && user.tableCommissionsPrice.length > 0) {
+  if (user.tableCommissionsPrice.length && user.tableCommissionsPrice.length > 0) {
     const tableCommissionsPriceData = base64ToFile(
       user.tableCommissionsPrice,
       "image.png"

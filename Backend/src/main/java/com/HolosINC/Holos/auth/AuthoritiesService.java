@@ -1,8 +1,5 @@
 package com.HolosINC.Holos.auth;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-
 import java.time.Instant;
 import java.util.Date;
 
@@ -19,6 +16,9 @@ import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.ImageHandler;
+
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @Service
 public class AuthoritiesService {
@@ -44,8 +44,8 @@ public class AuthoritiesService {
 		if(baseUserService.existsEmail(request.getEmail()))
 			throw new IllegalArgumentException("Email ya existente en la base de datos.");
 
-		if (request.getImageProfile().getSize() > 5 * 1024 * 1024) 
-			throw new IllegalArgumentException("La imagen de perfil no puede ser mayor a 5MB.");
+		// if (request.getImageProfile().getSize() > 5 * 1024 * 1024) 
+		// 	throw new IllegalArgumentException("La imagen de perfil no puede ser mayor a 5MB.");
 		
 		BaseUser user = new BaseUser();
 		user.setUsername(request.getUsername());
@@ -54,7 +54,7 @@ public class AuthoritiesService {
 		user.setPassword(encoder.encode(request.getPassword()));
 		user.setEmail(request.getEmail());
 		user.setPhoneNumber(request.getPhoneNumber());
-		user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
+		// user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
 	
 		if (request.getImageProfile() != null) {
 			user.setImageProfile(imageHandler.getBytes(request.getImageProfile()));
@@ -108,7 +108,7 @@ public class AuthoritiesService {
 
 		if (user.getAuthority() == Auth.ARTIST ||
 			user.getAuthority() == Auth.ARTIST_PREMIUM) {
-			Artist artist = artistService.findArtist(user.getId());
+			Artist artist = artistService.findArtistByUserId(user.getId());
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(

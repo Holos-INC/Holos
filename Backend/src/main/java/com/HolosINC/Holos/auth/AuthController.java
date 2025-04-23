@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,9 +34,11 @@ import com.HolosINC.Holos.configuration.jwt.JwtUtils;
 import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.security.authentication.BadCredentialsException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -53,89 +56,126 @@ public class AuthController {
 		this.authService = authService;
 	}
 
-	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		try {
-			Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    @Operation(
+        summary = "Authenticate user",
+        description = "Authenticates a user by verifying their username and password.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Authentication successful", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid credentials", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Authentication failure", content = @Content(mediaType = "application/json"))
+        }
+    )
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-					.collect(Collectors.toList());
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-			return ResponseEntity.ok()
-					.body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
-		} catch (BadCredentialsException exception) {
-			return ResponseEntity.badRequest().body("Credenciales incorrectas!");
-		} catch (Exception exception) {
-			return ResponseEntity.badRequest().body("Fallo de autenticacion!");
-		}
-	}
-	
-	@GetMapping("/validate")
-	public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
-		Boolean isValid = jwtUtils.validateJwtToken(token);
-		return ResponseEntity.ok(isValid);
-	}
+            return ResponseEntity.ok().body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+        } catch (BadCredentialsException exception) {
+            return ResponseEntity.badRequest().body("Credenciales incorrectas!");
+        } catch (Exception exception) {
+            return ResponseEntity.badRequest().body("Fallo de autenticacion!");
+        }
+    }
 
-	@PostMapping(value = "/signup", consumes = { "multipart/form-data" })
-	public ResponseEntity<MessageResponse> registerUser(
-			@RequestPart("user") String signupRequestJson,
-			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
+    @Operation(
+        summary = "Validate JWT token",
+        description = "Validates if the provided JWT token is valid.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Token validation result", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid token")
+        }
+    )
+    @GetMapping("/validate")
+    public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
+        Boolean isValid = jwtUtils.validateJwtToken(token);
+        return ResponseEntity.ok(isValid);
+    }
 
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			SignupRequest signupRequest = objectMapper.readValue(signupRequestJson, SignupRequest.class);
+    @Operation(
+        summary = "Register a new user",
+        description = "Registers a new user with optional profile image and commission table.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User registered successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Error during registration", content = @Content(mediaType = "application/json"))
+        }
+    )
+    @PostMapping(value = "/signup", consumes = { "multipart/form-data" })
+    public ResponseEntity<MessageResponse> registerUser(
+            @RequestPart("user") String signupRequestJson,
+            @RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
+            @RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
 
-			if (imageProfile != null && !imageProfile.isEmpty()) 
-				signupRequest.setImageProfile(imageProfile);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            SignupRequest signupRequest = objectMapper.readValue(signupRequestJson, SignupRequest.class);
 
-			if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty()) {
-				signupRequest.setTableCommisionsPrice(tableCommissionsPrice);
-			}
+            if (imageProfile != null && !imageProfile.isEmpty())
+                signupRequest.setImageProfile(imageProfile);
 
-			authService.createUser(signupRequest);
-			return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error during registration: " + e.getMessage()));
-		}
-	}
+            if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty()) {
+                signupRequest.setTableCommisionsPrice(tableCommissionsPrice);
+            }
 
-	@PutMapping(
-			path = "/update", 
-			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<MessageResponse> updateUser(@RequestPart("updateUser") String updateRequestform,
-			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			UpdateRequest updateRequest = objectMapper.readValue(updateRequestform, UpdateRequest.class);
+            authService.createUser(signupRequest);
+            return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error during registration: " + e.getMessage()));
+        }
+    }
 
-			if (imageProfile != null && !imageProfile.isEmpty())
-				updateRequest.setImageProfile(imageProfile);
+    @Operation(
+        summary = "Update user information",
+        description = "Updates the user's information, including profile image and commission table if provided.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Error during update", content = @Content(mediaType = "application/json"))
+        }
+    )
+    @PutMapping(path = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponse> updateUser(@RequestPart("updateUser") String updateRequestform,
+                                                      @RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
+                                                      @RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            UpdateRequest updateRequest = objectMapper.readValue(updateRequestform, UpdateRequest.class);
 
-			if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty())
-				updateRequest.setTableCommissionsPrice(tableCommissionsPrice);
+            if (imageProfile != null && !imageProfile.isEmpty())
+                updateRequest.setImageProfile(imageProfile);
 
-			authService.updateUser(updateRequest);
-			return ResponseEntity.ok().body(new MessageResponse("succesfully updated: " + updateRequest.getUsername()));
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-		}
-	}
-	
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<MessageResponse> deleteUser(@RequestParam Long id) {
-		try {
-			authService.deleteUser(id);
-			return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));
-		}catch (Exception e) {
-			return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-		}
-	}
+            if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty())
+                updateRequest.setTableCommissionsPrice(tableCommissionsPrice);
 
+            authService.updateUser(updateRequest);
+            return ResponseEntity.ok().body(new MessageResponse("successfully updated: " + updateRequest.getUsername()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @Operation(
+        summary = "Delete user",
+        description = "Deletes a user by their ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User deleted successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Error during deletion", content = @Content(mediaType = "application/json"))
+        }
+    )
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<MessageResponse> deleteUser(@RequestParam Long id) {
+        try {
+            authService.deleteUser(id);
+            return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
 }

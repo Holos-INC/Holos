@@ -58,7 +58,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const styles = isDesktop ? desktopStyles : mobileStyles;
   const isArtist = isArtistUser(user);
   const [imageProfile, setImageProfile] = useState<string | null>(null);
-  const [tableCommisionsPrice, setTableCommisionsPrice] = useState<
+  const [tableCommissionsPrice, setTableCommisionsPrice] = useState<
     string | null
   >(null);
   const { signOut } = useContext(AuthenticationContext);
@@ -66,7 +66,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
 
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
-    field: "imageProfile" | "tableCommisionsPrice"
+    field: "imageProfile" | "tableCommissionsPrice"
   ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -80,7 +80,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       setFieldValue(field, img);
       if (field === "imageProfile") {
         setImageProfile(img);
-      } else if (field === "tableCommisionsPrice") {
+      } else if (field === "tableCommissionsPrice") {
         setTableCommisionsPrice(img);
       } else {
         console.warn("Campo de imagen no reconocido:", field);
@@ -99,7 +99,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       ? (user as ArtistDTO).linkToSocialMedia ?? ""
       : "",
     tableCommissionsPrice: isArtist
-      ? (user as ArtistDTO).tableCommisionsPrice ?? ""
+      ? (user as ArtistDTO).tableCommissionsPrice ?? ""
       : "",
   };
 
@@ -298,12 +298,12 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                       <Text style={styles.label}>Tabla de Precios</Text>
                       <Image
                         source={
-                          tableCommisionsPrice
-                            ? { uri: tableCommisionsPrice }
-                            : user.tableCommisionsPrice?.startsWith(
+                          tableCommissionsPrice
+                            ? { uri: tableCommissionsPrice }
+                            : user.tableCommissionsPrice?.startsWith(
                                 "data:image"
                               )
-                            ? { uri: user.tableCommisionsPrice }
+                            ? { uri: user.tableCommissionsPrice }
                             : undefined
                         }
                       />
@@ -312,7 +312,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                         icon={"camera"}
                         mode="contained"
                         onPress={() =>
-                          pickImage(setFieldValue, "tableCommisionsPrice")
+                          pickImage(setFieldValue, "tableCommissionsPrice")
                         }
                         labelStyle={{
                           color: "#FFF",

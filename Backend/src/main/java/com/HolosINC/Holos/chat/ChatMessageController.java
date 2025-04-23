@@ -16,8 +16,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.HolosINC.Holos.commision.Commision;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/messages")
+@Tag(name = "Chat Messages", description = "APIs for creating, deleting, and fetching chat messages and conversations")
 public class ChatMessageController {
     private final ChatMessageService service;
 
@@ -25,6 +32,14 @@ public class ChatMessageController {
         this.service = service;
     }
 
+    @Operation(
+        summary = "Create a new chat message",
+        description = "Creates a new chat message. Optionally, a message can include an image.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Chat message created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatMessage.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or error creating message", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping
     public ResponseEntity<?> createChatMessage(
             @RequestPart("chatMessage") String chatMessageJson,
@@ -51,6 +66,14 @@ public class ChatMessageController {
         }
     }
 
+    @Operation(
+        summary = "Delete a chat message",
+        description = "Deletes a chat message by its ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Chat message deleted successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Error deleting message", content = @Content(mediaType = "application/json"))
+        }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteChatMessage(@PathVariable Long id) {
         try {
@@ -61,6 +84,14 @@ public class ChatMessageController {
         }
     }
 
+    @Operation(
+        summary = "Get a conversation by commission ID",
+        description = "Fetches the conversation related to a specific commission ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Conversation fetched successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Error fetching conversation", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/chat/{commisionId}")
     public ResponseEntity<?> getConversation(
             @PathVariable Long commisionId,
@@ -77,6 +108,14 @@ public class ChatMessageController {
         }
     }
 
+    @Operation(
+        summary = "Get all chat conversations",
+        description = "Fetches all chat conversations in the system.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "All chats fetched successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Error fetching chats", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/admin/chats")
     public ResponseEntity<?> getAllChats() {
         try {

@@ -198,4 +198,19 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
   },
+  removeButton: {
+    backgroundColor: "#FFEEEE",
+    borderColor: "#FF6666",
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  removeButtonText: {
+    color: "#FF3333",
+    fontWeight: "600",
+  },
 });
