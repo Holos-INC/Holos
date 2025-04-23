@@ -346,13 +346,18 @@ export default function IndividualChatScreen({  }) {
             {modalVisible && imageToPreview && (
                 <Modal visible={modalVisible} transparent={true}>
                     <View style={{ flex: 1, backgroundColor: "#000000cc", justifyContent: "center", alignItems: "center" }}>
-                    <Image
+                      <View style={styles.closeButtonContainer}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                          <Ionicons name="close" size={28} color="white" />
+                        </TouchableOpacity>
+                      </View>
+
+                      <Image
                         source={{ uri: imageToPreview }}
                         style={{ width: 300, height: 300, borderRadius: 15 }}
                         resizeMode="contain"
-                    />
-                    <Button title="Descargar imagen" onPress={() => downloadImage(imageToPreview)} />
-                    <Button title="Cerrar" onPress={() => setModalVisible(false)} />
+                        />
+                      <Button title="Descargar imagen" onPress={() => downloadImage(imageToPreview)} />
                     </View>
                 </Modal>
                 )}

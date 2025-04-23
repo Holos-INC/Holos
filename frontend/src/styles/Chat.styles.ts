@@ -16,5 +16,12 @@ export const styles  = StyleSheet.create({
       height: 100,
       marginTop: 10,
       borderRadius: 10
-      }
+      }, 
+      
+  closeButtonContainer: {
+      position: "absolute",
+      top: 40, 
+      right: 20,
+      zIndex: 1,
+      },
 });
