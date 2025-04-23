@@ -1,16 +1,16 @@
 import * as Yup from "yup";
 import { Formik } from "formik";
 import React, { useContext, useState } from "react";
-import colors from "@/src/constants/colors";
+import { Text, Image, ScrollView, View } from "react-native";
+import { Dialog, Portal, Button, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
+import { Platform, useWindowDimensions } from "react-native";
+import colors from "@/src/constants/colors";
 import { artistUser } from "@/src/constants/user";
-import { Text, Image, ScrollView } from "react-native";
 import { ArtistDTO } from "@/src/constants/ExploreTypes";
 import { updateUserArtist } from "@/src/services/artistApi";
 import { updateUserClient } from "@/src/services/clientApi";
-import { Platform, useWindowDimensions } from "react-native";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
-import { Dialog, Portal, Button, TextInput } from "react-native-paper";
 import { desktopStyles, mobileStyles } from "@/src/styles/userProfile.styles";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { useRouter } from "expo-router";
@@ -22,6 +22,12 @@ interface ArtistProfileDialogProps {
   setUser: (user: BaseUserDTO | ArtistDTO) => void;
   token: string;
   refreshUser: () => Promise<void>;
+}
+
+// Form values interface
+interface FormValues extends artistUser {
+  linkToSocialMedia: string;
+  tableCommissionsPrice: string;
 }
 
 const validationSchema = Yup.object().shape({
@@ -37,11 +43,14 @@ const validationSchema = Yup.object().shape({
   phoneNumber: Yup.string()
     .trim("El teléfono no puede tener solo espacios")
     .matches(/^[0-9]+$/, "Solo se permiten números")
-    .min(9, "Debe tener al menos 7 dígitos")
+    .min(9, "Debe tener al menos 9 dígitos")
     .max(12, "Debe tener como máximo 12 dígitos")
     .required("El teléfono es obligatorio"),
   description: Yup.string().max(200, "No puede escribir más de 200 carácteres"),
   imageProfile: Yup.string().notRequired(),
+  linkToSocialMedia: Yup.string()
+    .url("Debe ser una URL válida (https://...)")
+    .notRequired(),
   tableCommissionsPrice: Yup.string().notRequired(),
 });
 
@@ -56,17 +65,33 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width > 775;
   const styles = isDesktop ? desktopStyles : mobileStyles;
-  const isArtist = isArtistUser(user);
-  const [imageProfile, setImageProfile] = useState<string | null>(null);
-  const [tableCommisionsPrice, setTableCommisionsPrice] = useState<
-    string | null
-  >(null);
   const { signOut } = useContext(AuthenticationContext);
   const router = useRouter();
 
+  // Local URI state for preview
+  const [localImage, setLocalImage] = useState<string | null>(null);
+  const [localTable, setLocalTable] = useState<string | null>(null);
+
+  // Detect if user is artist by checking linkToSocialMedia property
+  const isArtist = (u: BaseUserDTO | ArtistDTO): u is ArtistDTO =>
+    (u as ArtistDTO).linkToSocialMedia !== undefined;
+
+  // Initial form values
+  const initialValues: FormValues = {
+    firstName: user.name,
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phoneNumber ?? "",
+    description: user.description ?? "",
+    imageProfile: user.imageProfile ?? "",
+    linkToSocialMedia: isArtist(user) ? user.linkToSocialMedia : "",
+    tableCommissionsPrice: isArtist(user) ? user.tableCommisionsPrice : "",
+  };
+
+  // Image picker helper
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
-    field: "imageProfile" | "tableCommisionsPrice"
+    field: keyof FormValues
   ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -74,68 +99,37 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       aspect: [1, 1],
       quality: 1,
     });
-
     if (!result.canceled) {
-      const img = result.assets[0].uri;
-      setFieldValue(field, img);
-      if (field === "imageProfile") {
-        setImageProfile(img);
-      } else if (field === "tableCommisionsPrice") {
-        setTableCommisionsPrice(img);
-      } else {
-        console.warn("Campo de imagen no reconocido:", field);
-      }
+      const uri = result.assets[0].uri;
+      setFieldValue(field, uri);
+      if (field === "imageProfile") setLocalImage(uri);
+      if (field === "tableCommissionsPrice") setLocalTable(uri);
     }
   };
 
-  const initialValues: artistUser = {
-    username: user.username ?? "",
-    firstName: user.name ?? "",
-    email: user.email ?? "",
-    phoneNumber: user.phoneNumber ?? "",
-    description: user.description ?? "",
-    imageProfile: user.imageProfile ?? "",
-    linkToSocialMedia: isArtist
-      ? (user as ArtistDTO).linkToSocialMedia ?? ""
-      : "",
-    tableCommissionsPrice: isArtist
-      ? (user as ArtistDTO).tableCommisionsPrice ?? ""
-      : "",
-  };
-
-  function isArtistUser(user: any): user is ArtistDTO {
-    return (
-      typeof user === "object" &&
-      "authorityName" in user &&
-      (user.authorityName === "ARTIST" ||
-        user.authorityName === "ARTIST_PREMIUM")
-    );
-  }
-
-  const sendProfile = async (values: any) => {
+  // Submit handler
+  const handleSubmitProfile = async (values: FormValues) => {
     try {
       const usernameChanged = values.username !== user.username;
 
-      if (isArtist) {
+      if (isArtist(user)) {
         await updateUserArtist(values, token);
       } else {
-        const { tableCommissionsPrice, linkToSocialMedia, ...baseUserValues } =
-          values;
-        await updateUserClient(baseUserValues, token);
+        // strip artist-only fields
+        const { linkToSocialMedia, tableCommissionsPrice, ...clientVals } = values;
+        await updateUserClient(clientVals, token);
       }
 
-      // filter large fields before updating global user state
-      const { imageProfile, tableCommissionsPrice, ...safeValues } = values;
-      setUser({ ...user, ...safeValues }); // safe copy
+      // Update parent state
+      setUser({ ...user, ...values });
 
       if (usernameChanged) {
         router.replace("/login");
-        signOut(() => console.log("Logged out!"));
+        signOut(() => {});
       } else {
         await refreshUser();
         onDismiss();
       }
-      onDismiss();
     } catch (err) {
       console.error(err);
     }
@@ -152,38 +146,22 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
           alignSelf: "center",
           borderRadius: 16,
           backgroundColor: colors.surfaceBase,
-          borderWidth: 0,
           overflow: "hidden",
         }}
       >
-        <Dialog.ScrollArea
-          style={{
-            borderTopWidth: 0,
-            borderBottomWidth: 0,
-          }}
-        >
+        <Dialog.ScrollArea style={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
           <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 24 }}
+            contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}
-              onSubmit={(values) => {
-                sendProfile(values);
-                onDismiss();
-              }}
+              onSubmit={handleSubmitProfile}
             >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-              }) => (
+              {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
                 <>
+                  {/* Nombre */}
                   <Text style={styles.label}>Nombre</Text>
                   <TextInput
                     value={values.firstName}
@@ -192,11 +170,11 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     mode="outlined"
                     theme={{ roundness: 999 }}
                   />
-
                   {touched.firstName && errors.firstName && (
                     <Text style={styles.error}>{errors.firstName}</Text>
                   )}
 
+                  {/* Usuario */}
                   <Text style={styles.label}>Usuario</Text>
                   <TextInput
                     value={values.username}
@@ -209,10 +187,10 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     <Text style={styles.error}>{errors.username}</Text>
                   )}
                   <Text style={{ color: colors.brandPrimary, fontSize: 12 }}>
-                    * ¡Si cambias de nombre de usuario tendrás que volver a
-                    iniciar sesión!
+                    * Si cambias de usuario deberás volver a iniciar sesión
                   </Text>
 
+                  {/* Correo */}
                   <Text style={styles.label}>Correo</Text>
                   <TextInput
                     value={values.email}
@@ -226,6 +204,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     <Text style={styles.error}>{errors.email}</Text>
                   )}
 
+                  {/* Teléfono */}
                   <Text style={styles.label}>Teléfono</Text>
                   <TextInput
                     value={values.phoneNumber}
@@ -239,6 +218,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     <Text style={styles.error}>{errors.phoneNumber}</Text>
                   )}
 
+                  {/* Descripción */}
                   <Text style={styles.label}>Descripción</Text>
                   <TextInput
                     value={values.description}
@@ -253,72 +233,61 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     <Text style={styles.error}>{errors.description}</Text>
                   )}
 
+                  {/* Foto Perfil */}
                   <Text style={styles.label}>Foto de Perfil</Text>
                   <Image
                     source={
-                      imageProfile
-                        ? { uri: imageProfile }
+                      localImage
+                        ? { uri: localImage }
                         : user.imageProfile?.startsWith("data:image")
                         ? { uri: user.imageProfile }
                         : undefined
                     }
+                    style={{ width: 100, height: 100, borderRadius: 8, marginBottom: 8 }}
                   />
-
                   <Button
-                    icon={"camera"}
+                    icon="camera"
                     mode="contained"
                     onPress={() => pickImage(setFieldValue, "imageProfile")}
-                    labelStyle={{
-                      color: "#FFF",
-                      fontSize: 20,
-                    }}
-                    style={{ borderRadius: 10 }}
+                    labelStyle={{ color: "#FFF" }}
                     buttonColor={colors.brandSecondary}
                   >
                     Foto de perfil
                   </Button>
 
-                  {isArtist && (
+                  {/* Campos extra para artista */}
+                  {isArtist(user) && (
                     <>
                       <Text style={styles.label}>Redes Sociales</Text>
                       <TextInput
-                        value={values.linkToSocialMedia ?? ""}
+                        value={values.linkToSocialMedia}
                         onChangeText={handleChange("linkToSocialMedia")}
                         onBlur={handleBlur("linkToSocialMedia")}
                         mode="outlined"
+                        placeholder="https://instagram.com/usuario"
+                        autoCapitalize="none"
                         theme={{ roundness: 999 }}
                       />
-                      {touched.linkToSocialMedia &&
-                        errors.linkToSocialMedia && (
-                          <Text style={styles.error}>
-                            {errors.linkToSocialMedia}
-                          </Text>
-                        )}
+                      {touched.linkToSocialMedia && errors.linkToSocialMedia && (
+                        <Text style={styles.error}>{errors.linkToSocialMedia}</Text>
+                      )}
 
-                      <Text style={styles.label}>Tabla de Precios</Text>
+                      <Text style={styles.label}>Tabla de Comisiones</Text>
                       <Image
                         source={
-                          tableCommisionsPrice
-                            ? { uri: tableCommisionsPrice }
-                            : user.tableCommisionsPrice?.startsWith(
-                                "data:image"
-                              )
-                            ? { uri: user.tableCommisionsPrice }
+                          localTable
+                            ? { uri: localTable }
+                            : values.tableCommissionsPrice.startsWith("data:image")
+                            ? { uri: values.tableCommissionsPrice }
                             : undefined
                         }
+                        style={{ width: 100, height: 100, borderRadius: 8, marginBottom: 8 }}
                       />
-
                       <Button
-                        icon={"camera"}
+                        icon="camera"
                         mode="contained"
-                        onPress={() =>
-                          pickImage(setFieldValue, "tableCommisionsPrice")
-                        }
-                        labelStyle={{
-                          color: "#FFF",
-                          fontSize: 20,
-                        }}
-                        style={{ borderRadius: 10 }}
+                        onPress={() => pickImage(setFieldValue, "tableCommissionsPrice")}
+                        labelStyle={{ color: "#FFF" }}
                         buttonColor={colors.brandSecondary}
                       >
                         Tabla de comisiones
@@ -326,24 +295,17 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     </>
                   )}
 
+                  {/* Acciones */}
                   <Dialog.Actions style={{ marginTop: 20 }}>
                     <Button
-                      labelStyle={{
-                        color: "#FFF",
-                        fontSize: 20,
-                      }}
-                      style={{ borderRadius: 10 }}
+                      labelStyle={{ color: "#FFF" }}
                       buttonColor={colors.brandPrimary}
                       onPress={onDismiss}
                     >
                       Cancelar
                     </Button>
                     <Button
-                      labelStyle={{
-                        color: "#FFF",
-                        fontSize: 20,
-                      }}
-                      style={{ borderRadius: 10 }}
+                      labelStyle={{ color: "#FFF" }}
                       buttonColor={colors.brandSecondary}
                       onPress={() => handleSubmit()}
                     >
