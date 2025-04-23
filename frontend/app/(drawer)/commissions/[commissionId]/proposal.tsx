@@ -57,10 +57,16 @@ export default function CommissionDetailsScreen() {
   const handleAccept = async () => {
     if (!commission) return;
     try {
+      const numPayments = parseInt(totalPayments, 10);
+      if((numPayments <= 2 || numPayments > 10) && paymentArrangement === "MODERATOR") {
+        alert("El número de pagos debe ser mayor que 2 y menos o igual a 10");
+      }else{
       await toPay(commission.id, loggedInUser.token);
+      await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token)
       await refreshCommission();
       alert("Comisión aceptada");
-    } catch (err: any) {
+    } 
+  }catch (err: any) {
       setErrorMessage(err.message);
     }
   };
@@ -117,6 +123,7 @@ export default function CommissionDetailsScreen() {
         await refreshCommission();
         alert("Detalles de pago actualizados correctamente"); // Alerta de éxito
         setIsButtonDisabled(true);
+        setEditing(false);
       }
     } catch (error: any) {
       setErrorMessage(error.message);
@@ -172,13 +179,13 @@ export default function CommissionDetailsScreen() {
     const calculateAmountToPay = () => {
       switch (paymentArrangement) {
         case "INITIAL":
-          return `Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
+          return `Ha seleccionado ${paymentArrangement}. Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
         case "FINAL":
-          return `Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
+          return `Ha seleccionado ${paymentArrangement}. Tiene que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€`;
         case "FIFTYFIFTY":
-          return `Tiene que realizar 2 pagos de ${((parseFloat(newPrice|| "0") * 1.06) / 2).toFixed(2)}€ cada uno`;
+          return `Ha seleccionado ${paymentArrangement}. Tiene que realizar 2 pagos de ${((parseFloat(newPrice|| "0") * 1.06) / 2).toFixed(2)}€ cada uno`;
         case "MODERATOR":
-          return `Tiene que realizar ${totalPayments} pagos de ${((parseFloat(newPrice|| "0") * 1.06) / parseInt(totalPayments)).toFixed(2)}€ cada uno`;
+          return `Ha seleccionado ${paymentArrangement}. Tiene que realizar ${totalPayments} pagos de ${((parseFloat(newPrice|| "0") * 1.06) / parseInt(totalPayments)).toFixed(2)}€ cada uno`;
         default:
           return "";
       }
@@ -303,44 +310,13 @@ export default function CommissionDetailsScreen() {
                 style={{
                   color: colors.contentStrong,
                   fontStyle: "italic",
+                  marginBottom:10,
                 }}
               >
                 ¡Precio total con tarifa incluida!
               </Text>
-              {yourTurn && (
-                <View style={{ marginTop: 10 }}>
-                  {commission.status === StatusCommission.NOT_PAID_YET ? (
-                    <PayButton
-                      onPress={() =>
-                        router.push(`/commissions/${commission.id}/checkout`)
-                      }
-                    />
-                  ) : (
-                    <View style={{ flexDirection: "row", gap: 10 }}>
-                      <Button
-                        onPress={handleAccept}
-                        buttonColor={colors.contentStrong}
-                        textColor="white"
-                      >
-                        Aceptar
-                      </Button>
-                      <Button
-                        onPress={handleReject}
-                        buttonColor={colors.brandPrimary}
-                        textColor="white"
-                      >
-                        Rechazar
-                      </Button>
-                    </View>
-                  )}
-                </View>
-              )}
 
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
-          )}
-
-<View style={[styles.card, { alignItems: "center" }]}>
+              <View style={[styles.card, { alignItems: "center" }]}>
   <Text style={styles.label}>Selecciona el tipo de pago:</Text>
   <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
     Recuerda que una vez que guardes los cambios, no podrás volver a cambiar el número de pagos
@@ -425,54 +401,52 @@ export default function CommissionDetailsScreen() {
     />
   )}
 
-  {!yourTurn && isButtonDisabled && (
+  {/* Botón de guardar controlado por turnos */}
+  {yourTurn && !isButtonDisabled&&(
+    <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
+      Guardar cambios de pago
+    </Button>
+  )}
+  {yourTurn && isButtonDisabled && (
     <Text style={{ color: 'gray', marginTop: 10 }}>Los cambios han sido guardados, esperando respuesta de negociación</Text>
   )}
 
   <Text style={styles.description}>
     {calculateAmountToPay()}
   </Text>
-
-  {yourTurn && (
-  <>
-    {/* Solo aparece si ya hay una propuesta distinta guardada */}
-    {!editing && (
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Button
-          onPress={async () => {
-            await handleAccept();
-            await handleSavePaymentDetails();
-          }}
-          buttonColor={colors.contentStrong}
-          textColor="white"
-        >
-          Aceptar
-        </Button>
-        <Button
-          onPress={() => setEditing(true)}
-          buttonColor={colors.brandPrimary}
-          textColor="white"
-        >
-          Rechazar / Contraoferta
-        </Button>
-      </View>
-    )}
-
-    {/* Si el usuario decide hacer contraoferta, puede cambiar */}
-    {editing && (
-      <Button
-        onPress={handleSavePaymentDetails}
-        buttonColor={colors.brandPrimary}
-        textColor="white"
-      >
-        Guardar nueva propuesta
-      </Button>
-    )}
-  </>
-)}
 </View>
+              {yourTurn && (
+                <View style={{ marginTop: 10 }}>
+                  {commission.status === StatusCommission.NOT_PAID_YET ? (
+                    <PayButton
+                      onPress={() =>
+                        router.push(`/commissions/${commission.id}/checkout`)
+                      }
+                    />
+                  ) : (
+                    <View style={{ flexDirection: "row", gap: 10 }}>
+                      <Button
+                        onPress={handleAccept}
+                        buttonColor={colors.contentStrong}
+                        textColor="white"
+                      >
+                        Aceptar
+                      </Button>
+                      <Button
+                        onPress={handleReject}
+                        buttonColor={colors.brandPrimary}
+                        textColor="white"
+                      >
+                        Rechazar
+                      </Button>
+                    </View>
+                  )}
+                </View>
+              )}
 
-
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          )}
           {isClient ? (
             <View style={[styles.card, { gap: 20 }]}>
               <View>
