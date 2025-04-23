@@ -50,7 +50,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             fontFamily: "Montserrat-Bold",
           }}
         >
-          @{user?.username}
         </Text>
       </View>
 

@@ -1,5 +1,3 @@
-// frontend/app/(drawer)/profile/[username].tsx
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -8,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  useWindowDimensions,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -38,11 +38,13 @@ export default function ArtistDetailScreen() {
   const { loggedInUser } = useAuth();
   const { username } = useLocalSearchParams<{ username: string }>();
 
-  // Estado local renombrado para no chocar con el callback
-  const [artist, setArtistState] = useState<ArtistDTO | null>(null);
+  const [artist, setArtist] = useState<ArtistDTO | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const isCompact = Platform.OS === "web" ? width < 775 : false;
 
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("@/assets/fonts/Montserrat/Montserrat-Regular.ttf"),
@@ -53,7 +55,7 @@ export default function ArtistDetailScreen() {
     const fetchData = async () => {
       try {
         const artistData = await getArtistByUsername(username || "");
-        setArtistState(artistData);
+        setArtist(artistData);
         const worksData = await getWorksDoneByArtist(artistData.username);
         setWorks(worksData);
       } catch (error) {
@@ -103,19 +105,21 @@ export default function ArtistDetailScreen() {
         />
 
         {artist?.linkToSocialMedia && (
-          <TouchableOpacity
-            onPress={() => Linking.openURL(artist.linkToSocialMedia)}
-          >
-            <Text
-              style={{
-                color: "#3897f0",
-                fontSize: 16,
-                marginVertical: 8,
-              }}
-            >
-              @{extractInstaUser(artist.linkToSocialMedia)}
-            </Text>
-          </TouchableOpacity>
+          <View style={{ width: "100%", alignItems: "center" }}>
+            <TouchableOpacity onPress={() => Linking.openURL(artist.linkToSocialMedia)}>
+              <Text
+                style={{
+                  color: "#000000",
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  marginVertical: 8,
+                }}
+              >
+                @{extractInstaUser(artist.linkToSocialMedia)}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         <ActionButtons
@@ -162,18 +166,15 @@ export default function ArtistDetailScreen() {
           visible={showEditDialog}
           onDismiss={() => setShowEditDialog(false)}
           user={artist}
-          // Aquí adaptamos la firma: recibe BaseUserDTO|ArtistDTO, nosotros lanzamos ArtistDTO
-          setUser={(u) => setArtistState(u as ArtistDTO)}
+          setUser={(u) => setArtist(u as ArtistDTO)}
           token={loggedInUser?.token || ""}
-          refreshUser={() => {
+          refreshUser={async () => {
             setLoading(true);
-            return getArtistByUsername(username || "")
-              .then((ud) => {
-                setArtistState(ud);
-                return getWorksDoneByArtist(ud.username);
-              })
-              .then((w) => setWorks(w))
-              .finally(() => setLoading(false));
+            const ud = await getArtistByUsername(username || "");
+            setArtist(ud);
+            const w = await getWorksDoneByArtist(ud.username);
+            setWorks(w);
+            setLoading(false);
           }}
         />
       )}

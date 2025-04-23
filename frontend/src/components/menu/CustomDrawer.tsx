@@ -44,7 +44,6 @@ export default function CustomDrawer(props: CustomDrawerProps) {
             <Text style={{ fontWeight: "bold" }}>
               {user?.name ?? "Invitado"}
             </Text>
-            <Text>@{user?.username ?? "invitado"}</Text>
           </View>
         </TouchableOpacity>
       )}
