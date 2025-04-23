@@ -107,4 +107,70 @@ public class AuthControllerTest {
 
         verify(jwtUtils, times(1)).validateJwtToken("valid-token");
     }
+    @Test
+public void testAuthenticateUserUnexpectedError() throws Exception {
+    LoginRequest loginRequest = new LoginRequest();
+    loginRequest.setUsername("testuser");
+    loginRequest.setPassword("password");
+
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+            .thenThrow(new RuntimeException("Unexpected error"));
+
+    mockMvc.perform(post("/api/v1/auth/signin")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Fallo de autenticacion!"));
+
+    verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+}
+
+@Test
+public void testValidateTokenInvalid() throws Exception {
+    when(jwtUtils.validateJwtToken("invalid-token")).thenReturn(false);
+
+    mockMvc.perform(get("/api/v1/auth/validate")
+            .param("token", "invalid-token"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("false"));
+
+    verify(jwtUtils, times(1)).validateJwtToken("invalid-token");
+}
+@Test
+public void testAuthenticateUserInvalidRequest() throws Exception {
+    LoginRequest loginRequest = new LoginRequest();  // Usuario vacío, lo que debería ser inválido
+
+    mockMvc.perform(post("/api/v1/auth/signin")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isBadRequest());  // Debería responder con un error 400
+
+    verify(authenticationManager, times(0)).authenticate(any(UsernamePasswordAuthenticationToken.class));  // No debería llamarse al manager si la solicitud es inválida
+}
+@Test
+public void testAuthenticateUserSuccessFullJson() throws Exception {
+    LoginRequest loginRequest = new LoginRequest();
+    loginRequest.setUsername("testuser");
+    loginRequest.setPassword("password");
+
+    Authentication authentication = mock(Authentication.class);
+    UserDetailsImpl userDetails = new UserDetailsImpl(1L, "testuser", "password", List.of(() -> "ROLE_USER"));
+
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(jwtUtils.generateJwtToken(authentication)).thenReturn("test-jwt-token");
+
+    mockMvc.perform(post("/api/v1/auth/signin")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").value("test-jwt-token"))
+            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.roles[0]").value("ROLE_USER"))
+            .andExpect(jsonPath("$.id").value(1));  // Verificar que el ID del usuario esté en la respuesta
+
+    verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+}
+
+
 }

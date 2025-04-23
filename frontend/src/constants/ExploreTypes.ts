@@ -30,7 +30,7 @@ export interface ArtistDTO {
 
   imageProfile: string;
   numSlotsOfWork: number;
-  tableCommisionsPrice: string;
+  tableCommissionsPrice: string;
   description: string;
   linkToSocialMedia: string;
 }
