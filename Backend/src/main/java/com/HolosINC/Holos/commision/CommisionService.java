@@ -204,6 +204,7 @@ public class CommisionService {
                 if (commision.getStatus() == StatusCommision.REQUESTED ||
                         commision.getStatus() == StatusCommision.WAITING_ARTIST) {
                     commision.setStatus(StatusCommision.NOT_PAID_YET);
+                    commision.setAcceptedDateByArtist(new Date());
                 } else {
                     throw new IllegalStateException("No puedes aceptar el precio de esta comisión en su estado actual.");
                 }

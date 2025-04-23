@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 
@@ -43,7 +44,7 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
 
 
     // Buscar la comisión más antigua en IN_WAIT_LIST
-    Optional<Commision> findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision status);
+    Optional<Commision> findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision status, Artist artist);
 
     @Query("SELECT c.id FROM Commision c WHERE c.paymentIntentId = :paymentIntentId")
     Long findCommissionIdByPaymentIntentId(@Param("paymentIntentId") String paymentIntentId);

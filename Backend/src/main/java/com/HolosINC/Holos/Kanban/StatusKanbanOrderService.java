@@ -213,7 +213,7 @@ public class StatusKanbanOrderService {
 
                 // Buscar la comisión más antigua en IN_WAIT_LIST
                 Optional<Commision> oldestInWaitList = commisionRepository
-                        .findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST);
+                    .findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST, currentArtist);
 
                 // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
                 if (oldestInWaitList.isPresent()) {
@@ -221,6 +221,8 @@ public class StatusKanbanOrderService {
                     // No hace falta excepciones porque en otras validaciones ya se obliga a que este artista tenga al menos un statusKanban, al tener comisiones aceptadas
                     StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
                         .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
+                        System.out.println("Cambiando estado de comisión con ID " + oldestCommision.getId() +
+                       " de IN_WAIT_LIST a ACCEPTED");
                     oldestCommision.setStatus(StatusCommision.ACCEPTED);
                     oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
                     commisionRepository.save(oldestCommision);
