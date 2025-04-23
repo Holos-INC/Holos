@@ -60,14 +60,14 @@ export const updateUserArtist = async (
 
   formData.append("updateUser", JSON.stringify(restOfUser));
 
-  if (user.imageProfile.length && user.imageProfile.length > 0) {
-    const imageProfileData = base64ToFile(user.imageProfile, "image.png");
+  if (imageProfile && imageProfile.length > 0) {
+    const imageProfileData = base64ToFile(imageProfile, "image.png");
     formData.append("imageProfile", imageProfileData);
   }
 
-  if (!user.imageProfile.length && user.tableCommissionsPrice.length > 0) {
+  if (tableCommissionsPrice && tableCommissionsPrice.length > 0) {
     const tableCommissionsPriceData = base64ToFile(
-      user.tableCommissionsPrice,
+      tableCommissionsPrice,
       "image.png"
     );
     formData.append("tableCommissionsPrice", tableCommissionsPriceData);

@@ -72,6 +72,10 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width > 775;
   const styles = isDesktop ? desktopStyles : mobileStyles;
+  const [imageProfile, setImageProfile] = useState<string | null>(null);
+  const [tableCommissionsPrice, setTableCommisionsPrice] = useState<
+    string | null
+  >(null);
   const { signOut } = useContext(AuthenticationContext);
   const router = useRouter();
 
@@ -89,7 +93,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
     description: user.description ?? "",
     imageProfile: user.imageProfile ?? "",
     linkToSocialMedia: isArtist(user) ? user.linkToSocialMedia : "",
-    tableCommissionsPrice: isArtist(user) ? user.tableCommisionsPrice : "",  
+    tableCommissionsPrice: isArtist(user) ? user.tableCommissionsPrice : "",
   };
 
   const pickAndConvert = async (
@@ -125,7 +129,16 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
     setLocal(dataUri);
   };
 
-  const handleSubmitProfile = async (values: FormValues) => {
+  function isArtistUser(user: any): user is ArtistDTO {
+    return (
+      typeof user === "object" &&
+      "authorityName" in user &&
+      (user.authorityName === "ARTIST" ||
+        user.authorityName === "ARTIST_PREMIUM")
+    );
+  }
+
+  const handleSubmitProfile = async (values: any) => {
     try {
       const usernameChanged = values.username !== user.username;
 
@@ -262,7 +275,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     source={
                       localImage
                         ? { uri: localImage }
-                        : values.imageProfile.startsWith("data:image")
+                        : typeof values.imageProfile === "string" && values.imageProfile.startsWith("data:image")
                         ? { uri: values.imageProfile }
                         : undefined
                     }
@@ -313,7 +326,8 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                         source={
                           localTable
                             ? { uri: localTable }
-                            : values.tableCommissionsPrice.startsWith("data:image")
+                            : typeof values.tableCommissionsPrice === "string" &&
+                              values.tableCommissionsPrice.startsWith("data:image")
                             ? { uri: values.tableCommissionsPrice }
                             : undefined
                         }

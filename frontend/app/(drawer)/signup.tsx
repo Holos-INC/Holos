@@ -127,6 +127,10 @@ export default function SignupScreen() {
     }
 
     try {
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         body: formData,
@@ -274,7 +278,6 @@ export default function SignupScreen() {
         {(role === "artist" || role === "artist_premium") && (
           <>
             <View style={styles.formRow}>
-              {/* Slots de trabajo */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Slots de trabajo (1-8)</Text>
                 <TextInput
@@ -288,7 +291,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.formRow}>
-              {/* Precio del tablero de comisiones */}
+
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>
                   Precio del tablero de comisiones
