@@ -12,17 +12,22 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
-import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
-import styles from "@/src/styles/ArtistDetail.styles";
-import { Button } from "react-native-paper";
-import { useAuth } from "@/src/hooks/useAuth";
-import { getArtistByUsername } from "@/src/services/artistApi";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
 import ProfileHeader from "@/src/components/profile/ProfileHeader";
 import ActionButtons from "@/src/components/profile/ActionButtons";
 import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
+
+import { getUserByUsername } from "@/src/services/userApi";
+import { getArtistByUsername } from "@/src/services/artistApi";
+import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
+import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
+
+import { BaseUserDTO } from "@/src/constants/CommissionTypes";
+import { ArtistDTO } from "@/src/constants/ExploreTypes";
+
+import { Button } from "react-native-paper";
+import styles from "@/src/styles/ArtistDetail.styles";
+import { useAuth } from "@/src/hooks/useAuth";
 
 interface Artwork {
   id: number;
@@ -38,7 +43,7 @@ export default function ArtistDetailScreen() {
   const { loggedInUser } = useAuth();
   const { username } = useLocalSearchParams<{ username: string }>();
 
-  const [artist, setArtist] = useState<ArtistDTO | null>(null);
+  const [user, setUser] = useState<BaseUserDTO | ArtistDTO | null>(null);
   const [works, setWorks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -50,132 +55,156 @@ export default function ArtistDetailScreen() {
     "Montserrat-Regular": require("@/assets/fonts/Montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("@/assets/fonts/Montserrat/Montserrat-Bold.ttf"),
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const artistData = await getArtistByUsername(username || "");
-        setArtist(artistData);
-        const worksData = await getWorksDoneByArtist(artistData.username);
-        setWorks(worksData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [username]);
-
-  useEffect(() => {
-    if (username) {
-      navigation.setOptions({ title: username });
-    }
-  }, [navigation, username]);
-
-  if (!fontsLoaded || loading) {
-    return <LoadingScreen />;
-  }
-
-  const isCurrentUser = loggedInUser?.username === artist?.username;
-  const isPremium = loggedInUser?.roles.includes("ARTIST_PREMIUM") ?? false;
-
   const extractInstaUser = (url: string) => {
     const m = url.match(/instagram\.com\/([^\/?]+)/);
     return m ? m[1] : url;
   };
 
+  useEffect(() => {
+    if (username) {
+      navigation.setOptions({ title: username });
+      fetchData();
+    }
+  }, [username]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const baseUser: BaseUserDTO = await getUserByUsername(
+        username!,
+        loggedInUser?.token || ""
+      );
+      if (
+        baseUser.authorityName === "ARTIST" ||
+        baseUser.authorityName === "ARTIST_PREMIUM"
+      ) {
+        const artistData: ArtistDTO = await getArtistByUsername(
+          username!,
+        );
+        setUser(artistData);
+        const worksData = await getWorksDoneByArtist(artistData.username);
+        setWorks(worksData);
+      } else {
+        setUser(baseUser);
+        setWorks([]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!fontsLoaded || loading || !user) {
+    return <LoadingScreen />;
+  }
+
+  const isCurrentUser = loggedInUser?.username === user.username;
+  const isPremium =
+    "authorityName" in user && user.authorityName === "ARTIST_PREMIUM";
+
+
+  const isArtist = (u: BaseUserDTO | ArtistDTO): u is ArtistDTO =>
+    "tableCommisionsPrice" in u;
+
   return (
     <ScrollView style={styles.container}>
+      {/* Botón ATRÁS */}
       <Button
         onPress={() => router.push("/")}
-        icon={"arrow-left"}
+        icon="arrow-left"
         style={{ alignItems: "flex-start" }}
         labelStyle={{ color: "grey" }}
       >
         ATRÁS
       </Button>
 
+      {/* Header: foto, nombre, descripción y botón editar */}
       <View style={{ flex: 1, alignItems: "center", paddingVertical: 30 }}>
         <ProfileHeader
-          user={artist}
+          user={user}
           isCurrentUser={isCurrentUser}
           isPremium={isPremium}
           onEditPress={() => setShowEditDialog(true)}
         />
 
-        {artist?.linkToSocialMedia && (
-          <View style={{ width: "100%", alignItems: "center" }}>
-            <TouchableOpacity onPress={() => Linking.openURL(artist.linkToSocialMedia)}>
-              <Text
-                style={{
-                  color: "#000000",
-                  fontSize: 16,
-                  fontWeight: "bold",
-                  textAlign: "left",
-                  marginVertical: 8,
-                }}
-              >
-                @{extractInstaUser(artist.linkToSocialMedia)}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        {/* Enlace a redes sociales */}
+        {"linkToSocialMedia" in user && user.linkToSocialMedia && (
+          <TouchableOpacity
+            onPress={() => Linking.openURL(user.linkToSocialMedia)}
+            style={{
+              width: "100%",
+              alignItems: isCompact ? "center" : "flex-start",
+              marginVertical: 8,
+            }}
+          >
+            <Text
+              style={{
+                color: "#000",
+                fontWeight: "bold",
+                fontSize: 16,
+                textAlign: isCompact ? "center" : "left",
+              }}
+            >
+              @{extractInstaUser(user.linkToSocialMedia)}
+            </Text>
+          </TouchableOpacity>
         )}
 
+
+        {/* Botones secundarios (solicitar trabajo, stripe, etc.) */}
         <ActionButtons
-          isClient={false}
+          isClient={!("linkToSocialMedia" in user)}
           isCurrentUser={isCurrentUser}
-          username={artist?.username}
+          username={user.username}
         />
       </View>
 
+      {/* Divider */}
       <View style={styles.divider} />
 
-      <View style={styles.bottomContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.worksScrollContainer}
-        >
-          {works.map((work) => (
-            <TouchableOpacity
-              key={work.id}
-              style={styles.workItem}
-              onPress={() =>
-                router.push({
-                  pathname: "/work/[workId]",
-                  params: { workId: String(work.id) },
-                })
-              }
-            >
-              <Image
-                source={{ uri: decodeImagePath(work.image) }}
-                style={styles.workImage}
-              />
-              <View style={styles.workTextContainer}>
-                <Text style={styles.workTitle}>{work.name}</Text>
-                <Text style={styles.workArtist}>{work.artistName}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      {/* Obras horizontales (sólo artista) */}
+      {works.length > 0 && (
+        <View style={styles.bottomContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.worksScrollContainer}
+          >
+            {works.map((work) => (
+              <TouchableOpacity
+                key={work.id}
+                style={styles.workItem}
+                onPress={() =>
+                  router.push({
+                    pathname: "/work/[workId]",
+                    params: { workId: String(work.id) },
+                  })
+                }
+              >
+                <Image
+                  source={{ uri: decodeImagePath(work.image) }}
+                  style={styles.workImage}
+                />
+                <View style={styles.workTextContainer}>
+                  <Text style={styles.workTitle}>{work.name}</Text>
+                  <Text style={styles.workArtist}>{work.artistName}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
 
-      {artist && (
+      {/* Diálogo de edición */}
+      {user && (
         <ArtistProfileDialog
           visible={showEditDialog}
           onDismiss={() => setShowEditDialog(false)}
-          user={artist}
-          setUser={(u) => setArtist(u as ArtistDTO)}
+          user={user}
+          setUser={(u) => setUser(u)}
           token={loggedInUser?.token || ""}
-          refreshUser={async () => {
-            setLoading(true);
-            const ud = await getArtistByUsername(username || "");
-            setArtist(ud);
-            const w = await getWorksDoneByArtist(ud.username);
-            setWorks(w);
-            setLoading(false);
-          }}
+          refreshUser={fetchData}
         />
       )}
     </ScrollView>

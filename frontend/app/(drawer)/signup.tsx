@@ -1,5 +1,3 @@
-// frontend/app/signup.tsx
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -19,7 +17,6 @@ import colors from "@/src/constants/colors";
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
 
 export default function SignupScreen() {
-  // Estados compartidos
   const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,13 +28,9 @@ export default function SignupScreen() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const navigation = useNavigation();
   const router = useRouter();
-
-  // Estados específicos para artista
   const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
   const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
   const [linkToSocialMedia, setLinkToSocialMedia] = useState("");
-
-  // Validación en tiempo real: cuando cambie password o confirmPassword
   useEffect(() => {
     if (confirmPassword.length > 0 && password !== confirmPassword) {
       setPasswordError("Las contraseñas no coinciden");
@@ -75,7 +68,6 @@ export default function SignupScreen() {
   };
 
   const handleSignup = async () => {
-    // Validaciones
     if (!acceptTerms) {
       Alert.alert("Debes aceptar los Términos y Condiciones");
       return;
@@ -106,7 +98,6 @@ export default function SignupScreen() {
       return;
     }
 
-    // Construyo el payload incluyendo linkToSocialMedia si es artista
     const userPayload: any = {
       firstName,
       username,

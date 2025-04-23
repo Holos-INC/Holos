@@ -1,10 +1,17 @@
 import * as Yup from "yup";
 import { Formik } from "formik";
 import React, { useContext, useState } from "react";
-import { Text, Image, ScrollView, View } from "react-native";
+import {
+  Text,
+  Image,
+  ScrollView,
+  View,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import { Dialog, Portal, Button, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
-import { Platform, useWindowDimensions } from "react-native";
+import * as FileSystem from "expo-file-system";
 import colors from "@/src/constants/colors";
 import { artistUser } from "@/src/constants/user";
 import { ArtistDTO } from "@/src/constants/ExploreTypes";
@@ -24,11 +31,11 @@ interface ArtistProfileDialogProps {
   refreshUser: () => Promise<void>;
 }
 
-// Form values interface
+
 interface FormValues extends artistUser {
   linkToSocialMedia: string;
-  tableCommissionsPrice: string;
-}
+  tableCommissionsPrice: string; 
+  }
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string()
@@ -51,7 +58,7 @@ const validationSchema = Yup.object().shape({
   linkToSocialMedia: Yup.string()
     .url("Debe ser una URL válida (https://...)")
     .notRequired(),
-  tableCommissionsPrice: Yup.string().notRequired(),
+  tableCommisionsPrice: Yup.string().notRequired(),  // <-- updated
 });
 
 const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
@@ -68,15 +75,12 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const { signOut } = useContext(AuthenticationContext);
   const router = useRouter();
 
-  // Local URI state for preview
-  const [localImage, setLocalImage] = useState<string | null>(null);
-  const [localTable, setLocalTable] = useState<string | null>(null);
-
-  // Detect if user is artist by checking linkToSocialMedia property
   const isArtist = (u: BaseUserDTO | ArtistDTO): u is ArtistDTO =>
     (u as ArtistDTO).linkToSocialMedia !== undefined;
 
-  // Initial form values
+  const [localImage, setLocalImage] = useState<string | null>(null);
+  const [localTable, setLocalTable] = useState<string | null>(null);
+
   const initialValues: FormValues = {
     firstName: user.name,
     username: user.username,
@@ -85,13 +89,13 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
     description: user.description ?? "",
     imageProfile: user.imageProfile ?? "",
     linkToSocialMedia: isArtist(user) ? user.linkToSocialMedia : "",
-    tableCommissionsPrice: isArtist(user) ? user.tableCommisionsPrice : "",
+    tableCommissionsPrice: isArtist(user) ? user.tableCommisionsPrice : "",  
   };
 
-  // Image picker helper
-  const pickImage = async (
+  const pickAndConvert = async (
+    field: keyof FormValues,
     setFieldValue: (field: string, value: any) => void,
-    field: keyof FormValues
+    setLocal: React.Dispatch<React.SetStateAction<string | null>>
   ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -99,15 +103,28 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       aspect: [1, 1],
       quality: 1,
     });
-    if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setFieldValue(field, uri);
-      if (field === "imageProfile") setLocalImage(uri);
-      if (field === "tableCommissionsPrice") setLocalTable(uri);
+    if (result.canceled) return;
+    const uri = result.assets[0].uri;
+    let dataUri: string;
+    if (Platform.OS === "web") {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      dataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject("Conversion failed");
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } else {
+      const b64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      dataUri = `data:image/jpeg;base64,${b64}`;
     }
+    setFieldValue(field, dataUri);
+    setLocal(dataUri);
   };
 
-  // Submit handler
   const handleSubmitProfile = async (values: FormValues) => {
     try {
       const usernameChanged = values.username !== user.username;
@@ -115,12 +132,10 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       if (isArtist(user)) {
         await updateUserArtist(values, token);
       } else {
-        // strip artist-only fields
-        const { linkToSocialMedia, tableCommissionsPrice, ...clientVals } = values;
+        const { tableCommissionsPrice, ...clientVals } = values;  
         await updateUserClient(clientVals, token);
       }
 
-      // Update parent state
       setUser({ ...user, ...values });
 
       if (usernameChanged) {
@@ -159,7 +174,15 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
               validationSchema={validationSchema}
               onSubmit={handleSubmitProfile}
             >
-              {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+                setFieldValue,
+              }) => (
                 <>
                   {/* Nombre */}
                   <Text style={styles.label}>Nombre</Text>
@@ -233,22 +256,33 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                     <Text style={styles.error}>{errors.description}</Text>
                   )}
 
-                  {/* Foto Perfil */}
+                  {/* Foto de Perfil */}
                   <Text style={styles.label}>Foto de Perfil</Text>
                   <Image
                     source={
                       localImage
                         ? { uri: localImage }
-                        : user.imageProfile?.startsWith("data:image")
-                        ? { uri: user.imageProfile }
+                        : values.imageProfile.startsWith("data:image")
+                        ? { uri: values.imageProfile }
                         : undefined
                     }
-                    style={{ width: 100, height: 100, borderRadius: 8, marginBottom: 8 }}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 8,
+                      marginBottom: 8,
+                    }}
                   />
                   <Button
                     icon="camera"
                     mode="contained"
-                    onPress={() => pickImage(setFieldValue, "imageProfile")}
+                    onPress={() =>
+                      pickAndConvert(
+                        "imageProfile",
+                        setFieldValue,
+                        setLocalImage
+                      )
+                    }
                     labelStyle={{ color: "#FFF" }}
                     buttonColor={colors.brandSecondary}
                   >
@@ -269,7 +303,9 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                         theme={{ roundness: 999 }}
                       />
                       {touched.linkToSocialMedia && errors.linkToSocialMedia && (
-                        <Text style={styles.error}>{errors.linkToSocialMedia}</Text>
+                        <Text style={styles.error}>
+                          {errors.linkToSocialMedia}
+                        </Text>
                       )}
 
                       <Text style={styles.label}>Tabla de Comisiones</Text>
@@ -281,12 +317,23 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                             ? { uri: values.tableCommissionsPrice }
                             : undefined
                         }
-                        style={{ width: 100, height: 100, borderRadius: 8, marginBottom: 8 }}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          borderRadius: 8,
+                          marginBottom: 8,
+                        }}
                       />
                       <Button
                         icon="camera"
                         mode="contained"
-                        onPress={() => pickImage(setFieldValue, "tableCommissionsPrice")}
+                        onPress={() =>
+                          pickAndConvert(
+                            "tableCommissionsPrice",
+                            setFieldValue,
+                            setLocalTable
+                          )
+                        }
                         labelStyle={{ color: "#FFF" }}
                         buttonColor={colors.brandSecondary}
                       >
