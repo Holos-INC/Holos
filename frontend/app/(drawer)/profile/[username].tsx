@@ -130,26 +130,27 @@ export default function ArtistDetailScreen() {
 
         {/* Enlace a redes sociales */}
         {"linkToSocialMedia" in user && user.linkToSocialMedia && (
-          <TouchableOpacity
+        <TouchableOpacity
             onPress={() => Linking.openURL(user.linkToSocialMedia)}
             style={{
-              width: "100%",
-              alignItems: isCompact ? "center" : "flex-start",
-              marginVertical: 8,
+                width: "100%",
+                alignItems: "center",      
+                marginVertical: 8,
             }}
-          >
-            <Text
-              style={{
+        >
+          <Text
+            style={{
                 color: "#000",
                 fontWeight: "bold",
                 fontSize: 16,
-                textAlign: isCompact ? "center" : "left",
-              }}
-            >
-              @{extractInstaUser(user.linkToSocialMedia)}
-            </Text>
-          </TouchableOpacity>
+                textAlign: "center",    
+            }}
+        >
+        @{extractInstaUser(user.linkToSocialMedia)}
+          </Text>
+        </TouchableOpacity>
         )}
+
 
 
         {/* Botones secundarios (solicitar trabajo, stripe, etc.) */}
