@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
 
+/* -------------------------  MOBILE  ------------------------- */
 export const mobileStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
 
+  /* ---------- top ---------- */
   topSection: {
     flexDirection: "row",
     alignItems: "center",
@@ -17,7 +19,7 @@ export const mobileStyles = StyleSheet.create({
   topSectionText: {
     fontSize: 22,
     fontWeight: "600",
-    color: "#000000",
+    color: "#000",
     fontFamily: "Merriweather-Bold",
     paddingLeft: 26,
   },
@@ -32,6 +34,7 @@ export const mobileStyles = StyleSheet.create({
     paddingRight: 26,
   },
 
+  /* ---------- middle (obras) ---------- */
   middleSection: {
     paddingBottom: 16,
   },
@@ -76,6 +79,7 @@ export const mobileStyles = StyleSheet.create({
     color: "#777",
   },
 
+  /* ---------- bottom (artistas) ---------- */
   bottomSection: {
     paddingTop: 20,
     paddingBottom: 40,
@@ -100,7 +104,6 @@ export const mobileStyles = StyleSheet.create({
     paddingHorizontal: 50,
     marginVertical: 10,
   },
-
   artistCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -109,7 +112,6 @@ export const mobileStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },
-
   artistImage: {
     width: 80,
     height: 80,
@@ -117,32 +119,42 @@ export const mobileStyles = StyleSheet.create({
     marginRight: 16,
     backgroundColor: "#DDD",
   },
-
   artistTextContainer: {
     flex: 1,
     justifyContent: "center",
   },
-
   artistName: {
     fontFamily: "Merriweather-Regular",
     fontSize: 16,
     color: "#222",
     marginBottom: 2,
   },
-
   artistLocation: {
     fontFamily: "Merriweather-Italic",
     fontSize: 12,
     color: "#666",
   },
+
+  /* ---------- search bar ---------- */
+  searchBar: {
+    backgroundColor: "#F4F4F2",
+    padding: 10,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 16,
+  },
 });
 
+/* ------------------------  DESKTOP  ------------------------ */
 export const desktopStyles = StyleSheet.create({
+  /* --- reusable card (si se usa fuera de Explore) --- */
   cardWrapper: {
     width: 400,
     height: 300,
-    margin: 16,
-  },
+    margin: 16,
+  },
   cardContainer: {
     flex: 1,
     borderRadius: 12,
@@ -153,45 +165,38 @@ export const desktopStyles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-
   image: {
     width: "100%",
-    height: "70%",
-  },
+    height: "70%",
+  },
   textContainer: {
     padding: 10,
     flex: 1,
     justifyContent: "space-between",
   },
-
   title: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
-    color: "#333"
-  },  
+    color: "#333",
+  },
   description: {
     fontSize: 12,
     color: "#666",
   },
-  dropdownOverlay: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    zIndex: 10,
-  }, 
+
+  /* ---------- layout ---------- */
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-
   topSection: {
     height: "10%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 250,
-    marginTop: 50,
+    marginTop: 5,
   },
   topSectionText: {
     fontSize: 28,
@@ -208,9 +213,11 @@ export const desktopStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+
+  /* ---------- middle (obras) ---------- */
   middleSection: {
     height: "80%",
-    marginTop: 45,
+    marginTop: 5,
   },
   worksScrollContainer: {
     alignItems: "center",
@@ -230,7 +237,7 @@ export const desktopStyles = StyleSheet.create({
     resizeMode: "contain",
   },
   workTextContainer: {
-    marginBottom: 60,
+    marginBottom: 10,
   },
   workTitle: {
     fontSize: 16,
@@ -255,6 +262,7 @@ export const desktopStyles = StyleSheet.create({
     paddingHorizontal: 4,
   },
 
+  /* ---------- bottom (artistas) ---------- */
   bottomSection: {
     backgroundColor: "#F4F4F2",
     paddingVertical: 10,
@@ -277,11 +285,11 @@ export const desktopStyles = StyleSheet.create({
     color: "#333",
     fontFamily: "Merriweather-Regular",
   },
-  artistsScrollContainer: {
+  artistsContainer: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
   },
   artistCard: {
     width: 280,
@@ -309,25 +317,15 @@ export const desktopStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-  artistLocation: {
-    fontSize: 12,
-    fontStyle: "italic",
-    color: "#666",
-  },
 
-  artistsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
+  /* ---------- search bar ---------- */
   searchBar: {
     backgroundColor: "#F4F4F2",
-    padding: 10,
-    marginHorizontal: 16,
+    padding: 12,
+    marginHorizontal: 250,
     borderRadius: 8,
-    fontSize: 16,
+    fontSize: 18,
     color: "#333",
-    marginBottom: 16,
+    marginBottom: 24,
   },
 });
