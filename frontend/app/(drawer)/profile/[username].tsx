@@ -15,6 +15,7 @@ import ProfileHeader from "@/src/components/profile/ProfileHeader";
 import ActionButtons from "@/src/components/profile/ActionButtons";
 import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
 import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 interface Artwork {
   id: number;
@@ -79,6 +80,15 @@ export default function ArtistDetailScreen() {
     return <LoadingScreen />;
   }
 
+  const isBase64Path = (base64: string): boolean => {
+    try {
+      const decoded = atob(base64);
+      return decoded.startsWith("/images/");
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Button
@@ -124,9 +134,10 @@ export default function ArtistDetailScreen() {
               }
             >
               <Image
-                source={{ uri: decodeImagePath(work.image) }}
                 style={styles.workImage}
+                source={getImageSource(work.image)}
               />
+
               <View style={styles.workTextContainer}>
                 <Text style={styles.workTitle}>{work.name}</Text>
                 <Text style={styles.workArtist}>{work.artistName}</Text>

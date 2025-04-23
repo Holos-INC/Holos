@@ -16,42 +16,26 @@ import { useFonts } from "expo-font";
 import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
 import SearchScreen from "@/src/components/search/SearchScreen";
 import { useAuth } from "@/src/hooks/useAuth";
-
 import {
   fetchWorksAndTransform,
   getTopThreeArtists,
   ArtistMin,
 } from "@/src/services/ExploreWorkHelpers";
-
-// Re-exported from wherever you define your API root
-import { BASE_URL } from "@/src/constants/api";
-
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 export default function ExploreScreen() {
-  /* ---------- estado ---------- */
   const [works, setWorks] = useState<WorksDoneDTO[]>([]);
   const [topThreeArtists, setTopThreeArtists] = useState<ArtistMin[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  /* ---------- helpers ---------- */
   const { loggedInUser } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width > 768;
   const styles = isDesktop ? desktopStyles : mobileStyles;
 
-  const isBase64Path = (base64: string): boolean => {
-    try {
-      const decoded = atob(base64);
-      return decoded.startsWith("/images/");
-    } catch (e) {
-      return false;
-    }
-  };
-
-  /* ---------- fonts ---------- */
   const [fontsLoaded] = useFonts({
     "Merriweather-Regular": require("../../assets/fonts/Merriweather_24pt-Regular.ttf"),
     "Merriweather-Italic": require("../../assets/fonts/Merriweather_24pt-Italic.ttf"),
@@ -59,7 +43,6 @@ export default function ExploreScreen() {
     "Merriweather-BoldItalic": require("../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
   });
 
-  /* ---------- fetch data ---------- */
   useEffect(() => {
     (async () => {
       try {
@@ -84,31 +67,18 @@ export default function ExploreScreen() {
 
   if (!fontsLoaded) return null;
 
-  /* ---------- búsqueda ---------- */
   const handleSearchSubmit = () => {
     if (searchQuery.trim()) setIsSearching(true);
   };
 
   const closeSearch = () => setIsSearching(false);
 
-  /* ---------- helpers ---------- */
-  const buildImageSource = (raw: string) => ({
-    uri: isBase64Path(raw)
-      ? `${BASE_URL}${atob(raw)}` // path viene en base64 → decodificamos y pegamos la URL absoluta
-      : `data:image/jpeg;base64,${raw}`, // es la imagen completa en base64 → incrustamos directamente
-  });
-
-  /* ---------- render ---------- */
   return (
     <TouchableWithoutFeedback onPress={closeSearch}>
       <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
         <View style={styles.container}>
-          {/* barra de búsqueda */}
           <TextInput
-            style={[
-              styles.searchBar,
-              { marginTop: isDesktop ? 50 : 25 }, // coherencia con layout
-            ]}
+            style={[styles.searchBar, { marginTop: isDesktop ? 50 : 25 }]}
             placeholder="Buscar trabajos o artistas…"
             placeholderTextColor="#999"
             value={searchQuery}
@@ -121,7 +91,6 @@ export default function ExploreScreen() {
             <SearchScreen query={searchQuery} />
           ) : (
             <>
-              {/* sección superior */}
               <View style={styles.topSection}>
                 <Text style={styles.topSectionText}>Obras</Text>
                 <View style={styles.topSectionRight}>
@@ -135,7 +104,6 @@ export default function ExploreScreen() {
                 </View>
               </View>
 
-              {/* obras */}
               <View style={styles.middleSection}>
                 <ScrollView
                   horizontal
@@ -148,13 +116,13 @@ export default function ExploreScreen() {
                       style={styles.workItem}
                       onPress={() =>
                         router.push({
-                          pathname: "/work/[workId]", // dinámica → /work/123
+                          pathname: "/work/[workId]",
                           params: { workId: String(work.id) },
                         })
                       }
                     >
                       <Image
-                        source={buildImageSource(work.image)}
+                        source={getImageSource(work.image)}
                         style={styles.workImage}
                         onError={() =>
                           console.log("Error cargando imagen:", work.image)
@@ -172,7 +140,6 @@ export default function ExploreScreen() {
                 </ScrollView>
               </View>
 
-              {/* artistas */}
               <View style={styles.bottomSection}>
                 <View style={styles.bottomSectionHeader}>
                   <Text style={styles.bottomSectionHeaderText}>ARTISTAS</Text>
@@ -185,7 +152,7 @@ export default function ExploreScreen() {
                       onPress={() => router.push(`/profile/${artist.username}`)}
                     >
                       <Image
-                        source={buildImageSource(artist.imageProfile || "")}
+                        source={getImageSource(artist.imageProfile || "")}
                         style={styles.artistImage}
                         onError={() =>
                           console.log(
