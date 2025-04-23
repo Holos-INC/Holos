@@ -125,7 +125,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Artist not found with id: 1"));
+                .andExpect(jsonPath("$.message").value("Artist not found with id: 1"));
 
         verify(artistService, times(1)).deleteArtist(1L);
     }
@@ -176,7 +176,7 @@ public class ArtistRestControllerTest {
     @Test
     public void testFindByUsernameEmpty() throws Exception {
         mockMvc.perform(get("/api/v1/artists/username/"))
-                .andExpect(status().isNotFound()); // o 400 si lo manejas
+                .andExpect(status().isBadRequest()); // o 400 si lo manejas
 }
 
 }

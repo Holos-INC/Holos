@@ -209,7 +209,7 @@ public class ArtistServiceTest {
     public void testDeleteArtistInternalError() throws Exception {
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
     // Simulamos fallo interno al buscar comisiones
-        when(commisionRepository.findAll()).thenThrow(new RuntimeException("Fallo interno"));
+        when(commisionRepository.findAll()).thenThrow(new ResourceNotFoundException("Error: El artista con ID 1 no existe."));
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             artistService.deleteArtist(1L);

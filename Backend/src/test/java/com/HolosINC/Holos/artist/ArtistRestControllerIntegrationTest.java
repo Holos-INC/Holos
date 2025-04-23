@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.artist;
 
+import com.HolosINC.Holos.auth.payload.request.LoginRequest;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
 import com.HolosINC.Holos.model.BaseUserRepository;
@@ -10,11 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,13 +39,16 @@ public class ArtistRestControllerIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        artistRepository.deleteAll();
-        baseUserRepository.deleteAll();
-
+        Optional<Artist> existing = artistRepository.findByUsername("artistTest");
+        if(existing.isPresent()) {
+            artistRepository.delete(existing.get());
+            baseUserRepository.delete(existing.get().getBaseUser());
+        }
         BaseUser user = new BaseUser();
         user.setUsername("artistTest");
         user.setEmail("artist@test.com");
         user.setName("Test Artist");
+        user.setDescription("Integration test artist");
         baseUserRepository.save(user);
 
         Artist artist = new Artist();
@@ -65,7 +72,7 @@ public class ArtistRestControllerIntegrationTest {
     public void testFindByUsernameShouldReturnArtist() throws Exception {
         mockMvc.perform(get("/api/v1/artists/username/artistTest"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.baseUser.username").value("artistTest"))
+                .andExpect(jsonPath("$.username").value("artistTest"))
                 .andExpect(jsonPath("$.description").value("Integration test artist"));
     }
 
@@ -84,6 +91,7 @@ public class ArtistRestControllerIntegrationTest {
     }
 
     @Test
+    @WithUserDetails("artist1")
     public void testUpdateProfileShouldReturnUpdatedUser() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
