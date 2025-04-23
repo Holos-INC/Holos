@@ -20,7 +20,7 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.Keys;
 import java.time.Duration;
 
-public class CommissionEndToEndTests {
+public class CreateAndAcceptCommissionTests {
   private WebDriver driver;
   JavascriptExecutor js;
   @Before
@@ -35,7 +35,7 @@ public class CommissionEndToEndTests {
     driver.quit();
   }
   @Test
-  public void CommissionEndToEndTest() {
+  public void CreateAndAcceptCommissionTest() {
     driver.get("http://localhost:8081/");
     driver.manage().window().setSize(new Dimension(1936, 1056));
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
