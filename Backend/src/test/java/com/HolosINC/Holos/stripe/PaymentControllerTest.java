@@ -192,5 +192,34 @@ public class PaymentControllerTest {
 
         verify(paymentService, times(1)).createPayment(any(PaymentDTO.class), eq(1L));  
     }
+    @Test
+public void testCreatePaymentAndUpdateCommissionStatus() throws Exception {
+    // Simula la creación de un pago exitoso
+    when(paymentService.createPayment(any(PaymentDTO.class), eq(1L))).thenReturn("pi_123");
+    
+    // Ejecuta la llamada al API para crear el pago
+    mockMvc.perform(post("/api/v1/payment/create/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(paymentDTO)))
+            .andExpect(status().isOk())
+            .andExpect(content().string("pi_123"));
+    
+    // Verifica que el estado de la comisión haya sido actualizado
+    verify(commisionRepository, times(1)).save(any(Commision.class));
+}
+@Test
+public void testCreatePaymentWithInvalidAmount() throws Exception {
+    // Modifica el DTO para tener un monto negativo
+    paymentDTO.setAmount(-1000L); // monto inválido
+    
+    mockMvc.perform(post("/api/v1/payment/create/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(paymentDTO)))
+            .andExpect(status().isBadRequest())  // Debería devolver un error de "Bad Request"
+            .andExpect(content().string("Invalid payment amount"));
+
+    verify(paymentService, times(0)).createPayment(any(PaymentDTO.class), eq(1L)); // No debe llamar a createPayment
+}
+
 }
 

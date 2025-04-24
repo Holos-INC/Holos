@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
@@ -95,4 +96,26 @@ public class StripeWebhookServiceTest {
 
         stripeWebhookService.handleSubscriptionCreated(subscriptionId);
     }
+    @Test(expected = ResourceNotFoundException.class)
+public void testHandleSubscriptionDeletedArtistNotFound() {
+    String subscriptionId = "sub_12345";
+
+    // Simulamos que no se encuentra el artista con el subscriptionId proporcionado
+    when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.empty());
+
+    stripeWebhookService.handleSubscriptionDeleted(subscriptionId);
+}
+@Test(expected = ResourceNotFoundException.class)
+public void testHandleSubscriptionCreatedAuthorityMismatch() {
+    String subscriptionId = "sub_67890";
+    Artist artist = new Artist();
+    artist.setSubscriptionId(subscriptionId);
+
+    // Simulamos que se encuentra el artista, pero el usuario no tiene la autoridad correcta
+    when(artistRepository.findBySubscriptionId(subscriptionId)).thenReturn(Optional.of(artist));
+    when(authoritiesRepository.findByName("ARTIST")).thenReturn(Optional.empty()); // Simulamos que la autoridad ARTIST no existe
+
+    stripeWebhookService.handleSubscriptionCreated(subscriptionId);
+}
+
 }

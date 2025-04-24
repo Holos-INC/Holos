@@ -24,6 +24,7 @@ import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.stripe.exception.ApiException;
 import com.stripe.model.Customer;
 import com.stripe.model.Subscription;
 import com.stripe.param.CustomerCreateParams;
@@ -156,4 +157,38 @@ public class PremiumSubscriptionServiceTest {
             assertEquals("Artist not found with userId: 1", e.getMessage());
         }
     }
+    @Test
+public void testCreateSubscriptionWithNullPaymentMethod() throws Exception {
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+    when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(java.util.Optional.of(artist));
+
+    String paymentMethod = null; // Método de pago nulo
+
+    Exception exception = assertThrows(BadRequestException.class, () -> {
+        premiumSubscriptionService.createSubscription(paymentMethod);
+    });
+
+    assertEquals("El método de pago no puede ser nulo", exception.getMessage());
+}
+@Test
+public void testCreateSubscriptionWithStripeException() throws Exception {
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+    when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(java.util.Optional.of(artist));
+
+    String paymentMethod = "pm_123";
+
+    ApiException stripeException = new ApiException("Stripe API is down", null, null, 500, null);
+
+    try (MockedStatic<Customer> customerMock = mockStatic(Customer.class)) {
+        customerMock.when(() -> Customer.create(Mockito.any(CustomerCreateParams.class)))
+                .thenThrow(stripeException);
+
+        Exception exception = assertThrows(ApiException.class, () -> {
+            premiumSubscriptionService.createSubscription(paymentMethod);
+        });
+
+        assertEquals("Stripe API is down", exception.getMessage());
+    }
+}
+
 }

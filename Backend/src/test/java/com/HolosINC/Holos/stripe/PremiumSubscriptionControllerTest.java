@@ -123,5 +123,27 @@ public class PremiumSubscriptionControllerTest {
 
             verify(stripeService, times(1)).cancelSubscription();
     }
+    @Test
+public void testCreateSubscriptionWithoutPaymentMethod() throws Exception {
+    mockMvc.perform(post("/api/v1/stripe-subsciption/create"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Payment method is required"));
+
+    verify(stripeService, times(0)).createSubscription(any(String.class));
+}
+
+
+@Test
+public void testCreateSubscriptionWithValidPaymentMethod() throws Exception {
+    when(stripeService.createSubscription(any(String.class))).thenReturn("sub_123");
+
+    mockMvc.perform(post("/api/v1/stripe-subsciption/create")
+            .param("paymentMethod", "pm_123"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("sub_123"));
+
+    verify(stripeService, times(1)).createSubscription(any(String.class));
+}
+
 }
 

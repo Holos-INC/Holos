@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.stripe;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,8 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/stripe-webhook")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Stripe Webhook Controller", description = "API for handling Stripe webhook events")
 public class StripeWebhookController {
 
     private final StripeWebhookService stripeWebhookService;
@@ -29,6 +34,8 @@ public class StripeWebhookController {
     }
 
     @PostMapping
+    @Operation(summary = "Handle Stripe webhook events",
+               description = "Processes incoming Stripe webhook events like subscription created, deleted, and payment failed.")
     public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload,
                                                       @RequestHeader("Stripe-Signature") String signature) {
         try {

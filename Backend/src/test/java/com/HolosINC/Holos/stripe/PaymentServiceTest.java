@@ -3,7 +3,7 @@ package com.HolosINC.Holos.stripe;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -281,5 +281,53 @@ public class PaymentServiceTest {
             paymentIntentMock.verify(() -> PaymentIntent.create(Mockito.any(PaymentIntentCreateParams.class)));
         }
     }    
+    @Test
+void testCreatePaymentWithNullAmount() {
+    when(commisionRepository.findById(1L)).thenReturn(Optional.of(commision));
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+
+    PaymentDTO paymentDTO = new PaymentDTO();
+    paymentDTO.setAmount(null); // Monto nulo
+    paymentDTO.setDescription(commision.getDescription());
+
+    try (MockedStatic<PaymentIntent> paymentIntentMock = mockStatic(PaymentIntent.class)) {
+        paymentIntentMock
+            .when(() -> PaymentIntent.create(Mockito.any(PaymentIntentCreateParams.class)))
+            .thenThrow(new BadRequestException("La cantidad del pago no puede ser nula"));
+
+        BadRequestException exception = assertThrows(
+            BadRequestException.class,
+            () -> paymentService.createPayment(paymentDTO, 1L)
+        );
+
+        assertEquals("La cantidad del pago no puede ser nula", exception.getMessage());
+        paymentIntentMock.verify(() -> PaymentIntent.create(Mockito.any(PaymentIntentCreateParams.class)), times(0));
+    }
+}
+
+@Test
+void testCreatePaymentWithValidCommission() throws Exception {
+    when(commisionRepository.findById(1L)).thenReturn(Optional.of(commision));
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+
+    PaymentDTO paymentDTO = new PaymentDTO();
+    paymentDTO.setAmount(1000L);  // Monto válido
+    paymentDTO.setDescription(commision.getDescription());
+
+    try (MockedStatic<PaymentIntent> paymentIntentMock = mockStatic(PaymentIntent.class)) {
+        PaymentIntent mockPaymentIntent = mock(PaymentIntent.class);
+        when(mockPaymentIntent.getClientSecret()).thenReturn("secret");
+
+        paymentIntentMock
+            .when(() -> PaymentIntent.create(Mockito.any(PaymentIntentCreateParams.class)))
+            .thenReturn(mockPaymentIntent); // Simula el comportamiento exitoso de Stripe
+
+        String clientSecret = paymentService.createPayment(paymentDTO, 1L);
+
+        assertEquals("secret", clientSecret);  // Verifica que el cliente recibe el "client secret"
+        verify(commisionRepository, times(1)).save(commision);  // Verifica que la comisión fue guardada
+    }
+}
+
 
 }

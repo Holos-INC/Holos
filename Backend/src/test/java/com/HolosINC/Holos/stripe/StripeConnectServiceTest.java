@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -212,5 +213,36 @@ public class StripeConnectServiceTest {
             mockedAccountLink.verify(() -> AccountLink.create(any(AccountLinkCreateParams.class)));
         }
     }
+
+    @Test
+void testCreateAccountLinkBaseUserNotFound() {
+    when(userService.findCurrentUser()).thenReturn(null); // Simulamos que no se encuentra un BaseUser
+
+    assertThrows(ResourceNotFoundException.class, () -> {
+        stripeConnectService.createAccountLink();
+    });
+
+    verify(artistRepository, never()).findArtistByUser(anyLong()); // No se debe intentar buscar el artista si no hay usuario
+}
+@Test
+void testCreateConnectedAccountWithInvalidParams() throws StripeException {
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+    when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
+
+    assertNull(artist.getSellerAccountId());
+
+    try (MockedStatic<Account> mockedAccount = mockStatic(Account.class)) {
+        mockedAccount.when(() -> Account.create(Mockito.any(AccountCreateParams.class)))
+                .thenThrow(new ApiException("Invalid parameters provided", null, null, 400, null));
+
+        StripeException exception = assertThrows(
+            StripeException.class,
+            () -> stripeConnectService.createConnectedAccount()
+        );
+
+        assertEquals("Invalid parameters provided", exception.getMessage());
+        mockedAccount.verify(() -> Account.create(Mockito.any(AccountCreateParams.class)));
+    }
+}
 }
 

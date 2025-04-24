@@ -182,4 +182,34 @@ public class StripeConnectControllerTest {
         verify(stripeConnectService, times(1)).createAccountLink();
     }
 
+    @Test
+public void testCreateAccountLinkWhenArtistIsNull() throws Exception {
+    // Configuración: No hay artista asociado al usuario
+    when(userService.findCurrentUser()).thenReturn(baseUser);
+    when(artistRepository.findArtistByUser(baseUser.getId())).thenReturn(Optional.empty());
+
+    // Ejecutamos la solicitud y esperamos que lance una excepción de recurso no encontrado
+    mockMvc.perform(get("/api/v1/stripe-account/create-link"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("No artist found"));
+
+    // Verificamos que el servicio haya intentado crear el enlace
+    verify(stripeConnectService, times(1)).createAccountLink();
+}
+@Test
+public void testCreateAccountLinkWhenStripeFails() throws Exception {
+    // Simulamos una excepción de Stripe al crear el enlace
+    ApiException stripeException = new ApiException("Stripe API is down", null, null, 500, null);
+    
+    when(stripeConnectService.createAccountLink()).thenThrow(stripeException);
+
+    // Ejecutamos la solicitud y verificamos que el error de Stripe es manejado
+    mockMvc.perform(get("/api/v1/stripe-account/create-link"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Stripe API is down"));
+
+    // Verificamos que el servicio haya sido llamado una vez
+    verify(stripeConnectService, times(1)).createAccountLink();
+}
+
 }

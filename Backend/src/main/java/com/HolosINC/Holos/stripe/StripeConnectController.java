@@ -1,9 +1,8 @@
 package com.HolosINC.Holos.stripe;
 
-
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,19 +25,22 @@ public class StripeConnectController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "Create a connected Stripe account",
+               description = "Creates a connected Stripe account and returns the account ID.")
     public ResponseEntity<String> createConnectedAccount(){
         try{
             String accountId = stripeConnectService.createConnectedAccount();
-        return new ResponseEntity<String>(accountId, HttpStatus.OK);
+            return new ResponseEntity<String>(accountId, HttpStatus.OK);
         } catch (StripeException e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        
     }
 
     @GetMapping("/create-link")
+    @Operation(summary = "Create account link for Stripe connected account",
+               description = "Generates a Stripe account link for the connected account to complete the onboarding process.")
     public ResponseEntity<String> createAccountLink() throws StripeException{
         try{
             String accountLinkUrl = stripeConnectService.createAccountLink();
@@ -49,5 +51,4 @@ public class StripeConnectController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
 }
