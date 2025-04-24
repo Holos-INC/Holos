@@ -501,4 +501,82 @@ public class WorksDoneRestControllerTest {
                                 .andExpect(status().isOk())
                                 .andExpect(content().string("true"));
         }
+        @Test
+public void testUpdateWorksDone_Forbidden_AccessDenied() throws Exception {
+    // Escenario: El usuario no es el propietario de la obra, por lo que se deniega la actualización
+    WorksDone existingWork = new WorksDone();
+    Artist otherArtist = new Artist();
+    otherArtist.setId(99L);
+    existingWork.setId(1L);
+    existingWork.setArtist(otherArtist);
+
+    when(worksDoneService.getWorksDoneById(1L)).thenReturn(existingWork);
+    when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+    when(baseUserService.findArtist(10L)).thenReturn(artist);
+
+    WorksDoneDTO dto = new WorksDoneDTO();
+    dto.setName("Obra Modificada");
+    String dtoJson = objectMapper.writeValueAsString(dto);
+
+    MockMultipartFile workPart = new MockMultipartFile(
+            "work", 
+            "update.json", 
+            "application/json", 
+            dtoJson.getBytes());
+
+    mockMvc.perform(multipart("/api/v1/worksdone/artist/10/1")
+            .file(workPart)
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .with(request -> {
+                request.setMethod("PUT");
+                return request;
+            }))
+            .andExpect(status().isForbidden()); // El acceso está prohibido
+
+    verify(worksDoneService, never()).updateWorksDone(any(WorksDone.class), anyLong(), anyLong());
+}
+@Test
+public void testCanUserUploadWork_False_LimitReached() throws Exception {
+    // Escenario: usuario no premium con 7 obras => no puede subir más
+    when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+    when(baseUserService.findArtist(10L)).thenReturn(artist);
+    when(worksDoneService.countByArtistId(10L)).thenReturn(7L); // Ya tiene 7 obras
+
+    mockMvc.perform(get("/api/v1/worksdone/can-upload"))
+            .andExpect(status().isOk()) // Se espera OK
+            .andExpect(content().string("false")); // No puede subir más obras
+
+    verify(worksDoneService, times(1)).countByArtistId(10L);
+}
+@Test
+public void testCreateWorksDone_Success_NoImage() throws Exception {
+    // Prepara el usuario y artista
+    artist.getBaseUser().setId(10L);
+    when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+    when(baseUserService.findArtist(10L)).thenReturn(artist);
+
+    // Simulamos la devolución del servicio
+    when(worksDoneService.createWorksDone(any(WorksDone.class))).thenReturn(worksDone);
+
+    // JSON para la parte "work"
+    WorksDoneDTO dto = new WorksDoneDTO();
+    dto.setName("Obra sin imagen");
+
+    String dtoJson = objectMapper.writeValueAsString(dto);
+    MockMultipartFile workPart = new MockMultipartFile(
+            "work",
+            "work.json",
+            "application/json",
+            dtoJson.getBytes());
+
+    mockMvc.perform(multipart("/api/v1/worksdone")
+            .file(workPart)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isOk()) // Se espera 200 OK
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.name").value("Obra de Prueba"));
+
+    verify(worksDoneService, times(1)).createWorksDone(any(WorksDone.class));
+}
+
 }

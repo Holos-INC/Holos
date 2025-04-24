@@ -6,6 +6,7 @@ import com.HolosINC.Holos.auth.payload.response.MessageResponse;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.RestPreconditions;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,6 +40,7 @@ public class WorksDoneController {
     }
 
     @PostMapping(consumes = { "multipart/form-data" })
+    @Operation(summary = "Create a new work done", description = "Creates a new work done by an artist with an optional image upload.")
     public ResponseEntity<?> createWorksDone(
             @RequestPart("work") String workJson,
             @RequestPart("image") MultipartFile imageFile) {
@@ -59,8 +61,8 @@ public class WorksDoneController {
         }
     }
 
-
     @GetMapping
+    @Operation(summary = "Get all works done", description = "Retrieve a list of all works done.")
     public ResponseEntity<List<WorksDoneDTO>> getAllWorksDone() {
         try {
             List<WorksDoneDTO> worksDoneDTOs = worksDoneService.getAllWorksDone()
@@ -84,6 +86,7 @@ public class WorksDoneController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get works done by ID", description = "Retrieve a specific work done by its ID.")
     public ResponseEntity<WorksDoneDTO> getWorksDoneById(@PathVariable Long id) {
         try {
             WorksDone worksDone = worksDoneService.getWorksDoneById(id);
@@ -105,6 +108,7 @@ public class WorksDoneController {
     }
 
     @GetMapping("/artist/{username}")
+    @Operation(summary = "Get works done by artist username", description = "Retrieve all works done by a specific artist identified by their username.")
     public ResponseEntity<List<WorksDoneDTO>> getWorksDoneByArtist(@PathVariable String username) {
         try {
             Artist artist = artistService.findArtistByUsername(username);
@@ -128,6 +132,7 @@ public class WorksDoneController {
     }
 
     @PutMapping(value = "/artist/{artistId}/{worksDoneId}")
+    @Operation(summary = "Update a work done", description = "Update an existing work done by an artist, using the work's ID.")
     public ResponseEntity<WorksDone> updateWorksDone(@PathVariable("worksDoneId") Long worksDoneId, 
         @PathVariable("artistId") Long artistId,
             @RequestBody @Valid WorksDone worksDone) {
@@ -139,8 +144,9 @@ public class WorksDoneController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+
     @GetMapping("/mostPublicationsArtists")
+    @Operation(summary = "Get artists with most publications", description = "Retrieve a list of artists with the most works published.")
     public ResponseEntity<List<Artist>> getMostPublicationsArtists() {
         try {
             List<Artist> artists = worksDoneService.getMostPublicationsArtists();
@@ -151,6 +157,7 @@ public class WorksDoneController {
     }
 
     @GetMapping("/artist/id/{artistId}")
+    @Operation(summary = "Get works done by artist ID", description = "Retrieve all works done by a specific artist identified by their ID.")
     public ResponseEntity<?> getWorksDoneByArtistId(@PathVariable Long artistId) {
         try{
             Artist artist = artistService.findArtist(artistId);
@@ -162,6 +169,7 @@ public class WorksDoneController {
     }
 
     @PutMapping(value = "/artist/{artistId}/{worksDoneId}", consumes = { "multipart/form-data" })
+    @Operation(summary = "Update work done with image", description = "Update a work done with an optional image upload.")
     public ResponseEntity<?> updateWorksDone(
             @PathVariable("artistId") Long artistId,
             @PathVariable("worksDoneId") Long worksDoneId,
@@ -195,6 +203,7 @@ public class WorksDoneController {
     }
 
     @GetMapping("/can-upload")
+    @Operation(summary = "Check if the user can upload work", description = "Checks if the current user can upload a new work done based on their premium status or works count.")
     public ResponseEntity<Boolean> canUserUploadWork() {
         Long currentUserId = baseUserService.findCurrentUser().getId();
         Artist artist = baseUserService.findArtist(currentUserId);

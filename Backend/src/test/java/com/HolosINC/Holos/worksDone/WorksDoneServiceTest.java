@@ -279,4 +279,41 @@ public class WorksDoneServiceTest {
         assertEquals(5L, count);
         verify(worksDoneRepository, times(1)).countByArtistId(10L);
     }
+    @Test
+public void testCreateWorksDone_DatabaseError() throws Exception {
+    // Preparamos una obra con una imagen válida
+    worksDone.setImage("dummy image content".getBytes());
+
+    when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+    when(baseUserService.findArtist(10L)).thenReturn(artist);
+    when(worksDoneRepository.countByArtistId(10L)).thenReturn(0L);
+    
+    // Simulamos un error en la base de datos
+    when(worksDoneRepository.save(any(WorksDone.class))).thenThrow(new DataAccessException("Database error") {});
+
+    // Verificamos que se lanza una excepción cuando ocurre un error en la base de datos
+    assertThrows(DataAccessException.class, () -> {
+        worksDoneService.createWorksDone(worksDone);
+    });
+
+    verify(worksDoneRepository, times(1)).save(worksDone);
+}
+@Test
+public void testGetWorksDoneByArtist_NoWorksFound() {
+    // Preparamos el artista
+    Artist artist = new Artist();
+    artist.setId(10L);
+    
+    // Simulamos que no hay obras para el artista
+    when(worksDoneRepository.findAll()).thenReturn(new ArrayList<>());
+
+    List<WorksDone> result = worksDoneService.getWorksDoneByArtist(artist);
+
+    // Verificamos que el resultado esté vacío
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+
+    verify(worksDoneRepository, times(1)).findAll();
+}
+
 }
