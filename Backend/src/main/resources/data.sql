@@ -507,8 +507,8 @@ INSERT INTO report_types (id, type) VALUES
 
 
 INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) VALUES 
-(1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 2, 1, 1),
-(2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 4, 2, 2),
-(3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 6, 3, 3),
-(4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 7, 4, 4),
-(5, 'Spam Content', 'The artwork description contains promotional links.', 'REJECTED', 8, 9, 2, 1);
+(1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 23, 200, 1),
+(2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 24, 201, 2),
+(3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 25, 202, 3),
+(4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 26, 203, 4),
+(5, 'Spam Content', 'The artwork description contains promotional links.', 'PENDING', 8, 27, 204, 1);

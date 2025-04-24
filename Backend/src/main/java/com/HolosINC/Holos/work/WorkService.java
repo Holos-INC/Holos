@@ -29,4 +29,9 @@ public class WorkService {
         return workRepository.findAll().stream().filter(work -> work.getArtist().equals(artist))
                 .collect(Collectors.toList());
     }
+
+    public void deleteWork(Long id) throws Exception{
+        Work work = getWorkById(id);
+        workRepository.delete(work);
+    }
 }

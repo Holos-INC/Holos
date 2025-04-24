@@ -1,50 +1,61 @@
-import React, { useState } from "react";
 import { View, Text, TouchableOpacity,  } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import stylesReport from "@/src/styles/ReportButton.styles";
-
+import { DropdownMenu } from "../DropdownMenu";
+import { useAuth } from "@/src/hooks/useAuth";
+import { deleteWorksDone } from "@/src/services/WorksDoneApi";
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 
 
   interface ReportDropdownProps {
-    workId: number;
+    work: WorksDoneDTO;
     menuVisibleId: number | null; 
     setMenuVisibleId: (id: number | null) => void; 
     isBigScreen: boolean | null;
   }
 
-const ReportDropdown: React.FC<ReportDropdownProps> = ({ workId, menuVisibleId, setMenuVisibleId, isBigScreen }) => {
-    const router = useRouter();
+const ReportDropdown: React.FC<ReportDropdownProps> = ({ work, menuVisibleId, setMenuVisibleId, isBigScreen }) => {
+  const { isArtist, isAdmin, loggedInUser } = useAuth();
+  const router = useRouter();    
 
-    const showDropDownReport = (workId: number) => {
-        setMenuVisibleId(menuVisibleId === workId ? null : workId); // Activa o desactiva el menú solo en la imagen clickeada
+    const showDropDownReport = (work: WorksDoneDTO) => {
+        setMenuVisibleId(menuVisibleId === work.id ? null : work.id); // Activa o desactiva el menú solo en la imagen clickeada
       };
-  
+
     return (
-         <View>
-            <TouchableOpacity onPress={(e) => {
-            e.stopPropagation(); // Evita que el toque cierre el menú
-            showDropDownReport(workId);}}
-            style={ isBigScreen === true ? stylesReport.menuButtonBigScreen:  stylesReport.menuButton } >
-              <Ionicons name="ellipsis-vertical" size={24} color="gray" />
-   
-                      </TouchableOpacity>
-    
-                      {/* Menú desplegable*/}
-                      {menuVisibleId === workId && (
-                        <View style={stylesReport.menu}>
-                          <TouchableOpacity
-                            onPress={() => {
-                              setMenuVisibleId(null);
-                              router.push({ pathname: "/report/[reportId]", params: { reportId: String(workId) } }); // Navega a la pantalla de reporte
-                            }}
-                            style={stylesReport.menuItem}
-                          >
-                            <Text style={stylesReport.menuItemText}>Reportar</Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-    </View>
+        <View>
+            <TouchableOpacity>
+            {
+              (!isArtist || work.baseUserId != loggedInUser.id) && 
+              <DropdownMenu
+              actions={[
+              {
+                label: 'Reportar',
+                onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
+              }
+              ]}
+              />
+              }
+              {
+              ((isAdmin || (isArtist && work.baseUserId == loggedInUser.id))) && 
+              <DropdownMenu
+              actions={[
+              {
+                label: 'Eliminar',
+                onPress: async () => {
+                try {
+                await deleteWorksDone(work.id);
+                console.log("Obra eliminada exitosamente");
+                router.back();
+                } catch (error) {
+                console.error("Error al eliminar la obra:", error);
+                }
+                },
+              }
+              ]}
+              />
+            }
+            </TouchableOpacity>
+         </View>
     );
   };
 

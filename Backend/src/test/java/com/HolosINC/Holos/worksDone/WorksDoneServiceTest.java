@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import org.springframework.dao.DataAccessException;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -275,5 +276,17 @@ public class WorksDoneServiceTest {
 
         assertEquals(5L, count);
         verify(worksDoneRepository, times(1)).countByArtistId(10L);
+    }
+
+    @Test
+    public void testDeleteWorksDone_Success() throws Exception {
+        worksDone.setArtist(artist);
+
+        when(worksDoneRepository.findById(1L)).thenReturn(Optional.of(worksDone));
+        when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+
+        worksDoneService.deleteWorksDone(1L);
+
+        verify(worksDoneRepository, times(1)).delete(worksDone);
     }
 }

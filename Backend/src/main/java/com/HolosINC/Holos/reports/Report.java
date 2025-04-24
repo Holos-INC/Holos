@@ -49,12 +49,10 @@ public class Report {
 
     @ManyToOne(optional = true)
     @Valid
-    @NotNull
     private BaseUser reportedUser;
 
     @ManyToOne(optional = true)
     @Valid
-    @NotNull
     private Work work;
 
     @ManyToOne
