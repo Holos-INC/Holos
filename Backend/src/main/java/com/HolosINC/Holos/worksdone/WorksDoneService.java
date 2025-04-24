@@ -88,8 +88,21 @@ public class WorksDoneService {
 
     }
 
-    public void deleteWorksDone(Long id) throws Exception{
+    public void deleteWorksDone(Long id) throws Exception {
         WorksDone worksDone = getWorksDoneById(id);
+        Long currentUserId = baseUserService.findCurrentUser().getId();
+        Auth currentUserAuthority = baseUserService.findCurrentUser().getAuthority();
+
+        if (!currentUserAuthority.equals(Auth.ADMIN) && !currentUserId.equals(worksDone.getArtist().getBaseUser().getId())) {
+            throw new AccessDeniedException("No puedes eliminar una obra que no es tuya.");
+        }
+
+        if (currentUserAuthority != Auth.ADMIN &&
+            currentUserAuthority != Auth.ARTIST_PREMIUM &&
+            currentUserAuthority != Auth.ARTIST) {
+            throw new AccessDeniedException("No puedes eliminar una obra si no eres admin, artista o artista premium.");
+        }
+
         worksDoneRepository.delete(worksDone);
     }
 }

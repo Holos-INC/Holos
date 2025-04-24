@@ -55,18 +55,27 @@ const WorkCard = ({ work }: Props) => {
       </TouchableOpacity>
 
       <View style={desktopStyles.dropdownOverlay}>
-      <DropdownMenu
-  actions={[
-    {
-      label: 'Reportar',
-      onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
-    },
-    {
-      label: 'Eliminar',
-      onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
-    }
-  ]}
-      />
+        <DropdownMenu
+          actions={[
+        {
+          label: 'Reportar',
+          onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
+        },
+        ...(isAdmin || isArtist ? [
+          {
+            label: 'Eliminar',
+            onPress: async () => {
+          try {
+            await deleteWorksDone(work.id);
+            console.log("Obra eliminada exitosamente");
+          } catch (error) {
+            console.error("Error al eliminar la obra:", error);
+          }
+            },
+          },
+        ] : []),
+          ]}
+        />
       </View>
     </View>
   );
