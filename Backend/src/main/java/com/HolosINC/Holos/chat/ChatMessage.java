@@ -1,6 +1,7 @@
 package com.HolosINC.Holos.chat;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.Size;
 
 import com.HolosINC.Holos.commision.Commision;
+import com.HolosINC.Holos.model.BaseUser;
 
 @Data
 @Entity
@@ -23,12 +25,18 @@ public class ChatMessage {
     private LocalDateTime creationDate = LocalDateTime.now();
 
     @Size(max = 125)
-    @Column(updatable = false, columnDefinition = "LONGBLOB")
+    @Column(updatable = false, length = 125)
     private String text;
 
     @Lob
-    @Column(updatable = false)
+    @Column(name = "image", columnDefinition = "LONGBLOB", updatable = false)
     private byte[] image;
+
+    @NotNull
+    private String senderName;
+
+    @NotNull
+    private Long senderId;
 
     @ManyToOne
     @JoinColumn(nullable = false)

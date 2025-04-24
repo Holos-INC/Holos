@@ -4,7 +4,7 @@ export interface artistUser {
     email: string;
     phoneNumber: string;
     description: string;
-    linkToSocialMedia: string |  null ;
+    linkToSocialMedia: string;
     tableCommissionsPrice: string;
     imageProfile: string;
   
@@ -16,6 +16,6 @@ export interface artistUser {
     email: string;
     phoneNumber: string ;
     description: string |  null ;
-    linkToSocialMedia: string |  null ;
+    linkToSocialMedia?: string;
     imageProfile: string | undefined;  
   }
