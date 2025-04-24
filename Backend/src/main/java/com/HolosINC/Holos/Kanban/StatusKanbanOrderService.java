@@ -189,48 +189,54 @@ public class StatusKanbanOrderService {
 
     @Transactional
     public void nextStatusOfCommision(Long id) throws Exception {
-            BaseUser currentUser = userService.findCurrentUser();
-            Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
-
-            Commision c = commisionRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
-
-            if (!currentArtist.getId().equals(c.getArtist().getId())) {
-                throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
-            }  
-            
-
-            StatusKanbanOrder thisStatus = statusKanbanOrderRepository.actualStatusKanban(id);
-            if (thisStatus == null) {
-                throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
+        BaseUser currentUser = userService.findCurrentUser();
+        Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
+    
+        Commision c = commisionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
+    
+        if (!currentArtist.getId().equals(c.getArtist().getId())) {
+            throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
+        }  
+    
+        StatusKanbanOrder thisStatus = statusKanbanOrderRepository.actualStatusKanban(id);
+        if (thisStatus == null) {
+            throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
+        }
+    
+        if (c.getImage() == null || c.getImage().length == 0) {
+            throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
+        }
+    
+        Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(
+            thisStatus.getArtist().getId(), thisStatus.getOrder() + 1);
+    
+        if (nextStatus.isEmpty()) {
+            // Si no hay un siguiente estado, establecer el estado en null y finalizar la comisión
+            c.setStatusKanbanOrder(null);
+            c.setStatus(StatusCommision.ENDED);
+    
+            // Buscar la comisión más antigua en IN_WAIT_LIST
+            Optional<Commision> oldestInWaitList = commisionRepository
+                    .findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST);
+    
+            // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
+            if (oldestInWaitList.isPresent()) {
+                Commision oldestCommision = oldestInWaitList.get();
+                // No hace falta excepciones porque en otras validaciones ya se obliga a que este artista tenga al menos un statusKanban, al tener comisiones aceptadas
+                StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
+                    .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
+                oldestCommision.setStatus(StatusCommision.ACCEPTED);
+                oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
+                commisionRepository.save(oldestCommision);
             }
-            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(thisStatus.getArtist().getId(),
-                                                                                                     thisStatus.getOrder() + 1);
-            if (nextStatus.isEmpty()) {
-                // Si no hay un siguiente estado, establecer el estado en null y finalizar la comisión
-                c.setStatusKanbanOrder(null);
-                c.setStatus(StatusCommision.ENDED);
-
-                // Buscar la comisión más antigua en IN_WAIT_LIST
-                Optional<Commision> oldestInWaitList = commisionRepository
-                        .findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST);
-
-                // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
-                if (oldestInWaitList.isPresent()) {
-                    Commision oldestCommision = oldestInWaitList.get();
-                    // No hace falta excepciones porque en otras validaciones ya se obliga a que este artista tenga al menos un statusKanban, al tener comisiones aceptadas
-                    StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
-                        .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
-                    oldestCommision.setStatus(StatusCommision.ACCEPTED);
-                    oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
-                    commisionRepository.save(oldestCommision);
-                }
-            } else
-                // Avanzar al siguiente estado
-                c.setStatusKanbanOrder(nextStatus.get());
-                
-            commisionRepository.save(c);
-    }
+        } else {
+            // Avanzar al siguiente estado
+            c.setStatusKanbanOrder(nextStatus.get());
+        }
+    
+        commisionRepository.save(c);
+    }    
 
     @Transactional
     public void previousStatusOfCommision(Long id) throws Exception {
@@ -243,16 +249,28 @@ public class StatusKanbanOrderService {
         if (!currentArtist.getId().equals(c.getArtist().getId())) {
             throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
         }
-
+    
+        StatusKanbanOrder currentStatus = c.getStatusKanbanOrder();
+        if (currentStatus == null) {
+            throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
+        }
+    
+        if (c.getImage() == null || c.getImage().length == 0) {
+            throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
+        }
+    
         Optional<StatusKanbanOrder> previousStatus = statusKanbanOrderRepository
-            .statusKanbanOfOrder(currentArtist.getId(), c.getStatusKanbanOrder().getOrder() - 1);
+            .statusKanbanOfOrder(currentArtist.getId(), currentStatus.getOrder() - 1);
     
         if (previousStatus.isEmpty()) {
             throw new BadRequestException("No existe un estado anterior a este.");
         }
+    
         c.setStatusKanbanOrder(previousStatus.get());
         commisionRepository.save(c);    
     }
+    
+    
 
     @Transactional
     public void reorderStatuses(List<Long> orderedIds) throws Exception {
