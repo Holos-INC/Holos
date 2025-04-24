@@ -11,6 +11,8 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
@@ -59,11 +61,15 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     }
   };
 
-  useEffect(() => {
-    if (loggedInUser?.token) {
-      fetchCommissions();
-    }
-  }, [loggedInUser]);
+  useFocusEffect(
+    useCallback(() => {
+      if (loggedInUser?.token) {
+        setLoading(true);
+        fetchCommissions();
+      }
+    }, [loggedInUser])
+  );
+  
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -73,10 +79,6 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
         return "Esperando cliente";
       case "ACCEPTED":
         return "Solicitud aceptada";
-      case "REJECTED":
-        return "Solicitud rechazada";
-      case "CANCELED":
-        return "Solicitud cancelada";
       case "WAITING_ARTIST":
         return "Esperando artista";
       case "NOT_PAID_YET":
@@ -226,6 +228,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                         </Text>
                         <Text style={styles.text}>Título: {comm.name || "Sin título"}</Text>
                         <Text style={styles.text}>Descripción: {comm.description}</Text>
+                        <Text style={styles.text}>Precio: {comm.price}€</Text>
                         <Text style={styles.text}>
                           Aceptada el:{" "}
                           {comm.acceptedDateByArtist
@@ -245,12 +248,12 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
   
           {selectedTab === "finalizadas" && (
             <>
-              <Text style={styles.sectionTitle}>FINALIZADAS / RESPONDIDAS</Text>
+              <Text style={styles.sectionTitle}>FINALIZADAS</Text>
               {respondedRequests.length === 0 ? (
                 <Text style={styles.noRequestsText}>No hay solicitudes respondidas.</Text>
               ) : (
                 respondedRequests
-                  .filter((comm) => comm.status === "REJECTED" || comm.status === "CANCELED" || comm.status === "ENDED")
+                  .filter((comm) => comm.status === "ENDED")
                   .map((comm) => (
                     <View key={comm.id} style={styles.card}>
                       <View style={styles.profileContainer}>
@@ -267,6 +270,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                         </Text>
                         <Text style={styles.text}>Título: {comm.name || "Sin título"}</Text>
                         <Text style={styles.text}>Descripción: {comm.description}</Text>
+                        <Text style={styles.text}>Precio: {comm.price}€</Text>
                       </View>
                       <View style={styles.actions}>
                         <Text style={styles.responseText}>{getStatusText(comm.status)}</Text>
