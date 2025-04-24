@@ -31,12 +31,13 @@ public class StatusKanbanOrderController {
     private final StatusKanbanOrderService statusKanbanOrderService;
 
     @Autowired
-	public StatusKanbanOrderController(StatusKanbanOrderService statusKanbanOrderService) {
-		this.statusKanbanOrderService = statusKanbanOrderService;
-	}
+    public StatusKanbanOrderController(StatusKanbanOrderService statusKanbanOrderService) {
+        this.statusKanbanOrderService = statusKanbanOrderService;
+    }
 
     @PostMapping
-    @Operation(summary = "Crea un nuevo estado Kanban para el artista autenticado")
+    @Operation(summary = "Crea un nuevo estado Kanban para el artista autenticado", 
+               description = "Crea un nuevo estado Kanban para el artista autenticado, si el estado no existe previamente.")
     public ResponseEntity<?> addStatusToKanban(@Valid @RequestBody StatusKanbanCreateDTO dto) {
         try {
             statusKanbanOrderService.addStatusToKanban(dto);
@@ -53,7 +54,8 @@ public class StatusKanbanOrderController {
     }
 
     @PutMapping("/update")
-    @Operation(summary = "Actualiza los atributos de un estado Kanban (nombre, color y descripción)")
+    @Operation(summary = "Actualiza los atributos de un estado Kanban (nombre, color y descripción)", 
+               description = "Permite actualizar los atributos de un estado Kanban existente.")
     public ResponseEntity<?> updateStatusKanban(@RequestBody StatusKanbanUpdateDTO dto) {
         try {
             statusKanbanOrderService.updateStatusKanban(dto);
@@ -64,7 +66,8 @@ public class StatusKanbanOrderController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Elimina un estado Kanban si no está asignado a ninguna comisión")
+    @Operation(summary = "Elimina un estado Kanban si no está asignado a ninguna comisión", 
+               description = "Elimina un estado Kanban del artista autenticado, si no tiene comisiones asociadas.")
     public ResponseEntity<?> deleteStatusKanbanOrder(@PathVariable Integer id) {
         try {
             statusKanbanOrderService.deleteStatusKanbanOrder(id);
@@ -74,10 +77,11 @@ public class StatusKanbanOrderController {
         } catch (Exception e) {
             throw new BadRequestException("No se pudo eliminar el estado Kanban: " + e.getMessage());
         }
-    }    
+    }
 
     @GetMapping
-    @Operation(summary = "Obtiene todos los estados Kanban del artista junto con sus comisiones asociadas")
+    @Operation(summary = "Obtiene todos los estados Kanban del artista junto con sus comisiones asociadas", 
+               description = "Recupera todos los estados Kanban del artista autenticado, con las comisiones asociadas.")
     public ResponseEntity<StatusKanbanFullResponseDTO> getAllStatusKanban() {
         try {
             StatusKanbanFullResponseDTO response = statusKanbanOrderService.getAllStatusFromArtist();
@@ -88,9 +92,10 @@ public class StatusKanbanOrderController {
     }
 
     @PutMapping("/{id}/next")
-    @Operation(summary = "Avanza una comisión al siguiente estado Kanban")
+    @Operation(summary = "Avanza una comisión al siguiente estado Kanban", 
+               description = "Avanza una comisión al siguiente estado Kanban si el estado actual lo permite.")
     public ResponseEntity<Void> advanceCommisionToNextStatus(@PathVariable Long id) {
-        try{
+        try {
             statusKanbanOrderService.nextStatusOfCommision(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
@@ -99,25 +104,28 @@ public class StatusKanbanOrderController {
     }
 
     @PutMapping("/{id}/previous")
-    @Operation(summary = "Retrocede la comisión al estado anterior Kanban")
+    @Operation(summary = "Retrocede la comisión al estado anterior Kanban", 
+               description = "Retrocede una comisión al estado anterior Kanban si el estado actual lo permite.")
     public ResponseEntity<Void> moveCommisionToPreviousStatus(@PathVariable Long id) {
-        try{
+        try {
             statusKanbanOrderService.previousStatusOfCommision(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
     }
-    
+
     @GetMapping("/{id}")
-    @Operation(summary = "Obtiene un estado Kanban por su ID")
+    @Operation(summary = "Obtiene un estado Kanban por su ID", 
+               description = "Recupera un estado Kanban específico usando su ID.")
     public ResponseEntity<StatusKanbanDTO> getStatusKanban(@PathVariable Integer id) {
         StatusKanbanDTO dto = statusKanbanOrderService.getStatusKanbanById(id);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/reorder")
-    @Operation(summary = "Actualiza el orden de todos los estados Kanban del artista")
+    @Operation(summary = "Actualiza el orden de todos los estados Kanban del artista", 
+               description = "Permite actualizar el orden de los estados Kanban del artista autenticado.")
     public ResponseEntity<?> reorderStatuses(@RequestBody List<Long> orderedIds) {
         try {
             statusKanbanOrderService.reorderStatuses(orderedIds);
@@ -128,5 +136,4 @@ public class StatusKanbanOrderController {
             throw new BadRequestException("No se pudo reordenar el Kanban: " + e.getMessage());
         }
     }
-
 }

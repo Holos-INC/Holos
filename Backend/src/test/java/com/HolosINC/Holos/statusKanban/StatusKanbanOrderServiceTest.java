@@ -561,4 +561,134 @@ public class StatusKanbanOrderServiceTest {
             statusKanbanOrderService.reorderStatuses(orderedIds);
         });
     }
+    @Test
+    public void testGetStatusKanbanById_NullId() {
+        // Simulamos que el método findById no debe ser llamado con un ID nulo.
+        assertThrows(IllegalArgumentException.class, () -> {
+            statusKanbanOrderService.getStatusKanbanById(null);
+        });
+    }
+    @Test
+public void testDeleteStatusKanbanOrder_WithCommissions() {
+    // Mock de la situación donde hay comisiones asociadas al estado Kanban.
+    when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+    when(commisionService.isStatusKanbanInUse(statusKanbanOrder)).thenReturn(true);
+
+    // Lanza una excepción si se intenta eliminar un estado con comisiones asociadas.
+    assertThrows(BadRequestException.class, () -> {
+        statusKanbanOrderService.deleteStatusKanbanOrder(1);
+    });
+
+    // Verifica que el deleteById no se llame si hay comisiones.
+    verify(statusKanbanOrderRepository, never()).deleteById(anyInt());
+}
+@Test
+public void testAddStatusToKanban_EmptyName() {
+    createDTO.setName("");  // Establecemos el nombre vacío
+
+    // Simulamos que el método lanza una excepción si el nombre está vacío
+    assertThrows(BadRequestException.class, () -> {
+        statusKanbanOrderService.addStatusToKanban(createDTO);
+    });
+
+    // Verifica que el método save no se haya llamado
+    verify(statusKanbanOrderRepository, never()).save(any(StatusKanbanOrder.class));
+}
+@Test
+public void testAddStatusToKanban_ArtistWithoutPermission() throws Exception {
+    // Simulamos que el artista no tiene los permisos necesarios
+    when(userService.findCurrentUser()).thenReturn(currentUser);
+    when(artistService.findArtistByUserId(100L)).thenReturn(null);  // El artista no existe
+
+    // Lanza una excepción porque el artista no tiene permisos
+    assertThrows(IllegalArgumentException.class, () -> {
+        statusKanbanOrderService.addStatusToKanban(createDTO);
+    });
+
+    // Verifica que el método save no se haya llamado
+    verify(statusKanbanOrderRepository, never()).save(any(StatusKanbanOrder.class));
+}
+@Test
+public void testUpdateStatusKanban_InvalidName() {
+    // Creamos un DTO con nombre vacío
+    StatusKanbanUpdateDTO updateDTO = new StatusKanbanUpdateDTO();
+    updateDTO.setId(1L);
+    updateDTO.setName("");  // Nombre vacío
+
+    when(statusKanbanOrderRepository.findById(1)).thenReturn(Optional.of(statusKanbanOrder));
+
+    // Verifica que se lanza una excepción cuando el nombre es inválido
+    assertThrows(IllegalArgumentException.class, () -> {
+        statusKanbanOrderService.updateStatusKanban(updateDTO);
+    });
+
+    // Verifica que el método save no se haya llamado
+    verify(statusKanbanOrderRepository, never()).save(any(StatusKanbanOrder.class));
+}
+@Test
+public void testGetAllStatusFromArtist_NoStatuses() {
+    when(userService.findCurrentUser()).thenReturn(currentUser);
+    when(statusKanbanOrderRepository.getAllStatusOrdererOfArtist(currentUser.getId())).thenReturn(Collections.emptyList());
+
+    // Se asume que no hay estados Kanban, por lo que la lista debe estar vacía
+    StatusKanbanFullResponseDTO result = statusKanbanOrderService.getAllStatusFromArtist();
+
+    assertNotNull(result);
+    assertEquals(0, result.getStatuses().size());
+}
+@Test
+public void testAdvanceCommisionToNextStatus_LastStatus() throws Exception {
+    Commision c = new Commision();
+    c.setId(777L);
+    c.setArtist(artist);
+
+    StatusKanbanOrder lastStatus = new StatusKanbanOrder();
+    lastStatus.setOrder(99);  // El último estado tiene el orden 99
+    c.setStatusKanbanOrder(lastStatus);
+
+    when(commisionRepository.findById(777L)).thenReturn(Optional.of(c));
+    when(statusKanbanOrderRepository.actualStatusKanban(777L)).thenReturn(lastStatus);
+    when(statusKanbanOrderRepository.statusKanbanOfOrder(artist.getId(), 100)).thenReturn(Optional.empty());  // No hay siguiente
+
+    // Se verifica que la comisión no avance y se establezca como ENDED
+    statusKanbanOrderService.nextStatusOfCommision(777L);
+
+    assertEquals(StatusCommision.ENDED, c.getStatus());
+    verify(commisionRepository, times(1)).save(c);
+}
+@Test
+public void testNextStatusOfCommision_Canceled() throws Exception {
+    Commision c = new Commision();
+    c.setId(777L);
+    c.setArtist(artist);
+    c.setStatus(StatusCommision.CANCELED);  // Comisión ya cancelada
+
+    when(commisionRepository.findById(777L)).thenReturn(Optional.of(c));
+
+    // Verifica que se lanza una excepción porque la comisión no puede avanzar al siguiente estado si está cancelada
+    assertThrows(IllegalStateException.class, () -> {
+        statusKanbanOrderService.nextStatusOfCommision(777L);
+    });
+
+    // Verifica que el estado de la comisión no cambió
+    assertEquals(StatusCommision.CANCELED, c.getStatus());
+}
+@Test
+public void testReorderStatuses_NotOwned() throws Exception {
+    List<Long> orderedIds = List.of(11L, 12L, 13L);
+
+    when(userService.findCurrentUser()).thenReturn(currentUser);
+    when(artistService.findArtistByUserId(100L)).thenReturn(artist);
+
+    StatusKanbanOrder foreignStatus = new StatusKanbanOrder();
+    foreignStatus.setId(99L);
+    foreignStatus.setArtist(new Artist());  // Estado de otro artista
+
+    when(statusKanbanOrderRepository.findByArtistIdOrderByOrderAsc(10L)).thenReturn(List.of(foreignStatus));
+
+    assertThrows(BadRequestException.class, () -> {
+        statusKanbanOrderService.reorderStatuses(orderedIds);
+    });
+}
+
 }
