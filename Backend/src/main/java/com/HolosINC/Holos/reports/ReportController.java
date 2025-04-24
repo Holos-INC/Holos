@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -32,6 +34,9 @@ public class ReportController {
 
     // Para el administrador
     @GetMapping("/admin")
+    @Operation(summary = "Get all reports", description = "Retrieve all reports for the administrator.")
+    @ApiResponse(responseCode = "200", description = "Reports retrieved successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> getAllReports() {
         try {
             List<Report> reports = reportService.getReports();
@@ -42,6 +47,9 @@ public class ReportController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new report", description = "Creates a new report based on the provided data.")
+    @ApiResponse(responseCode = "200", description = "Report created successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> createReport(@Valid @RequestBody ReportDTO reportDTO) {
         try {
             Report report = reportService.createReport(reportDTO);
@@ -51,8 +59,10 @@ public class ReportController {
         }
     }
 
-    
     @PutMapping("/admin/accept/{id}")
+    @Operation(summary = "Accept a report", description = "Mark a report as accepted by the administrator.")
+    @ApiResponse(responseCode = "200", description = "Report accepted successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> acceptReport(@PathVariable Long id) {
         try {
             Report accepted = reportService.acceptReport(id);
@@ -63,26 +73,35 @@ public class ReportController {
     }
 
     @PutMapping("/admin/reject/{id}")
+    @Operation(summary = "Reject a report", description = "Mark a report as rejected by the administrator.")
+    @ApiResponse(responseCode = "200", description = "Report rejected successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> rejectReport(@PathVariable Long id) {
         try {
-            Report accepted = reportService.rejectReport(id);
-            return ResponseEntity.ok(accepted);
+            Report rejected = reportService.rejectReport(id);
+            return ResponseEntity.ok(rejected);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/admin/delete/{id}")
+    @Operation(summary = "Delete a rejected report", description = "Delete a report that has been rejected by the administrator.")
+    @ApiResponse(responseCode = "200", description = "Report deleted successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> deleteRejectedReport(@PathVariable Long id) {
         try {
             reportService.deleteReport(id);
-            return ResponseEntity.ok("Reporte eliminado correctamente.");
+            return ResponseEntity.ok("Report deleted successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/types")
+    @Operation(summary = "Get all report types", description = "Retrieve all report types available.")
+    @ApiResponse(responseCode = "200", description = "Report types retrieved successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> getReportTypes() {
         try {
             List<ReportType> reportTypes = reportService.getReportTypes();
@@ -93,6 +112,9 @@ public class ReportController {
     }
 
     @PostMapping("/admin/types")
+    @Operation(summary = "Add a new report type", description = "Adds a new type of report to the system.")
+    @ApiResponse(responseCode = "200", description = "Report type added successfully")
+    @ApiResponse(responseCode = "400", description = "Bad Request")
     public ResponseEntity<?> addReportType(@RequestBody ReportType reportType) {
         try {
             ReportType newReportType = reportService.addReportType(reportType);

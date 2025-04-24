@@ -216,4 +216,16 @@ public class ReportServiceTest {
         // Ejecutar el servicio y esperar una excepción
         assertThrows(ResourceNotFoundException.class, () -> reportService.getReportTypeByType("NonExistingType"));
     }
+    
+    @Test
+public void testRejectReportAlreadyRejected() {
+    Report report = new Report();
+    report.setId(REPORT_ID);
+    report.setStatus(ReportStatus.REJECTED);
+
+    when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
+
+    assertThrows(IllegalStateException.class, () -> reportService.rejectReport(REPORT_ID));
+}
+
 }

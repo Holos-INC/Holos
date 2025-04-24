@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.report;
 
+import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.reports.Report;
 import com.HolosINC.Holos.reports.ReportController;
 import com.HolosINC.Holos.reports.ReportDTO;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 public class ReportControllerTest {
 
     private MockMvc mockMvc;
+    
 
     @Mock
     private ReportService reportService;
@@ -191,4 +193,64 @@ public void testRejectReportSuccess() throws Exception {
 
         verify(reportService, times(1)).getReportTypes();
     }
+
+    @Test
+public void testCreateReportInternalError() throws Exception {
+    // Crear un DTO para el reporte
+    ReportDTO reportDTO = new ReportDTO("Inappropriate Content", 
+                                        "This artwork violates our policy", 
+                                        30L, // workId
+                                        "Policy Violation");
+
+    // Simulamos una excepción inesperada en el servicio
+    when(reportService.createReport(any(ReportDTO.class))).thenThrow(new Exception("Unexpected Error"));
+
+    mockMvc.perform(post("/api/v1/reports")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(reportDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("No se pudo crear el reporte: Unexpected Error"));
+
+    verify(reportService, times(1)).createReport(any(ReportDTO.class));
+}
+@Test
+public void testAcceptReportNotFound() throws Exception {
+    // Simulamos que el servicio no encuentra el reporte
+    when(reportService.acceptReport(REPORT_ID)).thenThrow(new ResourceNotFoundException("Report not found"));
+
+    mockMvc.perform(put("/api/v1/reports/admin/accept/{id}", REPORT_ID))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Report not found"));
+
+    verify(reportService, times(1)).acceptReport(REPORT_ID);
+}
+@Test
+public void testRejectReportNotFound() throws Exception {
+    // Simulamos que el servicio no encuentra el reporte
+    when(reportService.rejectReport(REPORT_ID)).thenThrow(new ResourceNotFoundException("Report not found"));
+
+    mockMvc.perform(put("/api/v1/reports/admin/reject/{id}", REPORT_ID))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Report not found"));
+
+    verify(reportService, times(1)).rejectReport(REPORT_ID);
+}
+@Test
+public void testCreateReportInvalidData() throws Exception {
+    // Crear el DTO con datos incompletos (por ejemplo, falta la descripción)
+    ReportDTO reportDTO = new ReportDTO("", 
+                                        "",  // Descripción vacía
+                                        30L,  // workId
+                                        "Spam Content");
+
+    mockMvc.perform(post("/api/v1/reports")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(reportDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Los datos del reporte son inválidos"));
+
+    verify(reportService, times(0)).createReport(any(ReportDTO.class));
+}
+
+
 }
