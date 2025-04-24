@@ -1,8 +1,7 @@
-import { BASE_URL } from "@/src/constants/api";
-import colors from "@/src/constants/colors";
 import { useRouter } from "expo-router";
-import { Image, Pressable } from "react-native";
-import { Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
+import colors from "@/src/constants/colors";
+import { getImageSource } from "@/src/getImageSource";
 
 interface RequestFormProps {
   username: string;
@@ -11,10 +10,13 @@ interface RequestFormProps {
 
 export default function UserPanel({ username, image }: RequestFormProps) {
   const router = useRouter();
+
+  console.log("UserPanel image:", image);
+
   return (
     <View style={{ flex: 1, alignItems: "center" }}>
       <Image
-        source={image ? { uri: `${BASE_URL}${atob(image)}` } : undefined}
+        source={getImageSource(image || "")}
         style={{ width: 65, height: 65, borderRadius: 100 }}
         resizeMode="cover"
       />

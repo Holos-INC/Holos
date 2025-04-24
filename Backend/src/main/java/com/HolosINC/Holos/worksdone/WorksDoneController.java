@@ -204,4 +204,14 @@ public class WorksDoneController {
         boolean canUpload = isPremium || worksCount < 7;
         return ResponseEntity.ok(canUpload);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteWorksDone(@PathVariable Long id) {
+        try {
+            worksDoneService.deleteWorksDone(id);
+            return ResponseEntity.ok(new MessageResponse("Trabajo borrado correctamente."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+}
 }

@@ -10,6 +10,7 @@ import styles from "@/src/styles/ReportScreen.styles";
 import  popUpMovilWindows  from "@/src/components/PopUpAlertMovilWindows";
 import { API_URL } from "@/src/constants/api";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 export interface ReportDTO {
   name: string;
@@ -182,7 +183,7 @@ export default function ReportScreen() {
 
         <View style={{ position: "relative" }}>
           {work.image ? (
-            <Image source={{ uri: `${API_URL}${work.image}` }} style={styles.artworkImage} />
+            <Image source={getImageSource(work.image)} style={styles.artworkImage} />
           ) : (
             <View style={styles.placeholder}>
               <Text style={{ color: "#aaa" }}>Sin imagen</Text>

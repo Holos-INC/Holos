@@ -103,7 +103,9 @@ export interface HistoryCommisionsDTO {
 export interface CommissionProtected {
   image?: string;
 
-  imageProfile?: string;
+  imageProfileA?: string;
+
+  imageProfileC?: string;
 
   id: number;
 

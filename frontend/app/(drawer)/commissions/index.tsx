@@ -17,6 +17,7 @@ import { HistoryCommisionsDTO } from "@/src/constants/CommissionTypes";
 import ClientCommissionsScreen from "./requested";
 import { useRouter } from "expo-router";
 import { getAllRequestedCommissions } from "@/src/services/commisionApi";
+import { getImageSource } from "@/src/getImageSource";
 
 // 2. Ajusta la pantalla
 const { width } = Dimensions.get("window");
@@ -130,9 +131,9 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
               <View key={comm.id} style={styles.card}>
                 <View style={styles.profileContainer}>
                   <Image
-                    source={{
-                      uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO",
-                    }}
+                    source={getImageSource(isClient
+                      ? comm.imageProfileA ?? ""
+                      : comm.imageProfileC ?? "")}
                     style={styles.profileImage}
                   />
                 </View>
