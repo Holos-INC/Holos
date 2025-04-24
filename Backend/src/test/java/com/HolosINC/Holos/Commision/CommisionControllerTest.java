@@ -2,6 +2,7 @@ package com.HolosINC.Holos.Commision;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -233,8 +234,8 @@ public void testWaitingCommissionInvalidState() throws Exception {
     commissionDTO.setDescription("Updated description");
 
     // Simulamos un error de estado inválido
-    when(commisionService.waitingCommission(any(CommissionDTO.class), eq(COMMISION_ID)))
-            .thenThrow(new IllegalStateException("Commission cannot be in waiting state"));
+    doThrow(new IllegalStateException("Commission cannot be in waiting state"))
+        .when(commisionService).waitingCommission(any(CommissionDTO.class), eq(COMMISION_ID));
 
     mockMvc.perform(put("/api/v1/commisions/{commissionId}/waiting", COMMISION_ID)
             .contentType(MediaType.APPLICATION_JSON)
@@ -250,8 +251,8 @@ public void testWaitingCommissionInvalidState() throws Exception {
 @Test
 public void testRejectCommissionAlreadyAccepted() throws Exception {
     // Simulamos que la comisión ya ha sido aceptada y no se puede rechazar
-    when(commisionService.rejectCommission(COMMISION_ID))
-            .thenThrow(new IllegalStateException("Cannot reject an accepted commission"));
+    doThrow(new IllegalStateException("Cannot reject an accepted commission"))
+        .when(commisionService).rejectCommission(COMMISION_ID);
 
     mockMvc.perform(put("/api/v1/commisions/{commissionId}/reject", COMMISION_ID))
             .andExpect(status().isBadRequest())
