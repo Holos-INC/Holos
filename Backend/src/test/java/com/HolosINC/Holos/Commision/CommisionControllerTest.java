@@ -2,6 +2,7 @@ package com.HolosINC.Holos.Commision;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -226,6 +227,42 @@ public void testChangeRequestedCommisionBadRequest() throws Exception {
     verify(commisionService, times(1)).requestChangesCommision(any(CommissionDTO.class), eq(COMMISION_ID));
 }
 
+@Test
+public void testWaitingCommissionInvalidState() throws Exception {
+    CommissionDTO commissionDTO = new CommissionDTO();
+    commissionDTO.setName("Test Commission");
+    commissionDTO.setDescription("Updated description");
+
+    // Simulamos un error de estado inválido
+    doThrow(new IllegalStateException("Commission cannot be in waiting state"))
+        .when(commisionService).waitingCommission(any(CommissionDTO.class), eq(COMMISION_ID));
+
+    mockMvc.perform(put("/api/v1/commisions/{commissionId}/waiting", COMMISION_ID)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(commissionDTO)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Error: Commission cannot be in waiting state"))
+            .andDo(result -> {
+                System.out.println("Response content: " + result.getResponse().getContentAsString());
+            });
+
+    verify(commisionService, times(1)).waitingCommission(any(CommissionDTO.class), eq(COMMISION_ID));
+}
+@Test
+public void testRejectCommissionAlreadyAccepted() throws Exception {
+    // Simulamos que la comisión ya ha sido aceptada y no se puede rechazar
+    doThrow(new IllegalStateException("Cannot reject an accepted commission"))
+        .when(commisionService).rejectCommission(COMMISION_ID);
+
+    mockMvc.perform(put("/api/v1/commisions/{commissionId}/reject", COMMISION_ID))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("⚠ Error interno: Cannot reject an accepted commission"))
+            .andDo(result -> {
+                System.out.println("Response content: " + result.getResponse().getContentAsString());
+            });
+
+    verify(commisionService, times(1)).rejectCommission(COMMISION_ID);
+}
 @Test
 public void testToPayCommissionSuccess() throws Exception {
     // Simulamos el pago correctamente
