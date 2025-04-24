@@ -9,7 +9,7 @@ if (__DEV__) {
     BASE_URL = "http://10.0.2.2:8080";
   }
 } else {
-  BASE_URL = "https://holos-ppl-457716.ew.r.appspot.com/swagger-ui/index.html";
+  BASE_URL = "https://holos-ppl-457716.ew.r.appspot.com";
 }
 
 export const API_URL: string = `${BASE_URL}/api/v1`;
