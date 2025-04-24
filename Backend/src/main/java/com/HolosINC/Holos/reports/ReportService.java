@@ -83,26 +83,12 @@ public class ReportService {
             
             return reportRepository.save(report);  
     }
-    
-    
-    public Report rejectReport(Long reportId) throws Exception{
-        Report report = getReportByIdOrThrow(reportId);
-    
-        if (report.getStatus() != ReportStatus.PENDING) {
-            throw new IllegalStateException("Solo se pueden rechazar reportes en estado PENDING.");
-        }
-    
-        report.setStatus(ReportStatus.REJECTED);
-        return reportRepository.save(report);
-    }
 
     public void deleteReport(Long reportId) throws Exception{
         Report report = getReportByIdOrThrow(reportId);
-    
-        if (report.getStatus() != ReportStatus.REJECTED) {
-            throw new IllegalStateException("Solo se pueden eliminar reportes que hayan sido rechazados.");
+        if (report.getStatus() == ReportStatus.ACCEPTED) {
+            throw new IllegalStateException("No se puede eliminar un reporte aceptado.");
         }
-    
         reportRepository.delete(report);
     }
     

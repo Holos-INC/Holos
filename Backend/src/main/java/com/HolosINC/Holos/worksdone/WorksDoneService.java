@@ -5,6 +5,9 @@ import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserService;
+import com.HolosINC.Holos.reports.Report;
+import com.HolosINC.Holos.reports.ReportRepository;
+import com.HolosINC.Holos.reports.ReportService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,11 +23,13 @@ public class WorksDoneService {
     private final WorksDoneRepository worksDoneRepository;
     private final ArtistService artistService;
     private final BaseUserService baseUserService;
+    private final ReportRepository reportRepository;
 
-    public WorksDoneService(WorksDoneRepository worksDoneRepository, ArtistService artistService, BaseUserService baseUserService) {
+    public WorksDoneService(WorksDoneRepository worksDoneRepository, ArtistService artistService, BaseUserService baseUserService, ReportRepository reportRepository) {
         this.worksDoneRepository = worksDoneRepository;
         this.artistService = artistService;
         this.baseUserService = baseUserService;
+        this.reportRepository = reportRepository;
     }
 
 
@@ -73,6 +78,7 @@ public class WorksDoneService {
         return worksDoneRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("WorksDone", "id", id));
     }
 
+    @Transactional
     public List<WorksDone> getWorksDoneByArtist(Artist artist) {
         return worksDoneRepository.findAll()
                 .stream()
@@ -88,12 +94,13 @@ public class WorksDoneService {
 
     }
 
+    @Transactional
     public void deleteWorksDone(Long id) throws Exception {
         WorksDone worksDone = getWorksDoneById(id);
         Long currentUserId = baseUserService.findCurrentUser().getId();
         Auth currentUserAuthority = baseUserService.findCurrentUser().getAuthority();
 
-        if (!currentUserAuthority.equals(Auth.ADMIN) && !currentUserId.equals(worksDone.getArtist().getBaseUser().getId())) {
+        if (currentUserAuthority != Auth.ADMIN  && !currentUserId.equals(worksDone.getArtist().getBaseUser().getId())) {
             throw new AccessDeniedException("No puedes eliminar una obra que no es tuya.");
         }
 

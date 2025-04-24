@@ -114,7 +114,7 @@ export default function WorkDetailScreen() {
           {work.image && (
             <View style={{ position: "absolute", top: 10, right: 10 }}>
               <ReportDropdown
-                workId={work.id}
+                work={work}
                 menuVisibleId={menuVisibleId}
                 setMenuVisibleId={setMenuVisibleId}
                 isBigScreen={width > 768}

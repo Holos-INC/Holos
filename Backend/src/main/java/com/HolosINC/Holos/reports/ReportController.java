@@ -60,16 +60,6 @@ public class ReportController {
         }
     }
 
-    @PutMapping("/admin/reject/{id}")
-    public ResponseEntity<?> rejectReport(@PathVariable Long id) {
-        try {
-            Report accepted = reportService.rejectReport(id);
-            return ResponseEntity.ok(accepted);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @DeleteMapping("/admin/delete/{id}")
     public ResponseEntity<?> deleteRejectedReport(@PathVariable Long id) {
         try {
