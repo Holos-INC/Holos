@@ -54,24 +54,30 @@ public class StatusKanbanOrderService {
         return statusKanbanOrderRepository.save(statusKanbanOrder);
     }
 
+    @Transactional
     public StatusKanbanOrder addStatusToKanban(StatusKanbanCreateDTO dto) throws Exception {
         StatusKanbanOrder statusKanbanOrder = new StatusKanbanOrder();
         BeanUtils.copyProperties(dto, statusKanbanOrder);
-
+    
         Long currentUserId = userService.findCurrentUser().getId();
         Artist artist = artistService.findArtistByUserId(currentUserId);
+    
+        if (!artist.getBaseUser().getAuthority().equals(Auth.ARTIST_PREMIUM)) {
+            throw new BadRequestException("Solo los artistas premium pueden añadir nuevos estados al kanban.");
+        }
+    
         int order = statusKanbanOrderRepository.countByArtistUsername(artist.getBaseUser().getUsername()) + 1;
-
+    
         statusKanbanOrder.setOrder(order);
         statusKanbanOrder.setArtist(artist);
-
+    
         try {
             return statusKanbanOrderRepository.save(statusKanbanOrder);
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("Ya existe un estado con ese nombre u orden para este artista.");
         }
     }
-
+    
     @Transactional
     public void updateStatusKanban(StatusKanbanUpdateDTO dto) {
         StatusKanbanOrder sk = statusKanbanOrderRepository.findById(dto.getId())
@@ -159,32 +165,32 @@ public class StatusKanbanOrderService {
 
     @Transactional
     public void deleteStatusKanbanOrder(Long id) {
-        StatusKanbanOrder statusToDelete = statusKanbanOrderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", id));
+        StatusKanbanOrder status = statusKanbanOrderRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Estado kanban no encontrado."));
     
-        if (commisionService.isStatusKanbanInUse(statusToDelete)) {
+        BaseUser currentUser = userService.findCurrentUser();
+        Artist artist;
+        try {
+            artist = artistService.findArtistByUserId(currentUser.getId());
+        } catch (Exception e) {
+            throw new RuntimeException("No se ha podido obtener el artista autenticado.");
+        }
+    
+        if (!artist.getId().equals(status.getArtist().getId())) {
+            throw new ResourceNotOwnedException("Este estado no te pertenece.");
+        }
+    
+        if (!artist.getBaseUser().getAuthority().equals(Auth.ARTIST_PREMIUM)) {
+            throw new BadRequestException("Solo los artistas premium pueden eliminar estados del kanban.");
+        }
+    
+        if (commisionService.isStatusKanbanInUse(status)) {
             throw new BadRequestException("No se puede eliminar un estado que está asignado a una o más comisiones.");
         }
     
-        Long artistId = statusToDelete.getArtist().getId();
-        Integer orderDeleted = statusToDelete.getOrder();
-    
-        statusKanbanOrderRepository.deleteById(id);
-        statusKanbanOrderRepository.flush();
-    
-        List<StatusKanbanOrder> statusList = statusKanbanOrderRepository.findByArtistIdOrderByOrderAscFiltered(artistId, orderDeleted);
-    
-        for (StatusKanbanOrder status : statusList) {
-            status.setOrder(-status.getOrder());
-        }
-        statusKanbanOrderRepository.saveAll(statusList);
-        statusKanbanOrderRepository.flush();
-    
-        for (StatusKanbanOrder status : statusList) {
-            status.setOrder(-status.getOrder() - 1);
-        }
-        statusKanbanOrderRepository.saveAll(statusList);
+        statusKanbanOrderRepository.delete(status);
     }
+    
 
     @Transactional
     public StatusKanbanFullResponseDTO getAllStatusFromArtist() throws Exception{
