@@ -8,6 +8,7 @@ export const useAuth = () => {
                    (loggedInUser.roles.includes("ARTIST") || loggedInUser.roles.includes("ARTIST_PREMIUM"));
   const isClient = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("CLIENT");
   const isAdmin = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("ADMIN");
+  const isPremium = Array.isArray(loggedInUser?.roles) && loggedInUser.roles.includes("ARTIST_PREMIUM");
 
-  return { loggedInUser, isAuthenticated, isArtist, isClient, isAdmin, loading };
+  return { loggedInUser, isAuthenticated, isArtist, isClient, isAdmin, loading, isPremium };
 };

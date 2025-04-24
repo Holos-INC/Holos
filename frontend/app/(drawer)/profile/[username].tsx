@@ -155,9 +155,9 @@ export default function ArtistDetailScreen() {
 
         {/* Botones secundarios (solicitar trabajo, stripe, etc.) */}
         <ActionButtons
-          isClient={!("linkToSocialMedia" in user)}
+          isClient={isArtist(user) ? false : true}
           isCurrentUser={isCurrentUser}
-          username={user.username}
+          user={user}
         />
       </View>
 

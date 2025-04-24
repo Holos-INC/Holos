@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/stripe-subsciption")
+@RequestMapping("/api/v1/stripe-subscription")
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Stripe Subscription Controller", description = "API for managing Stripe Subscriptions")
 public class PremiumSubscriptionController {
@@ -40,7 +40,7 @@ public class PremiumSubscriptionController {
         }
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> cancelSubscription() throws Exception{
         try{
         Subscription subscription = stripeService.cancelSubscription();
