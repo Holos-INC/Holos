@@ -1,85 +1,171 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Text, ScrollView, View, TouchableWithoutFeedback,TextInput} from "react-native";
-import { desktopStyles } from "@/src/styles/Explore.styles";
-import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
-import { fetchWorksAndTransform, getTopThreeArtists } from "@/src/services/ExploreWorkHelpers";
-import { desktopStyles as styles } from "@/src/styles/Explore.styles";
-import WorkCard from "@/src/components/explore/WorkCard";
-import { fetchWorksDone } from "@/src/services/WorksDoneApi";
-import SearchScreen from "@/src/components/search/SearchScreen"; // Importa la pantalla de búsqueda
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  TouchableWithoutFeedback,
+  useWindowDimensions,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useFonts } from "expo-font";
+
+import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
+import SearchScreen from "@/src/components/search/SearchScreen";
 import { useAuth } from "@/src/hooks/useAuth";
+import {
+  fetchWorksAndTransform,
+  getTopThreeArtists,
+  ArtistMin,
+} from "@/src/services/ExploreWorkHelpers";
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 export default function ExploreScreen() {
-  const [works, setWorks] = useState<WorksDoneDTO[]>([]); // Obras destacadas
-  const [searchQuery, setSearchQuery] = useState<string>(""); // Estado para la búsqueda
-  const [isSearching, setIsSearching] = useState<boolean>(false); // Estado para alternar vistas
+  const [works, setWorks] = useState<WorksDoneDTO[]>([]);
+  const [topThreeArtists, setTopThreeArtists] = useState<ArtistMin[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
   const { loggedInUser } = useAuth();
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width > 768;
+  const styles = isDesktop ? desktopStyles : mobileStyles;
+
+  const [fontsLoaded] = useFonts({
+    "Merriweather-Regular": require("../../assets/fonts/Merriweather_24pt-Regular.ttf"),
+    "Merriweather-Italic": require("../../assets/fonts/Merriweather_24pt-Italic.ttf"),
+    "Merriweather-Bold": require("../../assets/fonts/Merriweather_24pt-Bold.ttf"),
+    "Merriweather-BoldItalic": require("../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
-        const works = await fetchWorksAndTransform(loggedInUser.token); // Obtén las obras destacadas
-        setWorks(works);
-      } catch (error) {
-        console.error("Error fetching works:", error);
+        const data = await fetchWorksAndTransform(loggedInUser?.token);
+        setWorks(data);
+      } catch (err) {
+        console.error("Error fetching works:", err);
       }
-    };
-
-    fetchData();
+    })();
   }, []);
 
-  const firstThreeArtists = useMemo(() => getTopThreeArtists(), [works]);
-  const handleSearch = () => {
-    setIsSearching(true); // Cambia a la vista de búsqueda
+  useEffect(() => {
+    (async () => {
+      try {
+        const artists = await getTopThreeArtists();
+        setTopThreeArtists(artists);
+      } catch (err) {
+        console.error("Error fetching artists:", err);
+      }
+    })();
+  }, []);
+
+  if (!fontsLoaded) return null;
+
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim()) setIsSearching(true);
   };
 
+  const closeSearch = () => setIsSearching(false);
+
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        setIsSearching(false); // Cierra la búsqueda al tocar fuera
-      }}
-    >
-      <ScrollView
-        style={{ flex: 1, backgroundColor: "#fff" }}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
+    <TouchableWithoutFeedback onPress={closeSearch}>
+      <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
         <View style={styles.container}>
-          {/* Barra de búsqueda */}
           <TextInput
-            style={[styles.searchBar, {marginTop: 25 }]}
-            placeholder="Buscar trabajos o artistas..."
+            style={[styles.searchBar, { marginTop: isDesktop ? 50 : 25 }]}
+            placeholder="Buscar trabajos o artistas…"
+            placeholderTextColor="#999"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch} // Realiza la búsqueda al presionar Enter
+            onSubmitEditing={handleSearchSubmit}
+            returnKeyType="search"
           />
 
           {isSearching ? (
-            // Renderiza la pantalla de búsqueda
             <SearchScreen query={searchQuery} />
           ) : (
-            // Pantalla principal de Explorer
             <>
-              {/* Sección superior */}
               <View style={styles.topSection}>
-                <Text style={styles.topSectionText}>Obras Destacadas</Text>
+                <Text style={styles.topSectionText}>Obras</Text>
+                <View style={styles.topSectionRight}>
+                  <Text style={styles.topSectionSecondText}>Desliza</Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={20}
+                    color="#666"
+                    style={{ marginLeft: 4 }}
+                  />
+                </View>
               </View>
 
-              {/* Sección del medio: Obras */}
               <View style={styles.middleSection}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.worksScrollContainer}
+                >
                   {works.map((work) => (
-                    <WorkCard key={work.id} work={work} />
+                    <TouchableOpacity
+                      key={work.id}
+                      style={styles.workItem}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/work/[workId]",
+                          params: { workId: String(work.id) },
+                        })
+                      }
+                    >
+                      <Image
+                        source={getImageSource(work.image)}
+                        style={styles.workImage}
+                        onError={() =>
+                          console.log("Error cargando imagen:", work.image)
+                        }
+                      />
+                      <View style={styles.workTextContainer}>
+                        <Text style={styles.workTitle}>{work.name}</Text>
+                        <Text style={styles.workArtist}>{work.artistName}</Text>
+                        <Text style={styles.workSubtitle}>
+                          {work.description}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>
 
-              {/* Sección inferior: Artistas */}
               <View style={styles.bottomSection}>
                 <View style={styles.bottomSectionHeader}>
                   <Text style={styles.bottomSectionHeaderText}>ARTISTAS</Text>
                 </View>
                 <View style={styles.artistsContainer}>
-                  {/* Aquí puedes agregar la lógica para mostrar artistas */}
+                  {topThreeArtists.map((artist) => (
+                    <TouchableOpacity
+                      key={artist.id}
+                      style={styles.artistCard}
+                      onPress={() => router.push(`/profile/${artist.username}`)}
+                    >
+                      <Image
+                        source={getImageSource(artist.imageProfile || "")}
+                        style={styles.artistImage}
+                        onError={() =>
+                          console.log(
+                            "Error cargando imagen:",
+                            artist.imageProfile
+                          )
+                        }
+                      />
+                      <View style={styles.artistTextContainer}>
+                        <Text style={styles.artistName}>{artist.name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
             </>

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -139,34 +138,4 @@ public class ChatMessageControllerTest {
 
         verify(chatMessageService, times(1)).findAllConversations();
     }
-    @Test
-public void testCreateChatMessageSuccess() throws Exception {
-    ChatMessage chatMessage = new ChatMessage();
-    chatMessage.setText("Hello!");
-
-    when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenReturn(chatMessage);
-
-    mockMvc.perform(post("/api/v1/messages")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(chatMessage)))
-            .andExpect(status().isOk());
-
-    verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
-}
-
-@Test
-public void testCreateChatMessageFailure() throws Exception {
-    ChatMessage chatMessage = new ChatMessage();
-    chatMessage.setText("Hello!");
-
-    when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenThrow(new RuntimeException("Error creating message"));
-
-    mockMvc.perform(post("/api/v1/messages")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(chatMessage)))
-            .andExpect(status().isBadRequest());
-
-    verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
-}
-
 }

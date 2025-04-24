@@ -153,7 +153,7 @@ public class SearchControllerIntegrationTest {
                 .param("maxPrice", "300"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
-    }
+    } 
 
  //added
 

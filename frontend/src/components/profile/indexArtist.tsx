@@ -87,7 +87,7 @@ const userArtistProfileScreen = () => {
 
   const pickImage = async (
     setFieldValue: (field: string, value: any) => void,
-    field: "imageProfile" | "tableCommissionsPrice"
+    field: "imageProfile" | "tableCommisionsPrice"
   ) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -101,7 +101,7 @@ const userArtistProfileScreen = () => {
       setFieldValue(field, img);
       if (field === "imageProfile") {
         setImageProfile(img);
-      } else if (field === "tableCommissionsPrice") {
+      } else if (field === "tableCommisionsPrice") {
         setTableCommisionsPrice(img);
       } else {
         console.warn("Campo de imagen no reconocido:", field);
@@ -147,7 +147,7 @@ const userArtistProfileScreen = () => {
         phoneNumber: artist?.phoneNumber || "",
         description: artist?.description || "",
         linkToSocialMedia: artist?.linkToSocialMedia || "",
-        tableCommissionsPrice: artist?.tableCommissionsPrice || "",
+        tableCommissionsPrice: artist?.tableCommisionsPrice || "",
         imageProfile: artist?.imageProfile || "",
         numSlotsOfWork: artist?.numSlotsOfWork || 0,
       }}
@@ -176,7 +176,7 @@ const userArtistProfileScreen = () => {
             phoneNumber: artist.phoneNumber,
             description: artist.description,
             linkToSocialMedia: artist.linkToSocialMedia,
-            tableCommissionsPrice: artist.tableCommissionsPrice,
+            tableCommissionsPrice: artist.tableCommisionsPrice,
             imageProfile: artist.imageProfile,
             numSlotsOfWork: artist.numSlotsOfWork,
           };
@@ -302,8 +302,8 @@ const userArtistProfileScreen = () => {
                     source={
                       tableCommisionsPrice
                         ? { uri: tableCommisionsPrice }
-                        : artist.tableCommissionsPrice
-                        ? { uri: `data:image/jpeg;base64,${artist.tableCommissionsPrice}`}
+                        : artist.tableCommisionsPrice
+                        ? { uri: `data:image/jpeg;base64,${artist.tableCommisionsPrice}`}
                         : undefined
                     }
                     style={styles.priceImage}
@@ -318,7 +318,7 @@ const userArtistProfileScreen = () => {
                         )}
                       <TouchableOpacity
                         onPress={() =>
-                          pickImage(setFieldValue, "tableCommissionsPrice")
+                          pickImage(setFieldValue, "tableCommisionsPrice")
                         }
                         style={styles.stripeButton}
                       >
