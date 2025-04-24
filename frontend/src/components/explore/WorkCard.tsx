@@ -5,6 +5,8 @@ import { BASE_URL } from "@/src/constants/api";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { desktopStyles } from "@/src/styles/Explore.styles";
 import { DropdownMenu } from "../DropdownMenu";
+import { useAuth } from "@/src/hooks/useAuth";
+import { deleteWorksDone } from "@/src/services/WorksDoneApi";
 
 
 type Props = {
@@ -12,6 +14,7 @@ type Props = {
 };
 
 const WorkCard = ({ work }: Props) => {
+  const { isAuthenticated, isArtist, isAdmin, loggedInUser, loading } = useAuth();
   const router = useRouter();
   // const { width } = useWindowDimensions();
   // const isDesktop = width > 768;
@@ -53,10 +56,16 @@ const WorkCard = ({ work }: Props) => {
 
       <View style={desktopStyles.dropdownOverlay}>
       <DropdownMenu
-        actions={[{
-          label: 'Reportar',
-          onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } })
-        }]}
+  actions={[
+    {
+      label: 'Reportar',
+      onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
+    },
+    {
+      label: 'Eliminar',
+      onPress: () => router.push({ pathname: "/report/[reportId]", params: { reportId: String(work.id) } }),
+    }
+  ]}
       />
       </View>
     </View>

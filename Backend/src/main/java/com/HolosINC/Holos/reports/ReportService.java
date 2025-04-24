@@ -10,6 +10,7 @@ import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
+import com.HolosINC.Holos.worksdone.WorksDoneService;
 
 import jakarta.transaction.Transactional;
 
@@ -19,9 +20,12 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final ReportTypeRepository reportTypeRepository;
     private final WorkService worskService;
+    private final WorksDoneService wdService;
+
     private final BaseUserService baseUserService;
 
-    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
+    public ReportService(WorksDoneService wdService, ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
+        this.wdService = wdService;
         this.reportRepository = reportRepository;
         this.reportTypeRepository = reportTypeRepository;
         this.worskService = worskService;
@@ -75,7 +79,8 @@ public class ReportService {
             }
     
             report.setStatus(ReportStatus.ACCEPTED);
-    
+            wdService.deleteWorksDone(report.getWork().getId());
+            
             return reportRepository.save(report);  
     }
     

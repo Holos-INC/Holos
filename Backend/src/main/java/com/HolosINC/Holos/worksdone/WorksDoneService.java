@@ -85,6 +85,11 @@ public class WorksDoneService {
     }
     public Long countByArtistId(Long artistId) {
         return worksDoneRepository.countByArtistId(artistId);
+
     }
 
+    public void deleteWorksDone(Long id) throws Exception{
+        WorksDone worksDone = getWorksDoneById(id);
+        worksDoneRepository.delete(worksDone);
+    }
 }
