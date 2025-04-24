@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
+import com.HolosINC.Holos.commision.DTOs.CommissionImageUpdateDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
@@ -141,6 +142,18 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{commisionId}/updateImage")
+    public ResponseEntity<?> updateCommisionImage(
+            @PathVariable Long commisionId,
+            @RequestBody CommissionImageUpdateDTO dto) {
+        try {
+            commisionService.updateImage(commisionId, dto.getImage());
+            return ResponseEntity.ok().body("Imagen actualizada correctamente.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar la imagen: " + e.getMessage());
         }
     }
 
