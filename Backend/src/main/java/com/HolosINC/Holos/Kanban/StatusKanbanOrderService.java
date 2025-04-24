@@ -21,6 +21,7 @@ import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanUpdateDTO;
 import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanWithCommisionsDTO;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
@@ -75,10 +76,28 @@ public class StatusKanbanOrderService {
     public void updateStatusKanban(StatusKanbanUpdateDTO dto) {
         StatusKanbanOrder sk = statusKanbanOrderRepository.findById(dto.getId())
             .orElseThrow(() -> new ResourceNotFoundException("StatusKanbanOrder", "id", dto.getId()));
+    
+        Long currentUserId = userService.findCurrentUser().getId();
+        Artist artist;
+        try {
+            artist = artistService.findArtistByUserId(currentUserId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al recuperar el artista autenticado: " + e.getMessage());
+        }
+
+        System.out.println("ROL actual: " + artist.getBaseUser().getAuthority());
+    
+        if (!artist.getId().equals(sk.getArtist().getId())) {
+            throw new ResourceNotOwnedException("No tienes permisos para editar este estado kanban.");
+        }
+    
+        if (artist.getBaseUser().getAuthority() != Auth.ARTIST_PREMIUM) {
+            throw new BadRequestException("Solo los artistas premium pueden editar los estados del kanban.");
+        }
+    
         if (commisionService.isStatusKanbanInUse(sk)) {
             throw new BadRequestException("No se puede modificar un estado que está asignado a una o más comisiones.");
         }
-
     
         BeanUtils.copyProperties(dto, sk, "id");
     
@@ -88,7 +107,7 @@ public class StatusKanbanOrderService {
             throw new BadRequestException("Ya existe otro estado con ese nombre u orden para este artista.");
         }
     }
-    
+        
     @Transactional
     public StatusKanbanOrder updateStatusKanbanOrder(StatusKanbanOrder statusKanbanOrder) {
         return statusKanbanOrderRepository.save(statusKanbanOrder);
