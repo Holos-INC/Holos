@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 
 import { ProgressDots } from "@/src/components/requestedCommissions/ProgressDots";
 import { commissionCardstyles as styles } from "@/src/styles/RequestedCommissions.styles";
+import { getImageSource } from "@/src/getImageSource";
 
 type CommissionCardProps = {
   id: number;
@@ -41,7 +42,7 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={getImageSource(image)} style={styles.image} />
 
       <View style={styles.content}>
         <View style={styles.titleContainer}>
