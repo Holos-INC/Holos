@@ -328,5 +328,25 @@ public class StatusKanbanOrderService {
 
         statusKanbanOrderRepository.saveAll(allStatuses);
     }
+
+    @Transactional
+    public void createDefaultKanbanStates(Artist artist) {
+        String[][] estados = {
+            {"To do", "#FFA956"},
+            {"In progress", "#F05A7E"},
+            {"Done", "#B1B5F8"}
+        };
+
+        for (int i = 0; i < estados.length; i++) {
+            StatusKanbanOrder estado = new StatusKanbanOrder();
+            estado.setArtist(artist);
+            estado.setName(estados[i][0]);
+            estado.setColor(estados[i][1]);
+            estado.setOrder(i + 1);
+            estado.setDescription("Estado por defecto: " + estados[i][0]);
+            statusKanbanOrderRepository.save(estado);
+        }
+    }
+
     
 }
