@@ -16,6 +16,7 @@ import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkDetail.styles";
 import { useFonts } from "expo-font";
 import { getImageSource } from "@/src/getImageSource";
+import ReportDropdown from "@/src/components/report/ReportDropDown";
 
 export default function WorkDetailScreen() {
   const router = useRouter();
@@ -27,6 +28,9 @@ export default function WorkDetailScreen() {
 
   const { width } = useWindowDimensions();
   const styles = width > 768 ? desktopStyles : mobileStyles;
+
+  // >>> Estado para controlar el menú de reporte <<<
+  const [menuVisibleId, setMenuVisibleId] = useState<number | null>(null);
 
   const [fontsLoaded] = useFonts({
     "Merriweather-Regular": require("../../../assets/fonts/Merriweather_24pt-Regular.ttf"),
@@ -71,7 +75,13 @@ export default function WorkDetailScreen() {
   }
 
   return (
-    <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        if (menuVisibleId !== null) {
+          setMenuVisibleId(null);
+        }
+      }}
+    >
       <View style={styles.container}>
         <View style={styles.leftColumn}>
           {work.image ? (
@@ -83,6 +93,17 @@ export default function WorkDetailScreen() {
           ) : (
             <View style={styles.placeholderContainer}>
               <Text>Sin imagen</Text>
+            </View>
+          )}
+          {/* >>> Aquí se muestra el botón/desplegable de reporte <<< */}
+          {work.image && (
+            <View style={{ position: "absolute", top: 10, right: 10 }}>
+              <ReportDropdown
+                work={work}
+                menuVisibleId={menuVisibleId}
+                setMenuVisibleId={setMenuVisibleId}
+                isBigScreen={width > 768}
+              />
             </View>
           )}
         </View>

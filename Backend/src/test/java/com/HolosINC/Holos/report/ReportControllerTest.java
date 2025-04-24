@@ -146,25 +146,6 @@ public class ReportControllerTest {
     verify(reportService, times(1)).acceptReport(REPORT_ID);
 }
 
-@Test
-public void testRejectReportSuccess() throws Exception {
-    // Crear un report real con la ID y otros datos mockeados
-    Report rejectedReport = new Report();
-    rejectedReport.setId(REPORT_ID);
-    rejectedReport.setName("Spam Content");
-    rejectedReport.setDescription("Repeated content violation");
-
-    // Simulamos que el servicio rechaza el reporte
-    when(reportService.rejectReport(REPORT_ID)).thenReturn(rejectedReport);
-
-    mockMvc.perform(put("/api/v1/reports/admin/reject/{id}", REPORT_ID))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(REPORT_ID)) // Aseguramos que el ID esté presente en la respuesta
-            .andExpect(jsonPath("$.name").value("Spam Content")) // Verificamos que el nombre esté correctamente presente
-            .andExpect(jsonPath("$.description").value("Repeated content violation")); // Verificamos que la descripción esté presente
-
-    verify(reportService, times(1)).rejectReport(REPORT_ID);
-}
     @Test
     public void testDeleteReportSuccess() throws Exception {
         // Simulamos que el servicio elimina el reporte

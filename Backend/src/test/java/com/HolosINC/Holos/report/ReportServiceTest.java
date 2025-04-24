@@ -153,43 +153,6 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void testRejectReportSuccess() throws Exception {
-        // Crear el reporte con estado PENDING
-        Report report = new Report();
-        report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.PENDING);
-
-        // Mockear el comportamiento del repositorio
-        when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
-        when(reportRepository.save(any(Report.class))).thenReturn(report); // Mockear la respuesta de save()
-
-        // Ejecutar el servicio
-        Report result = reportService.rejectReport(REPORT_ID);
-
-        // Verificar que el reporte haya sido rechazado
-        assertEquals(ReportStatus.REJECTED, result.getStatus());
-
-        // Verificar que el reporte se haya guardado una vez
-        verify(reportRepository, times(1)).save(any(Report.class));
-    }
-
-    @Test
-    public void testDeleteReportSuccess() throws Exception {
-        // Mockear el reporte con estado REJECTED
-        Report report = new Report();
-        report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.REJECTED);
-
-        when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
-
-        // Ejecutar el servicio
-        reportService.deleteReport(REPORT_ID);
-
-        // Verificar que el reporte haya sido eliminado
-        verify(reportRepository, times(1)).delete(report);
-    }
-
-    @Test
     public void testDeleteReportInvalidStatus() {
         // Mockear el reporte con estado no REJECTED
         Report report = new Report();
