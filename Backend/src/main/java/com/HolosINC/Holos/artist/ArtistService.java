@@ -95,13 +95,6 @@ public class ArtistService {
 
 			commisionRepository.deleteAll(commisions);
 
-			Page<SearchWorkDTO> worksPage = workRepository.searchByArtist(artistId.intValue(), Pageable.unpaged());
-
-			for (SearchWorkDTO dto : worksPage.getContent()) {
-				Long workId = dto.getId();
-				workRepository.deleteById(workId);
-			}
-
 
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
