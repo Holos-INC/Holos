@@ -29,20 +29,10 @@ export default function UploadWorkArtist() {
   const navigation = useNavigation();
   const [inputValue, setInputValue] = useState<string>("");
   const [abilityPost, setabilityPost] = useState<Boolean>(false);
-  const [paymentArrangement, setPaymentArrangement] = useState<PaymentArrangement>(PaymentArrangement.INITIAL);
-  const [totalPayments, setTotalPayments] = useState(4);
+  const [paymentArrangement, setPaymentArrangement] = useState("INITIAL");
+  const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-
-  const {
-      commission,
-      setCommission,
-      loading,
-      errorMessage,
-      setErrorMessage,
-      refreshCommission,
-    } = useCommissionDetails(commissionId);
-
 
   useEffect(() => {
     navigation.setOptions("Subir una nueva obra al portafolio");
@@ -61,38 +51,6 @@ export default function UploadWorkArtist() {
        fetchAbilityPost();
     }, []) 
   );
-
-  const handleCreateCommission = async () => {
-    if (!loggedInUser.token || !commission) return;
-  
-    try {
-      let totalPayments = 1;
-  
-      if (paymentArrangement === "FIFTYFIFTY") {
-        totalPayments = 2;
-      } else if (paymentArrangement === "MODERATOR") {
-        if (isNaN(totalPayments) || totalPayments < 3 || totalPayments > 10) {
-          alert("El número de pagos debe ser entre 3 y 10 para el modo moderador.");
-          return;
-        }
-      }
-  
-      const commissionData: Partial<Commission> = {
-        paymentArrangement,
-        totalPayments, 
-      };
-  
-      const newCommission = await createCommission(commissionData, loggedInUser.id);
-      await refreshCommission();
-      alert("Comisión creada correctamente con ID: " + newCommission.id);
-      
-    } catch (error: any) {
-      console.error("Error al crear la comisión:", error);
-      setErrorMessage(error.message || "Error al crear la comisión");
-    }
-  };
-  
-
   const uploadNewWorkValidationSchema = object({
     name: string().trim().required("El título de la obra es requerido"),
     description: string().trim().required("La descripción de la obra es requerida"),
@@ -132,6 +90,8 @@ export default function UploadWorkArtist() {
               name: values.name,
               description: values.description,
               price: values.price,
+              paymentArrangement: values.paymentArrangement,
+              totalPayments: values.totalPayments,
             };
       await postWorkdone(uploadWork, selectedImage, loggedInUser.token );
       popUpMovilWindows("Éxito", " Enviado correctamente");
@@ -149,7 +109,10 @@ export default function UploadWorkArtist() {
     return  (
       <Formik
         initialValues={{ name: "", description: "", price: 0, image: "" }}
-        onSubmit={(values, { resetForm }) => sendWork(values, resetForm)}
+        onSubmit={(values, { resetForm }) => {
+          const parsedTotalPayments = totalPayments ? parseInt(totalPayments) : 0;  // Si es null o undefined, asignamos 0
+          sendWork({ ...values, paymentArrangement: paymentArrangement as PaymentArrangement, totalPayments: parsedTotalPayments }, resetForm);
+        }}
         validationSchema={uploadNewWorkValidationSchema}
       >
         {({ handleChange,handleBlur, handleSubmit, setFieldValue,values,  errors, touched }) => (
@@ -249,32 +212,36 @@ export default function UploadWorkArtist() {
   </Text>
 )}
 
-{paymentArrangement === "MODERATOR" && (
-  <TextInput
-    value={String(totalPayments)}
-    mode="outlined"
-    keyboardType="numeric"
-    placeholder="Número de pagos"
-    outlineColor={colors.brandPrimary}
-    activeOutlineColor={colors.brandPrimary}
-    returnKeyType="done"
-    style={{
-      backgroundColor: "transparent",
-      padding: 10,
-      borderWidth: 1,
-      borderColor: colors.brandPrimary,
-      borderRadius: 5,
-      marginBottom: 15,
-      color: 'black',
-    }}
-  />
-)}
+{paymentArrangement === "MODERATOR" &&(
+    <TextInput
+      value={totalPayments}
+      onChangeText={setTotalPayments}
+      mode="outlined"
+      keyboardType="numeric"
+      placeholder="Número de pagos"
+      outlineColor={colors.brandPrimary}
+      activeOutlineColor={colors.brandPrimary}
+      returnKeyType="done"
+      style={{
+        backgroundColor: "transparent",
+        padding: 10,
+        borderWidth: 1,
+        borderColor: colors.brandPrimary,
+        borderRadius: 5,
+        marginBottom: 15,
+        color: 'black',
+      }}
+      theme={{
+        colors: {
+          text: 'black',
+          placeholder: 'black',
+          primary: colors.brandPrimary,
+        },
+      }}
+      underlineColor="transparent"
+    />
+  )}
 
-{!isButtonDisabled && (
-  <Button onPress={handleCreateCommission} buttonColor={colors.brandPrimary} textColor="white">
-    Guardar cambios de pago
-  </Button>
-)}
 
 
             
