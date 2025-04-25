@@ -14,7 +14,7 @@ export async function fetchWorksAndTransform(
   token: string
 ): Promise<WorksDoneDTO[]> {
   try {
-    const data = await api.get(`${BASE_URL}/api/v1/search/works?size=5`, {
+    const data = await api.get(`${BASE_URL}/api/v1/search/works`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return data.data.content;
