@@ -77,4 +77,10 @@ public class ChatMessageService {
 
         return conversations;
     }
+
+    @Transactional
+    public void deleteConversationByCommisionId(Long commisionId) {
+        List<ChatMessage> messages = chatMessageRepository.findConversationByCommisionId(commisionId);
+        chatMessageRepository.deleteAll(messages);
+    }
 }
