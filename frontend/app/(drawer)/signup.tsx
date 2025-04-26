@@ -28,7 +28,6 @@ export default function SignupScreen() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const navigation = useNavigation();
   const router = useRouter();
-  const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
   const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
   const [linkToSocialMedia, setLinkToSocialMedia] = useState("");
   useEffect(() => {
@@ -105,10 +104,6 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      numSlotsOfWork:
-        role === "artist" || role === "artist_premium"
-          ? numSlotsOfWork
-          : undefined,
       linkToSocialMedia:
         role === "artist" || role === "artist_premium"
           ? linkToSocialMedia
@@ -278,19 +273,6 @@ export default function SignupScreen() {
         {(role === "artist" || role === "artist_premium") && (
           <>
             <View style={styles.formRow}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Slots de trabajo (1-8)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Número entre 1 y 8"
-                  value={numSlotsOfWork}
-                  onChangeText={setNumSlotsOfWork}
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-
-            <View style={styles.formRow}>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>
@@ -345,7 +327,7 @@ export default function SignupScreen() {
         )}
 
         <View style={styles.roleContainer}>
-          <Text style={styles.label}>Rol actual: {role}</Text>
+          <Text style={styles.label}>Que quieres ser?</Text>
           <View style={styles.roleButtonsRow}>
             <TouchableOpacity
               style={[
@@ -354,7 +336,7 @@ export default function SignupScreen() {
               ]}
               onPress={() => setRole("client")}
             >
-              <Text style={styles.roleButtonText}>CLIENT</Text>
+              <Text style={styles.roleButtonText}>cliente</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -363,16 +345,7 @@ export default function SignupScreen() {
               ]}
               onPress={() => setRole("artist")}
             >
-              <Text style={styles.roleButtonText}>ARTIST</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === "artist_premium" && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole("artist_premium")}
-            >
-              <Text style={styles.roleButtonText}>ARTIST PREMIUM</Text>
+              <Text style={styles.roleButtonText}>artista</Text>
             </TouchableOpacity>
           </View>
         </View>

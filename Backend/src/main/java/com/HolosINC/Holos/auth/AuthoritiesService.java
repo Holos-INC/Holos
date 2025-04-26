@@ -78,7 +78,7 @@ public class AuthoritiesService {
 		}
 
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia());
-			artist.setNumSlotsOfWork(7);
+			artist.setNumSlotsOfWork(2);
 			artist.setTableCommisionsPrice(request.getTableCommisionsPrice().getBytes());
 			artist.setBaseUser(user);
 	
