@@ -380,7 +380,11 @@ public class CommisionService {
 
         if (commission.getStatus() != StatusCommision.ACCEPTED) {
             throw new IllegalStateException("No puedes cerrar una comisión que aún no has empezado.");
-        }    
+        }
+        
+        if (commission.getImage() == null || commission.getImage().length == 0) {
+            throw new IllegalStateException("No puedes cerrar una comisión que no tiene imagen asociada.");
+        }
 
         chatMessageService.deleteConversationByCommisionId(commissionId);
 
