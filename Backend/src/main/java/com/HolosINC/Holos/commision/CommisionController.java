@@ -1,5 +1,7 @@
 package com.HolosINC.Holos.commision;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
@@ -143,5 +147,18 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
         }
     }
+
+    @GetMapping("/ended/client")
+    public ResponseEntity<?> getEndedCommissionsForClient() {
+        try {
+            List<ClientCommissionDTO> commissions = commisionService.getEndedCommissionsForClient();
+            return ResponseEntity.ok(commissions);
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body("Acceso denegado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al obtener las comisiones finalizadas: " + e.getMessage());
+        }
+    }
+
 
 }
