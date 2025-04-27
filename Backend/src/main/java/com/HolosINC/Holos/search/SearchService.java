@@ -111,7 +111,7 @@ public class SearchService {
         }
 
         Page<SearchWorkDTO> works = searchWorks(query, minPrice, maxPrice, page, size);
-        Page<Artist> artists = searchArtists(query, minWorksDone, page, size);
+        Page<SearchArtistDTO> artists = searchArtists(query, minWorksDone, page, size);
 
         List<Object> combinedResults = Stream.concat(artists.getContent().stream(), works.getContent().stream())
                 .collect(Collectors.toList());
