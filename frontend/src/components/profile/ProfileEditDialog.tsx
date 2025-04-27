@@ -5,11 +5,10 @@ import colors from "@/src/constants/colors";
 import * as ImagePicker from "expo-image-picker";
 import { artistUser } from "@/src/constants/user";
 import { Text, Image, ScrollView } from "react-native";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
 import { updateUserArtist } from "@/src/services/artistApi";
 import { updateUserClient } from "@/src/services/clientApi";
 import { Platform, useWindowDimensions } from "react-native";
-import { BaseUserDTO } from "@/src/constants/CommissionTypes";
+import { BaseUserDTO,ArtistDTO } from "@/src/constants/CommissionTypes";
 import { Dialog, Portal, Button, TextInput } from "react-native-paper";
 import { desktopStyles, mobileStyles } from "@/src/styles/userProfile.styles";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
@@ -43,6 +42,9 @@ const validationSchema = Yup.object().shape({
   description: Yup.string().max(200, "No puede escribir más de 200 carácteres"),
   imageProfile: Yup.string().notRequired(),
   tableCommissionsPrice: Yup.string().notRequired(),
+  numSlotsOfWork: Yup.number()
+    .integer("Debe ser un número entero")
+    .min(0, "Debe ser mayor o igual a 0"),
 });
 
 const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
@@ -57,6 +59,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
   const isDesktop = Platform.OS === "web" && width > 775;
   const styles = isDesktop ? desktopStyles : mobileStyles;
   const isArtist = isArtistUser(user);
+  const isArtistPremium = isArtistPremiumUser(user);
   const [imageProfile, setImageProfile] = useState<string | null>(null);
   const [tableCommisionsPrice, setTableCommisionsPrice] = useState<
     string | null
@@ -95,22 +98,34 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
     phoneNumber: user.phoneNumber ?? "",
     description: user.description ?? "",
     imageProfile: user.imageProfile ?? "",
-    linkToSocialMedia: isArtist
+    linkToSocialMedia: 
+    isArtist
       ? (user as ArtistDTO).linkToSocialMedia ?? ""
       : "",
     tableCommissionsPrice: isArtist
       ? (user as ArtistDTO).tableCommisionsPrice ?? ""
       : "",
+    numSlotsOfWork: isArtistPremium
+      ? (user as ArtistDTO).numSlotsOfWork ?? 0
+      : 0,
   };
 
   function isArtistUser(user: any): user is ArtistDTO {
     return (
       typeof user === "object" &&
-      "authorityName" in user &&
-      (user.authorityName === "ARTIST" ||
-        user.authorityName === "ARTIST_PREMIUM")
+      "authority" in user &&
+      (user.authority === "ARTIST" ||
+        user.authority === "ARTIST_PREMIUM")
     );
   }
+
+  function isArtistPremiumUser(user: any): user is ArtistDTO {
+    return (
+      typeof user === "object" &&
+      "authority" in user &&
+      (user.authority === "ARTIST_PREMIUM")
+    );
+  }  
 
   const sendProfile = async (values: any) => {
     try {
@@ -119,7 +134,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       if (isArtist) {
         await updateUserArtist(values, token);
       } else {
-        const { tableCommissionsPrice, linkToSocialMedia, ...baseUserValues } =
+        const { tableCommissionsPrice, linkToSocialMedia, numSlotsOfWork, ...baseUserValues } =
           values;
         await updateUserClient(baseUserValues, token);
       }
@@ -323,6 +338,22 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                       >
                         Tabla de comisiones
                       </Button>
+                    </>
+                  )}
+                  {isArtistPremium && (
+                    <>
+                      <Text style={styles.label}>Número de encargos simultáneos</Text>
+                      <TextInput
+                        value={String(values.numSlotsOfWork)}
+                        onChangeText={(text) => setFieldValue("numSlotsOfWork", parseInt(text) || 0)}
+                        onBlur={handleBlur("numSlotsOfWork")}
+                        mode="outlined"
+                        keyboardType="numeric"
+                        theme={{ roundness: 20 }}
+                      />
+                      {touched.numSlotsOfWork && errors.numSlotsOfWork && (
+                        <Text style={styles.error}>{errors.numSlotsOfWork}</Text>
+                      )}
                     </>
                   )}
 

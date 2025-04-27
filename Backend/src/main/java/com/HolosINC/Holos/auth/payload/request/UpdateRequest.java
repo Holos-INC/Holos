@@ -23,4 +23,6 @@ public class UpdateRequest {
     private String description;
 
 	private String linkToSocialMedia;
+
+	private Integer numSlotsOfWork;
 }

@@ -39,12 +39,10 @@ export enum StatusCommission {
   REQUESTED = "REQUESTED",
   WAITING_CLIENT = "WAITING_CLIENT",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  CANCELED = "CANCELED",
   WAITING_ARTIST = "WAITING_ARTIST",
   NOT_PAID_YET = "NOT_PAID_YET",
   IN_WAIT_LIST = "IN_WAIT_LIST",
-  ENDED = "Finalizado",
+  ENDED = "ENDED",
 }
 
 export enum PaymentArrangement {
@@ -124,6 +122,8 @@ export interface CommissionProtected {
   artistUsername: string;
 
   clientUsername: string;
+
+  acceptedDateByArtist: Date; 
 }
 
 export interface CommissionInProgress {
@@ -143,7 +143,16 @@ export interface BaseUserDTO {
   phoneNumber: string;
   description: string;
   imageProfile: string;
-  authorityName: string;
+  authority: string;
+}
+
+export interface ArtistDTO extends BaseUserDTO {
+  
+  artistId: number;
+  baseUserId: number;
+  numSlotsOfWork: number;
+  tableCommissionsPrice: string;
+  linkToSocialMedia: string;
 }
 
 export interface CommissionDTO {

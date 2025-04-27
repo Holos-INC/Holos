@@ -24,6 +24,6 @@ public class BaseUserDTO {
 
     private byte[] imageProfile;
 
-    private String authorityName;
+    private String authority;
 
 }
