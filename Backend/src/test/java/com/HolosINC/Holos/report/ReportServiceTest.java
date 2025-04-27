@@ -9,6 +9,7 @@ import com.HolosINC.Holos.reports.ReportService;
 import com.HolosINC.Holos.reports.ReportStatus;
 import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
+import com.HolosINC.Holos.worksdone.WorksDoneService;
 import com.HolosINC.Holos.reports.Report;
 
 import com.HolosINC.Holos.reports.ReportDTO;
@@ -39,6 +40,9 @@ public class ReportServiceTest {
 
     @Mock
     private WorkService workService;
+
+    @Mock
+    private WorksDoneService wdService;
 
     @Mock
     private BaseUserService baseUserService;
@@ -115,8 +119,10 @@ public class ReportServiceTest {
     @Test
     public void testAcceptReportSuccess() throws Exception {
         // Mockear el reporte y su aceptación
+        Work work = new Work();
+        work.setId(123L); // or whatever id is needed
         Report report = new Report();
-        report.setId(REPORT_ID);
+        report.setWork(work);
         report.setStatus(ReportStatus.PENDING); // Asegúrate de que el estado inicial sea PENDING
 
         // Asegurarse de que el mock de reportRepository devuelva el reporte
@@ -153,11 +159,11 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void testDeleteReportInvalidStatus() {
-        // Mockear el reporte con estado no REJECTED
+    public void testDeleteReportAcceptedStatus() {
+        // Mockear el reporte con estado ACCEPTED
         Report report = new Report();
         report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.PENDING);
+        report.setStatus(ReportStatus.ACCEPTED);
 
         when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
 
