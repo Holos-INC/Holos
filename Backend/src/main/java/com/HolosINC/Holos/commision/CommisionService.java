@@ -387,5 +387,15 @@ public class CommisionService {
     
         commisionRepository.save(commision);
     }    
-    
+  
+    @Transactional(readOnly = true)
+    public List<ClientCommissionDTO> getEndedCommissionsForClient() throws Exception {
+        BaseUser currentUser = userService.findCurrentUser();
+
+        if (!clientService.isClient(currentUser.getId())) {
+            throw new IllegalAccessException("Solo los clientes pueden ver su galería de comisiones finalizadas.");
+        }
+
+        return commisionRepository.findEndedCommissionsByClientId(currentUser.getId());
+    }
 }
