@@ -14,7 +14,6 @@ import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 
 import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
-import ReportDropdown from "@/src/components/report/ReportDropDown";
 
 import {
   fetchWorksAndTransform,

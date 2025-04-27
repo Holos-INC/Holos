@@ -1,5 +1,5 @@
 INSERT INTO base_user (id, name, username, password, email, phone_number, image_profile, created_user, authority) VALUES
-(1, 'client1', 'client1', '$2a$10$bQCIA7E2i4469olxpfn9keJqj22QmiDRZHQ2JbAKWUgYLK7ZgAnae', 'client1@gmail.com', '600619217', NULL, '2025-03-06', 'CLIENT'),
+(1, 'client1', 'client1', '$2a$10$bQCIA7E2i4469olxpfn9keJqj22QmiDRZHQ2JbAKWUgYLK7ZgAnae', 'client1@gmail.com', '600619217', '/images/nobita.jpg', '2025-03-06', 'CLIENT'),
 (2, 'Jeenii', 'jeenni', '$2a$10$Kpe6DPMrQ3cVvUX7InB/C.l556UiudzbjVt/u/fhejE5l.hBW6FZi', 'reinapata20@gmail.com', '123456789', NULL, '2025-03-06', 'CLIENT'),
 (3, 'Emilio', 'emilio', '$2a$10$14GTyUA2jImRAIvh9p9yNe.2DC818K1/y7CX9VP3hWp4L5gnr9oeS', 'emilio.esp99@gmail.com', '123456789', NULL, '2025-03-06', 'CLIENT'),
 (4, 'Rafael', 'rafael', '$2a$10$VnAjVwBaTBSA7pQdjKh5TO4yZOntRUHZHnk8CQg4ecsjsPnSj4U4m', 'dekker.rafa@gmail.com', '123456789', NULL, '2025-03-06', 'CLIENT'),
@@ -222,17 +222,17 @@ INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, descripti
 (86, 20, 'On Hold', 4, 'Tasks that are paused or waiting for approval', '#FFC300');
 
 -- Comisiones para el Artista 1(ID 1)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
-(1, 1, 'Golden Sunrise', 'A beautiful golden sunrise landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL),
-(2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 13, 'REQUESTED', '2025-03-15', 'INITIAL', NULL),
-(3, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'ACCEPTED', '2025-03-01', 'INITIAL', 1),
-(4, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', '2025-03-02', 'FINAL', 2),
-(5, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 14, 'IN_WAIT_LIST', '2025-03-16', 'FIFTYFIFTY', NULL),
-(6, 1, 'Vintage Car', 'A classic vintage car painting', 180.0, 15, 'IN_WAIT_LIST', '2025-03-17', 'FINAL', NULL),
-(7, 1, 'River Bend', 'A calm river meandering through the countryside', 250.0, 16, 'IN_WAIT_LIST', '2025-03-18', 'INITIAL', NULL),
-(8, 1, 'Starry Night', 'A beautiful rendition of the night sky', 200.0, 17, 'ENDED', '2025-03-19', 'FIFTYFIFTY', NULL),
-(9, 1, 'Mountain View', 'A scenic mountain landscape', 270.0, 18, 'ENDED', '2025-03-20', 'FINAL', NULL),
-(10, 1, 'Peaceful Waters', 'A peaceful lake surrounded by mountains', 230.0, 19, 'ENDED', '2025-03-21', 'INITIAL', NULL);
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, image) VALUES
+(1, 1, 'Golden Sunrise', 'A beautiful golden sunrise landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, '/images/nobita.jpg'),
+(2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 13, 'REQUESTED', '2025-03-15', 'INITIAL', NULL, '/images/nobita.jpg'),
+(3, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'ACCEPTED', '2025-03-01', 'INITIAL', 1, '/images/nobita.jpg'),
+(4, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', '2025-03-02', 'FINAL', 2, '/images/nobita.jpg'),
+(5, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 14, 'IN_WAIT_LIST', '2025-03-16', 'FIFTYFIFTY', NULL, '/images/nobita.jpg'),
+(6, 1, 'Vintage Car', 'A classic vintage car painting', 180.0, 15, 'IN_WAIT_LIST', '2025-03-17', 'FINAL', NULL, '/images/nobita.jpg'),
+(7, 1, 'River Bend', 'A calm river meandering through the countryside', 250.0, 16, 'IN_WAIT_LIST', '2025-03-18', 'INITIAL', NULL, '/images/nobita.jpg'),
+(8, 1, 'Starry Night', 'A beautiful rendition of the night sky', 200.0, 17, 'ENDED', '2025-03-19', 'FIFTYFIFTY', NULL, '/images/nobita.jpg'),
+(9, 1, 'Mountain View', 'A scenic mountain landscape', 270.0, 18, 'ENDED', '2025-03-20', 'FINAL', NULL, '/images/nobita.jpg'),
+(10, 1, 'Peaceful Waters', 'A peaceful lake surrounded by mountains', 230.0, 19, 'ENDED', '2025-03-21', 'INITIAL', NULL, '/images/nobita.jpg');
 
 -- Comisiones para el Artista 2(ID 2)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
@@ -507,8 +507,8 @@ INSERT INTO report_types (id, type) VALUES
 
 
 INSERT INTO reports (id, name, description, status, made_by_id, reported_user_id, work_id, report_type_id) VALUES 
-(1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 2, 1, 1),
-(2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 4, 2, 2),
-(3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 6, 3, 3),
-(4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 7, 4, 4),
-(5, 'Spam Content', 'The artwork description contains promotional links.', 'REJECTED', 8, 9, 2, 1);
+(1, 'Inappropriate Content', 'This artwork contains sensitive material.', 'ACCEPTED', 1, 23, 200, 1),
+(2, 'Plagiarism Report', 'This work closely resembles another known piece.', 'PENDING', 3, 24, 201, 2),
+(3, 'Offensive Behavior', 'The artist has been using inappropriate language.', 'ACCEPTED', 5, 25, 202, 3),
+(4, 'Fake Account', 'This user might be impersonating someone else.', 'PENDING', 2, 26, 203, 4),
+(5, 'Spam Content', 'The artwork description contains promotional links.', 'PENDING', 8, 27, 204, 1);

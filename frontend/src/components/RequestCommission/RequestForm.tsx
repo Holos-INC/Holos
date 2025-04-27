@@ -21,6 +21,7 @@ import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -131,7 +132,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
         <View style={styles.imageWrapper}>
           <Image
-            source={require(commissionTablePrice)}
+            source={getImageSource(artist.tableCommissionsPrice)}
             style={styles.priceTableImage}
             resizeMode="contain"
           />

@@ -4,6 +4,7 @@ import { Icon, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 type ProfileHeaderProps = {
   user: BaseUserDTO | ArtistDTO | null;
@@ -38,10 +39,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             borderRadius: 75,
             resizeMode: "cover",
           }}
-          source={
-            user?.imageProfile
-              ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
-              : undefined
+          source={getImageSource(user?.imageProfile || "")}
+          onError={() =>
+            console.log("Error cargando imagen:", user?.imageProfile)
           }
         />
         <Text

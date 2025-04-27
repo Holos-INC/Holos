@@ -19,7 +19,6 @@ export interface Artist {
   baseUser?: BaseUser;
 }
 
-
 export interface Work {
   id: number;
   name: string;

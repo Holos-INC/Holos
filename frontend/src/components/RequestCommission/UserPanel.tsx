@@ -3,6 +3,7 @@ import { BASE_URL } from "@/src/constants/api";
 import LoadingScreen from "../LoadingScreen";
 import { styles } from "@/src/styles/UserPanel.styles";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 interface UserPanelProps {
   artist: ArtistDTO;
@@ -15,7 +16,7 @@ export default function UserPanel({ artist }: UserPanelProps) {
     <View style={styles.container}>
       {artist.imageProfile ? (
         <Image
-          source={{ uri: `${BASE_URL}${atob(artist.imageProfile)}` }}
+          source={getImageSource(artist.imageProfile)}
           style={styles.profileImage}
         />
       ) : (
