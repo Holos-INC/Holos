@@ -51,4 +51,9 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
 
     @Query("SELECT COUNT(c) FROM Commision c WHERE c.artist.id = :artistId AND c.status = 'ACCEPTED'")
     Long countByStatusAcceptedAndArtist(@Param("artistId") Long artistId);
+    
+    @Query("SELECT new com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO(c) " + "FROM Commision c " + 
+    "WHERE c.client.baseUser.id = :clientId AND c.status = com.HolosINC.Holos.commision.StatusCommision.ENDED")
+    List<ClientCommissionDTO> findEndedCommissionsByClientId(Long clientId);
+
 }
