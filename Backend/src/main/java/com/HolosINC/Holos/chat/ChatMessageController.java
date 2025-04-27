@@ -101,7 +101,7 @@ public class ChatMessageController {
             if (page != null && size != null) {
                 return ResponseEntity.ok(service.getPagedConversation(commisionId, page, size).getContent());
             } else {
-                return ResponseEntity.ok(service.getConversation(commisionId));
+                return ResponseEntity.ok(service.findConversationByCommisionId(commisionId));
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

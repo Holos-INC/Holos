@@ -5,9 +5,6 @@ import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserService;
-import com.HolosINC.Holos.reports.Report;
-import com.HolosINC.Holos.reports.ReportRepository;
-import com.HolosINC.Holos.reports.ReportService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,13 +20,11 @@ public class WorksDoneService {
     private final WorksDoneRepository worksDoneRepository;
     private final ArtistService artistService;
     private final BaseUserService baseUserService;
-    private final ReportRepository reportRepository;
 
-    public WorksDoneService(WorksDoneRepository worksDoneRepository, ArtistService artistService, BaseUserService baseUserService, ReportRepository reportRepository) {
+    public WorksDoneService(WorksDoneRepository worksDoneRepository, ArtistService artistService, BaseUserService baseUserService) {
         this.worksDoneRepository = worksDoneRepository;
         this.artistService = artistService;
         this.baseUserService = baseUserService;
-        this.reportRepository = reportRepository;
     }
 
 

@@ -76,7 +76,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         if (result.error) {
           setError(error ? String(error) : "Ocurrió un error 😿");
         }
-        setTimeout(() => router.replace("/"), 2500);
+        () => router.replace("/");
       }
     } catch (e) {
       setError("No se pudo completar el pago 😿");

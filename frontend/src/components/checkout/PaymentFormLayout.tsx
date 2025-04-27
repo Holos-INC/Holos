@@ -46,6 +46,7 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
       <CardElement options={{ style: cardElementStyle }} />
 
       <TouchableOpacity
+        testID="pay-button"
         onPress={onPress}
         style={[styles.button, loading && { opacity: 0.5 }]}
         disabled={loading}
@@ -57,7 +58,7 @@ const PaymentFormLayout: React.FC<PaymentFormLayoutProps> = ({
 
       {error && <Text style={styles.error}>{error}</Text>}
       {success && (
-        <Text style={styles.success}>¡Pago realizado con éxito! 🎉</Text>
+        <Text style={styles.success} testID="success-text">¡Pago realizado con éxito! 🎉</Text>
       )}
     </View>
   );
