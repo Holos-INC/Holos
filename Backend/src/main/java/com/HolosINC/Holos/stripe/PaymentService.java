@@ -2,6 +2,7 @@ package com.HolosINC.Holos.stripe;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.client.Client;
+import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
@@ -13,9 +14,11 @@ import com.HolosINC.Holos.model.BaseUserService;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.SetupIntent;
 import com.stripe.net.RequestOptions;
+import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.SetupIntentCreateParams;
 
@@ -35,14 +38,16 @@ public class PaymentService {
     private Double commisionPercentage = 0.06;
     private CommisionRepository commisionRepository;
     private BaseUserService userService;
+    private ClientRepository clientRepository;
     private String currency = "eur";
     private PaymentHistoryRepository phr;    
 
     @Autowired
-    public PaymentService(CommisionRepository commisionRepository, BaseUserService userService, PaymentHistoryRepository paymentHistoryRepository) {
+    public PaymentService(CommisionRepository commisionRepository, BaseUserService userService, PaymentHistoryRepository paymentHistoryRepository, ClientRepository clientRepository) {
         this.commisionRepository = commisionRepository;
         this.userService = userService;
         this.phr = paymentHistoryRepository;
+        this.clientRepository = clientRepository;
     }
     
     @Transactional
@@ -61,8 +66,15 @@ public class PaymentService {
             }
 
             if (client.getStripeCustomerId() == null || client.getStripeCustomerId().isEmpty()) {
-                throw new BadRequestException("El cliente no tiene un ID de cliente de Stripe asociado");
-            }
+                CustomerCreateParams params = CustomerCreateParams.builder()
+                    .setName(activeUser.getUsername())
+                    .setEmail(activeUser.getEmail())
+                    .build();
+                Customer stripeCustomer = Customer.create(params);
+
+                client.setStripeCustomerId(stripeCustomer.getId());
+                clientRepository.save(client);
+            } 
 
             SetupIntentCreateParams params = SetupIntentCreateParams.builder()
                     .addPaymentMethodType("card") 
@@ -123,12 +135,14 @@ public class PaymentService {
                 throw new BadRequestException("El cliente no tiene un ID de cliente de Stripe asociado");
             }
 
-            String paymentMethodId = commision.getPaymentMethodId();
+            String setupIntentId = commision.getSetupIntentId();
     
-            if (paymentMethodId == null) {
-                throw new BadRequestException("SetupIntent no contiene un método de pago válido");
+            if (setupIntentId == null) {
+                throw new BadRequestException("SetupIntent no puede ser null");
             }
-    
+            
+            SetupIntent setupIntent = SetupIntent.retrieve(setupIntentId);
+            String paymentMethodId = setupIntent.getPaymentMethod();
 
             long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
             long commissionAmount = Math.round(totalAmount * commisionPercentage);
