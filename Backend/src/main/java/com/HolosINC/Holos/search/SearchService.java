@@ -1,9 +1,9 @@
 package com.HolosINC.Holos.search;
 
-
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
+import com.HolosINC.Holos.search.DTOs.SearchArtistDTO;
 import com.HolosINC.Holos.search.DTOs.SearchWorkDTO;
 import com.HolosINC.Holos.work.WorkRepository;
 
@@ -54,34 +54,43 @@ public class SearchService {
         return workRepository.searchAll(pageable);
     }
 
-    public Page<Artist> searchArtists(String query, Integer minWorksDone, int page, int size) {
+    public Page<SearchArtistDTO> searchArtists(String query, Integer minWorksDone, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
         if (minWorksDone != null && minWorksDone < 0) {
             throw new ResourceNotOwnedException("minWorksDone no puede ser negativo.");
         }
 
+        List<Artist> artists;
+
         if (query != null && minWorksDone != null) {
-            return artistRepository.searchByNameAndWorksDone(query, minWorksDone, pageable);
+            artists = artistRepository.searchByNameAndWorksDone(query, minWorksDone, Pageable.unpaged()).getContent();
+        } else if (query != null) {
+            List<Artist> byName = artistRepository.searchByName(query, Pageable.unpaged()).getContent();
+            List<Artist> byUsername = artistRepository.searchByUsername(query, Pageable.unpaged()).getContent();
+            List<Artist> byEmail = artistRepository.searchByEmail(query, Pageable.unpaged()).getContent();
+
+            artists = Stream.concat(Stream.concat(byName.stream(), byUsername.stream()), byEmail.stream())
+                    .distinct()
+                    .collect(Collectors.toList());
+        } else if (minWorksDone != null) {
+            artists = artistRepository.searchByMinWorksDone(minWorksDone, Pageable.unpaged()).getContent();
+        } else {
+            artists = artistRepository.findAll(Pageable.unpaged()).getContent();
         }
 
-        if (query != null) {
-            Page<Artist> byName = artistRepository.searchByName(query, pageable);
-            Page<Artist> byUsername = artistRepository.searchByUsername(query, pageable);
-            Page<Artist> byEmail = artistRepository.searchByEmail(query, pageable);
+        // Searching firstly for Premium Artists
+        List<SearchArtistDTO> searchResults = artists.stream()
+                .map(SearchArtistDTO::new)
+                .sorted((a, b) -> Boolean.compare(!a.isPremium(), !b.isPremium()))
+                .collect(Collectors.toList());
 
-            List<Artist> combinedResults = Stream.concat(
-                    Stream.concat(byName.getContent().stream(), byUsername.getContent().stream()),
-                    byEmail.getContent().stream()).distinct().collect(Collectors.toList());
+        // Pagination
+        int start = Math.min((int) pageable.getOffset(), searchResults.size());
+        int end = Math.min((start + pageable.getPageSize()), searchResults.size());
+        List<SearchArtistDTO> pagedResults = searchResults.subList(start, end);
 
-            return new PageImpl<>(combinedResults, pageable, combinedResults.size());
-        }
-
-        if (minWorksDone != null) {
-            return artistRepository.searchByMinWorksDone(minWorksDone, pageable);
-        }
-
-        return artistRepository.findAll(pageable);
+        return new PageImpl<>(pagedResults, pageable, searchResults.size());
     }
 
     public Page<SearchWorkDTO> searchWorksByArtist(Integer artistId, int page, int size) {
