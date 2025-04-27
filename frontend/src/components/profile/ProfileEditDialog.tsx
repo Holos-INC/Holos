@@ -41,7 +41,7 @@ const validationSchema = Yup.object().shape({
     .required("El teléfono es obligatorio"),
   description: Yup.string().max(200, "No puede escribir más de 200 carácteres"),
   imageProfile: Yup.string().notRequired(),
-  tableCommissionsPrice: Yup.string().notRequired(),
+  tableCommisionsPrice: Yup.string().notRequired(),
   numSlotsOfWork: Yup.number()
     .integer("Debe ser un número entero")
     .min(0, "Debe ser mayor o igual a 0"),
@@ -102,7 +102,7 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
     isArtist
       ? (user as ArtistDTO).linkToSocialMedia ?? ""
       : "",
-    tableCommissionsPrice: isArtist
+    tableCommisionsPrice: isArtist
       ? (user as ArtistDTO).tableCommisionsPrice ?? ""
       : "",
     numSlotsOfWork: isArtistPremium
@@ -134,13 +134,13 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
       if (isArtist) {
         await updateUserArtist(values, token);
       } else {
-        const { tableCommissionsPrice, linkToSocialMedia, numSlotsOfWork, ...baseUserValues } =
+        const { tableCommisionsPrice, linkToSocialMedia, numSlotsOfWork, ...baseUserValues } =
           values;
         await updateUserClient(baseUserValues, token);
       }
 
       // filter large fields before updating global user state
-      const { imageProfile, tableCommissionsPrice, ...safeValues } = values;
+      const { imageProfile, tableCommisionsPrice, ...safeValues } = values;
       setUser({ ...user, ...safeValues }); // safe copy
 
       if (usernameChanged) {
@@ -322,7 +322,6 @@ const ArtistProfileDialog: React.FC<ArtistProfileDialogProps> = ({
                             : undefined
                         }
                       />
-
                       <Button
                         icon={"camera"}
                         mode="contained"

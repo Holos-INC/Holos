@@ -1,7 +1,6 @@
 
 export enum ReportStatus {
     ACCEPTED = 'ACCEPTED',
-    REJECTED = 'REJECTED',
     PENDING = 'PENDING',
 }
 
@@ -28,7 +27,7 @@ export interface BaseUser {
 export interface Artist {
     id: number;
     numSlotsOfWork: number,
-    tableCommissionsPrice: string,
+    tableCommisionsPrice: string,
     baseUser: BaseUser;
     name: string;
     username: string;

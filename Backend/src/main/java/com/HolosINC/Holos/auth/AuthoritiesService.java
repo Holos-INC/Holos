@@ -112,7 +112,7 @@ public class AuthoritiesService {
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(
-					request.getTableCommissionsPrice() != null ? request.getTableCommissionsPrice().getBytes()
+					request.getTableCommisionsPrice() != null ? request.getTableCommisionsPrice().getBytes()
 							: artist.getTableCommisionsPrice());
 			artistService.saveArtist(artist);
 		}

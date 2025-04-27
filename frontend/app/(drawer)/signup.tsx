@@ -32,7 +32,7 @@ export default function SignupScreen() {
 
   // Estados específicos para artistas
   const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
-  const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
+  const [tableCommisionsPrice, settableCommisionsPrice] = useState("");
 
   const router = useRouter();
 
@@ -69,7 +69,7 @@ export default function SignupScreen() {
 
     if (
       (role === "artist" || role === "artist_premium") &&
-      !tableCommissionsPrice
+      !tableCommisionsPrice
     ) {
       alert("Selecciona una imagen para el precio del tablero de comisiones");
       return;
@@ -108,8 +108,8 @@ export default function SignupScreen() {
     // Imagen del precio del tablero de comisiones
     if (role === "artist" || role === "artist_premium") {
       formData.append(
-        "tableCommissionsPrice",
-        base64ToFile(tableCommissionsPrice, "image.png")
+        "tableCommisionsPrice",
+        base64ToFile(tableCommisionsPrice, "image.png")
       );
     }
 
@@ -150,7 +150,7 @@ export default function SignupScreen() {
     }
   };
 
-  const pickTableCommissionsPrice = async () => {
+  const picktableCommisionsPrice = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -160,7 +160,7 @@ export default function SignupScreen() {
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-      setTableCommissionsPrice(uri); // Actualiza el estado con el URI de la imagen seleccionada
+      settableCommisionsPrice(uri); // Actualiza el estado con el URI de la imagen seleccionada
     }
   };
 
@@ -303,28 +303,28 @@ export default function SignupScreen() {
                   Precio del tablero de comisiones
                 </Text>
                 <TouchableOpacity
-                  onPress={pickTableCommissionsPrice}
+                  onPress={picktableCommisionsPrice}
                   style={[
                     styles.input,
                     { justifyContent: "center", alignItems: "center" },
                   ]}
                 >
                   <Text style={{ color: "#888" }}>
-                    {tableCommissionsPrice
+                    {tableCommisionsPrice
                       ? "Imagen seleccionada"
                       : "Seleccionar imagen"}
                   </Text>
                 </TouchableOpacity>
 
-                {tableCommissionsPrice && (
+                {tableCommisionsPrice && (
                   <>
                     <Image
-                      source={{ uri: tableCommissionsPrice }}
+                      source={{ uri: tableCommisionsPrice }}
                       style={styles.previewImage}
                     />
                     <TouchableOpacity
                       style={styles.removeButton}
-                      onPress={() => setTableCommissionsPrice("")}
+                      onPress={() => settableCommisionsPrice("")}
                     >
                       <Text style={styles.removeButtonText}>Quitar imagen</Text>
                     </TouchableOpacity>
