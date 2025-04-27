@@ -54,6 +54,7 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/stripe-subsciption/create**").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/stripe-subsciption/delete**").hasAuthority("ARTIST_PREMIUM")
             .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/**/close").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/{id}/updateImage").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .anyRequest().permitAll()
         )
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
