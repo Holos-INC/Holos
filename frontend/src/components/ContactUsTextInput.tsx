@@ -5,32 +5,21 @@ import { contactInputStyles, placeholderColor } from "@/src/styles/InputContactU
 type ContactInputProps = TextInputProps & {
   containerStyle?: StyleProp<ViewStyle>;
   style?: StyleProp<TextStyle>;
-  placeholder?: string;
   isWeb?: boolean;
 };
 
-export const ContactInput: React.FC<ContactInputProps> = ({
+const ContactUsTextInput: React.FC<ContactInputProps> = ({
   containerStyle,
   style,
-  placeholder,
   isWeb,
   ...props
 }) => {
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={[
-      contactInputStyles.inputContainer,
-      focused && contactInputStyles.inputContainerFocused,
-      containerStyle,
-    ]}>
+    <View style={[contactInputStyles.inputContainer, focused && contactInputStyles.inputContainerFocused, containerStyle]}>
       <TextInput
-        style={[
-          contactInputStyles.textInput,
-          style,
-          isWeb ? { outline: 'none' } : {},
-        ]}
-        placeholder={placeholder}
+        style={[contactInputStyles.textInput, style, isWeb ? { outline: 'none' } : {}]}
         placeholderTextColor={placeholderColor}
         selectionColor={placeholderColor}
         onFocus={() => setFocused(true)}
@@ -41,4 +30,4 @@ export const ContactInput: React.FC<ContactInputProps> = ({
   );
 };
 
-export default ContactInput;
+export default ContactUsTextInput;

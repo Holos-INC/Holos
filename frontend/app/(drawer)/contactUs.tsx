@@ -1,4 +1,4 @@
-import ContactUsTextInput from "@/src/components/ContactUsTextInputProps";
+import ContactUsTextInput from "@/src/components/ContactUsTextInput";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import React, { useState } from "react";
 import { Linking, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -132,14 +132,12 @@ export default function ContactUs() {
         </View>
 
         <View style={styles.additionalInfoWrapper}></View>
-        {!isWeb? 
-        <TouchableOpacity onPress={() => Linking.openURL("mailto:holos.soporte@gmail.com")}>
-        <Text style={styles.textemail}>Pss... Si tienes ganas de charlar largo y tendido, mándanos un correo a <Text style={styles.email}>holos.soporte@gmail.com</Text> 😎✉️</Text>
-        </TouchableOpacity>: 
-         <TouchableOpacity onPress={() =>   window.location.href = "mailto:holos.soporte@gmail.com"}>
-         <Text style={styles.textemail}>Pss... Si tienes ganas de charlar largo y tendido, mándanos un correo a <Text style={styles.email}>holos.soporte@gmail.com</Text> 😎✉️</Text>
-         </TouchableOpacity>
-        }
+        <TouchableOpacity
+          onPress={() => isWeb ? (window.location.href = "mailto:holos.soporte@gmail.com") : Linking.openURL("mailto:holos.soporte@gmail.com")}>
+          <Text style={styles.textemail}>Pss... Si tienes ganas de charlar largo y tendido, mándanos un correo a <Text style={styles.email}>holos.soporte@gmail.com</Text> 😎✉️</Text>
+
+        </TouchableOpacity>
+
         <View style={styles.socialMediaWrapper}>
           <Text style={styles.sectionHeader}>¡Síguenos y únete a la aventura!</Text>
           <View style={styles.socialIconsRow}>

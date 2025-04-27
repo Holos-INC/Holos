@@ -99,7 +99,7 @@ export  const styles = StyleSheet.create({
     textemail: {
       fontSize: 18,
       fontFamily: 'Montserrat-Regular',
-      color: "black",
+      color: "#696969",
       textAlign: "center"
     },
     email: {
