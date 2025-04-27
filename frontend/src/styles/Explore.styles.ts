@@ -6,7 +6,6 @@ export const mobileStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-
   /* ---------- top ---------- */
   topSection: {
     flexDirection: "row",
@@ -33,30 +32,22 @@ export const mobileStyles = StyleSheet.create({
     alignItems: "center",
     paddingRight: 26,
   },
-
-  /* ---------- middle (obras) ---------- */
-  middleSection: {
-    paddingBottom: 16,
-  },
-  worksScrollContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    paddingHorizontal: 16,
-    marginTop: 18,
+  /* ---------- works ---------- */
+  worksContainer: {
+    paddingHorizontal: 12,
+    paddingBottom: 24,
   },
   workItem: {
-    width: 260,
-    marginRight: 35,
+    backgroundColor: "#FFF",
+    overflow: "hidden",
   },
   workImage: {
     width: "100%",
-    height: 200,
+    height: 180,
     resizeMode: "contain",
-    marginBottom: 20,
   },
   workTextContainer: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    padding: 8,
   },
   workTitle: {
     fontSize: 16,
@@ -78,12 +69,33 @@ export const mobileStyles = StyleSheet.create({
     fontFamily: "Merriweather-Italic",
     color: "#777",
   },
-
-  /* ---------- bottom (artistas) ---------- */
+  /* ---------- search bar ---------- */
+  searchBar: {
+    backgroundColor: "#F4F4F2",
+    padding: 10,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 16,
+  },
+  /* ---------- pagination ---------- */
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: 8,
+  },
+  paginationButton: {
+    padding: 4,
+  },
+  paginationDisabled: {
+    opacity: 0.3,
+  },
+  /* ---------- bottom (featured artists) ---------- */
   bottomSection: {
     paddingTop: 20,
     paddingBottom: 40,
-    backgroundColor: "#F4F4F2",
+    backgroundColor: "#F4F4F2", // gris clarito
   },
   bottomSectionHeader: {
     flexDirection: "row",
@@ -102,7 +114,6 @@ export const mobileStyles = StyleSheet.create({
   artistsContainer: {
     flexDirection: "column",
     paddingHorizontal: 50,
-    marginVertical: 10,
   },
   artistCard: {
     flexDirection: "row",
@@ -134,69 +145,22 @@ export const mobileStyles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
   },
-
-  /* ---------- search bar ---------- */
-  searchBar: {
-    backgroundColor: "#F4F4F2",
-    padding: 10,
-    marginHorizontal: 16,
-    borderRadius: 8,
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 16,
-  },
 });
 
 /* ------------------------  DESKTOP  ------------------------ */
 export const desktopStyles = StyleSheet.create({
-  /* --- reusable card (si se usa fuera de Explore) --- */
-  cardWrapper: {
-    width: 400,
-    height: 300,
-    margin: 16,
-  },
-  cardContainer: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  image: {
-    width: "100%",
-    height: "70%",
-  },
-  textContainer: {
-    padding: 10,
-    flex: 1,
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: "#333",
-  },
-  description: {
-    fontSize: 12,
-    color: "#666",
-  },
-
-  /* ---------- layout ---------- */
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
+  /* ---------- top ---------- */
   topSection: {
-    height: "10%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 250,
     marginTop: 5,
+    marginBottom: 10,
   },
   topSectionText: {
     fontSize: 28,
@@ -213,31 +177,21 @@ export const desktopStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-
-  /* ---------- middle (obras) ---------- */
-  middleSection: {
-    height: "80%",
-    marginTop: 5,
-  },
-  worksScrollContainer: {
-    alignItems: "center",
-    paddingHorizontal: 40,
-  },
+  /* ---------- works ---------- */
+  worksContainer: {},
   workItem: {
-    width: 220,
-    height: "100%",
-    marginRight: 90,
     backgroundColor: "#FFF",
     overflow: "hidden",
   },
   workImage: {
-    width: "auto",
-    height: "80%",
-    padding: 10,
+    width: "100%",
+    height: 220,
     resizeMode: "contain",
   },
   workTextContainer: {
-    marginBottom: 10,
+    padding: 10,
+    marginLeft: 80,
+    marginTop: 20,
   },
   workTitle: {
     fontSize: 16,
@@ -245,7 +199,6 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather-Bold",
     color: "#222",
     marginBottom: 4,
-    paddingHorizontal: 4,
   },
   workArtist: {
     fontSize: 14,
@@ -253,16 +206,35 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather",
     color: "#555",
     marginBottom: 2,
-    paddingHorizontal: 4,
   },
   workSubtitle: {
     fontSize: 12,
     fontWeight: "400",
     color: "#777",
-    paddingHorizontal: 4,
   },
-
-  /* ---------- bottom (artistas) ---------- */
+  /* ---------- search bar ---------- */
+  searchBar: {
+    backgroundColor: "#F4F4F2",
+    padding: 12,
+    marginHorizontal: 250,
+    borderRadius: 8,
+    fontSize: 18,
+    color: "#333",
+    marginBottom: 24,
+  },
+  /* ---------- pagination ---------- */
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingVertical: 8,
+  },
+  paginationButton: {
+    padding: 4,
+  },
+  paginationDisabled: {
+    opacity: 0.3,
+  },
+  /* ---------- bottom (featured artists) ---------- */
   bottomSection: {
     backgroundColor: "#F4F4F2",
     paddingVertical: 10,
@@ -317,15 +289,9 @@ export const desktopStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-
-  /* ---------- search bar ---------- */
-  searchBar: {
-    backgroundColor: "#F4F4F2",
-    padding: 12,
-    marginHorizontal: 250,
-    borderRadius: 8,
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 24,
+  artistLocation: {
+    fontFamily: "Merriweather-Italic",
+    fontSize: 12,
+    color: "#666",
   },
 });
