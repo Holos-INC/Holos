@@ -184,7 +184,7 @@ export default function ReportManagement() {
             <Text style={styles.modalTitle}>Detalles del Reporte</Text>
             <Text style={styles.errorText}>{errorMessage}</Text>
 
-            <Text style={styles.modalText}>Título: {selectedReport.name}</Text>
+            <Text style={styles.modalText} testID="title">Título: {selectedReport.name}</Text>
             <Text style={styles.modalText}>Descripción: {selectedReport.description}</Text>
             <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType?.type}</Text>
             <Text style={styles.modalText}>Trabajo: {selectedReport.work?.name}</Text>

@@ -1,3 +1,10 @@
+export enum Authority {
+  ADMIN = "ADMIN",
+  CLIENT = "CLIENT",
+  ARTIST = "ARTIST",
+  ARTIST_PREMIUM = "ARTIST_PREMIUM",
+}
+
 export interface BaseUser {
   id: number;
   name: string;
@@ -7,10 +14,7 @@ export interface BaseUser {
   phoneNumber?: string;
   imageProfile?: string;
   createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
+  authority: Authority;
 }
 
 export interface Client {

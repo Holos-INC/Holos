@@ -35,7 +35,6 @@ import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")

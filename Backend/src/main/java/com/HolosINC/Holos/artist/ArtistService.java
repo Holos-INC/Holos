@@ -30,6 +30,7 @@ public class ArtistService {
 	private final StatusKanbanOrderService statusKanbanOrderService;
 	private final ArtistCategoryRepository artistCategoryRepository;
 
+
 	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, @Lazy StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository) {
 		this.artistRepository = artistRepository;
 		this.baseUserRepository = baseUserRepository;
@@ -89,6 +90,7 @@ public class ArtistService {
 			}
 
 			commisionRepository.deleteAll(commisions);
+
 
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
