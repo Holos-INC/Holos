@@ -2,7 +2,7 @@ import { View, Text, Image } from "react-native";
 import { BASE_URL } from "@/src/constants/api";
 import LoadingScreen from "../LoadingScreen";
 import { styles } from "@/src/styles/UserPanel.styles";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
 
 interface UserPanelProps {
   artist: ArtistDTO;

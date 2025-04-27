@@ -6,7 +6,7 @@ import { Artist } from "@/src/constants/CommissionTypes";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
 
 export default function RequestCommissionUserScreen() {
   const { artistUsername } = useLocalSearchParams();

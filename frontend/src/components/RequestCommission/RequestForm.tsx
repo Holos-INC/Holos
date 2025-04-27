@@ -20,7 +20,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
