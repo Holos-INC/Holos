@@ -130,7 +130,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
         <View style={styles.imageWrapper}>
           <Image
-            source={getImageSource(artist.tableCommissionsPrice)}
+            source={getImageSource(artist.tableCommisionsPrice)}
             style={styles.priceTableImage}
             resizeMode="contain"
           />

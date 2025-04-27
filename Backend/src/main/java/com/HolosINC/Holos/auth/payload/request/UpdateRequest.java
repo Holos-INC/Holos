@@ -18,7 +18,7 @@ public class UpdateRequest {
 
 	private MultipartFile imageProfile;
 
-    private MultipartFile tableCommissionsPrice;
+    private MultipartFile tableCommisionsPrice;
     
     private String description;
 
