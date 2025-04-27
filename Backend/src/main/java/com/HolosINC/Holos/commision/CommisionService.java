@@ -362,5 +362,17 @@ public class CommisionService {
     public boolean isStatusKanbanInUse(StatusKanbanOrder status) {
         return commisionRepository.existsByStatusKanban(status);
     }
+
+    @Transactional(readOnly = true)
+    public List<ClientCommissionDTO> getEndedCommissionsForClient() throws Exception {
+        BaseUser currentUser = userService.findCurrentUser();
+
+        if (!clientService.isClient(currentUser.getId())) {
+            throw new IllegalAccessException("Solo los clientes pueden ver su galería de comisiones finalizadas.");
+        }
+
+        return commisionRepository.findEndedCommissionsByClientId(currentUser.getId());
+    }
+
     
 }

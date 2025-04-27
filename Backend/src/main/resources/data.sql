@@ -236,7 +236,7 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 
 -- Comisiones para el Artista 2(ID 2)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
-(11, 2, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 1, 'ACCEPTED', '2025-03-01', 'INITIAL', 11),
+(11, 2, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 1, 'ENDED', '2025-03-01', 'INITIAL', 11),
 (12, 2, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 2, 'ACCEPTED', '2025-03-02', 'FINAL', 12),
 (13, 2, 'Forest at Dusk', 'A mysterious forest at dusk', 210.0, 3, 'REQUESTED', '2025-03-22', 'FINAL', NULL),
 (14, 2, 'Abstract Faces', 'A contemporary painting of abstract faces', 250.0, 4, 'REQUESTED', '2025-03-23', 'INITIAL', NULL),
