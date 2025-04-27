@@ -1,64 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList } from "react-native";
 import { useRouter } from "expo-router";
-import { getAllReports, acceptReport, deleteReport } from "@/src/services/reportApi"; 
+import { getAllReports, acceptReport, deleteReport } from "@/src/services/reportApi";
+import { Report, ReportStatus } from "@/src/constants/ReportTypes";
 import styles from "@/src/styles/Admin.styles";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-
-export enum ReportStatus {
-  ACCEPTED = 'ACCEPTED',
-  PENDING = 'PENDING',
-}
-
-export interface ReportType {
-  id: number;
-  type: string;
-}
-
-export interface BaseUser {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
-}
-
-export interface Artist {
-  id: number;
-  numSlotsOfWork: number;
-  tableCommissionsPrice: string;
-  baseUser: BaseUser;
-  name: string;
-  username: string;
-  email: string;
-}
-
-export interface Work {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  artist: Artist;
-}
-
-export interface Report {
-  id: number;
-  name: string;
-  description: string;
-  status: ReportStatus;
-  madeBy: BaseUser;
-  reportedUser?: Artist;
-  work?: Work;
-  reportType?: ReportType;
-}
 
 export default function ReportManagement() {
   const router = useRouter();

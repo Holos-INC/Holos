@@ -85,7 +85,7 @@ public class AuthController {
 	public ResponseEntity<MessageResponse> registerUser(
 			@RequestPart("user") String signupRequestJson,
 			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
+			@RequestPart(value = "tableCommisionsPrice", required = false) MultipartFile tableCommisionsPrice) {
 
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -94,8 +94,8 @@ public class AuthController {
 			if (imageProfile != null && !imageProfile.isEmpty()) 
 				signupRequest.setImageProfile(imageProfile);
 
-			if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty()) {
-				signupRequest.setTableCommisionsPrice(tableCommissionsPrice);
+			if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty()) {
+				signupRequest.setTableCommisionsPrice(tableCommisionsPrice);
 			}
 
 			authService.createUser(signupRequest);
@@ -110,7 +110,7 @@ public class AuthController {
 			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageResponse> updateUser(@RequestPart("updateUser") String updateRequestform,
 			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommissionsPrice", required = false) MultipartFile tableCommissionsPrice) {
+			@RequestPart(value = "tableCommisionsPrice", required = false) MultipartFile tableCommisionsPrice) {
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			UpdateRequest updateRequest = objectMapper.readValue(updateRequestform, UpdateRequest.class);
@@ -118,8 +118,8 @@ public class AuthController {
 			if (imageProfile != null && !imageProfile.isEmpty())
 				updateRequest.setImageProfile(imageProfile);
 
-			if (tableCommissionsPrice != null && !tableCommissionsPrice.isEmpty())
-				updateRequest.setTableCommissionsPrice(tableCommissionsPrice);
+			if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty())
+				updateRequest.setTableCommisionsPrice(tableCommisionsPrice);
 
 			authService.updateUser(updateRequest);
 			return ResponseEntity.ok().body(new MessageResponse("succesfully updated: " + updateRequest.getUsername()));

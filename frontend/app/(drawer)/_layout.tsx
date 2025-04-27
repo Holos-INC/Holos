@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import CustomDrawer from "@/src/components/menu/CustomDrawer";
 import { getUser } from "@/src/services/userApi";
-import { BaseUser } from "./admin/report-management";
+import {BaseUser} from  "@/src/constants/CommissionTypes";
 import ProfileIcon from "@/assets/svgs/ProfileIcon";
 
 export default function DrawerLayout() {

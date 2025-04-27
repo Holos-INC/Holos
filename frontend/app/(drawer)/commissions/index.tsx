@@ -218,9 +218,11 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                   .map((comm) => (
                     <View key={comm.id} style={styles.card}>
                       <View style={styles.profileContainer}>
-                        <Image
-                          source={{ uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO" }}
-                          style={styles.profileImage}
+                      <Image
+                          source={getImageSource(isClient
+                          ? comm.imageProfileA ?? ""
+                          : comm.imageProfileC ?? "")}
+                            style={styles.profileImage}
                         />
                       </View>
                       <View style={styles.textContainer}>
@@ -260,8 +262,10 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                   .map((comm) => (
                     <View key={comm.id} style={styles.card}>
                       <View style={styles.profileContainer}>
-                        <Image
-                          source={{ uri: comm.image || "URL_DE_IMAGEN_POR_DEFECTO" }}
+                      <Image
+                        source={getImageSource(isClient
+                        ? comm.imageProfileA ?? ""
+                        : comm.imageProfileC ?? "")}
                           style={styles.profileImage}
                         />
                       </View>

@@ -21,7 +21,7 @@ export interface Client {
 export interface Artist {
   id: number;
   numSlotsOfWork: number;
-  tableCommissionsPrice: string;
+  tableCommisionsPrice: string;
   baseUser: BaseUser;
   name: string;
   username: string;
@@ -151,7 +151,7 @@ export interface ArtistDTO extends BaseUserDTO {
   artistId: number;
   baseUserId: number;
   numSlotsOfWork: number;
-  tableCommissionsPrice: string;
+  tableCommisionsPrice: string;
   linkToSocialMedia: string;
 }
 

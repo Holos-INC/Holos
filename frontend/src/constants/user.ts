@@ -5,7 +5,7 @@ export interface artistUser {
     phoneNumber: string;
     description: string;
     linkToSocialMedia: string |  null ;
-    tableCommissionsPrice: string;
+    tableCommisionsPrice: string;
     imageProfile: string;
     numSlotsOfWork: number;
   }
