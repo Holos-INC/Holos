@@ -1,9 +1,6 @@
 // src/services/ExploreWorkHelpers.ts
-
-import { getAllWorksDoneDTO } from "@/src/services/WorksDoneApi";
-import { WorksDoneDTO, ArtistDTO } from "@/src/constants/ExploreTypes";
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { BASE_URL } from "@/src/constants/api";
-import { getArtistById } from "@/src/services/artistApi";
 import { getMostPublicationsArtists } from "@/src/services/WorksDoneApi"; // Nuevo import
 import api from "./axiosInstance";
 

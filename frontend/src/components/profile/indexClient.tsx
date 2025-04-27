@@ -23,7 +23,6 @@ import { updateUserClient } from "@/src/services/clientApi";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import { clientUser } from "@/src/constants/user";
 import { desktopStyles as styles } from "@/src/styles/userProfile.styles";
-import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string()
