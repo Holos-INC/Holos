@@ -232,59 +232,36 @@ public class StatusKanbanOrderService {
         if (c.getImage() == null || c.getImage().length == 0) {
             throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
         }
-    
         Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(
             thisStatus.getArtist().getId(), thisStatus.getOrder() + 1);
-    
+
         if (nextStatus.isEmpty()) {
             // Si no hay un siguiente estado, establecer el estado en null y finalizar la comisión
             c.setStatusKanbanOrder(null);
             c.setStatus(StatusCommision.ENDED);
-    
+
             // Buscar la comisión más antigua en IN_WAIT_LIST
             Optional<Commision> oldestInWaitList = commisionRepository
-                    .findFirstByStatusOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST);
-    
+                .findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST, currentArtist);
+
             // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
             if (oldestInWaitList.isPresent()) {
+            // Antes de moverla, verificar si hay slots disponibles
+            Long numAccepted = commisionRepository.countByStatusAcceptedAndArtist(currentArtist.getId());
+            if (currentArtist.getNumSlotsOfWork() > numAccepted) {
                 Commision oldestCommision = oldestInWaitList.get();
-                // No hace falta excepciones porque en otras validaciones ya se obliga a que este artista tenga al menos un statusKanban, al tener comisiones aceptadas
                 StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
                     .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
                 oldestCommision.setStatus(StatusCommision.ACCEPTED);
                 oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
                 commisionRepository.save(oldestCommision);
             }
-            Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(thisStatus.getArtist().getId(),
-                                                                                                     thisStatus.getOrder() + 1);
-            if (nextStatus.isEmpty()) {
-                // Si no hay un siguiente estado, establecer el estado en null y finalizar la comisión
-                c.setStatusKanbanOrder(null);
-                c.setStatus(StatusCommision.ENDED);
-
-                // Buscar la comisión más antigua en IN_WAIT_LIST
-                Optional<Commision> oldestInWaitList = commisionRepository
-                    .findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST, currentArtist);
-
-                // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
-                if (oldestInWaitList.isPresent()) {
-                    // Antes de moverla, verificar si hay slots disponibles
-                    Long numAccepted = commisionRepository.countByStatusAcceptedAndArtist(currentArtist.getId());
-                    if (currentArtist.getNumSlotsOfWork() > numAccepted) {
-                        Commision oldestCommision = oldestInWaitList.get();
-                        StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
-                                .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
-                        oldestCommision.setStatus(StatusCommision.ACCEPTED);
-                        oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
-                        commisionRepository.save(oldestCommision);
-                    }
-                    // Si no hay slots, simplemente no se cambia el estado de la comisión en IN_WAIT_LIST
-                }
-            } else
-                // Avanzar al siguiente estado
-                c.setStatusKanbanOrder(nextStatus.get());
-                
-            commisionRepository.save(c);
+            // Si no hay slots, simplemente no se cambia el estado de la comisión en IN_WAIT_LIST
+            }
+        } else {
+            c.setStatusKanbanOrder(nextStatus.get());
+        }
+        commisionRepository.save(c);
     }
 
     @Transactional
