@@ -44,6 +44,8 @@ public class Commision extends Work{
 
     private boolean isWaitingPayment;
 
+    private String setupIntentId;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "status_kanban_order_id", referencedColumnName = "id")
     private StatusKanbanOrder statusKanbanOrder;

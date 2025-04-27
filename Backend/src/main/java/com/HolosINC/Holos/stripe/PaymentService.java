@@ -2,6 +2,7 @@ package com.HolosINC.Holos.stripe;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.client.Client;
+import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
@@ -13,9 +14,13 @@ import com.HolosINC.Holos.model.BaseUserService;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.SetupIntent;
 import com.stripe.net.RequestOptions;
+import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.SetupIntentCreateParams;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,15 +38,160 @@ public class PaymentService {
     private Double commisionPercentage = 0.06;
     private CommisionRepository commisionRepository;
     private BaseUserService userService;
+    private ClientRepository clientRepository;
     private String currency = "eur";
     private PaymentHistoryRepository phr;    
 
     @Autowired
-    public PaymentService(CommisionRepository commisionRepository, BaseUserService userService, PaymentHistoryRepository paymentHistoryRepository) {
+    public PaymentService(CommisionRepository commisionRepository, BaseUserService userService, PaymentHistoryRepository paymentHistoryRepository, ClientRepository clientRepository) {
         this.commisionRepository = commisionRepository;
         this.userService = userService;
         this.phr = paymentHistoryRepository;
-    }  
+        this.clientRepository = clientRepository;
+    }
+    
+    @Transactional
+    public String createSetupIntent(long commisionId) throws StripeException {
+        Stripe.apiKey = secretKey;
+        try {
+
+            Commision commision = commisionRepository.findById(commisionId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+
+            BaseUser activeUser = userService.findCurrentUser();
+            Client client = commision.getClient();
+
+            if (client == null || !client.getBaseUser().equals(activeUser)) {
+                throw new AccessDeniedException("No puedes acceder a este recurso");
+            }
+
+            if (client.getStripeCustomerId() == null || client.getStripeCustomerId().isEmpty()) {
+                CustomerCreateParams params = CustomerCreateParams.builder()
+                    .setName(activeUser.getUsername())
+                    .setEmail(activeUser.getEmail())
+                    .build();
+                Customer stripeCustomer = Customer.create(params);
+
+                client.setStripeCustomerId(stripeCustomer.getId());
+                clientRepository.save(client);
+            } 
+
+            SetupIntentCreateParams params = SetupIntentCreateParams.builder()
+                    .addPaymentMethodType("card") 
+                    .setCustomer(client.getStripeCustomerId()) 
+                    .setUsage(SetupIntentCreateParams.Usage.OFF_SESSION)
+                    .build();
+
+            SetupIntent setupIntent = SetupIntent.create(params);
+
+            return setupIntent.getClientSecret();
+
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) {
+            throw new RuntimeException("Error al procesar el SetupIntent con Stripe: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error inesperado al crear el SetupIntent: " + e.getMessage(), e);
+        }
+    }
+    
+    public String createPaymentFromSetupIntent(long commisionId) throws StripeException {
+        Stripe.apiKey = secretKey;
+    
+        try {
+
+            Commision commision = commisionRepository.findById(commisionId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+    
+            BaseUser activeUser = userService.findCurrentUser();
+            Client client = commision.getClient();
+            Artist artist = commision.getArtist();
+    
+            if (commision.getPrice() == null || commision.getPrice() <= 0) {
+                throw new BadRequestException("La cantidad del pago no puede ser nulo o 0");
+            }
+
+            if (commision.getClient()==null || !client.getBaseUser().equals(activeUser)){
+                throw new AccessDeniedException("No puedes acceder a este recurso");
+            }
+
+            if (artist==null){
+                throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
+            }
+
+            if (commision.getTotalPayments()>=commision.getCurrentPayments()){
+                throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
+            }
+
+            if (!(commision.isWaitingPayment())){
+                throw new BadRequestException("Esta comisión no espera un nuevo pago");
+            }
+    
+            if (client.getStripeCustomerId() == null || client.getStripeCustomerId().isEmpty()) {
+                throw new BadRequestException("El cliente no tiene un ID de cliente de Stripe asociado");
+            }
+
+            String setupIntentId = commision.getSetupIntentId();
+    
+            if (setupIntentId == null) {
+                throw new BadRequestException("SetupIntent no puede ser null");
+            }
+            
+            SetupIntent setupIntent = SetupIntent.retrieve(setupIntentId);
+            String paymentMethodId = setupIntent.getPaymentMethod();
+
+            long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
+            long commissionAmount = Math.round(totalAmount * commisionPercentage);
+
+            RequestOptions requestOptions = RequestOptions.builder()
+                .setIdempotencyKey("some-unique-key-per-user-action")
+                .build();
+    
+
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(totalAmount)
+                    .setCurrency(currency)
+                    .setCustomer(client.getStripeCustomerId())
+                    .setReceiptEmail(activeUser.getEmail())
+                    .setPaymentMethod(paymentMethodId)
+                    .setOffSession(true) // Cobro sin intervención del cliente
+                    .setConfirm(true)    
+                    .setDescription(commision.getDescription())
+                    .setApplicationFeeAmount(commissionAmount)
+                    .setTransferData(PaymentIntentCreateParams.TransferData.builder()
+                            .setDestination(artist.getSellerAccountId()) 
+                            .build())
+                    .build();
+    
+
+            PaymentIntent paymentIntent = PaymentIntent.create(params, requestOptions);
+
+            if (commision.getCurrentPayments()==null){
+                commision.setCurrentPayments(1);
+            }
+            else{
+                commision.setCurrentPayments(commision.getCurrentPayments()+1);
+            }
+            commisionRepository.save(commision);
+
+            return paymentIntent.getStatus(); 
+    
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) {
+            throw new RuntimeException("Error al procesar el pago con Stripe: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error inesperado al crear el pago: " + e.getMessage(), e);
+        }
+    }
 
     @Transactional
     public String createPayment(long commisionId) throws StripeException, Exception {

@@ -17,6 +17,7 @@ import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.commision.DTOs.PaymentUpdateDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
+import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -171,6 +172,18 @@ public ResponseEntity<?> updatePaymentArrangement(
     }
 }
 
-
+    @PostMapping("/{commisionId}/request-payment")
+    public ResponseEntity<?> requestPayment(@PathVariable Long commisionId) {
+        try {
+            commisionService.requestPayment(commisionId);
+            return ResponseEntity.ok("Solicitud de pago realizada correctamente.");
+        } catch (IllegalArgumentException | ResourceNotOwnedException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
+        }
+    }
 
 }

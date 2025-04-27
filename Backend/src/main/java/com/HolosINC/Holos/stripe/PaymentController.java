@@ -28,6 +28,43 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    @PostMapping("/setup-intent/{commissionId}")
+    public ResponseEntity<?> createSetupIntent(@PathVariable long commissionId) {
+        try {
+            String clientSecret = paymentService.createSetupIntent(commissionId);
+            return new ResponseEntity<>(clientSecret, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Comisión no encontrada: " + e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/payment/{commissionId}")
+    public ResponseEntity<?> createPaymentFromSetupIntent(@PathVariable long commissionId) {
+        try {
+            String paymentIntentStatus = paymentService.createPaymentFromSetupIntent(commissionId);
+            return new ResponseEntity<>(paymentIntentStatus, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) { 
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
     @PostMapping("/create/{commissionId}")
     public ResponseEntity<?> createPayment(@PathVariable long commissionId) throws Exception {
