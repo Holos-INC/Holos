@@ -53,6 +53,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST,"/api/v1/worksdone/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/stripe-subsciption/create**").hasAuthority("ARTIST")
             .requestMatchers("/api/v1/stripe-subsciption/delete**").hasAuthority("ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/**/close").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/{id}/updateImage").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .anyRequest().permitAll()
         )

@@ -12,6 +12,7 @@ import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
 import com.HolosINC.Holos.auth.Auth;
+import com.HolosINC.Holos.chat.ChatMessageService;
 import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.client.ClientRepository;
 import com.HolosINC.Holos.client.ClientService;
@@ -32,16 +33,18 @@ public class CommisionService {
     private final BaseUserService userService;
     private final StatusKanbanOrderService statusKanbanOrderService;
     private final ClientService clientService;
+    private final ChatMessageService chatMessageService;
 
     public CommisionService(CommisionRepository commisionRepository, ArtistService artistService,
             BaseUserService userService, ClientRepository clientRepository, ClientService clientService,
-            StatusKanbanOrderService statusKanbanOrderService) {
+            StatusKanbanOrderService statusKanbanOrderService, ChatMessageService chatMessageService) {
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
         this.userService = userService;
         this.clientRepository = clientRepository;
         this.clientService = clientService;
         this.statusKanbanOrderService = statusKanbanOrderService;
+        this.chatMessageService = chatMessageService;
     }
 
     public List<Commision> getAllCommisions() {
@@ -364,6 +367,33 @@ public class CommisionService {
     }
 
     @Transactional
+    public void closeCommission(Long commissionId) throws Exception {
+        Commision commission = commisionRepository.findById(commissionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commissionId));
+
+        BaseUser currentUser = userService.findCurrentUser();
+        Long userId = currentUser.getId();
+
+        if (!commission.getArtist().getBaseUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("No tienes permiso para cerrar esta comisión, solo el artista responsable puede.");
+        }
+
+        if (commission.getStatus() != StatusCommision.ACCEPTED) {
+            throw new IllegalStateException("No puedes cerrar una comisión que aún no has empezado.");
+        }
+        
+        if (commission.getImage() == null || commission.getImage().length == 0) {
+            throw new IllegalStateException("No puedes cerrar una comisión que no tiene imagen asociada.");
+        }
+
+        chatMessageService.deleteConversationByCommisionId(commissionId);
+
+        commission.setStatus(StatusCommision.ENDED);
+        commission.setStatusKanbanOrder(null);
+
+        commisionRepository.save(commission);
+    }
+
     public void updateImage(Long commisionId, String base64Image) throws Exception {
         Commision commision = commisionRepository.findById(commisionId)
             .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
@@ -376,8 +406,7 @@ public class CommisionService {
     
         if (commision.getStatus() != StatusCommision.ACCEPTED) {
             throw new IllegalStateException("La imagen solo se puede actualizar cuando la comisión está aceptada y en proceso.");
-        }
-    
+        }    
         if (base64Image != null && base64Image.contains(",")) {
             String base64Data = base64Image.split(",")[1];
             commision.setImage(java.util.Base64.getDecoder().decode(base64Data));

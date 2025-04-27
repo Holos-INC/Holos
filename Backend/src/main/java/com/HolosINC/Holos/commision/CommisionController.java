@@ -149,6 +149,18 @@ public class CommisionController {
         }
     }
 
+    @PutMapping("/{commissionId}/close")
+    public ResponseEntity<?> closeCommission(@PathVariable Long commissionId) {
+        try {
+            commisionService.closeCommission(commissionId);
+            return ResponseEntity.ok("Comisión cerrada correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
+        }
+    }    
+  
     @PutMapping("/{commisionId}/updateImage")
     public ResponseEntity<?> updateCommisionImage(
             @PathVariable Long commisionId,
@@ -172,5 +184,4 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("Error al obtener las comisiones finalizadas: " + e.getMessage());
         }
     }
-
 }
