@@ -228,10 +228,10 @@ INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, descripti
 
 -- Comisiones para el Artista 1(ID 1)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, milestone_date, total_payments, current_payments, is_waiting_payment) VALUES
-(1, 1, 'Golden Sunrise', 'A beautiful golden sunrise landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
-(2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 13, 'REQUESTED', '2025-03-15', 'INITIAL', NULL, NULL, 1, 0, true),
-(3, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'ACCEPTED', '2025-03-01', 'INITIAL', 1, NULL, 1, 0, true),
-(4, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', '2025-03-02', 'FINAL', 2, NULL, 1, 0, false),
+(1, 1, 'Golden Sunrise', 'A beautiful golden sunrise landscape', 220.0, 1, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
+(2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 1, 'REQUESTED', '2025-03-15', 'INITIAL', NULL, NULL, 1, 0, true),
+(3, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 1, 'ACCEPTED', '2025-03-01', 'INITIAL', 1, NULL, 1, 0, true),
+(4, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 1, 'ACCEPTED', '2025-03-02', 'FINAL', 2, NULL, 1, 0, false),
 (5, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 14, 'CANCELED', '2025-03-16', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
 (6, 1, 'Vintage Car', 'A classic vintage car painting', 180.0, 15, 'IN_WAIT_LIST', '2025-03-17', 'FINAL', NULL, NULL, 1, 0, false),
 (7, 1, 'River Bend', 'A calm river meandering through the countryside', 250.0, 16, 'IN_WAIT_LIST', '2025-03-18', 'INITIAL', NULL, NULL, 1, 0, true),

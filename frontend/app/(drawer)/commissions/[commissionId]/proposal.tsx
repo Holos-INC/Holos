@@ -48,7 +48,7 @@ export default function CommissionDetailsScreen() {
 
   // Estado para manejar los valores de los nuevos campos de pago
   const [initialPaymentArrangement, setInitialPaymentArrangement] = useState<string | null>(null);
-  const [paymentArrangement, setPaymentArrangement] = useState(initialPaymentArrangement || "INITIAL");
+  const [paymentArrangement, setPaymentArrangement] = useState(initialPaymentArrangement || "FIFTYFIFTY");
   const [initialtotalPayments, setInitialTotalPayments] = useState("4");
   const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Estado para manejar la visibilidad del dropdown
@@ -56,6 +56,7 @@ export default function CommissionDetailsScreen() {
   const [editing, setEditing] = useState(false); // al principio no está editando
   const [isPaymentTypeSaved, setIsPaymentTypeSaved] = useState(false);
   const [paymentType, setPaymentType] = useState<string>('');
+  const [hasAccepted, setHasAccepted] = useState(false); // Estado para manejar si se ha aceptado la comision
 
   const handleAccept = async () => {
     if (!commission) return;
@@ -65,9 +66,11 @@ export default function CommissionDetailsScreen() {
         alert("El número de pagos debe ser mayor que 2 y menos o igual a 10");
       }else{
       await toPay(commission.id, loggedInUser.token);
-      await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token)
+      await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token);
       await refreshCommission();
       alert("Comisión aceptada");
+      
+      setPaymentArrangement(initialPaymentArrangement || "FIFTYFIFTY");
     } 
   }catch (err: any) {
       setErrorMessage(err.message);
@@ -194,32 +197,43 @@ export default function CommissionDetailsScreen() {
     !saving &&
     parseInt(newPrice) !== parseInt(displayedPrice);
 
-    const calculateAmountToPayIPA = () => {
+    const isPaymentArrangementChanged = paymentArrangement !== initialPaymentArrangement;
+    const canAccept = isPaymentArrangementChanged === false && !saving;
+
+
+
+    const calculateAmountToPayIPArtist = () => {
+      const price = parseFloat(newPrice || "0") * 1.06;
+    
       switch (initialPaymentArrangement) {
         case "INITIAL":
-          return `Ha seleccionado el método de pago ${initialPaymentArrangement}. Tendría que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€. Está usted a la espera de negociaciones`;
         case "FINAL":
-          return `Ha seleccionado el método de pago ${initialPaymentArrangement}. Tendría que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€. Está usted a la espera de negociaciones`;
+          return (
+            <Text>
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Tendría que realizar 1 pago de <Text style={{ fontWeight: 'bold' }}>{price.toFixed(2)}€</Text>.{" "}
+              Acepta si le parece bien o cámbielo para negociar.
+            </Text>
+          );
         case "FIFTYFIFTY":
-          return `Ha seleccionado el método de pago ${initialPaymentArrangement}. Tendría que realizar 2 pagos de ${((parseFloat(newPrice|| "0") * 1.06) / 2).toFixed(2)}€ cada uno. Está usted a la espera de negociaciones`;
+          return (
+            <Text>
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Tendría que realizar 2 pagos de <Text style={{ fontWeight: 'bold' }}>{(price / 2).toFixed(2)}€</Text> cada uno.{" "}
+              Acepta si le parece bien o cámbielo para negociar.
+            </Text>
+          );
         case "MODERATOR":
-          return `Ha seleccionado el método de pago ${initialPaymentArrangement}. Tendría que realizar ${initialtotalPayments} pagos de ${((parseFloat(newPrice|| "0") * 1.06) / parseInt(totalPayments)).toFixed(2)}€ cada uno. Está usted a la espera de negociaciones`;
+          return (
+            <Text>
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Tendría que realizar <Text style={{ fontWeight: 'bold' }}>{initialtotalPayments}</Text> pagos de{" "}
+              <Text style={{ fontWeight: 'bold' }}>{(price / parseInt(totalPayments)).toFixed(2)}€</Text> cada uno.{" "}
+              Acepta si le parece bien o cámbielo para negociar.
+            </Text>
+          );
         default:
-          return "";
-      }
-    };
-    const calculateAmountToPayPA = () => {
-      switch (paymentArrangement) {
-        case "INITIAL":
-          return `Ha seleccionado el método de pago ${paymentArrangement}. Tendría que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€.`;
-        case "FINAL":
-          return `Ha seleccionado el método de pago ${paymentArrangement}. Tendría que realizar 1 pago de ${(parseFloat(newPrice|| "0") * 1.06).toFixed(2)}€. `;
-        case "FIFTYFIFTY":
-          return `Ha seleccionado el método de pago ${paymentArrangement}. Tendría que realizar 2 pagos de ${((parseFloat(newPrice|| "0") * 1.06) / 2).toFixed(2)}€ cada uno.`;
-        case "MODERATOR":
-          return `Ha seleccionado el método de pago ${paymentArrangement}. Tendría que realizar ${totalPayments} pagos de ${((parseFloat(newPrice|| "0") * 1.06) / parseInt(totalPayments)).toFixed(2)}€ cada uno.`;
-        default:
-          return "";
+          return null;
       }
     };
 
@@ -333,10 +347,10 @@ export default function CommissionDetailsScreen() {
                   !(commission.status === StatusCommission.NOT_PAID_YET) && (
                     <IconButton
                     onPress={() => {
-                      if (isPaymentTypeSaved) {
+                      if (isPaymentTypeSaved || paymentArrangement === initialPaymentArrangement) {
                         setShowEditCard(true);
                       } else {
-                        alert("No puedes editar el precio hasta que no guardes los cambios del tipo de pago");
+                        alert("No puedes editar el precio hasta que: 1. No guardes los cambios del tipo de pago si quieres cambiarlo ó 2. Selecciones el método de pago establecido hasta el momento simplemente marcando en el desplegable");
                       }
                     }}
                       icon="pencil"
@@ -357,7 +371,11 @@ export default function CommissionDetailsScreen() {
   <View style={[styles.card, { alignItems: "center" }]}>
   <Text style={styles.label}>Selecciona el tipo de pago:</Text>
   <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
-    Recuerda que una vez que guardes los cambios, no podrás volver a cambiar el número de pagos
+    Si quiere negociar el tipo de pago, cámbielo y guarde los cambios.
+  </Text>
+
+  <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
+    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {initialPaymentArrangement} y pulse en aceptar.
   </Text>
 
   {/* Solo permite seleccionar si es su turno */}
@@ -456,7 +474,7 @@ export default function CommissionDetailsScreen() {
   )}
 
   {/* Botón de guardar controlado por turnos */}
-  {yourTurn && !isButtonDisabled&&(
+  {yourTurn && !isButtonDisabled&& paymentArrangement !== initialPaymentArrangement && hasAccepted === false &&(
     <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
       Guardar cambios de pago
     </Button>
@@ -465,13 +483,9 @@ export default function CommissionDetailsScreen() {
     <Text style={{ color: 'gray', marginTop: 10 }}>Los cambios han sido guardados, esperando respuesta de negociación</Text>
   )}
 
-  {!isButtonDisabled && (<Text style={styles.description}>
-    {calculateAmountToPayPA()}
-  </Text>)}
-
-  {isButtonDisabled && (<Text style={styles.description}>
-    {calculateAmountToPayIPA()}
-  </Text>)}
+  <Text style={styles.description}>
+    {calculateAmountToPayIPArtist()}
+  </Text>
 </View>
               {yourTurn && (
                 <View style={{ marginTop: 10 }}>
@@ -483,13 +497,14 @@ export default function CommissionDetailsScreen() {
                     />
                   ) : (
                     <View style={{ flexDirection: "row", gap: 10 }}>
-                      <Button
+                      {paymentArrangement === initialPaymentArrangement && yourTurn && !isButtonDisabled &&
+                      (<Button
                         onPress={handleAccept}
                         buttonColor={colors.contentStrong}
                         textColor="white"
                       >
                         Aceptar
-                      </Button>
+                      </Button>)}
                       <Button
                         onPress={handleReject}
                         buttonColor={colors.brandPrimary}
