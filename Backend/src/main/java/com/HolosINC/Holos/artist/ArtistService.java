@@ -30,6 +30,7 @@ public class ArtistService {
 	private final StatusKanbanOrderService statusKanbanOrderService;
 	private final ArtistCategoryRepository artistCategoryRepository;
 
+
 	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, @Lazy StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository) {
 		this.artistRepository = artistRepository;
 		this.baseUserRepository = baseUserRepository;
@@ -41,8 +42,10 @@ public class ArtistService {
 	@Transactional
 	public Artist saveArtist(Artist artist) throws DataAccessException {
 		artistRepository.save(artist);
+		statusKanbanOrderService.createDefaultKanbanStates(artist);
 		return artist;
 	}
+	
 
 	@Transactional(readOnly = true)
 	public Artist findArtist(Long artistId) throws Exception {
@@ -87,6 +90,7 @@ public class ArtistService {
 			}
 
 			commisionRepository.deleteAll(commisions);
+
 
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {

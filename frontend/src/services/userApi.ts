@@ -1,5 +1,5 @@
 import api from "./axiosInstance"; // Assuming you have an axios instance set up
-import { BaseUser, BaseUserDTO, User } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
+import {BaseUserDTO, User, BaseUser } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
 import { API_URL } from "@/src/constants/api";
 
 const USER_URL = `${API_URL}/baseUser`;

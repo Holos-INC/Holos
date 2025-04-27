@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { View, Button, Image, TouchableOpacity, Modal } from 'react-native';
-import { GiftedChat, IMessage } from 'react-native-gifted-chat';
+import { GiftedChat, IMessage, Message, Send} from 'react-native-gifted-chat';
 import { useLocalSearchParams,  useNavigation } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { getConversation, sendMessage, getNewMessages } from "@/src/services/chatService";
@@ -10,10 +10,8 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { MessageChat, MessageRecieved } from "@/src/constants/message";
 import { Platform } from "react-native";
-import { Send } from 'react-native-gifted-chat';
 import { Ionicons } from '@expo/vector-icons';
 import popUpMovilWindows  from "@/src/components/PopUpAlertMovilWindows";
-import { Message } from 'react-native-gifted-chat';
 import { styles } from "@/src/styles/Chat.styles";
 import { getCommissionById } from "@/src/services/commisionApi";
 

@@ -10,11 +10,11 @@ import styles from "@/src/styles/ArtistDetail.styles";
 import { Button } from "react-native-paper";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getUserByUsername } from "@/src/services/userApi";
-import { BaseUserDTO } from "@/src/constants/CommissionTypes";
+import { BaseUserDTO,ArtistDTO  } from "@/src/constants/CommissionTypes";
 import ProfileHeader from "@/src/components/profile/ProfileHeader";
 import ActionButtons from "@/src/components/profile/ActionButtons";
 import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { getArtistByUsername } from "@/src/services/artistApi";
 import { getImageSource } from "@/src/getImageSource";
 
 interface Artwork {
@@ -36,36 +36,56 @@ export default function ArtistDetailScreen() {
   function isBaseUser(
     user: BaseUserDTO | ArtistDTO | null
   ): user is BaseUserDTO {
-    return !!user && "authorityName" in user;
+    return !!user && "authority" in user;
   }
-  const isClient = isBaseUser(user) && user.authorityName === "CLIENT";
-  const isPremium = isBaseUser(user) && user.authorityName === "ARTIST_PREMIUM";
+  const isClient = isBaseUser(user) && user.authority === "CLIENT";
+  const isPremium = isBaseUser(user) && user.authority === "ARTIST_PREMIUM";
   const isCurrentUser = loggedInUser?.username === user?.username;
   const [showEditDialog, setShowEditDialog] = useState(false);
-
   const [fontsLoaded] = useFonts({
     "Montserrat-Regular": require("@/assets/fonts/Montserrat/Montserrat-Regular.ttf"),
     "Montserrat-Bold": require("@/assets/fonts/Montserrat/Montserrat-Bold.ttf"),
   });
-
-  const fetchData = async () => {
-    try {
-      const userData: BaseUserDTO = await getUserByUsername(
-        username,
-        loggedInUser?.token || ""
-      );
-      setUser(userData);
-
-      const worksData: Artwork[] = await getWorksDoneByArtist(
-        userData.username || ""
-      );
-      setWorks(worksData);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  function isArtist(user: BaseUserDTO | ArtistDTO | null): user is ArtistDTO {
+    return !!user && ("authority" in user) && (user.authority === "ARTIST" || user.authority === "ARTIST_PREMIUM");
+  }
+  
+    const fetchData = async () => {
+      try {
+        const userData = await getUserByUsername(username, loggedInUser?.token || "");
+        if (isArtist(userData)) {
+          await fetchArtistData(userData.username);
+        } else {
+          await fetchClientData(userData.username);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    const fetchArtistData = async (username: string) => {
+      try {
+        const artistData: ArtistDTO = await getArtistByUsername(username);
+        setUser(artistData);
+        const worksData: Artwork[] = await getWorksDoneByArtist(username);
+        setWorks(worksData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    
+    const fetchClientData = async (username: string) => {
+      try {
+        const clientData: BaseUserDTO = await getUserByUsername(username, loggedInUser.token);
+        setUser(clientData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    
+    
 
   useEffect(() => {
     fetchData();

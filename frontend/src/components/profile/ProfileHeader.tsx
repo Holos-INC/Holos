@@ -3,7 +3,7 @@ import { View, Text, Image, useWindowDimensions } from "react-native";
 import { Icon, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
 import { getImageSource } from "@/src/getImageSource";
 
 type ProfileHeaderProps = {

@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.HolosINC.Holos.Profile.ProfileService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
@@ -55,6 +56,7 @@ public class ArtistRestControllerTest {
         baseUser.setUsername("artista1");
         baseUser.setEmail("artista1@example.com");
         baseUser.setPhoneNumber("123456789");
+        baseUser.setAuthority(Auth.ARTIST);
         baseUser.setImageProfile(new byte[0]);
 
         artist.setBaseUser(baseUser);
@@ -84,8 +86,11 @@ public class ArtistRestControllerTest {
     public void testFindByUsernameSuccess() throws Exception {
         Artist artist = new Artist();
         artist.setId(1L);
-        artist.setBaseUser(new BaseUser());
-        artist.getBaseUser().setUsername("artistUsername");
+
+        BaseUser baseUser = new BaseUser();
+        baseUser.setUsername("artistUsername");
+        baseUser.setAuthority(Auth.ARTIST); 
+        artist.setBaseUser(baseUser);
 
         when(artistService.findArtistByUsername("artistUsername")).thenReturn(artist);
 

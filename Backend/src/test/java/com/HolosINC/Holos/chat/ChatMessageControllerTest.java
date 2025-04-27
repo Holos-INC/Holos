@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.chat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -12,9 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.HolosINC.Holos.commision.Commision;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ChatMessageControllerTest {
@@ -138,4 +142,50 @@ public class ChatMessageControllerTest {
 
         verify(chatMessageService, times(1)).findAllConversations();
     }
+
+@Test
+public void testCreateChatMessageSuccess() throws Exception {
+    String chatMessageJson = "{\"text\":\"Hello!\", \"commision\":\"1\"}";
+
+    MockMultipartFile chatMessagePart = new MockMultipartFile(
+        "chatMessage", "", "application/json", chatMessageJson.getBytes()
+    );
+
+    MockMultipartFile imageFile = new MockMultipartFile(
+        "imageProfile", "image.png", "image/png", "dummy content".getBytes()
+    );
+
+    ChatMessage chatMessage = new ChatMessage();
+    chatMessage.setText("Hello!");
+    when(chatMessageService.getCommisionById(1L)).thenReturn(new Commision());
+    when(chatMessageService.createChatMessage(any(ChatMessage.class))).thenReturn(chatMessage);
+
+    mockMvc.perform(multipart("/api/v1/messages")
+            .file(chatMessagePart)
+            .file(imageFile)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isOk());
+
+    verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
+}
+
+
+@Test
+public void testCreateChatMessageFailure() throws Exception {
+    String chatMessageJson = "{\"text\":\"Hello!\", \"commision\":\"1\"}";
+    MockMultipartFile chatMessagePart = new MockMultipartFile(
+        "chatMessage", "", "application/json", chatMessageJson.getBytes()
+    );
+    when(chatMessageService.getCommisionById(1L)).thenReturn(new Commision());
+    when(chatMessageService.createChatMessage(any(ChatMessage.class)))
+        .thenThrow(new RuntimeException("Error creating message"));
+
+    mockMvc.perform(multipart("/api/v1/messages")
+            .file(chatMessagePart)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isBadRequest());
+
+    verify(chatMessageService, times(1)).createChatMessage(any(ChatMessage.class));
+}
+
 }
