@@ -48,8 +48,10 @@ public class ArtistService {
 	@Transactional
 	public Artist saveArtist(Artist artist) throws DataAccessException {
 		artistRepository.save(artist);
+		statusKanbanOrderService.createDefaultKanbanStates(artist);
 		return artist;
 	}
+	
 
 	@Transactional(readOnly = true)
 	public Artist findArtist(Long artistId) throws Exception {

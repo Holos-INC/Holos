@@ -58,6 +58,7 @@ export default function CommissionDetailsScreen() {
       await reject(commission.id, loggedInUser.token);
       await refreshCommission();
       alert("Comisión rechazada");
+      router.push("/commissions");
     } catch (err: any) {
       setErrorMessage(err.message);
     }

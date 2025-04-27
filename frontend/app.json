@@ -8,10 +8,6 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "permissions": [
-      "MEDIA_LIBRARY",
-      "MEDIA_LIBRARY_WRITE_ONLY"
-    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,11 +15,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ]
+      }
     },
     "web": {
       "bundler": "metro",

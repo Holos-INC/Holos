@@ -4,18 +4,8 @@ export interface artistUser {
     email: string;
     phoneNumber: string;
     description: string;
-    linkToSocialMedia: string;
+    linkToSocialMedia: string |  null ;
     tableCommissionsPrice: string;
     imageProfile: string;
-  
-  }
-
-  export interface clientUser {
-    firstName: string;
-    username: string;
-    email: string;
-    phoneNumber: string ;
-    description: string |  null ;
-    linkToSocialMedia?: string;
-    imageProfile: string | undefined;  
+    numSlotsOfWork: number;
   }

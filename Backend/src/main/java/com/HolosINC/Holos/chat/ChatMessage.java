@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.Size;
 
 import com.HolosINC.Holos.commision.Commision;
-import com.HolosINC.Holos.model.BaseUser;
 
 @Data
 @Entity

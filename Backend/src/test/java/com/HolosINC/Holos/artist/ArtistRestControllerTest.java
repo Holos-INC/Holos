@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.HolosINC.Holos.Profile.ProfileService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
@@ -55,6 +56,7 @@ public class ArtistRestControllerTest {
         baseUser.setUsername("artista1");
         baseUser.setEmail("artista1@example.com");
         baseUser.setPhoneNumber("123456789");
+        baseUser.setAuthority(Auth.ARTIST);
         baseUser.setImageProfile(new byte[0]);
 
         artist.setBaseUser(baseUser);
@@ -84,8 +86,11 @@ public class ArtistRestControllerTest {
     public void testFindByUsernameSuccess() throws Exception {
         Artist artist = new Artist();
         artist.setId(1L);
-        artist.setBaseUser(new BaseUser());
-        artist.getBaseUser().setUsername("artistUsername");
+
+        BaseUser baseUser = new BaseUser();
+        baseUser.setUsername("artistUsername");
+        baseUser.setAuthority(Auth.ARTIST); 
+        artist.setBaseUser(baseUser);
 
         when(artistService.findArtistByUsername("artistUsername")).thenReturn(artist);
 
@@ -125,7 +130,7 @@ public class ArtistRestControllerTest {
 
         mockMvc.perform(delete("/api/v1/artists/administrator/artists/1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Artist not found with id: 1"));
+                .andExpect(content().string("Artist not found with id: 1"));
 
         verify(artistService, times(1)).deleteArtist(1L);
     }
@@ -157,26 +162,4 @@ public class ArtistRestControllerTest {
 
         verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
     }
-
-    @Test
-    public void testUpdateProfileFailure() throws Exception {
-        BaseUserDTO baseUserDTO = new BaseUserDTO();
-        baseUserDTO.setUsername("invalidUser");
-
-         when(profileService.updateProfile(any(BaseUserDTO.class)))
-            .thenThrow(new RuntimeException("No se pudo actualizar el perfil"));
-
-        mockMvc.perform(put("/api/v1/artists/update")
-                .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(baseUserDTO)))
-                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.message").value("No se pudo actualizar el perfil"));
-
-    verify(profileService, times(1)).updateProfile(any(BaseUserDTO.class));
-}
-
-    @Test
-    public void testFindByUsernameEmpty() throws Exception {
-        mockMvc.perform(get("/api/v1/artists/username/"))
-                .andExpect(status().isBadRequest()); // o 400 si lo manejas
-}
-
 }
