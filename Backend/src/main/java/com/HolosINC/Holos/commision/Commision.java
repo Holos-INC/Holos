@@ -7,6 +7,7 @@ import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -43,6 +44,8 @@ public class Commision extends Work{
     private Integer currentPayments;
 
     private boolean isWaitingPayment;
+
+    private String paymentMethodId;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "status_kanban_order_id", referencedColumnName = "id")
