@@ -363,6 +363,31 @@ public class CommisionService {
         return commisionRepository.existsByStatusKanban(status);
     }
 
+    @Transactional
+    public void updateImage(Long commisionId, String base64Image) throws Exception {
+        Commision commision = commisionRepository.findById(commisionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+    
+        Long currentUserId = userService.findCurrentUser().getId();
+    
+        if (!commision.getArtist().getBaseUser().getId().equals(currentUserId)) {
+            throw new IllegalArgumentException("Solo el artista puede actualizar la imagen de la comisión.");
+        }
+    
+        if (commision.getStatus() != StatusCommision.ACCEPTED) {
+            throw new IllegalStateException("La imagen solo se puede actualizar cuando la comisión está aceptada y en proceso.");
+        }
+    
+        if (base64Image != null && base64Image.contains(",")) {
+            String base64Data = base64Image.split(",")[1];
+            commision.setImage(java.util.Base64.getDecoder().decode(base64Data));
+        } else {
+            throw new IllegalArgumentException("Formato de imagen no válido.");
+        }
+    
+        commisionRepository.save(commision);
+    }    
+  
     @Transactional(readOnly = true)
     public List<ClientCommissionDTO> getEndedCommissionsForClient() throws Exception {
         BaseUser currentUser = userService.findCurrentUser();
@@ -373,6 +398,4 @@ public class CommisionService {
 
         return commisionRepository.findEndedCommissionsByClientId(currentUser.getId());
     }
-
-    
 }
