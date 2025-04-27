@@ -141,7 +141,16 @@ export interface BaseUserDTO {
   phoneNumber: string;
   description: string;
   imageProfile: string;
-  authorityName: string;
+  authority: string;
+}
+
+export interface ArtistDTO extends BaseUserDTO {
+  
+  artistId: number;
+  baseUserId: number;
+  numSlotsOfWork: number;
+  tableCommissionsPrice: string;
+  linkToSocialMedia: string;
 }
 
 export interface CommissionDTO {

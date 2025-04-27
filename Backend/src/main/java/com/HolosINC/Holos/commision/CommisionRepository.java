@@ -48,4 +48,7 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
 
     @Query("SELECT c.id FROM Commision c WHERE c.paymentIntentId = :paymentIntentId")
     Long findCommissionIdByPaymentIntentId(@Param("paymentIntentId") String paymentIntentId);
+
+    @Query("SELECT COUNT(c) FROM Commision c WHERE c.artist.id = :artistId AND c.status = 'ACCEPTED'")
+    Long countByStatusAcceptedAndArtist(@Param("artistId") Long artistId);
 }

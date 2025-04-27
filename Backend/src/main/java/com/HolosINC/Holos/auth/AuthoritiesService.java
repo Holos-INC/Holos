@@ -116,6 +116,12 @@ public class AuthoritiesService {
 							: artist.getTableCommisionsPrice());
 			artistService.saveArtist(artist);
 		}
+		if (user.getAuthority() == Auth.ARTIST_PREMIUM) {
+			Artist artist = artistService.findArtistByUserId(user.getId());
+			artist.setNumSlotsOfWork(request.getNumSlotsOfWork() != null ? request.getNumSlotsOfWork()
+					: artist.getNumSlotsOfWork());
+			artistService.saveArtist(artist);
+		}
 	}
 
 	@Transactional

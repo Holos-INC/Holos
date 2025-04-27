@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.artist;
 
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.auth.payload.request.LoginRequest;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
@@ -49,6 +50,7 @@ public class ArtistRestControllerIntegrationTest {
         user.setEmail("artist@test.com");
         user.setName("Test Artist");
         user.setDescription("Integration test artist");
+        user.setAuthority(Auth.ARTIST);
         baseUserRepository.save(user);
 
         Artist artist = new Artist();
@@ -65,7 +67,7 @@ public class ArtistRestControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.artistId").value(savedArtistId))
                 .andExpect(jsonPath("$.description").value("Integration test artist"))
-                .andExpect(jsonPath("$.username").value("artistTest"));
+                .andExpect(jsonPath("$.username").value("artistTest"));              
     }
 
     @Test

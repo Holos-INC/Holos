@@ -217,15 +217,17 @@ public class StatusKanbanOrderService {
 
                 // Si existe una comisión en IN_WAIT_LIST, cambiar su estado a ACCEPTED
                 if (oldestInWaitList.isPresent()) {
-                    Commision oldestCommision = oldestInWaitList.get();
-                    // No hace falta excepciones porque en otras validaciones ya se obliga a que este artista tenga al menos un statusKanban, al tener comisiones aceptadas
-                    StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
-                        .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
-                        System.out.println("Cambiando estado de comisión con ID " + oldestCommision.getId() +
-                       " de IN_WAIT_LIST a ACCEPTED");
-                    oldestCommision.setStatus(StatusCommision.ACCEPTED);
-                    oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
-                    commisionRepository.save(oldestCommision);
+                    // Antes de moverla, verificar si hay slots disponibles
+                    Long numAccepted = commisionRepository.countByStatusAcceptedAndArtist(currentArtist.getId());
+                    if (currentArtist.getNumSlotsOfWork() > numAccepted) {
+                        Commision oldestCommision = oldestInWaitList.get();
+                        StatusKanbanOrder firstStatusKanbanOrder = commisionRepository
+                                .getFirstStatusKanbanOfArtist(currentArtist.getId()).get();
+                        oldestCommision.setStatus(StatusCommision.ACCEPTED);
+                        oldestCommision.setStatusKanbanOrder(firstStatusKanbanOrder);
+                        commisionRepository.save(oldestCommision);
+                    }
+                    // Si no hay slots, simplemente no se cambia el estado de la comisión en IN_WAIT_LIST
                 }
             } else
                 // Avanzar al siguiente estado
