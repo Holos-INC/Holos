@@ -17,7 +17,7 @@ export const contactInputStyles = StyleSheet.create({
     height: 30,
     paddingHorizontal: 10,
     marginVertical: 7.5,
-    color: placeholderColor,
+    color: "#434343",
   },
   inputContainerFocused: {
     borderWidth: 3,
