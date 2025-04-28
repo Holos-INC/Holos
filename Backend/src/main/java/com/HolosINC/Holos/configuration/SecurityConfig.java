@@ -43,8 +43,10 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/reports/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/report-types/admin/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/status-kanban-order/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+/*          .requestMatchers("/api/v1/status-kanban-order/count/**").authenticated()
+            .requestMatchers("/api/v1/status-kanban-order/**").authenticated() */
             .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.POST,"/api/v1/commisions/request-payment/{commisionId}").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/commisions/**").authenticated()
             .requestMatchers("/api/v1/messages/**").authenticated()
             .requestMatchers("/api/v1/payment/{paymentIntentId}", "/api/v1/payment/all").hasAuthority("ADMIN")
