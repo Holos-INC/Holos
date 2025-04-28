@@ -83,7 +83,8 @@ public class PaymentService {
                     .build();
 
             SetupIntent setupIntent = SetupIntent.create(params);
-
+            commision.setSetupIntentId(setupIntent.getId());
+            commisionRepository.save(commision);
             return setupIntent.getClientSecret();
 
         } catch (ResourceNotFoundException e) {
@@ -123,34 +124,26 @@ public class PaymentService {
                 throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
             }
 
-            if (commision.getTotalPayments()>=commision.getCurrentPayments()){
+            if (commision.getTotalPayments()<=commision.getCurrentPayments()){
                 throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
             }
 
-            if (!(commision.isWaitingPayment())){
+            if (commision.isWaitingPayment()==false){
                 throw new BadRequestException("Esta comisión no espera un nuevo pago");
-            }
-    
-            if (client.getStripeCustomerId() == null || client.getStripeCustomerId().isEmpty()) {
-                throw new BadRequestException("El cliente no tiene un ID de cliente de Stripe asociado");
             }
 
             String setupIntentId = commision.getSetupIntentId();
     
             if (setupIntentId == null) {
-                throw new BadRequestException("SetupIntent no puede ser null");
+                throw new BadRequestException("Esta comisión no tiene una Setup de pago guardada");
             }
             
             SetupIntent setupIntent = SetupIntent.retrieve(setupIntentId);
+            setupIntent.setPaymentMethod("pm_card_visa");
             String paymentMethodId = setupIntent.getPaymentMethod();
 
             long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
-            long commissionAmount = Math.round(totalAmount * commisionPercentage);
-
-            RequestOptions requestOptions = RequestOptions.builder()
-                .setIdempotencyKey("some-unique-key-per-user-action")
-                .build();
-    
+            long commissionAmount = Math.round(totalAmount * commisionPercentage);    
 
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                     .setAmount(totalAmount)
@@ -160,7 +153,7 @@ public class PaymentService {
                     .setPaymentMethod(paymentMethodId)
                     .setOffSession(true) // Cobro sin intervención del cliente
                     .setConfirm(true)    
-                    .setDescription(commision.getDescription())
+                    .setDescription("Pago número "+(commision.getCurrentPayments()+1)+" de " +commision.getTotalPayments()+" de la comisión: " +commision.getName())
                     .setApplicationFeeAmount(commissionAmount)
                     .setTransferData(PaymentIntentCreateParams.TransferData.builder()
                             .setDestination(artist.getSellerAccountId()) 
@@ -168,17 +161,18 @@ public class PaymentService {
                     .build();
     
 
-            PaymentIntent paymentIntent = PaymentIntent.create(params, requestOptions);
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
 
             if (commision.getCurrentPayments()==null){
                 commision.setCurrentPayments(1);
             }
             else{
-                commision.setCurrentPayments(commision.getCurrentPayments()+1);
+                commision.setCurrentPayments(commision.getCurrentPayments()+1);               
             }
+            commision.setWaitingPayment(false);
             commisionRepository.save(commision);
 
-            return paymentIntent.getStatus(); 
+            return paymentIntent.getClientSecret(); 
     
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
@@ -217,7 +211,7 @@ public class PaymentService {
                 throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
             }
 
-            if (commision.getTotalPayments()>=commision.getCurrentPayments()){
+            if (commision.getTotalPayments()<=commision.getCurrentPayments()){
                 throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
             }
 
@@ -228,9 +222,9 @@ public class PaymentService {
             long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
             long commissionAmount = Math.round(totalAmount * commisionPercentage);
 
-            RequestOptions requestOptions = RequestOptions.builder()
+/*             RequestOptions requestOptions = RequestOptions.builder()
                 .setIdempotencyKey("some-unique-key-per-user-action")
-                .build();
+                .build(); */
 
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(totalAmount) 
@@ -245,13 +239,14 @@ public class PaymentService {
                                 .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
                                 .build())
                 .build();
-            PaymentIntent paymentIntent = PaymentIntent.create(params, requestOptions);
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
             if (commision.getCurrentPayments()==null){
                 commision.setCurrentPayments(1);
             }
             else{
                 commision.setCurrentPayments(commision.getCurrentPayments()+1);
             }
+            commision.setWaitingPayment(false);
             commisionRepository.save(commision);
             return paymentIntent.getClientSecret();
 
