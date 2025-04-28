@@ -116,6 +116,18 @@ public class StatusKanbanOrderController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/count/{artistUsername}")
+    @Operation(summary = "Obtiene el número de statusKanban a partir del username del artista")
+    public ResponseEntity<Integer> getStatusKanbanByArtistId(@PathVariable String artistUsername) throws Exception {
+        try {
+            Integer numberOfStatusKanban = statusKanbanOrderService.countByArtistUsername(artistUsername);
+            return ResponseEntity.ok(numberOfStatusKanban);
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     @PutMapping("/reorder")
     @Operation(summary = "Actualiza el orden de todos los estados Kanban del artista")
     public ResponseEntity<?> reorderStatuses(@RequestBody List<Long> orderedIds) {
