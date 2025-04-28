@@ -16,9 +16,9 @@ import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import PaymentDetails from "@/src/components/checkout/PaymentDetails";
 import WIPPlaceholder from "@/src/components/WorkInProgress";
 import colors from "@/src/constants/colors";
-import { StatusCommission } from "@/src/constants/CommissionTypes";
+import { PaymentArrangement, StatusCommission } from "@/src/constants/CommissionTypes";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import { BASE_URL } from "@/src/constants/api";
+import { API_URL } from "@/src/constants/api";
 import { getUser } from "@/src/services/userApi";
 import UserPanel from "@/src/components/proposal/UserPanel";
 import TurnDotsIndicator from "@/src/components/proposal/TurnDotsIndicator";
@@ -46,33 +46,21 @@ export default function CommissionDetailsScreen() {
   const [showEditCard, setShowEditCard] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Estado para manejar los valores de los nuevos campos de pago
-  const [initialPaymentArrangement, setInitialPaymentArrangement] = useState<string | null>(null);
-  const [paymentArrangement, setPaymentArrangement] = useState(initialPaymentArrangement || "FIFTYFIFTY");
-  const [initialtotalPayments, setInitialTotalPayments] = useState("4");
-  const [totalPayments, setTotalPayments] = useState("4");
+  const [paymentArrangement, setPaymentArrangement] = useState<string | null>(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Estado para manejar la visibilidad del dropdown
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [editing, setEditing] = useState(false); // al principio no está editando
   const [isPaymentTypeSaved, setIsPaymentTypeSaved] = useState(false);
-  const [paymentType, setPaymentType] = useState<string>('');
   const [hasAccepted, setHasAccepted] = useState(false); // Estado para manejar si se ha aceptado la comision
+  const [kanbanColumnsCount, setKanbanColumnsCount] = useState(0);
 
   const handleAccept = async () => {
     if (!commission) return;
     try {
-      const numPayments = parseInt(totalPayments, 10);
-      if((numPayments <= 2 || numPayments > 10) && paymentArrangement === "MODERATOR") {
-        alert("El número de pagos debe ser mayor que 2 y menos o igual a 10");
-      }else{
       await toPay(commission.id, loggedInUser.token);
-      await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token);
       await refreshCommission();
       alert("Comisión aceptada");
-      
-      setPaymentArrangement(initialPaymentArrangement || "FIFTYFIFTY");
-    } 
-  }catch (err: any) {
+    }catch (err: any) {
       setErrorMessage(err.message);
     }
   };
@@ -96,13 +84,44 @@ export default function CommissionDetailsScreen() {
       const price = isClient
         ? parseFloat((parsedPrice / 1.06).toFixed(2))
         : parsedPrice;
-
+  
       await priceValidationSchema.validate({ newPrice });
-
+  
       const updatedCommission = { ...commission, price };
-      await waiting(commission.id, updatedCommission, loggedInUser.token);
-
       setCommission(updatedCommission);
+    } catch (error: any) {
+      const message =
+        error instanceof yup.ValidationError
+          ? error.message
+          : error.message || "Hubo un error al actualizar el precio";
+  
+      setErrorMessage(message);
+      console.error("Error al actualizar el precio:", error);
+    }
+  };
+  const handleSavePaymentDetails = async () => {
+    if (!commission) return;
+    try {  
+      const updatedCommission = {
+        ...commission,
+        paymentArrangement: paymentArrangement as PaymentArrangement,
+      };
+  
+      setCommission(updatedCommission);
+      setIsPaymentTypeSaved(true);
+      setIsButtonDisabled(true);
+      setEditing(false);
+    } catch (error: any) {
+      setErrorMessage(error.message);
+      console.error("Error al actualizar los detalles de pago:", error);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (!commission || !loggedInUser.token) return;
+    setSaving(true);
+    try {
+      await waiting(commission.id, commission, loggedInUser.token);
       await refreshCommission();
       setShowEditCard(false);
       alert("Precio actualizado con éxito");
@@ -110,47 +129,20 @@ export default function CommissionDetailsScreen() {
       const message =
         error instanceof yup.ValidationError
           ? error.message
-          : error.message || "Hubo un error al actualizar el precio";
-
+          : error.message || "Hubo un error al confirmar los cambios";
+  
       setErrorMessage(message);
-      console.error("Error al actualizar el precio:", error);
+      console.error("Error al confirmar los cambios:", error);
     } finally {
       setSaving(false);
     }
   };
-  const handleSavePaymentDetails = async () => {
-    if (!commission || !loggedInUser.token) return;
-    try {
-      const numPayments = parseInt(totalPayments, 10);
-      if ((numPayments <= 2 || numPayments > 10) && paymentArrangement === "MODERATOR") {
-        alert("El número de pagos debe ser mayor que 2 y menos o igual a 10");
-      } else {
-        await updatePayment(commission.id, paymentArrangement, numPayments, loggedInUser.token);
-        setIsPaymentTypeSaved(true);
-        await refreshCommission();
-        alert("Detalles de pago actualizados correctamente"); // Alerta de éxito
-        setIsButtonDisabled(true);
-        setEditing(false);
-      }
-    } catch (error: any) {
-      setErrorMessage(error.message);
-      console.error("Error al actualizar los detalles de pago:", error);
-    }
-  };
 
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      try {
-        const commission = await getCommissionById(Number(commissionId));
-        setInitialPaymentArrangement(commission.paymentArrangement);
-        setInitialTotalPayments(commission.totalPayments);
-      } catch (err) {
-        console.error("Error al obtener el tipo de pago inicial:", err);
-      }
-    }, 2000); // cada 2 segundos
-  
-    return () => clearInterval(intervalId); // limpiar al desmontar
-  }, [commissionId]);
+    if (commission && commission.paymentArrangement) {
+      setPaymentArrangement(commission.paymentArrangement); 
+    }
+  }, [commission?.paymentArrangement]); 
 
   useEffect(() => {
     if (commission) {
@@ -170,6 +162,27 @@ export default function CommissionDetailsScreen() {
         : "Negociación",
     });
   }, [commission?.name, navigation]);
+  
+  useEffect(() => {
+    if (commission?.artistUsername) {
+      fetch(`${API_URL}/status-kanban-order/count/${commission.artistUsername}`)
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(error => { 
+              throw new Error(error.message); // Lanzar un error con el mensaje
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          setKanbanColumnsCount(data);
+        })
+        .catch(error => {
+          console.error("Error fetching data: ", error);
+          setErrorMessage(error.message); // Muestra el mensaje de error de manera adecuada
+        });
+    }
+  }, [commission?.artistUsername]);
 
   if (!commission) return <WIPPlaceholder />;
   if (!loggedInUser) return <LoadingScreen />;
@@ -197,20 +210,15 @@ export default function CommissionDetailsScreen() {
     !saving &&
     parseInt(newPrice) !== parseInt(displayedPrice);
 
-    const isPaymentArrangementChanged = paymentArrangement !== initialPaymentArrangement;
-    const canAccept = isPaymentArrangementChanged === false && !saving;
-
-
-
     const calculateAmountToPayIPArtist = () => {
-      const price = parseFloat(newPrice || "0") * 1.06;
+      const price = parseFloat(newPrice || "0");
     
-      switch (initialPaymentArrangement) {
+      switch (paymentArrangement) {
         case "INITIAL":
         case "FINAL":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
               Tendría que realizar 1 pago de <Text style={{ fontWeight: 'bold' }}>{price.toFixed(2)}€</Text>.{" "}
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
@@ -218,7 +226,7 @@ export default function CommissionDetailsScreen() {
         case "FIFTYFIFTY":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
               Tendría que realizar 2 pagos de <Text style={{ fontWeight: 'bold' }}>{(price / 2).toFixed(2)}€</Text> cada uno.{" "}
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
@@ -226,9 +234,9 @@ export default function CommissionDetailsScreen() {
         case "MODERATOR":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
-              Tendría que realizar <Text style={{ fontWeight: 'bold' }}>{initialtotalPayments}</Text> pagos de{" "}
-              <Text style={{ fontWeight: 'bold' }}>{(price / parseInt(totalPayments)).toFixed(2)}€</Text> cada uno.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
+              Tendría que realizar <Text style={{ fontWeight: 'bold' }}>{kanbanColumnsCount}</Text> pagos de{" "}
+              <Text style={{ fontWeight: 'bold' }}>{(price / kanbanColumnsCount).toFixed(2)}€</Text> cada uno.{" "}
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
           );
@@ -237,145 +245,139 @@ export default function CommissionDetailsScreen() {
       }
     };
 
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{
-        flexDirection: isTwoColumn ? "row" : "column",
-        flexGrow: 1,
-        gap: isTwoColumn ? 0 : 500,
-      }}
-    >
-      <View
-        style={{
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{
           flexDirection: isTwoColumn ? "row" : "column",
           flexGrow: 1,
-          paddingVertical: isTwoColumn ? 0 : 50,
+          gap: isTwoColumn ? 0 : 500,
         }}
       >
-        <View style={styles.sides}>
-          <PaymentDetails commission={commission} />
-        </View>
-        <View style={styles.sides}>
-          <View style={[styles.card]}>
-            <View style={{ flexDirection: "row" }}>
-              <UserPanel
-                username={commission.clientUsername}
-                image={commission.imageProfileC}
-              />
-              <UserPanel
-                username={commission.artistUsername}
-                image={commission.imageProfileA}
-              />
-            </View>
-            <View style={{ alignItems: "center", flex: 1, marginTop: 15 }}>
-              <TurnDotsIndicator isClientTurn={isClientTurn} />
-            </View>
+        <View
+          style={{
+            flexDirection: isTwoColumn ? "row" : "column",
+            flexGrow: 1,
+            paddingVertical: isTwoColumn ? 0 : 50,
+          }}
+        >
+          <View style={styles.sides}>
+            <PaymentDetails commission={commission} />
           </View>
-
-          {showEditCard ? (
-            <View style={[styles.card, { alignItems: "center" }]}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <IconButton
-                    icon="arrow-left"
-                    iconColor={colors.contentStrong}
-                    onPress={() => setShowEditCard(false)}
-                  />
-                </View>
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Text style={styles.label}>¿Cambiar precio?</Text>
-                </View>
-                <View style={{ flex: 1 }} />
+          <View style={styles.sides}>
+            <View style={[styles.card]}>
+              <View style={{ flexDirection: "row" }}>
+                <UserPanel
+                  username={commission.clientUsername}
+                  image={commission.imageProfileC}
+                />
+                <UserPanel
+                  username={commission.artistUsername}
+                  image={commission.imageProfileA}
+                />
               </View>
-
-              <Text style={{ color: colors.contentStrong, paddingBottom: 10 }}>
-                ¡Puedes proponer otro si crees que el actual no está bien!
-              </Text>
-              <TextInput
-                value={newPrice}
-                onChangeText={setNewPrice}
-                mode="outlined"
-                keyboardType="numeric"
-                placeholder="€"
-                outlineColor={colors.brandPrimary}
-                activeOutlineColor={colors.brandPrimary}
-                returnKeyType="done"
-                onSubmitEditing={handleSavePrice}
-                theme={{ roundness: 999 }}
-                style={{ backgroundColor: "transparent" }}
-                right={
-                  <TextInput.Icon
-                    icon="send"
-                    onPress={canSend ? handleSavePrice : undefined}
-                    color={canSend ? colors.brandPrimary : colors.surfaceBase}
-                    disabled={!canSend}
-                  />
-                }
-              />
-              <Text style={styles.errorText}>{errorMessage}</Text>
+              <View style={{ alignItems: "center", flex: 1, marginTop: 15 }}>
+                <TurnDotsIndicator isClientTurn={isClientTurn} />
+              </View>
             </View>
-          ) : (
-            <View style={[styles.card, { alignItems: "center" }]}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text
+
+            {showEditCard ? (
+              <View style={[styles.card, { alignItems: "center" }]}>
+                <View
                   style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: colors.contentStrong,
+                    flexDirection: "row",
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  {isClient
-                    ? parseFloat(newPrice || "0").toFixed(2)
-                    : (parseFloat(newPrice || "0") * 1.06).toFixed(2)}{" "}
-                  €
-                </Text>
-                {yourTurn && 
-                  !(commission.status === StatusCommission.NOT_PAID_YET) && (
+                  <View style={{ flex: 1 }}>
                     <IconButton
-                    onPress={() => {
-                      if (isPaymentTypeSaved || paymentArrangement === initialPaymentArrangement) {
-                        setShowEditCard(true);
-                      } else {
-                        alert("No puedes editar el precio hasta que: 1. No guardes los cambios del tipo de pago si quieres cambiarlo ó 2. Selecciones el método de pago establecido hasta el momento simplemente marcando en el desplegable");
-                      }
-                    }}
-                      icon="pencil"
-                      iconColor={colors.brandPrimary}
+                      icon="arrow-left"
+                      iconColor={colors.contentStrong}
+                      onPress={() => setShowEditCard(false)}
                     />
-                  )}
+                  </View>
+                  <View style={{ flex: 1, alignItems: "center" }}>
+                    <Text style={styles.label}>¿Cambiar precio?</Text>
+                  </View>
+                  <View style={{ flex: 1 }} />
+                </View>
+  
+                <Text style={{ color: colors.contentStrong, paddingBottom: 10 }}>
+                  ¡Puedes proponer otro si crees que el actual no está bien!
+                </Text>
+                <TextInput
+                  value={newPrice}
+                  onChangeText={setNewPrice}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  placeholder="€"
+                  outlineColor={colors.brandPrimary}
+                  activeOutlineColor={colors.brandPrimary}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSavePrice}
+                  theme={{ roundness: 999 }}
+                  style={{ backgroundColor: "transparent" }}
+                  right={
+                    <TextInput.Icon
+                      icon="send"
+                      onPress={canSend ? handleSavePrice : undefined}
+                      color={canSend ? colors.brandPrimary : colors.surfaceBase}
+                      disabled={!canSend}
+                    />
+                  }
+                />
+                <Text style={styles.errorText}>{errorMessage}</Text>
               </View>
-              <Text
-                style={{
-                  color: colors.contentStrong,
-                  fontStyle: "italic",
-                  marginBottom:10,
-                }}
-              >
-                ¡Precio total con tarifa incluida!
-              </Text>
+            ) : (
+              <View style={[styles.card, { alignItems: "center" }]}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 24,
+                      fontWeight: "bold",
+                      color: colors.contentStrong,
+                    }}
+                  >
+                    {isClient
+                      ? parseFloat(newPrice || "0").toFixed(2)
+                      : (parseFloat(newPrice || "0")).toFixed(2)}{" "}
+                    €
+                  </Text>
+                  {yourTurn &&
+                    !(commission.status === StatusCommission.NOT_PAID_YET) && (
+                      <IconButton
+                        onPress={() => setShowEditCard(true)}
+                        icon="pencil"
+                        iconColor={colors.brandPrimary}
+                      />
+                    )}
+                </View>
+                <Text
+                  style={{
+                    color: colors.contentStrong,
+                    fontStyle: "italic",
+                    marginBottom:10,
+                  }}
+                >
+                  ¡Precio total con tarifa incluida!
+                </Text>
 
-  <View style={[styles.card, { alignItems: "center" }]}>
+                <View style={[styles.card, { alignItems: "center" }]}>
   <Text style={styles.label}>Selecciona el tipo de pago:</Text>
   <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
     Si quiere negociar el tipo de pago, cámbielo y guarde los cambios.
   </Text>
-
+  
   <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
-    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {initialPaymentArrangement} y pulse en aceptar.
+    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {paymentArrangement} y pulse en aceptar.
   </Text>
 
   {/* Solo permite seleccionar si es su turno */}
@@ -410,9 +412,9 @@ export default function CommissionDetailsScreen() {
     </View>
   )}
 
-  {/* Descripciones */}
+    {/* Descripciones */}
 
-  {paymentArrangement === "INITIAL" && !isButtonDisabled &&(
+    {paymentArrangement === "INITIAL" && !isButtonDisabled &&(
     <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
   )}
   {paymentArrangement === "FINAL" && !isButtonDisabled &&(
@@ -423,36 +425,27 @@ export default function CommissionDetailsScreen() {
   )}
   {paymentArrangement === "MODERATOR" && !isButtonDisabled &&(
     <Text style={styles.description}>
-      Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
-    </Text>
+      Moderador: Se realiza el un pago por cada etapa de trabajo del artista
+      </Text>
   )}
 
-{initialPaymentArrangement === "INITIAL" && isButtonDisabled &&(
+{paymentArrangement === "INITIAL" && isButtonDisabled &&(
     <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
   )}
-  {initialPaymentArrangement === "FINAL" && isButtonDisabled &&(
+  {paymentArrangement === "FINAL" && isButtonDisabled &&(
     <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
   )}
-  {initialPaymentArrangement === "FIFTYFIFTY" && isButtonDisabled &&(
+  {paymentArrangement === "FIFTYFIFTY" && isButtonDisabled &&(
     <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
   )}
-  {initialPaymentArrangement === "MODERATOR" && isButtonDisabled &&(
+  {paymentArrangement === "MODERATOR" && isButtonDisabled &&(
     <Text style={styles.description}>
       Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
     </Text>
   )}
 
-  {/* Campo adicional solo si está permitido */}
   {paymentArrangement === "MODERATOR" && yourTurn && (
-    <TextInput
-      value={totalPayments}
-      onChangeText={setTotalPayments}
-      mode="outlined"
-      keyboardType="numeric"
-      placeholder="Número de pagos"
-      outlineColor={colors.brandPrimary}
-      activeOutlineColor={colors.brandPrimary}
-      returnKeyType="done"
+    <Text
       style={{
         backgroundColor: "transparent",
         padding: 10,
@@ -461,20 +454,15 @@ export default function CommissionDetailsScreen() {
         borderRadius: 5,
         marginBottom: 15,
         color: 'black',
+        textAlign: 'center',
       }}
-      theme={{
-        colors: {
-          text: 'black',
-          placeholder: 'black',
-          primary: colors.brandPrimary,
-        },
-      }}
-      underlineColor="transparent"
-    />
+    >
+    Número de etapas: {kanbanColumnsCount}
+    </Text>
   )}
 
   {/* Botón de guardar controlado por turnos */}
-  {yourTurn && !isButtonDisabled&& paymentArrangement !== initialPaymentArrangement && hasAccepted === false &&(
+  {yourTurn && !isButtonDisabled&& paymentArrangement !== paymentArrangement && hasAccepted === false &&(
     <Button onPress={handleSavePaymentDetails} buttonColor={colors.brandPrimary} textColor="white">
       Guardar cambios de pago
     </Button>
@@ -496,8 +484,8 @@ export default function CommissionDetailsScreen() {
                       }
                     />
                   ) : (
-                    <View style={{ flexDirection: "row", gap: 10 }}>
-                      {paymentArrangement === initialPaymentArrangement && yourTurn && !isButtonDisabled &&
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                      {paymentArrangement === paymentArrangement && yourTurn && !isButtonDisabled &&
                       (<Button
                         onPress={handleAccept}
                         buttonColor={colors.contentStrong}
@@ -505,14 +493,21 @@ export default function CommissionDetailsScreen() {
                       >
                         Aceptar
                       </Button>)}
-                      <Button
-                        onPress={handleReject}
-                        buttonColor={colors.brandPrimary}
-                        textColor="white"
-                      >
-                        Rechazar
-                      </Button>
-                    </View>
+                  <Button
+                    onPress={handleReject}
+                    buttonColor={colors.brandPrimary}
+                    textColor="white"
+                  >
+                    Rechazar
+                  </Button>
+                  <Button
+                    onPress={handleSaveChanges}
+                    buttonColor={colors.surfaceBase} 
+                    textColor={colors.contentStrong} 
+                  >
+                    Guardar cambios
+                  </Button>
+                </View>
                   )}
                 </View>
               )}
@@ -549,7 +544,7 @@ export default function CommissionDetailsScreen() {
               <View>
                 <Text style={{ color: colors.brandPrimary, fontSize: 16 }}>
                   💰 Cliente paga:{" "}
-                  {(parseFloat(newPrice || "0") * 1.06).toFixed(2)}€
+                  {(parseFloat(newPrice || "0")).toFixed(2)}€
                 </Text>
                 <Text
                   style={{ color: colors.contentStrong, fontStyle: "italic" }}
