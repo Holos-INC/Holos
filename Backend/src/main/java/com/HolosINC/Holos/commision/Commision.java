@@ -54,17 +54,7 @@ public class Commision extends Work{
     @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
     private Client client;
 
-    @PrePersist
-    private void prePersist() {
-        initializeInitialState();
-    }
-    
-    @PreUpdate
-    private void preUpdate() {
-        initializeInitialState();
-    }
-
-    private void initializeInitialState() {
+    public void checkInitialPaymentArrangement(){
         switch (paymentArrangement) {
             case INITIAL:
                 this.isWaitingPayment = true;   
@@ -79,9 +69,6 @@ public class Commision extends Work{
                 this.totalPayments = 2;
                 break;
             case MODERATOR:
-                if (this.totalPayments < 3) {
-                    throw new IllegalArgumentException("Debe proporcionar un número mayor o igual a 3 pagos para el arreglo MODERATOR.");
-                }
                 this.isWaitingPayment = true;
                 this.setTotalPayments(this.getTotalPayments());
                 break;

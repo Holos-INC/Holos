@@ -172,7 +172,7 @@ public ResponseEntity<?> updatePaymentArrangement(
     }
 }
 
-    @PostMapping("/{commisionId}/request-payment")
+    @PostMapping("/request-payment/{commisionId}")
     public ResponseEntity<?> requestPayment(@PathVariable Long commisionId) {
         try {
             commisionService.requestPayment(commisionId);

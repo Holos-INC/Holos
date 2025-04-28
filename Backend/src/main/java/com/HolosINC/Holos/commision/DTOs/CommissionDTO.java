@@ -32,7 +32,11 @@ public class CommissionDTO {
 
     private Integer totalPayments;
 
+    private Integer currentPayments;
+
     private Boolean isWaitingPayment;
+
+    private String setupIntentId;
 
     private Date milestoneDate;
     
@@ -55,6 +59,7 @@ public class CommissionDTO {
         this.status = commision.getStatus();
         this.paymentArrangement = commision.getPaymentArrangement();
         this.totalPayments = commision.getTotalPayments();
+        this.currentPayments = commision.getCurrentPayments();
         this.milestoneDate = commision.getMilestoneDate();
         this.artistUsername = commision.getArtist().getBaseUser().getUsername();
         this.clientUsername = commision.getClient().getBaseUser().getUsername();
@@ -62,6 +67,7 @@ public class CommissionDTO {
         this.imageProfileA = commision.getArtist().getBaseUser().getImageProfile();
         this.imageProfileC = commision.getClient().getBaseUser().getImageProfile();
         this.isWaitingPayment = commision.isWaitingPayment();
+        this.setupIntentId = commision.getSetupIntentId();
 
     }
 
@@ -76,6 +82,7 @@ public class CommissionDTO {
         commision.setTotalPayments(this.getTotalPayments());
         commision.setMilestoneDate(this.milestoneDate);
         commision.setImage(this.image);
+        commision.setWaitingPayment(this.isWaitingPayment);
         return commision;
     }
 }

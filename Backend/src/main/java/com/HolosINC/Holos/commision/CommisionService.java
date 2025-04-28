@@ -64,6 +64,7 @@ public class CommisionService {
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
             commision.setPaymentArrangement(commisionDTO.getPaymentArrangement()); 
+            commision.checkInitialPaymentArrangement();
             if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
                 Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(artist.getBaseUser().getUsername());
                 commision.setTotalPayments(kanbanColumnsNumber);
@@ -88,6 +89,7 @@ public class CommisionService {
 
             commisionInBDD.setPrice(commisionDTO.getPrice());
             commisionInBDD.setPaymentArrangement(commisionDTO.getPaymentArrangement());
+            commisionInBDD.checkInitialPaymentArrangement();
             if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
                 Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(commisionDTO.getArtistUsername());
                 commisionDTO.setTotalPayments(kanbanColumnsNumber);
@@ -130,6 +132,7 @@ public class CommisionService {
                     commision.setStatus(StatusCommision.WAITING_ARTIST);
                     commision.setPrice(updatedCommissionDTO.getPrice());
                     commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
+                    commision.checkInitialPaymentArrangement();
                     if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
                         Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
                         commision.setTotalPayments(kanbanColumnsNumber);
@@ -147,6 +150,7 @@ public class CommisionService {
                     commision.setStatus(StatusCommision.WAITING_CLIENT);
                     commision.setPrice(updatedCommissionDTO.getPrice());
                     commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
+                    commision.checkInitialPaymentArrangement();
                     if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
                         Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
                         commision.setTotalPayments(kanbanColumnsNumber);
@@ -171,8 +175,11 @@ public class CommisionService {
                 if (!commision.getArtist().getBaseUser().getId().equals(id)) {
                     throw new ResourceNotOwnedException("El artista no tiene permisos para poner en espera esta comisión.");
                 }
-                if (commision.isWaitingPayment()==true){
-                    throw new BadRequestException("Esta comisión ya tiene un pago solicitado");
+                if (commision.getStatus()!=StatusCommision.ACCEPTED){
+                    throw new BadRequestException("No puedes solicitar el pago de una comisión que no está aceptada");
+                }
+                if (commision.isWaitingPayment()){
+                    throw new BadRequestException("Esta comisión ya está esperando un pago");
                 }
                 if (commision.getPaymentArrangement()!=EnumPaymentArrangement.MODERATOR){
                     throw new BadRequestException("No puedes solicitar un pago de una comisión cuyo tipo de pago no es moderador");
@@ -180,9 +187,9 @@ public class CommisionService {
                 if (commision.getTotalPayments()<=commision.getCurrentPayments()){
                     throw new BadRequestException("Esta comisión ya está completamente pagada");
                 }
+                commision.setWaitingPayment(true);
+                commisionRepository.save(commision);
             }
-            commision.setWaitingPayment(true);
-            commisionRepository.save(commision);
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
