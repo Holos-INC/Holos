@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import colors from "@/src/constants/colors";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 
 interface RequestFormProps {
   username: string;

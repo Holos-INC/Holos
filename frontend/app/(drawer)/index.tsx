@@ -23,7 +23,7 @@ import {
   ArtistMin,
 } from "@/src/services/ExploreWorkHelpers";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 
 export default function ExploreScreen() {
   /* ---------------------------   STATE   --------------------------- */
