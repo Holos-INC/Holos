@@ -117,11 +117,11 @@ public class StatusKanbanOrderController {
     }
 
     @GetMapping("/count/{artistUsername}")
-    @Operation(summary = "Obtiene el número de statusKanban a partir del username del artista")
-    public ResponseEntity<Integer> getStatusKanbanByArtistId(@PathVariable String artistUsername) throws Exception {
+    @Operation(summary = "Obtiene el número de pagos que se debe realizar en el modo moderador a partir del username del artista")
+    public ResponseEntity<Integer> getNumberOfPaymentsByArtistUsername(@PathVariable String artistUsername) throws Exception {
         try {
             Integer numberOfStatusKanban = statusKanbanOrderService.countByArtistUsername(artistUsername);
-            return ResponseEntity.ok(numberOfStatusKanban);
+            return ResponseEntity.ok(numberOfStatusKanban-1);
 
         } catch (Exception e) {
             throw new Exception(e.getMessage());

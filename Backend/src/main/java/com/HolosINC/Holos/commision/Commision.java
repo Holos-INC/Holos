@@ -67,8 +67,8 @@ public class Commision extends Work{
                 this.totalPayments = 2;
                 break;
             case MODERATOR:
-                this.isWaitingPayment = true;
-                this.totalPayments = kanbanStages;
+                this.isWaitingPayment = false;
+                this.totalPayments = kanbanStages-1;
                 break;
             default:
                 throw new IllegalStateException("Tipo de pago no reconocido: " + this.paymentArrangement);
