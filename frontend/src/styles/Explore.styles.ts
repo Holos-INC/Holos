@@ -145,6 +145,29 @@ export const mobileStyles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
   },
+  suggestionsContainer: {
+    position: "absolute",
+    top: 85,
+    left: 16,
+    right: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    zIndex: 999,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: "#333",
+  },
 });
 
 /* ------------------------  DESKTOP  ------------------------ */
@@ -293,5 +316,29 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather-Italic",
     fontSize: 12,
     color: "#666",
+  },
+  suggestionsContainer: {
+    position: "absolute",
+    top: 120, // ajusta según el input
+    left: 250,
+    right: 250,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5, // para Android
+    zIndex: 999, // para iOS y web
+  },
+
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  suggestionText: {
+    fontSize: 16,
+    color: "#333",
   },
 });
