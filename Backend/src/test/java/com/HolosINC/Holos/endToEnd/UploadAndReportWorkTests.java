@@ -50,18 +50,18 @@ public void setUp() {
   public void UploadAndReportWorkTest() {
     driver.get("http://localhost:8081/");
     driver.manage().window().setSize(new Dimension(1936, 1056));
-    driver.findElement(By.cssSelector(".r-borderRadius-1dzdj1l")).click();
-    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r:nth-child(2) > .css-text-146c3p1")).click();
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
+    driver.findElement(By.cssSelector("svg:nth-child(1)")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).sendKeys("braulio");
     driver.findElement(By.cssSelector(".r-borderColor-1i8giiy:nth-child(1)")).click();
     driver.findElement(By.cssSelector(".r-borderColor-1i8giiy:nth-child(1)")).sendKeys("braulioolmedo116@gmail.com");
     {
-      WebElement element = driver.findElement(By.cssSelector(".r-cursor-1loqt21 > .css-view-175oi2r"));
+      WebElement element = driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r"));
       Actions builder = new Actions(driver);
       builder.moveToElement(element).perform();
     }
-    driver.findElement(By.cssSelector(".r-cursor-1loqt21 > .css-view-175oi2r")).click();
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r")).click();
     try {
       Thread.sleep(1000);
   } catch (InterruptedException e) {
@@ -98,10 +98,10 @@ public void setUp() {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    driver.findElement(By.cssSelector(".r-marginInline-1xpp3t0")).click();
-    driver.findElement(By.cssSelector(".r-marginInline-1xpp3t0")).sendKeys("frie");
-    driver.findElement(By.cssSelector(".r-marginInline-1xpp3t0")).sendKeys(Keys.ENTER);
-    driver.findElement(By.cssSelector(".r-height-atnv13 > .css-accessibilityImage-9pa8cd")).click();
+    driver.findElement(By.cssSelector(".css-textinput-11aywtz")).click();
+    driver.findElement(By.cssSelector(".css-textinput-11aywtz")).sendKeys("frie");
+    driver.findElement(By.cssSelector(".css-textinput-11aywtz")).sendKeys(Keys.ENTER);
+    driver.findElement(By.cssSelector(".r-marginRight-t0m482:nth-child(1) .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-text-146c3p1:nth-child(2)")).click();
     {
@@ -119,9 +119,8 @@ public void setUp() {
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).click();
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys("frier");
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys(Keys.ENTER);
-    driver.findElement(By.cssSelector(".r-height-atnv13 > .css-accessibilityImage-9pa8cd")).click();
-    driver.findElement(By.cssSelector(".r-backgroundColor-1nhdpw0 > .css-text-146c3p1")).click();
-    driver.findElement(By.cssSelector(".r-fontSize-1b43r93:nth-child(1)")).click();
+    driver.findElement(By.cssSelector(".r-marginRight-t0m482:nth-child(1) .css-accessibilityImage-9pa8cd")).click();
+    driver.findElement(By.cssSelector("[data-testid='report-button']")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(6)")).click();
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(6)")).sendKeys("Se trata de un dibujo ofensivo ");
     driver.findElement(By.cssSelector(".r-zIndex-1sg8ghl")).click();
@@ -154,7 +153,13 @@ public void setUp() {
     driver.findElement(By.cssSelector(".css-textinput-11aywtz:nth-child(2)")).sendKeys("admin1");
     driver.findElement(By.cssSelector(".r-borderColor-1i8giiy:nth-child(1)")).click();
     driver.findElement(By.cssSelector(".r-borderColor-1i8giiy:nth-child(1)")).sendKeys("admin1@gmail.com");
+    {
+      WebElement element = driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r"));
+      Actions builder = new Actions(driver);
+      builder.moveToElement(element).perform();
+    }
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(2) > .css-view-175oi2r > .css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r")).click();
+    
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".r-backgroundColor-s53p2z:nth-child(3)")).click();

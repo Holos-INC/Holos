@@ -53,8 +53,8 @@ public class CreateAndAcceptCommissionTests {
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).click();
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys("braul");
     driver.findElement(By.cssSelector(".r-borderRadius-1xfd6ze")).sendKeys(Keys.ENTER);
-    driver.findElement(By.cssSelector(".r-height-7r4507 > .css-accessibilityImage-9pa8cd")).click();
-    driver.findElement(By.cssSelector(".r-marginBlock-bplmwz:nth-child(2)")).click();
+    driver.findElement(By.cssSelector(".r-color-11t4n93")).click();
+    driver.findElement(By.cssSelector(".r-marginInline-14mg64r")).click();
     driver.findElement(By.cssSelector(".r-borderColor-8n6xh2:nth-child(2)")).click();
     driver.findElement(By.cssSelector(".r-borderColor-8n6xh2:nth-child(2)")).sendKeys("Cuadro spiderman");
     driver.findElement(By.cssSelector(".r-minHeight-1aplaab")).click();
@@ -80,13 +80,12 @@ public class CreateAndAcceptCommissionTests {
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(5) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(6) > .css-view-175oi2r:nth-child(3) .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(4) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
-    
     {
-      WebElement element = driver.findElement(By.cssSelector(".r-transitionProperty-1i6wzkk:nth-child(3)"));
+      WebElement element = driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .r-transitionProperty-1i6wzkk:nth-child(3)"));
       Actions builder = new Actions(driver);
       builder.moveToElement(element).perform();
     }
-    driver.findElement(By.cssSelector(".r-transitionProperty-1i6wzkk:nth-child(3)")).click();
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .r-transitionProperty-1i6wzkk:nth-child(3)")).click();
     {
       WebElement element = driver.findElement(By.tagName("body"));
       Actions builder = new Actions(driver);
@@ -112,7 +111,7 @@ public class CreateAndAcceptCommissionTests {
     }
     driver.findElement(By.cssSelector(".r-height-1472mwg > .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(5) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
-    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(7) > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(8) > .css-view-175oi2r:nth-child(3) > .css-view-175oi2r")).click();
     driver.findElement(By.cssSelector(".r-margin-5scogr > .css-view-175oi2r")).click();
     WebElement inputField = driver.findElement(By.cssSelector(".r-flexGrow-16y2uox > .css-textinput-11aywtz"));
     inputField.click();
@@ -150,7 +149,7 @@ public class CreateAndAcceptCommissionTests {
   }
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-accessibilityImage-9pa8cd")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(5) > .css-view-175oi2r > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
-    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(6) > .css-view-175oi2r:nth-child(3) .css-text-146c3p1")).click();
+    driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(10) > .css-view-175oi2r:nth-child(3) .css-text-146c3p1")).click();
     driver.findElement(By.cssSelector(".css-view-175oi2r:nth-child(3) > .css-view-175oi2r > .css-view-175oi2r:nth-child(1) > .css-view-175oi2r > .css-view-175oi2r > .css-text-146c3p1")).click();
     wait.until(ExpectedConditions.alertIsPresent());  // Espera hasta que la alerta esté presente
     try {

@@ -148,6 +148,7 @@ export default function WorkDetailScreen() {
 
               <TouchableOpacity
                 style={styles.reportButton}
+                testID="report-button"
                 onPress={() =>
                   router.push({
                     pathname: "/report/[reportId]",
