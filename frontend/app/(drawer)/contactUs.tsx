@@ -14,7 +14,7 @@ const defaultPlaceholderColor = "#888";
 const colorIncon = "#16366E";
 const sizeIcon = 30;
 const maxShotLenthInput= 50;
-const maxLongLenthInput = 500;
+const maxLongLenthInput = 600;
 const isWeb = Platform.OS === 'web'
 
 const serviceId = process.env.EXPO_PUBLIC_EMAILJS_SERVICE_ID;
@@ -49,7 +49,6 @@ export default function ContactUs() {
       return;
     }
 
-    console.log(serviceId)
     emailjs.send(serviceId!, templateId!, {
       from_name: name,
       reply_to: email,
@@ -119,7 +118,6 @@ export default function ContactUs() {
                 placeholderTextColor={defaultPlaceholderColor}
                 maxLength={maxLongLenthInput}
                 multiline
-                numberOfLines={4}
                 value={message}
                 onChangeText={setMessage}
                 isWeb={isWeb}
@@ -141,24 +139,28 @@ export default function ContactUs() {
         <View style={styles.socialMediaWrapper}>
           <Text style={styles.sectionHeader}>¡Síguenos y únete a la aventura!</Text>
           <View style={styles.socialIconsRow}>
+          <TouchableOpacity
+              style={styles.socialIconButton}
+              onPress={() => Linking.openURL("https://www.instagram.com/holosapp/")}
+            >
+              <Icon name="instagram" size={sizeIcon} color={colorIncon} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+              style={styles.socialIconButton}
+              onPress={() => Linking.openURL("https://www.tiktok.com/@holosapp")}
+            >
+              <Icon name="tiktok" size={sizeIcon} color={colorIncon} />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.socialIconButton}
               onPress={() => Linking.openURL("http://www.youtube.com/@holosapp")}
             >
               <Icon name="youtube" size={sizeIcon} color={colorIncon} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.socialIconButton}
-              onPress={() => Linking.openURL("https://www.instagram.com/holosapp/")}
-            >
-              <Icon name="instagram" size={sizeIcon} color={colorIncon} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.socialIconButton}
-              onPress={() => Linking.openURL("https://www.tiktok.com/@holosapp")}
-            >
-              <Icon name="tiktok" size={sizeIcon} color={colorIncon} />
-            </TouchableOpacity>
+            
+           
             <TouchableOpacity
               style={styles.socialIconButton}
               onPress={() => Linking.openURL("https://sites.google.com/view/holos/inicio")}
