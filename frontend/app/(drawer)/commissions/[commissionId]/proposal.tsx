@@ -100,28 +100,41 @@ export default function CommissionDetailsScreen() {
       console.error("Error al actualizar el precio:", error);
     }
   };
-  const handleSaveChanges = async () => {
-    if (!commission || !loggedInUser.token) return;
-    setSaving(true);
-    try {
-      await waiting(commission.id, commission, loggedInUser.token);
-      await refreshCommission();
-      setShowEditCard(false);
-      alert("Precio actualizado con éxito");
-    } catch (error: any) {
-      const message =
-        error instanceof yup.ValidationError
-          ? error.message
-          : error.message || "Hubo un error al confirmar los cambios";
-  
-      setErrorMessage(message);
-      console.error("Error al confirmar los cambios:", error);
-    } finally {
-      setSaving(false);
-    }
-  };
 
-  useEffect(() => {
+const handleSaveChanges = async () => {
+  if (!commission || !loggedInUser.token) return;
+  setSaving(true);
+  try {
+    const parsedPrice = parseFloat(newPrice);
+    const price = isClient
+      ? parseFloat((parsedPrice / 1.06).toFixed(2))
+      : parsedPrice;
+
+    await priceValidationSchema.validate({ newPrice });
+    const updatedCommission = {
+      ...commission,
+      price,
+      paymentArrangement: paymentArrangement as PaymentArrangement,
+    };
+
+    await waiting(commission.id, updatedCommission, loggedInUser.token);
+    await refreshCommission();
+    setShowEditCard(false);
+    alert("Precio y forma de pago actualizados con éxito");
+  } catch (error: any) {
+    const message =
+      error instanceof yup.ValidationError
+        ? error.message
+        : error.message || "Hubo un error al confirmar los cambios";
+
+    setErrorMessage(message);
+    console.error("Error al confirmar los cambios:", error);
+  } finally {
+    setSaving(false);
+  }
+};
+
+   useEffect(() => {
     const intervalId = setInterval(async () => {
       try {
         const commission = await getCommissionById(Number(commissionId));
@@ -133,7 +146,7 @@ export default function CommissionDetailsScreen() {
     }, 2000); // cada 2 segundos
   
     return () => clearInterval(intervalId); // limpiar al desmontar
-  }, [commissionId]);
+  }, [commissionId]); 
 
   useEffect(() => {
     if (commission && commission.paymentArrangement) {
@@ -210,12 +223,12 @@ export default function CommissionDetailsScreen() {
     const calculateAmountToPayIPArtist = () => {
       const price = parseFloat(newPrice || "0");
     
-      switch (initialPaymentArrangement) {
+      switch (paymentArrangement) {
         case "INITIAL":
         case "FINAL":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
               Tendría que realizar 1 pago de <Text style={{ fontWeight: 'bold' }}>{price.toFixed(2)}€</Text>.{" "}
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
@@ -223,7 +236,7 @@ export default function CommissionDetailsScreen() {
         case "FIFTYFIFTY":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
               Tendría que realizar 2 pagos de <Text style={{ fontWeight: 'bold' }}>{(price / 2).toFixed(2)}€</Text> cada uno.{" "}
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
@@ -231,7 +244,7 @@ export default function CommissionDetailsScreen() {
         case "MODERATOR":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{initialPaymentArrangement}</Text>.{" "}
+              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
               Tendría que realizar <Text style={{ fontWeight: 'bold' }}>{kanbanColumnsCount}</Text> pagos de{" "}
               <Text style={{ fontWeight: 'bold' }}>{(price / kanbanColumnsCount).toFixed(2)}€</Text> cada uno.{" "}
               Acepta si le parece bien o cámbielo para negociar.
@@ -374,7 +387,7 @@ export default function CommissionDetailsScreen() {
   </Text>
   
   <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
-    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {initialPaymentArrangement} y pulse en aceptar.
+    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {paymentArrangement} y pulse en aceptar.
   </Text>
 
   {/* Solo permite seleccionar si es su turno */}
@@ -404,7 +417,7 @@ export default function CommissionDetailsScreen() {
         <Text style={styles.option}>50/50</Text>
       </Pressable>
       <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
-        <Text style={styles.option}>Moderador</Text>
+      <Text style={styles.option}>Moderador</Text>
       </Pressable>
     </View>
   )}
