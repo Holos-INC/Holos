@@ -12,8 +12,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -54,10 +52,10 @@ public class Commision extends Work{
     @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false)
     private Client client;
 
-    public void checkInitialPaymentArrangement(){
-        switch (paymentArrangement) {
+    public void configurePaymentArrangementValues(int kanbanStages) {
+        switch (this.paymentArrangement) {
             case INITIAL:
-                this.isWaitingPayment = true;   
+                this.isWaitingPayment = true;
                 this.totalPayments = 1;
                 break;
             case FINAL:
@@ -70,11 +68,12 @@ public class Commision extends Work{
                 break;
             case MODERATOR:
                 this.isWaitingPayment = true;
-                this.setTotalPayments(this.getTotalPayments());
+                this.totalPayments = kanbanStages;
                 break;
             default:
                 throw new IllegalStateException("Tipo de pago no reconocido: " + this.paymentArrangement);
         }
     }
+    
     
 }

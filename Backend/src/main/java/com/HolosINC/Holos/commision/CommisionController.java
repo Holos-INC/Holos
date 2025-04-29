@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
-import com.HolosINC.Holos.commision.DTOs.PaymentUpdateDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -160,17 +158,6 @@ public class CommisionController {
                      .map(EnumPaymentArrangement::name)  // .name() convierte el valor en una cadena
                      .collect(Collectors.toList());
     }
-    @PutMapping("/{commissionId}/updatePayment")
-public ResponseEntity<?> updatePaymentArrangement(
-        @PathVariable Long commissionId,
-        @RequestBody PaymentUpdateDTO paymentUpdateDTO) {
-    try {
-        commisionService.updatePaymentArrangement(commissionId, paymentUpdateDTO);
-        return ResponseEntity.ok("Payment arrangement updated.");
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().body("⚠ Error: " + e.getMessage());
-    }
-}
 
     @PostMapping("/request-payment/{commisionId}")
     public ResponseEntity<?> requestPayment(@PathVariable Long commisionId) {

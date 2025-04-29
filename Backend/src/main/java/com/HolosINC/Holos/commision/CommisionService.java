@@ -17,7 +17,6 @@ import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
-import com.HolosINC.Holos.commision.DTOs.PaymentUpdateDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -64,11 +63,8 @@ public class CommisionService {
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
             commision.setPaymentArrangement(commisionDTO.getPaymentArrangement()); 
-            commision.checkInitialPaymentArrangement();
-            if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
-                Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(artist.getBaseUser().getUsername());
-                commision.setTotalPayments(kanbanColumnsNumber);
-            }
+            Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(artist.getBaseUser().getUsername());
+            commision.configurePaymentArrangementValues(kanbanColumnsNumber);
             commisionRepository.save(commision);
             return new CommissionDTO(commision);
         } catch (Exception e) {
@@ -89,11 +85,8 @@ public class CommisionService {
 
             commisionInBDD.setPrice(commisionDTO.getPrice());
             commisionInBDD.setPaymentArrangement(commisionDTO.getPaymentArrangement());
-            commisionInBDD.checkInitialPaymentArrangement();
-            if (commisionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
-                Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(commisionDTO.getArtistUsername());
-                commisionDTO.setTotalPayments(kanbanColumnsNumber);
-            }
+            Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(commisionDTO.getArtistUsername());
+            commisionInBDD.configurePaymentArrangementValues(kanbanColumnsNumber);
             return commisionRepository.save(commisionInBDD);
         } catch (Exception e) {
             throw new Exception(e);
@@ -132,11 +125,8 @@ public class CommisionService {
                     commision.setStatus(StatusCommision.WAITING_ARTIST);
                     commision.setPrice(updatedCommissionDTO.getPrice());
                     commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
-                    commision.checkInitialPaymentArrangement();
-                    if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
-                        Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
-                        commision.setTotalPayments(kanbanColumnsNumber);
-                    }
+                    Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
+                    commision.configurePaymentArrangementValues(kanbanColumnsNumber);
                 } else {
                     throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
                 }
@@ -150,11 +140,8 @@ public class CommisionService {
                     commision.setStatus(StatusCommision.WAITING_CLIENT);
                     commision.setPrice(updatedCommissionDTO.getPrice());
                     commision.setPaymentArrangement(updatedCommissionDTO.getPaymentArrangement());
-                    commision.checkInitialPaymentArrangement();
-                    if (updatedCommissionDTO.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
-                        Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
-                        commision.setTotalPayments(kanbanColumnsNumber);
-                    }
+                    Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(updatedCommissionDTO.getArtistUsername());
+                    commision.configurePaymentArrangementValues(kanbanColumnsNumber);
                 } else {
                     throw new IllegalStateException("La comisión no puede ser puesta en espera en su estado actual.");
                 }
@@ -377,16 +364,5 @@ public class CommisionService {
     public boolean isStatusKanbanInUse(StatusKanbanOrder status) {
         return commisionRepository.existsByStatusKanban(status);
     }
-
-    public void updatePaymentArrangement(Long commisionId, PaymentUpdateDTO dto) {
-    Commision commision = commisionRepository.findById(commisionId)
-        .orElseThrow(() -> new ResourceNotFoundException("Commision not found"));
-
-    commision.setPaymentArrangement(dto.getPaymentArrangement());
-    commision.setTotalPayments(dto.getTotalPayments());
-
-    commisionRepository.save(commision);
-}
-
     
 }
