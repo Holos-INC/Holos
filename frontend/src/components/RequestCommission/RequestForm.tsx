@@ -10,6 +10,7 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import { Formik } from "formik";
+import { Picker } from "@react-native-picker/picker";
 import { object, string, number, date } from "yup";
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useState } from "react";
@@ -31,6 +32,7 @@ type FormValues = {
   name: string;
   description: string;
   price: number;
+  paymentArrangement: PaymentArrangement;
   image: string;
   milestoneDate: Date | null;
 };
@@ -52,6 +54,9 @@ export default function RequestForm({ artist }: RequestFormProps) {
         new Date(new Date().setDate(new Date().getDate() + 1)),
         "La fecha debe ser posterior a la actual(más de un día)"
       ),
+      paymentArrangement: string().oneOf(Object.values(PaymentArrangement)),
+
+     
   });
 
   const pickImage = async (
@@ -79,7 +84,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
         name: values.name,
         description: values.description,
         price: values.price,
-        paymentArrangement: PaymentArrangement.INITIAL,
+        paymentArrangement: values.paymentArrangement,
         image: values.image,
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
@@ -137,6 +142,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
           name: "",
           description: "",
           price: 0,
+          paymentArrangement: PaymentArrangement.INITIAL,
           image: "",
           milestoneDate: null,
         }}
@@ -212,6 +218,36 @@ export default function RequestForm({ artist }: RequestFormProps) {
                 Por favor, introduzca un valor numérico
               </Text>
             )}
+
+            {/* Payment Arrangement Selector */}
+<Text style={styles.label}>Tipo de Pago:</Text>
+<View style={{ 
+  backgroundColor: COLORS.brandPrimary, 
+  borderRadius: 12, 
+  borderWidth: 1, 
+  borderColor: "#ccc", 
+  marginBottom: 12, 
+  overflow: "hidden" 
+}}>
+  <Picker
+    selectedValue={values.paymentArrangement}
+    onValueChange={(itemValue) =>
+      setFieldValue("paymentArrangement", itemValue)
+    }
+    style={{
+      height: 50,
+      paddingHorizontal: 20,
+      color: "#333", // texto oscuro
+    }}
+    dropdownIconColor="#666"
+  >
+    <Picker.Item label="Pago Inicial (Realiza 1 solo pago al principio)" value={PaymentArrangement.INITIAL} />
+    <Picker.Item label="Pago Final (Realiza 1 solo pago al final)" value={PaymentArrangement.FINAL} />
+    <Picker.Item label="50/50 (Realiza 1 pago al principio y otro al final)" value={PaymentArrangement.FIFTYFIFTY} />
+    <Picker.Item label="Moderador (Realiza el mismo número de pagos que etapas del kanban)" value={PaymentArrangement.MODERATOR} />
+  </Picker>
+</View>
+
 
             {/* Delivery date */}
             <Text style={styles.label}>Fecha de Entrega de la Obra:</Text>

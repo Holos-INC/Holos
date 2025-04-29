@@ -60,6 +60,7 @@ export default function CommissionDetailsScreen() {
     try {
       await toPay(commission.id, loggedInUser.token);
       await refreshCommission();
+     setIsDropdownVisible(false); // Ocultar el dropdown al aceptar
       alert("Comisión aceptada");
     }catch (err: any) {
       setErrorMessage(err.message);
@@ -228,25 +229,20 @@ const handleSaveChanges = async () => {
         case "FINAL":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
-              Tendría que realizar 1 pago de <Text style={{ fontWeight: 'bold' }}>{price.toFixed(2)}€</Text>.{" "}
+              Con el método de pago {paymentArrangement} tendría que realizar 1 pago de {price.toFixed(2)}€ cada uno. 
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
           );
         case "FIFTYFIFTY":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
-              Tendría que realizar 2 pagos de <Text style={{ fontWeight: 'bold' }}>{(price / 2).toFixed(2)}€</Text> cada uno.{" "}
-              Acepta si le parece bien o cámbielo para negociar.
+             Con el método de pago {paymentArrangement} tendría que realizar 2 pagos de {(price / 2).toFixed(2)}€ cada uno. Acepta si le parece bien o cámbielo para negociar.
             </Text>
           );
         case "MODERATOR":
           return (
             <Text>
-              Ahora mismo está seleccionado el método de pago <Text style={{ fontWeight: 'bold' }}>{paymentArrangement}</Text>.{" "}
-              Tendría que realizar <Text style={{ fontWeight: 'bold' }}>{kanbanColumnsCount}</Text> pagos de{" "}
-              <Text style={{ fontWeight: 'bold' }}>{(price / kanbanColumnsCount).toFixed(2)}€</Text> cada uno.{" "}
+              Con el método de pago {paymentArrangement} tendría que realizar {kanbanColumnsCount} pagos de {(price / kanbanColumnsCount).toFixed(2)}€ cada uno. 
               Acepta si le parece bien o cámbielo para negociar.
             </Text>
           );
@@ -382,12 +378,13 @@ const handleSaveChanges = async () => {
 
                 <View style={[styles.card, { alignItems: "center" }]}>
   <Text style={styles.label}>Selecciona el tipo de pago:</Text>
-  <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
-    Si quiere negociar el tipo de pago, cámbielo y guarde los cambios.
-  </Text>
   
-  <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10 }}>
-    Si quiere aceptar el tipo de pago, ponga en el desplegable el que está establecido, en este caso {paymentArrangement} y pulse en aceptar.
+  <Text style={{ color: 'gray' , marginTop: 20, marginBottom: 10 }}>
+    Método de pago establecido hasta ahora: {""} <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10, fontWeight: 'bold' }}>{initialPaymentArrangement} </Text>.
+  </Text>
+
+  <Text style={{ color: 'gray' , marginTop: 10, marginBottom: 10 }}>
+    Para aceptar la comisión no modifique el precio ni el método de pago establecido. Si lo hace, podrá modificar la comisión y seguir negociando.
   </Text>
 
   {/* Solo permite seleccionar si es su turno */}
@@ -405,7 +402,7 @@ const handleSaveChanges = async () => {
     <Feather name="chevron-down" size={20} color="white" />
   </Pressable>)}
 
-  {isDropdownVisible && yourTurn && (
+  {isDropdownVisible && yourTurn && !hasAccepted &&(
     <View style={styles.dropdownOptions}>
       <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
         <Text style={styles.option}>Pago Inicial</Text>
