@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "react-native-paper";
 import { useRouter } from "expo-router";
 
 import { BASE_URL } from "@/src/constants/api";
@@ -17,6 +18,7 @@ import {
   desktopStyles as searchDesktopStyles,
 } from "@/src/styles/Search.styles";
 import { Artist, SearchWorkDTO } from "@/src/constants/ExploreTypes";
+import colors from "@/src/constants/colors";
 
 interface Props {
   query: string;
@@ -195,12 +197,22 @@ const SearchScreen = ({ query }: Props) => {
                 source={artistImageSource(artist.baseUser?.imageProfile)}
                 style={styles.artistImage}
               />
-              <View style={styles.artistTextContainer}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text style={styles.artistName}>
                   {artist.baseUser?.name ||
                     artist.username ||
                     "Nombre no disponible"}
                 </Text>
+
+                {artist.baseUser?.authority === "ARTIST_PREMIUM" && (
+                  <View style={{ marginLeft: 4 }}>
+                    <Icon
+                      source="check-decagram"
+                      size={24}
+                      color={colors.brandSecondary}
+                    />
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           ))}

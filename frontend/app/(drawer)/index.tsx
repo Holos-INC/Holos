@@ -12,6 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
+import colors from "@/src/constants/colors";
 
 import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
 import SearchScreen from "@/src/components/search/SearchScreen";
@@ -28,6 +29,7 @@ import {
 } from "@/src/constants/ExploreTypes";
 import { getImageSource } from "@/src/getImageSource";
 import { BASE_URL } from "@/src/constants/api";
+import { Icon } from "react-native-paper";
 
 export default function ExploreScreen() {
   const [works, setWorks] = useState<WorksDoneDTO[]>([]);
@@ -223,7 +225,20 @@ export default function ExploreScreen() {
                 style={styles.artistImage}
               />
               <View style={styles.artistTextContainer}>
-                <Text style={styles.artistName}>{artist.name}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text style={styles.artistName}>{artist.name}</Text>
+
+                  {artist.isPremium && (
+                    <View style={{ marginLeft: 4 }}>
+                      <Icon
+                        source="check-decagram" // material-community
+                        size={30}
+                        color={colors.brandSecondary}
+                      />
+                    </View>
+                  )}
+                </View>
+
                 {artist.location && (
                   <Text style={styles.artistLocation}>{artist.location}</Text>
                 )}
