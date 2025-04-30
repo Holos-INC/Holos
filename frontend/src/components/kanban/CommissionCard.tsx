@@ -34,18 +34,24 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
       )}
 
       <View style={cardStyles.content}>
-        <Text style={cardStyles.title} numberOfLines={1} ellipsizeMode="tail">
-          {commission.name}
-        </Text>
-        <Text style={cardStyles.client} numberOfLines={2} ellipsizeMode="tail">
-          {commission.description}
-        </Text>
-        <Text style={cardStyles.client} numberOfLines={1} ellipsizeMode="tail">
-          Ordered by @{commission.clientUsername}
-        </Text>
+        <View style={[cardStyles.topRow, { marginBlockEnd: 6 }]}>
+          <Text style={cardStyles.title} numberOfLines={1} ellipsizeMode="tail">
+            {commission.name}
+          </Text>
+          <View style={cardStyles.priceWrapper}>
+            <Text style={cardStyles.price}>{commission.price}€</Text>
+          </View>
+        </View>
 
         <View style={cardStyles.bottomRow}>
-          <Text style={cardStyles.client}>{commission.price}€</Text>
+          <Text
+            style={cardStyles.client}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Ordered by @{commission.clientUsername}
+          </Text>
+
           <View style={cardStyles.buttonRow}>
             {canMoveBack && (
               <TouchableOpacity style={cardStyles.button} onPress={onMoveBack}>

@@ -16,7 +16,6 @@ export const cardStyles = StyleSheet.create({
   title: {
     fontWeight: "600",
     fontSize: 16,
-    marginBottom: 4,
   },
   client: {
     fontSize: 14,
@@ -33,7 +32,7 @@ export const cardStyles = StyleSheet.create({
     gap: 8,
   },
   button: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#e8e8e8",
     padding: 6,
     borderRadius: 8,
     shadowColor: "#000",
@@ -48,10 +47,35 @@ export const cardStyles = StyleSheet.create({
   },
   content: {
     padding: 12,
+    paddingBlockStart: 8,
   },
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  priceWrapper: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    paddingBlock: 2,
+    borderRadius: 6,
+    backgroundColor: "#e8e8e8",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  price: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#00",
   },
 });
