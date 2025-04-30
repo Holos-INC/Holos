@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.HolosINC.Holos.Profile.ProfileService;
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
@@ -150,10 +150,7 @@ public class ClientRestControllerTest {
     public void testProfileOfCurrentUserAsClient() throws Exception {
         BaseUser user = new BaseUser();
         user.setId(1L);
-        Authorities auth = new Authorities();
-        auth.setId(1L);
-        auth.setAuthority("CLIENT");
-        user.setAuthority(auth);
+        user.setAuthority(Auth.CLIENT);
         when(userService.findCurrentUser()).thenReturn(user);
         when(userService.findClient(1L)).thenReturn(new Client());
 
@@ -169,10 +166,7 @@ public class ClientRestControllerTest {
     public void testProfileOfCurrentUserAsArtist() throws Exception {
         BaseUser user = new BaseUser();
         user.setId(2L);
-        Authorities auth = new Authorities();
-        auth.setId(1L);
-        auth.setAuthority("ARTIST");
-        user.setAuthority(auth);
+        user.setAuthority(Auth.ARTIST);
         when(userService.findCurrentUser()).thenReturn(user);
         when(userService.findArtist(2L)).thenReturn(new Artist());
 
@@ -188,10 +182,7 @@ public class ClientRestControllerTest {
     public void testProfileOfCurrentUserAsArtistPremium() throws Exception {
         BaseUser user = new BaseUser();
         user.setId(2L);
-        Authorities auth = new Authorities();
-        auth.setId(1L);
-        auth.setAuthority("ARTIST_PREMIUM");
-        user.setAuthority(auth);
+        user.setAuthority(Auth.ARTIST_PREMIUM);
         when(userService.findCurrentUser()).thenReturn(user);
         when(userService.findArtist(2L)).thenReturn(new Artist());
 

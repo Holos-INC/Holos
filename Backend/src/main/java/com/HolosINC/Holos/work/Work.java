@@ -12,7 +12,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -46,6 +45,5 @@ public class Work{
     private byte[] image;
 
     @ManyToOne
-    @JoinColumn(name = "artist_id", nullable = false)
     private Artist artist;
 }

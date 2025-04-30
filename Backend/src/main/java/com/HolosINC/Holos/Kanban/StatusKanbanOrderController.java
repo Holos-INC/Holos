@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,6 @@ public class StatusKanbanOrderController {
 
     private final StatusKanbanOrderService statusKanbanOrderService;
 
-    @Autowired
 	public StatusKanbanOrderController(StatusKanbanOrderService statusKanbanOrderService) {
 		this.statusKanbanOrderService = statusKanbanOrderService;
 	}
@@ -55,9 +53,8 @@ public class StatusKanbanOrderController {
     @PutMapping("/update")
     @Operation(summary = "Actualiza los atributos de un estado Kanban (nombre, color y descripción)")
     public ResponseEntity<?> updateStatusKanban(@RequestBody StatusKanbanUpdateDTO dto) {
-        try {
-            statusKanbanOrderService.updateStatusKanban(dto);
-            return ResponseEntity.ok().build();
+        try {statusKanbanOrderService.updateStatusKanban(dto);
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             throw new BadRequestException("Error inesperado al actualizar el estado Kanban: " + e.getMessage());
         }
@@ -65,7 +62,7 @@ public class StatusKanbanOrderController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Elimina un estado Kanban si no está asignado a ninguna comisión")
-    public ResponseEntity<?> deleteStatusKanbanOrder(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteStatusKanbanOrder(@PathVariable Long id) {
         try {
             statusKanbanOrderService.deleteStatusKanbanOrder(id);
             return ResponseEntity.noContent().build();
@@ -111,7 +108,7 @@ public class StatusKanbanOrderController {
     
     @GetMapping("/{id}")
     @Operation(summary = "Obtiene un estado Kanban por su ID")
-    public ResponseEntity<StatusKanbanDTO> getStatusKanban(@PathVariable Integer id) {
+    public ResponseEntity<StatusKanbanDTO> getStatusKanban(@PathVariable Long id) {
         StatusKanbanDTO dto = statusKanbanOrderService.getStatusKanbanById(id);
         return ResponseEntity.ok(dto);
     }

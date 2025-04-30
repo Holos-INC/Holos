@@ -1,11 +1,15 @@
 package com.HolosINC.Holos.artist;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.work.WorkRepository;
 
 public class ArtistServiceTest {
 
@@ -39,6 +44,10 @@ public class ArtistServiceTest {
 
     @Mock
     private ArtistCategoryRepository artistCategoryRepository;
+
+    @Mock
+    private WorkRepository workRepository;
+
 
     @InjectMocks
     private ArtistService artistService;
@@ -140,12 +149,15 @@ public class ArtistServiceTest {
         verify(artistRepository, times(1)).findByUserId(1L);
     }
 
+    
     @Test
     public void testDeleteArtistSuccess() throws Exception {
+        // Preparar mocks y llamadas
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
         when(commisionRepository.findAll()).thenReturn(Collections.emptyList());
         when(statusKanbanOrderService.findAllStatusKanbanOrderByArtist(1L)).thenReturn(Collections.emptyList());
         when(artistCategoryRepository.findAllByArtistId(1L)).thenReturn(Collections.emptyList());
+        when(workRepository.searchByArtist(anyInt(), any())).thenReturn(Page.empty());
 
         artistService.deleteArtist(1L);
 
@@ -162,7 +174,7 @@ public class ArtistServiceTest {
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
         when(commisionRepository.findAll()).thenReturn(List.of(commision));
 
-        assertThrows(RuntimeException.class, () -> {
+        assertThrows(AccessDeniedException.class, () -> {
             artistService.deleteArtist(1L);
         });
 

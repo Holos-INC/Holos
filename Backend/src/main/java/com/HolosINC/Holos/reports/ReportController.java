@@ -2,7 +2,6 @@ package com.HolosINC.Holos.reports;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +24,6 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @Autowired
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
     }
@@ -56,16 +54,6 @@ public class ReportController {
     public ResponseEntity<?> acceptReport(@PathVariable Long id) {
         try {
             Report accepted = reportService.acceptReport(id);
-            return ResponseEntity.ok(accepted);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/admin/reject/{id}")
-    public ResponseEntity<?> rejectReport(@PathVariable Long id) {
-        try {
-            Report accepted = reportService.rejectReport(id);
             return ResponseEntity.ok(accepted);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

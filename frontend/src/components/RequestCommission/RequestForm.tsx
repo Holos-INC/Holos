@@ -21,11 +21,13 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
 interface RequestFormProps {
-  artist: Artist;
+  artist: ArtistDTO;
 }
 
 type FormValues = {
@@ -43,16 +45,19 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
   const commissionValidationSchema = object({
     name: string().required("El título es necesario"),
-    description: string().required("La descripción es necesariad"),
-    price: number()
+    description: string().required("La descripción es necesaria"),
+    price: string()
       .required("El precio es necesario")
-      .positive("Debe ser positivo"),
+      .matches(
+        /^[0-9]+([.,][0-9]{1,2})?$/,
+        "Debe ser un número válido con hasta 2 decimales"
+      ),
     image: string(),
     milestoneDate: date()
       .nullable()
       .min(
         new Date(new Date().setDate(new Date().getDate() + 1)),
-        "La fecha debe ser posterior a la actual(más de un día)"
+        "La fecha debe ser posterior a la actual (más de un día)"
       ),
       paymentArrangement: string().oneOf(Object.values(PaymentArrangement)),
 
@@ -89,11 +94,12 @@ export default function RequestForm({ artist }: RequestFormProps) {
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
 
-      await createCommission(artist.id, commissionData, loggedInUser.token);
-      resetForm();
-      setTimeout(() => {
+      await createCommission(
+        artist.artistId,
+        commissionData,
+        loggedInUser.token
+      );
         router.push(`/commissions`);
-      }, 2000);
 
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {
@@ -129,7 +135,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
         <View style={styles.imageWrapper}>
           <Image
-            source={require(commissionTablePrice)}
+            source={getImageSource(artist.tableCommisionsPrice)}
             style={styles.priceTableImage}
             resizeMode="contain"
           />
@@ -202,21 +208,20 @@ export default function RequestForm({ artist }: RequestFormProps) {
             <TextInput
               style={styles.title}
               placeholder="Introduzca el precio"
-              keyboardType="numeric"
-              value={values.price === 0 ? "" : values.price.toString()}
+              keyboardType="default"
+              value={values.price}
               onChangeText={(text) => {
-                const numericValue = text.replace(/[^0-9]/g, "");
-                setFieldValue(
-                  "price",
-                  numericValue === "" ? "" : Number(numericValue)
-                );
+                const cleaned = text
+                  .replace(/-/g, "")
+                  .replace(",", ".")
+                  .replace(/[^0-9.]/g, "")
+                  .replace(/(\..*?)\..*/g, "$1");
+                setFieldValue("price", cleaned);
               }}
               onBlur={handleBlur("price")}
             />
             {errors.price && touched.price && (
-              <Text style={styles.errorText}>
-                Por favor, introduzca un valor numérico
-              </Text>
+              <Text style={styles.errorText}></Text>
             )}
 
             {/* Payment Arrangement Selector */}
@@ -319,15 +324,25 @@ export default function RequestForm({ artist }: RequestFormProps) {
               )}
             </View>
 
-            {/* Buttons */}
-            <TouchableOpacity
-              style={styles.cameraButton}
-              onPress={() => pickImage(setFieldValue)}
-            >
-              <Icon name="photo-camera" size={20} color="white" />
-              <Text style={styles.cameraButtonText}>Subir Imagen</Text>
-            </TouchableOpacity>
+            {/* Botón de subir imagen */}
+            {values.image ? (
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => setFieldValue("image", "")}
+              >
+                <Text style={styles.removeButtonText}>Quitar imagen</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.cameraButton}
+                onPress={() => pickImage(setFieldValue)}
+              >
+                <Icon name="photo-camera" size={20} color="white" />
+                <Text style={styles.cameraButtonText}>Subir Imagen</Text>
+              </TouchableOpacity>
+            )}
 
+            {/* Botones de acción */}
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.cancelButton}

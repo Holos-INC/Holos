@@ -2,6 +2,7 @@ package com.HolosINC.Holos.worksdone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.auth.payload.response.MessageResponse;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.util.RestPreconditions;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,6 @@ public class WorksDoneController {
     private final ArtistService artistService;
     private final BaseUserService baseUserService;
 
-    @Autowired
     public WorksDoneController(WorksDoneService worksDoneService,
             ArtistService artistService,
             BaseUserService baseUserService) {
@@ -199,10 +198,20 @@ public class WorksDoneController {
         Long currentUserId = baseUserService.findCurrentUser().getId();
         Artist artist = baseUserService.findArtist(currentUserId);
 
-        boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
+        boolean isPremium = artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM;
         long worksCount = worksDoneService.countByArtistId(artist.getId());
         
         boolean canUpload = isPremium || worksCount < 7;
         return ResponseEntity.ok(canUpload);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteWorksDone(@PathVariable Long id) {
+        try {
+            worksDoneService.deleteWorksDone(id);
+            return ResponseEntity.ok(new MessageResponse("Trabajo borrado correctamente."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+}
 }

@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
   priceTableImage: {
     width: "100%",
     maxWidth: 400,
-    paddingHorizontal: 750,
+    paddingHorizontal: 10,
     aspectRatio: 1.5,
     resizeMode: "contain",
   },
@@ -197,5 +197,20 @@ export const styles = StyleSheet.create({
     marginVertical: 12,
     alignItems: "center",
     paddingHorizontal: 16,
+  },
+  removeButton: {
+    backgroundColor: "#FFEEEE",
+    borderColor: "#FF6666",
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  removeButtonText: {
+    color: "#FF3333",
+    fontWeight: "600",
   },
 });

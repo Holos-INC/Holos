@@ -4,7 +4,6 @@ package com.HolosINC.Holos.stripe;
 import java.time.LocalDateTime;
 
 import com.HolosINC.Holos.commision.Commision;
-import com.stripe.model.Order.Payment.Settings.AutomaticPaymentMethods;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

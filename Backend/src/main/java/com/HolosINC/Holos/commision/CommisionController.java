@@ -1,8 +1,9 @@
 package com.HolosINC.Holos.commision;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,15 +12,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommisionRequestDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
+import com.HolosINC.Holos.commision.DTOs.CommissionImageUpdateDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
-
-import java.util.Arrays;
-import java.util.List;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +34,6 @@ public class CommisionController {
 
     private final CommisionService commisionService;
 
-    @Autowired
     public CommisionController(CommisionService commisionService) {
         this.commisionService = commisionService;
     }
@@ -60,7 +60,7 @@ public class CommisionController {
         }
     }
 
-    @GetMapping("/historyOfCommisions")
+    @GetMapping("/historyOfCommisions/mine")
     public ResponseEntity<HistoryCommisionsDTO> getClientCommissions() throws Exception {
         try {
             HistoryCommisionsDTO commissions = commisionService.getHistoryOfCommissions();
@@ -151,6 +151,43 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
         }
     }
+
+    @PutMapping("/{commissionId}/close")
+    public ResponseEntity<?> closeCommission(@PathVariable Long commissionId) {
+        try {
+            commisionService.closeCommission(commissionId);
+            return ResponseEntity.ok("Comisión cerrada correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
+        }
+    }    
+  
+    @PutMapping("/{commisionId}/updateImage")
+    public ResponseEntity<?> updateCommisionImage(
+            @PathVariable Long commisionId,
+            @RequestBody CommissionImageUpdateDTO dto) {
+        try {
+            commisionService.updateImage(commisionId, dto.getImage());
+            return ResponseEntity.ok().body("Imagen actualizada correctamente.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar la imagen: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/ended/client")
+    public ResponseEntity<?> getEndedCommissionsForClient() {
+        try {
+            List<ClientCommissionDTO> commissions = commisionService.getEndedCommissionsForClient();
+            return ResponseEntity.ok(commissions);
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(403).body("Acceso denegado: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al obtener las comisiones finalizadas: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/payment-arrangements")
     public List<String> getPaymentArrangements() {
         // Devuelve los valores del enum como una lista de cadenas
@@ -172,5 +209,4 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
         }
     }
-
 }

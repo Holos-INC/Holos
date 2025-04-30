@@ -23,7 +23,7 @@ export default function ClientCommissionsScreen({commissions}: {commissions: Com
                     <CommissionCard
                         key={index}
                         title={commission.name}
-                        image={`data:image/jpeg;base64,${commission.image}`}
+                        image={commission.image ?? ""}
                         artistUsername={commission.artistUsername}
                         totalSteps={commission.totalSteps}
                         currentStep={commission.currentStep}

@@ -1,18 +1,19 @@
 // src/services/ExploreWorkHelpers.ts
-
-import { getAllWorksDoneDTO } from "@/src/services/WorksDoneApi";
-import { WorksDoneDTO, ArtistDTO } from "@/src/constants/ExploreTypes";
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { BASE_URL } from "@/src/constants/api";
-import { getArtistById } from "@/src/services/artistApi";
 import { getMostPublicationsArtists } from "@/src/services/WorksDoneApi"; // Nuevo import
 import api from "./axiosInstance";
 
 /**
  * Llama a la API y devuelve el array de WorksDoneDTO.
  */
-export async function fetchWorksAndTransform(token: string): Promise<WorksDoneDTO[]> {
+export async function fetchWorksAndTransform(
+  token: string
+): Promise<WorksDoneDTO[]> {
   try {
-    const data = await api.get(`${BASE_URL}/api/v1/search/works?size=5`, { headers: { Authorization: `Bearer ${token}`}});
+    const data = await api.get(`${BASE_URL}/api/v1/search/works`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return data.data.content;
   } catch (error) {
     console.error("Error fetching works done:", error);
@@ -42,6 +43,7 @@ export function decodeImagePath(encodedPath: string): string {
 export interface ArtistMin {
   id: number;
   name: string;
+  username: string;
   baseUserid?: number;
   location?: string;
   imageProfile?: string;
@@ -59,6 +61,7 @@ export async function getTopThreeArtists(): Promise<ArtistMin[]> {
         description: artist?.description,
         imageProfile: artist?.baseUser?.imageProfile,
         name: artist.baseUser?.name,
+        username: artist.baseUser?.username,
       })
     );
     return artists;

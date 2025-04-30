@@ -15,7 +15,6 @@ import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class ArtistService {
 	private final StatusKanbanOrderService statusKanbanOrderService;
 	private final ArtistCategoryRepository artistCategoryRepository;
 
-	@Autowired
+
 	public ArtistService(ArtistRepository artistRepository, BaseUserRepository baseUserRepository, CommisionRepository commisionRepository, @Lazy StatusKanbanOrderService statusKanbanOrderService, ArtistCategoryRepository artistCategoryRepository) {
 		this.artistRepository = artistRepository;
 		this.baseUserRepository = baseUserRepository;
@@ -43,8 +42,10 @@ public class ArtistService {
 	@Transactional
 	public Artist saveArtist(Artist artist) throws DataAccessException {
 		artistRepository.save(artist);
+		statusKanbanOrderService.createDefaultKanbanStates(artist);
 		return artist;
 	}
+	
 
 	@Transactional(readOnly = true)
 	public Artist findArtist(Long artistId) throws Exception {
@@ -66,12 +67,11 @@ public class ArtistService {
 
 	@Transactional(readOnly = true)
 	public boolean isArtist(Long userId) throws Exception {
-		return !(artistRepository.findByUserId(userId).isEmpty());
+		return artistRepository.findByUserId(userId).isPresent();
 	}
 
 	@Transactional
 	public void deleteArtist(Long userId) throws Exception {
-		try {
 			Artist artist = artistRepository.findArtistByUser(userId)
 				.orElseThrow(() -> new ResourceNotFoundException("Artist", "id", userId));
 			Long artistId = artist.id;
@@ -91,9 +91,10 @@ public class ArtistService {
 
 			commisionRepository.deleteAll(commisions);
 
+
 			List<StatusKanbanOrder> kanbanStatuses = statusKanbanOrderService.findAllStatusKanbanOrderByArtist(artistId);
 			for (StatusKanbanOrder sk : kanbanStatuses) {
-				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId().intValue());
+				statusKanbanOrderService.deleteStatusKanbanOrder(sk.getId());
 			}
 
 			List<ArtistCategory> artistCategories = artistCategoryRepository.findAllByArtistId(artistId);
@@ -106,9 +107,6 @@ public class ArtistService {
 			}
 
 			artistRepository.delete(artist);
-		} catch (Exception e) {
-			throw new ResourceNotFoundException("Error: El artista con ID " + userId + " no existe.");
-		}
 	}
 	
 	@Transactional

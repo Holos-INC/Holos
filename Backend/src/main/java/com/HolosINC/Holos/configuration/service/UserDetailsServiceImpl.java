@@ -1,6 +1,5 @@
 package com.HolosINC.Holos.configuration.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,8 +11,12 @@ import com.HolosINC.Holos.model.BaseUserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-	@Autowired
-	BaseUserRepository userRepository;
+
+	private BaseUserRepository userRepository;
+
+	public UserDetailsServiceImpl(BaseUserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	@Transactional

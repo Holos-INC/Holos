@@ -1,11 +1,12 @@
 import { View, Text, Image } from "react-native";
-import { Artist } from "@/src/constants/CommissionTypes";
 import { BASE_URL } from "@/src/constants/api";
 import LoadingScreen from "../LoadingScreen";
 import { styles } from "@/src/styles/UserPanel.styles";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/getImageSource";
 
 interface UserPanelProps {
-  artist: Artist;
+  artist: ArtistDTO;
 }
 
 export default function UserPanel({ artist }: UserPanelProps) {
@@ -13,9 +14,9 @@ export default function UserPanel({ artist }: UserPanelProps) {
 
   return (
     <View style={styles.container}>
-      {artist.baseUser.imageProfile ? (
+      {artist.imageProfile ? (
         <Image
-          source={{ uri: `${BASE_URL}${atob(artist.baseUser.imageProfile)}` }}
+          source={getImageSource(artist.imageProfile)}
           style={styles.profileImage}
         />
       ) : (
@@ -23,12 +24,8 @@ export default function UserPanel({ artist }: UserPanelProps) {
       )}
 
       <Text style={styles.name}>
-        {artist.baseUser.name || "Artista desconocido"} : @{artist.baseUser.username || "Sin nombre de usuario"}
-      </Text>
-      <Text style={styles.role}>
-        {artist.baseUser.authority.authority === "ARTIST_PREMIUM"
-          ? "Artista Premium"
-          : "Artista"}
+        {artist.name || "Artista desconocido"} : @
+        {artist.username || "Sin nombre de usuario"}
       </Text>
     </View>
   );

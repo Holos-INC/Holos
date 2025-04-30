@@ -17,14 +17,12 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.SetupIntent;
-import com.stripe.net.RequestOptions;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.SetupIntentCreateParams;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
@@ -42,7 +40,6 @@ public class PaymentService {
     private String currency = "eur";
     private PaymentHistoryRepository phr;    
 
-    @Autowired
     public PaymentService(CommisionRepository commisionRepository, BaseUserService userService, PaymentHistoryRepository paymentHistoryRepository, ClientRepository clientRepository) {
         this.commisionRepository = commisionRepository;
         this.userService = userService;

@@ -19,26 +19,9 @@ import { getAllUsers, updateUser, deleteUser } from "@/src/services/userApi"; //
 import { deleteClient } from "@/src/services/clientApi";
 import { deleteArtist } from "@/src/services/artistApi";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import {BaseUser, Authority } from "@/src/constants/CommissionTypes"; // Adjust to match your data type
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import * as yup from "yup";
-
-
-interface Authority {
-  id: number;
-  authority: string;
-}
-
-interface BaseUser {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  createdUser: string;
-  authority: Authority;
-}
-
 export default function UserManagement() {
   const router = useRouter();
   const [users, setUsers] = useState<BaseUser[]>([]);
@@ -79,7 +62,11 @@ export default function UserManagement() {
     const getUsers = async () => {
       try {
         const data = await getAllUsers(loggedInUser.token); 
-        setUsers(data);
+        const mappedData = data.map((user: any) => ({
+          ...user,
+          authority: Authority[user.authority as keyof typeof Authority],
+        }));
+        setUsers(mappedData);
       } catch (error) {
         console.error("Error al obtener usuarios", error);
       }
@@ -95,13 +82,12 @@ export default function UserManagement() {
   );
 
   const saveChanges = async () => {
-    if (!selectedUser) return;
-  
     try {
       await editUserValidationSchema.validate(selectedUser, { abortEarly: false });
-  
-      const updatedUser = await updateUser(selectedUser.id, selectedUser, loggedInUser.token);
-      setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
+      if (selectedUser) {
+        const updatedUser = await updateUser(selectedUser.id, selectedUser, loggedInUser.token);
+     
+      setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user))); }
       setModalVisible(false);
       setEditErrorMessage(null); // Limpiar error si es exitoso
     } catch (error) {
@@ -113,6 +99,7 @@ export default function UserManagement() {
       console.error("Error al guardar los cambios", error);
     }
   };
+  
   
 
   const handleDelete = async (id: number, authority: string) => {
@@ -211,7 +198,7 @@ export default function UserManagement() {
               <View style={styles.categoryInfo}>
                 <Image source={{ uri: item.imageProfile || "https://via.placeholder.com/80" }} style={styles.userImage} />
                 <View style={styles.userDetails}>
-                  <Text style={styles.userName}>{item.name} ({item.authority.authority})</Text>
+                  <Text style={styles.userName}>{item.name} ({item.authority})</Text>
                   <Text style={styles.userEmail}>{item.email}</Text>
                   {item.phoneNumber && <Text style={styles.userPhone}>📞 {item.phoneNumber}</Text>}
                   <Text style={styles.userDate}>🗓️ Creado: {item.createdUser}</Text>
@@ -222,7 +209,7 @@ export default function UserManagement() {
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={styles.deleteButton} 
-                    onPress={() => handleDelete(item.id, item.authority.authority)}
+                    onPress={() => handleDelete(item.id, item.authority)}
                   >
                     <Text style={styles.buttonText}>🗑️ Eliminar</Text>
                   </TouchableOpacity>

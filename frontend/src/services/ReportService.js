@@ -1,6 +1,5 @@
 import axios from "axios";
 import { API_URL } from "../constants/api";
-
 const REPORT_URL = API_URL + "/reports";
 
 export const getReportTypes = async () => {

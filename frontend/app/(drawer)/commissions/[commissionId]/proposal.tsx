@@ -14,7 +14,6 @@ import { reject, toPay, waiting, updatePayment, getCommissionById } from "@/src/
 import { priceValidationSchema } from "@/src/utils/priceValidation";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import PaymentDetails from "@/src/components/checkout/PaymentDetails";
-import WIPPlaceholder from "@/src/components/WorkInProgress";
 import colors from "@/src/constants/colors";
 import { PaymentArrangement, StatusCommission } from "@/src/constants/CommissionTypes";
 import LoadingScreen from "@/src/components/LoadingScreen";
@@ -73,6 +72,7 @@ export default function CommissionDetailsScreen() {
       await reject(commission.id, loggedInUser.token);
       await refreshCommission();
       alert("Comisión rechazada");
+      router.push("/commissions");
     } catch (err: any) {
       setErrorMessage(err.message);
     }
@@ -173,7 +173,7 @@ const handleSaveChanges = async () => {
         : "Negociación",
     });
   }, [commission?.name, navigation]);
-  
+    
   useEffect(() => {
     if (commission?.artistUsername) {
       fetch(`${API_URL}/status-kanban-order/count/${commission.artistUsername}`)
@@ -195,8 +195,7 @@ const handleSaveChanges = async () => {
     }
   }, [commission?.artistUsername]);
 
-  if (!commission) return <WIPPlaceholder />;
-  if (!loggedInUser) return <LoadingScreen />;
+  if (!commission || !loggedInUser) return <LoadingScreen />;
 
   const isArtist = commission.artistUsername === loggedInUser.username;
   const isClient = commission.clientUsername === loggedInUser.username;

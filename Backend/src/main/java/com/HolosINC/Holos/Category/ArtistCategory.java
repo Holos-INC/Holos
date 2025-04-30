@@ -26,10 +26,10 @@ public class ArtistCategory{
 	protected Long id;
 
     @ManyToOne
-    @JoinColumn(name = "artist_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Artist artist;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Category category;
 }

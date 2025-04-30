@@ -2,7 +2,7 @@ package com.HolosINC.Holos.worksDone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
-import com.HolosINC.Holos.auth.Authorities;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -48,16 +48,12 @@ public class WorksDoneServiceTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        // Crear autoridad premium
-        Authorities authority = new Authorities();
-        authority.setAuthority("ARTIST_PREMIUM");
-
         // Crear BaseUser con autoridad
         BaseUser baseUser = new BaseUser();
         baseUser.setId(10L);
         baseUser.setUsername("testuser");
         baseUser.setName("Test");
-        baseUser.setAuthority(authority); // <-- Aquí está la clave
+        baseUser.setAuthority(Auth.ARTIST_PREMIUM);
 
         // Crear artista con ese BaseUser
         artist = new Artist();
@@ -210,7 +206,7 @@ public class WorksDoneServiceTest {
 
     // 4) getWorksDoneById
     @Test
-    public void testGetWorksDoneById_Success() {
+    public void testGetWorksDoneById_Success() throws Exception {
         when(worksDoneRepository.findById(1L)).thenReturn(Optional.of(worksDone));
 
         WorksDone result = worksDoneService.getWorksDoneById(1L);
@@ -221,11 +217,12 @@ public class WorksDoneServiceTest {
     }
 
     @Test
-    public void testGetWorksDoneById_NotFound() {
+    public void testGetWorksDoneById_NotFound() throws Exception {
         when(worksDoneRepository.findById(999L)).thenReturn(Optional.empty());
 
-        WorksDone result = worksDoneService.getWorksDoneById(999L);
-        assertNull(result);
+        assertThrows(ResourceNotFoundException.class, () -> {
+            worksDoneService.getWorksDoneById(999L);
+        });
 
         verify(worksDoneRepository, times(1)).findById(999L);
     }
@@ -278,5 +275,17 @@ public class WorksDoneServiceTest {
 
         assertEquals(5L, count);
         verify(worksDoneRepository, times(1)).countByArtistId(10L);
+    }
+
+    @Test
+    public void testDeleteWorksDone_Success() throws Exception {
+        worksDone.setArtist(artist);
+
+        when(worksDoneRepository.findById(1L)).thenReturn(Optional.of(worksDone));
+        when(baseUserService.findCurrentUser()).thenReturn(artist.getBaseUser());
+
+        worksDoneService.deleteWorksDone(1L);
+
+        verify(worksDoneRepository, times(1)).delete(worksDone);
     }
 }

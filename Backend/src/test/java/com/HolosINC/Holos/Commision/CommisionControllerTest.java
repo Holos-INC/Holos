@@ -128,7 +128,7 @@ public class CommisionControllerTest {
 
         when(commisionService.getHistoryOfCommissions()).thenReturn(history);
 
-        mockMvc.perform(get("/api/v1/commisions/historyOfCommisions"))
+        mockMvc.perform(get("/api/v1/commisions/historyOfCommisions/mine"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requested").isArray())
                 .andExpect(jsonPath("$.accepted").isArray())

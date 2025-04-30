@@ -2,6 +2,7 @@ package com.HolosINC.Holos.worksdone;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserService;
 
@@ -34,7 +35,7 @@ public class WorksDoneService {
             
             Long currentUserId = baseUserService.findCurrentUser().getId();
             Artist artist = baseUserService.findArtist(currentUserId);
-            boolean isPremium = artist.getBaseUser().hasAuthority("ARTIST_PREMIUM");
+            boolean isPremium = artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM;
             long worksCount = countByArtistId(artist.getId());
             if (!isPremium && worksCount >= 7) {
                 throw new AccessDeniedException("Has alcanzado el límite de 7 obras. Hazte premium para subir más.");
@@ -68,10 +69,11 @@ public class WorksDoneService {
         return worksDoneRepository.save(worksDoneToUpdate);
     }
 
-    public WorksDone getWorksDoneById(Long id) {
-        return worksDoneRepository.findById(id).orElse(null);
+    public WorksDone getWorksDoneById(Long id) throws Exception{
+        return worksDoneRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("WorksDone", "id", id));
     }
 
+    @Transactional
     public List<WorksDone> getWorksDoneByArtist(Artist artist) {
         return worksDoneRepository.findAll()
                 .stream()
@@ -84,6 +86,25 @@ public class WorksDoneService {
     }
     public Long countByArtistId(Long artistId) {
         return worksDoneRepository.countByArtistId(artistId);
+
     }
 
+    @Transactional
+    public void deleteWorksDone(Long id) throws Exception {
+        WorksDone worksDone = getWorksDoneById(id);
+        Long currentUserId = baseUserService.findCurrentUser().getId();
+        Auth currentUserAuthority = baseUserService.findCurrentUser().getAuthority();
+
+        if (currentUserAuthority != Auth.ADMIN  && !currentUserId.equals(worksDone.getArtist().getBaseUser().getId())) {
+            throw new AccessDeniedException("No puedes eliminar una obra que no es tuya.");
+        }
+
+        if (currentUserAuthority != Auth.ADMIN &&
+            currentUserAuthority != Auth.ARTIST_PREMIUM &&
+            currentUserAuthority != Auth.ARTIST) {
+            throw new AccessDeniedException("No puedes eliminar una obra si no eres admin, artista o artista premium.");
+        }
+
+        worksDoneRepository.delete(worksDone);
+    }
 }
