@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { CommissionCard } from './CommissionCard';
 import { StatusKanbanCreateDTO, StatusKanbanUpdateDTO, StatusWithCommissions } from '@/src/constants/kanbanTypes';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -36,6 +36,20 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ columns, onMoveBack, o
       setColumnIdToDelete(null)
     }
   }
+
+  const handleMoveForward = (commissionId: number) => {
+    Alert.alert(
+      '¿Confirmar movimiento?',
+      'Si mueve de estado la comisión, se solicitará otro pago al cliente y por ende, hasta que no pague, no podrá volver a mover la comisión.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Aceptar', 
+          onPress: () => onMoveForward(commissionId) // Mueve la comisión solo después de la confirmación
+        }
+      ]
+    );
+  };
 
   const handleConfirmEditColumn = async ({ name, description, color }: { name: string, description: string, color: string }) => {
     if (!editingColumn) return

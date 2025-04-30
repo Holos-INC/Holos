@@ -232,12 +232,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (2, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 1, 'REQUESTED', '2025-03-15', 'INITIAL', NULL, NULL, 1, 0, true),
 (3, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 1, 'ACCEPTED', '2025-03-01', 'INITIAL', 1, NULL, 1, 0, true),
 (4, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 1, 'ACCEPTED', '2025-03-02', 'FINAL', 2, NULL, 1, 0, false),
-(5, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 14, 'CANCELED', '2025-03-16', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
+(5, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 14, 'ENDED', '2025-03-16', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
 (6, 1, 'Vintage Car', 'A classic vintage car painting', 180.0, 15, 'IN_WAIT_LIST', '2025-03-17', 'FINAL', NULL, NULL, 1, 0, false),
 (7, 1, 'River Bend', 'A calm river meandering through the countryside', 250.0, 16, 'IN_WAIT_LIST', '2025-03-18', 'INITIAL', NULL, NULL, 1, 0, true),
 (8, 1, 'Starry Night', 'A beautiful rendition of the night sky', 200.0, 17, 'ENDED', '2025-03-19', 'FIFTYFIFTY', NULL, NULL, 2, 2, false),
 (9, 1, 'Mountain View', 'A scenic mountain landscape', 270.0, 18, 'ENDED', '2025-03-20', 'FINAL', NULL, NULL, 1, 1, false),
-(10, 1, 'Peaceful Waters', 'A peaceful lake surrounded by mountains', 230.0, 19, 'REJECTED', '2025-03-21', 'INITIAL', NULL, NULL, 1, 0, true);
+(10, 1, 'Peaceful Waters', 'A peaceful lake surrounded by mountains', 230.0, 19, 'ENDED', '2025-03-21', 'INITIAL', NULL, NULL, 1, 0, true);
 
 -- Comisiones para el Artista 2(ID 2)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, milestone_date, total_payments, current_payments, is_waiting_payment) VALUES
@@ -245,34 +245,34 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (12, 2, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 2, 'ACCEPTED', '2025-03-02', 'FINAL', 12, NULL, 1, 0, false),
 (13, 2, 'Forest at Dusk', 'A mysterious forest at dusk', 210.0, 3, 'REQUESTED', '2025-03-22', 'FINAL', NULL, NULL, 1, 0, false),
 (14, 2, 'Abstract Faces', 'A contemporary painting of abstract faces', 250.0, 4, 'REQUESTED', '2025-03-23', 'INITIAL', NULL, NULL, 1, 0, true),
-(15, 2, 'Ocean Breeze', 'A breezy ocean view painting', 300.0, 19, 'CANCELED', '2025-03-24', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
+(15, 2, 'Ocean Breeze', 'A breezy ocean view painting', 300.0, 19, 'ENDED', '2025-03-24', 'FIFTYFIFTY', NULL, NULL, 2, 0, true),
 (16, 2, 'Mountain River', 'A flowing river through a mountain range', 270.0, 6, 'IN_WAIT_LIST', '2025-03-25', 'MODERATOR', NULL, NULL, 3, 0, true),
 (17, 2, 'Sunset Over Desert', 'A vibrant sunset over a desert landscape', 190.0, 7, 'IN_WAIT_LIST', '2025-03-26', 'FINAL', NULL, NULL, 1, 0, false),
 (18, 2, 'Tropical Forest', 'A lush tropical forest', 220.0, 8, 'ENDED', '2025-03-27', 'FIFTYFIFTY', NULL, NULL, 2, 2, false),
 (19, 2, 'City at Dusk', 'A city skyline at dusk', 240.0, 9, 'ENDED', '2025-03-28', 'MODERATOR', NULL, NULL, 3, 3, false),
-(20, 2, 'Desert Oasis', 'A tranquil desert oasis', 260.0, 10, 'REJECTED', '2025-03-29', 'INITIAL', NULL, NULL, 1, 0, true);
+(20, 2, 'Desert Oasis', 'A tranquil desert oasis', 260.0, 10, 'ENDED', '2025-03-29', 'INITIAL', NULL, NULL, 1, 0, true);
 
 -- Comisiones para el Artista 3(ID 3)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
 (21, 3, 'Autumn Forest', 'A serene autumn forest landscape', 230.0, 1, 'REQUESTED', '2025-03-30', 'FIFTYFIFTY', NULL, 2, 0, true),
 (22, 3, 'Winter Wonderland', 'A snowy winter scene with trees', 270.0, 2, 'REQUESTED', '2025-03-31', 'INITIAL', NULL, 1, 0, true),
-(23, 3, 'Desert Oasis', 'A peaceful desert oasis', 320.0, 3, 'CANCELED', '2025-04-01', 'FINAL', NULL, 1, 0, false),
+(23, 3, 'Desert Oasis', 'A peaceful desert oasis', 320.0, 3, 'ENDED', '2025-04-01', 'FINAL', NULL, 1, 0, false),
 (24, 3, 'Night Sky', 'A starry night sky over the ocean', 200.0, 4, 'IN_WAIT_LIST', '2025-04-02', 'FIFTYFIFTY', NULL, 2, 0, true),
 (25, 3, 'Blooming Garden', 'A beautiful garden in full bloom', 180.0, 5, 'IN_WAIT_LIST', '2025-04-03', 'MODERATOR', NULL, 3, 0, false),
 (26, 3, 'Rolling Hills', 'A peaceful rolling hill landscape', 210.0, 6, 'ENDED', '2025-04-04', 'FIFTYFIFTY', NULL, 2, 2, false),
 (27, 3, 'City Streets', 'A bustling city street scene', 250.0, 7, 'ENDED', '2025-04-05', 'FINAL', NULL, 1, 1, false),
-(28, 3, 'Eagle in Flight', 'A majestic eagle soaring through the sky', 270.0, 8, 'REJECTED', '2025-04-06', 'INITIAL', NULL, 1, 0, true);
+(28, 3, 'Eagle in Flight', 'A majestic eagle soaring through the sky', 270.0, 8, 'ENDED', '2025-04-06', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 4(ID 4)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
 (29, 4, 'Rolling Hills', 'A peaceful rolling hill landscape', 210.0, 1, 'REQUESTED', '2025-04-07', 'FINAL', NULL, 1, 0, false),
 (30, 4, 'City Streets', 'A bustling city street scene', 250.0, 2, 'REQUESTED', '2025-04-08', 'INITIAL', NULL, 1, 0, true),
-(31, 4, 'Mountain View', 'A breathtaking view of the mountains', 300.0, 3, 'CANCELED', '2025-04-09', 'FIFTYFIFTY', NULL, 2, 0, true),
+(31, 4, 'Mountain View', 'A breathtaking view of the mountains', 300.0, 3, 'ENDED', '2025-04-09', 'FIFTYFIFTY', NULL, 2, 0, true),
 (32, 4, 'Eagle in Flight', 'A majestic eagle soaring through the sky', 270.0, 4, 'IN_WAIT_LIST', '2025-04-10', 'MODERATOR', NULL, 3, 0, false),
 (33, 4, 'River Rocks', 'A rocky river landscape with flowing water', 230.0, 5, 'IN_WAIT_LIST', '2025-04-11', 'FINAL', NULL, 1, 0, false),
 (34, 4, 'Sunset Over Ocean', 'A beautiful sunset over the ocean', 220.0, 6, 'ENDED', '2025-04-12', 'FIFTYFIFTY', NULL, 2, 2, false),
 (35, 4, 'Beach Sunset', 'A peaceful beach sunset', 240.0, 7, 'ENDED', '2025-04-13', 'MODERATOR', NULL, 3, 3, false),
-(36, 4, 'River Bend', 'A scenic river bend surrounded by trees', 250.0, 8, 'REJECTED', '2025-04-14', 'INITIAL', NULL, 1, 0, true);
+(36, 4, 'River Bend', 'A scenic river bend surrounded by trees', 250.0, 8, 'ENDED', '2025-04-14', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 5 (ID 5)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -280,12 +280,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (38, 5, 'Tropical Sunset', 'A vibrant tropical sunset', 280.0, 2, 'REQUESTED', '2025-04-16', 'INITIAL', NULL, 1, 0, true),
 (39, 5, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 23, 1, 0, true),
 (40, 5, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 24, 1, 0, false),
-(41, 5, 'City at Dusk', 'A city skyline at dusk', 260.0, 5, 'CANCELED', '2025-04-17', 'FIFTYFIFTY', NULL, 2, 0, true),
+(41, 5, 'City at Dusk', 'A city skyline at dusk', 260.0, 5, 'ENDED', '2025-04-17', 'FIFTYFIFTY', NULL, 2, 0, true),
 (42, 5, 'Snowy Mountain', 'A peaceful snowy mountain scene', 320.0, 6, 'IN_WAIT_LIST', '2025-04-18', 'FIFTYFIFTY', NULL, 2, 0, true),
 (43, 5, 'Lakeside View', 'A tranquil lakeside scene with mountains', 300.0, 7, 'IN_WAIT_LIST', '2025-04-19', 'MODERATOR', NULL, 3, 0, false),
 (44, 5, 'Desert Night', 'A calm desert scene under a starry night sky', 240.0, 8, 'ENDED', '2025-04-20', 'FINAL', NULL, 1, 1, false),
 (45, 5, 'Canyon Vista', 'A beautiful canyon view with the sun setting', 250.0, 9, 'ENDED', '2025-04-21', 'FIFTYFIFTY', NULL, 2, 2, false),
-(46, 5, 'Rocky Coast', 'A rocky coast with waves crashing against the rocks', 230.0, 10, 'REJECTED', '2025-04-22', 'INITIAL', NULL, 1, 0, true);
+(46, 5, 'Rocky Coast', 'A rocky coast with waves crashing against the rocks', 230.0, 10, 'ENDED', '2025-04-22', 'INITIAL', NULL, 1, 0, true);
 
 
 -- Comisiones para el Artista 6 (ID 6)
@@ -294,12 +294,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (48, 6, 'Sunset Beach', 'A sunset over a calm beach', 230.0, 2, 'REQUESTED', '2025-04-24', 'INITIAL', NULL, 1, 0, true),
 (49, 6, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 27, 1, 0, true),
 (50, 6, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 28, 1, 0, false),
-(51, 6, 'Mountain Range', 'A panoramic view of a mountain range', 320.0, 5, 'CANCELED', '2025-04-25', 'FIFTYFIFTY', NULL, 2, 0, true),
+(51, 6, 'Mountain Range', 'A panoramic view of a mountain range', 320.0, 5, 'ENDED', '2025-04-25', 'FIFTYFIFTY', NULL, 2, 0, true),
 (52, 6, 'Tropical Lagoon', 'A peaceful tropical lagoon', 280.0, 6, 'IN_WAIT_LIST', '2025-04-26', 'FIFTYFIFTY', NULL, 2, 0, true),
 (53, 6, 'Autumn Park', 'A beautiful park in autumn', 300.0, 7, 'IN_WAIT_LIST', '2025-04-27', 'MODERATOR', NULL, 3, 0, false),
 (54, 6, 'Evening Sky', 'A sky filled with evening stars', 220.0, 8, 'ENDED', '2025-04-28', 'FINAL', NULL, 1, 1, false),
 (55, 6, 'River Falls', 'A beautiful waterfall in a river', 250.0, 9, 'ENDED', '2025-04-29', 'FIFTYFIFTY', NULL, 2, 2, false),
-(56, 6, 'Rocky Shore', 'A rocky shore with crashing waves', 240.0, 10, 'REJECTED', '2025-04-30', 'INITIAL', NULL, 1, 0, true);
+(56, 6, 'Rocky Shore', 'A rocky shore with crashing waves', 240.0, 10, 'ENDED', '2025-04-30', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 7 (ID 7)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -307,12 +307,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (58, 7, 'Tropical Sunset', 'A vibrant tropical sunset', 280.0, 2, 'REQUESTED', '2025-05-02', 'INITIAL', NULL, 1, 0, true),
 (59, 7, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 31, 1, 0, true),
 (60, 7, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 32, 1, 0, false),
-(61, 7, 'City at Dusk', 'A city skyline at dusk', 260.0, 5, 'CANCELED', '2025-05-03', 'FIFTYFIFTY', NULL, 2, 0, true),
+(61, 7, 'City at Dusk', 'A city skyline at dusk', 260.0, 5, 'ENDED', '2025-05-03', 'FIFTYFIFTY', NULL, 2, 0, true),
 (62, 7, 'Snowy Mountain', 'A peaceful snowy mountain scene', 320.0, 6, 'IN_WAIT_LIST', '2025-05-04', 'FIFTYFIFTY', NULL, 2, 0, true),
 (63, 7, 'Lakeside View', 'A tranquil lakeside scene with mountains', 300.0, 7, 'IN_WAIT_LIST', '2025-05-05', 'MODERATOR', NULL, 3, 0, false),
 (64, 7, 'Desert Night', 'A calm desert scene under a starry night sky', 240.0, 8, 'ENDED', '2025-05-06', 'FINAL', NULL, 1, 1, false),
-(65, 7, 'Canyon Vista', 'A beautiful canyon view with the sun setting', 250.0, 9, 'ENDED', '2025-05-07', 'FIFTYFIFTY', NULL, 2, 2, false);
-(66, 7, 'Rocky Coast', 'A rocky coast with waves crashing against the rocks', 230.0, 10, 'REJECTED', '2025-05-08', 'INITIAL', NULL,1 , 0, true);
+(65, 7, 'Canyon Vista', 'A beautiful canyon view with the sun setting', 250.0, 9, 'ENDED', '2025-05-07', 'FIFTYFIFTY', NULL, 2, 2, false),
+(66, 7, 'Rocky Coast', 'A rocky coast with waves crashing against the rocks', 230.0, 10, 'ENDED', '2025-05-08', 'INITIAL', NULL,1 , 0, true);
 
 
 -- Comisiones para el Artista 8 (ID 8)
@@ -321,12 +321,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (68, 8, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 35, 1, 0, true),
 (69, 8, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 36, 1, 0, false),
 (70, 8, 'Forest at Dawn', 'A mystical forest scene at dawn', 240.0, 4, 'REQUESTED', '2025-05-10', 'INITIAL', NULL, 1, 0, true),
-(71, 8, 'Mountain View', 'A breathtaking mountain view at sunrise', 320.0, 5, 'CANCELED', '2025-05-11', 'FIFTYFIFTY', NULL, 2, 0, true),
+(71, 8, 'Mountain View', 'A breathtaking mountain view at sunrise', 320.0, 5, 'ENDED', '2025-05-11', 'FIFTYFIFTY', NULL, 2, 0, true),
 (72, 8, 'River in Autumn', 'A river flowing through autumn-colored trees', 300.0, 6, 'IN_WAIT_LIST', '2025-05-12', 'FINAL', NULL, 1, 0, false),
 (73, 8, 'Ocean Breeze', 'A calming ocean breeze scene', 280.0, 7, 'IN_WAIT_LIST', '2025-05-13', 'FIFTYFIFTY', NULL, 2, 0, true),
 (74, 8, 'Sunset Reflection', 'A sunset reflecting off the ocean', 250.0, 8, 'ENDED', '2025-05-14', 'FINAL', NULL, 1, 1, false),
 (75, 8, 'Nightfall', 'The transition from dusk to night', 220.0, 9, 'ENDED', '2025-05-15', 'FIFTYFIFTY', NULL, 2, 2, false),
-(76, 8, 'Desert Oasis', 'A peaceful desert oasis scene', 230.0, 10, 'REJECTED', '2025-05-16', 'INITIAL', NULL, 1, 0, true);
+(76, 8, 'Desert Oasis', 'A peaceful desert oasis scene', 230.0, 10, 'ENDED', '2025-05-16', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 9 (ID 9)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -334,12 +334,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (78, 9, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 39, 1, 0, true),
 (79, 9, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 40, 1, 0, false),
 (80, 9, 'Forest Walk', 'A serene walk through a forest', 260.0, 4, 'REQUESTED', '2025-05-18', 'INITIAL', NULL, 1, 0, true),
-(81, 9, 'Ocean Waves', 'Waves crashing on a rocky coast', 230.0, 5, 'CANCELED', '2025-05-19', 'FIFTYFIFTY', NULL, 2, 0, true),
+(81, 9, 'Ocean Waves', 'Waves crashing on a rocky coast', 230.0, 5, 'ENDED', '2025-05-19', 'FIFTYFIFTY', NULL, 2, 0, true),
 (82, 9, 'Starry Night', 'A starry sky over a calm ocean', 300.0, 6, 'IN_WAIT_LIST', '2025-05-20', 'FIFTYFIFTY', NULL, 2, 0, true),
 (83, 9, 'Sunset Hills', 'A vibrant sunset over rolling hills', 270.0, 7, 'IN_WAIT_LIST', '2025-05-21', 'MODERATOR', NULL, 3, 0, false),
 (84, 9, 'City Lights', 'A city skyline lit up at night', 250.0, 8, 'ENDED', '2025-05-22', 'FINAL', NULL, 1, 1, false),
 (85, 9, 'Forest Path', 'A winding path through a lush forest', 220.0, 9, 'ENDED', '2025-05-23', 'FIFTYFIFTY', NULL, 2, 2, false),
-(86, 9, 'Desert Bloom', 'A rare desert flower in bloom', 240.0, 10, 'REJECTED', '2025-05-24', 'INITIAL', NULL, 1, 0, true);
+(86, 9, 'Desert Bloom', 'A rare desert flower in bloom', 240.0, 10, 'ENDED', '2025-05-24', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 10 (ID 10)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -347,12 +347,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (88, 10, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 43, 1, 0, true),
 (89, 10, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 44, 1, 0, false),
 (90, 10, 'Frozen Lake', 'A serene frozen lake surrounded by trees', 240.0, 4, 'REQUESTED', '2025-05-26', 'INITIAL', NULL, 1, 0, true),
-(91, 10, 'Canyon Sunrise', 'A sunrise over a beautiful canyon', 300.0, 5, 'CANCELED', '2025-05-27', 'FIFTYFIFTY', NULL, 2, 0, true),
+(91, 10, 'Canyon Sunrise', 'A sunrise over a beautiful canyon', 300.0, 5, 'ENDED', '2025-05-27', 'FIFTYFIFTY', NULL, 2, 0, true),
 (92, 10, 'Mountain River', 'A peaceful river flowing through the mountains', 260.0, 6, 'IN_WAIT_LIST', '2025-05-28', 'FIFTYFIFTY', NULL, 2, 0, true),
 (93, 10, 'Autumn Harvest', 'A beautiful autumn harvest scene', 220.0, 7, 'IN_WAIT_LIST', '2025-05-29', 'MODERATOR', NULL, 3, 0, false),
 (94, 10, 'Sunset Bay', 'A calming sunset over a bay', 240.0, 8, 'ENDED', '2025-05-30', 'FINAL', NULL, 1, 1, false),
 (95, 10, 'Golden Valley', 'A golden valley lit by the setting sun', 230.0, 9, 'ENDED', '2025-06-01', 'FIFTYFIFTY', NULL, 2, 2, false),
-(96, 10, 'Desert Mirage', 'A mirage in the desert heat', 210.0, 10, 'REJECTED', '2025-06-02', 'INITIAL', NULL, 1, 0, true);
+(96, 10, 'Desert Mirage', 'A mirage in the desert heat', 210.0, 10, 'ENDED', '2025-06-02', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 11 (ID 11)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -360,12 +360,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (98, 11, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 47, 1, 0, true),
 (99, 11, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 48, 1, 0, false),
 (100, 11, 'Ocean Breeze', 'A relaxing beach with ocean breeze', 220.0, 4, 'REQUESTED', '2025-06-04', 'INITIAL', NULL, 1, 0, true),
-(101, 11, 'Mountain View', 'A majestic view of the mountains', 300.0, 5, 'CANCELED', '2025-06-05', 'FIFTYFIFTY', NULL, 2, 0, true),
+(101, 11, 'Mountain View', 'A majestic view of the mountains', 300.0, 5, 'ENDED', '2025-06-05', 'FIFTYFIFTY', NULL, 2, 0, true),
 (102, 11, 'Desert Path', 'A winding path through the desert', 270.0, 6, 'IN_WAIT_LIST', '2025-06-06', 'FIFTYFIFTY', NULL, 2, 0, true),
 (103, 11, 'Starry Night', 'A peaceful starry sky over the lake', 250.0, 7, 'IN_WAIT_LIST', '2025-06-07', 'MODERATOR', NULL, 3, 0, false),
 (104, 11, 'Autumn Meadow', 'A meadow with autumn colors', 230.0, 8, 'ENDED', '2025-06-08', 'FINAL', NULL, 1, 1, false),
 (105, 11, 'Sunset Ridge', 'A sunset over a ridge with trees', 240.0, 9, 'ENDED', '2025-06-09', 'FIFTYFIFTY', NULL, 2, 2, false),
-(106, 11, 'Desert Mirage', 'A mirage shimmering in the desert', 210.0, 10, 'REJECTED', '2025-06-10', 'INITIAL', NULL, 1, 0, true);
+(106, 11, 'Desert Mirage', 'A mirage shimmering in the desert', 210.0, 10, 'ENDED', '2025-06-10', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 12 (ID 12)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -373,12 +373,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (108, 12, 'Tropical Sunset', 'A vibrant tropical sunset over the ocean', 230.0, 2, 'REQUESTED', '2025-06-12', 'INITIAL', NULL, 1, 0, true),
 (109, 12, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 51, 1, 0, true),
 (110, 12, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 52, 1, 0, false),
-(111, 12, 'Mountain Peaks', 'Snow-capped mountain peaks in winter', 300.0, 5, 'CANCELED', '2025-06-13', 'FIFTYFIFTY', NULL, 2, 0, true),
+(111, 12, 'Mountain Peaks', 'Snow-capped mountain peaks in winter', 300.0, 5, 'ENDED', '2025-06-13', 'FIFTYFIFTY', NULL, 2, 0, true),
 (112, 12, 'Desert Sunrise', 'A beautiful sunrise over the desert', 270.0, 6, 'IN_WAIT_LIST', '2025-06-14', 'MODERATOR', NULL, 3, 0, false),
 (113, 12, 'Autumn Path', 'A path surrounded by autumn trees', 250.0, 7, 'IN_WAIT_LIST', '2025-06-15', 'FINAL', NULL, 1, 0, false),
 (114, 12, 'Canyon View', 'A breathtaking view of the canyon', 220.0, 8, 'ENDED', '2025-06-16', 'FINAL', NULL, 1, 1, false),
 (115, 12, 'Rainy City', 'A city scene under the rain', 240.0, 9, 'ENDED', '2025-06-17', 'FIFTYFIFTY', NULL, 2, 2, false),
-(116, 12, 'Sunset Over the Sea', 'A tranquil sunset by the ocean', 250.0, 10, 'REJECTED', '2025-06-18', 'INITIAL', NULL, 1, 0, true);
+(116, 12, 'Sunset Over the Sea', 'A tranquil sunset by the ocean', 250.0, 10, 'ENDED', '2025-06-18', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 13 (ID 13)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -386,25 +386,25 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (118, 13, 'Golden Horizon', 'A horizon painted with golden light', 220.0, 2, 'REQUESTED', '2025-06-20', 'INITIAL', NULL, 1, 0, true),
 (119, 13, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 55, 1, 0, true),
 (120, 13, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 56, 1, 0, false),
-(121, 13, 'Snowy Forest', 'A serene forest with snow covering the trees', 280.0, 5, 'CANCELED', '2025-06-21', 'FIFTYFIFTY', NULL, 2, 0, true),
+(121, 13, 'Snowy Forest', 'A serene forest with snow covering the trees', 280.0, 5, 'ENDED', '2025-06-21', 'FIFTYFIFTY', NULL, 2, 0, true),
 (122, 13, 'Ocean View', 'A calm ocean view with a clear sky', 250.0, 6, 'IN_WAIT_LIST', '2025-06-22', 'FIFTYFIFTY', NULL, 2, 0, true),
 (123, 13, 'Desert Sunset', 'A colorful sunset over the desert', 270.0, 7, 'IN_WAIT_LIST', '2025-06-23', 'MODERATOR', NULL, 3, 0, false),
 (124, 13, 'Autumn Vibes', 'An autumn scene with colorful leaves', 230.0, 8, 'ENDED', '2025-06-24', 'FINAL', NULL, 1, 1, false),
 (125, 13, 'Mountain Serenity', 'A peaceful mountain scene with a river', 240.0, 9, 'ENDED', '2025-06-25', 'FIFTYFIFTY', NULL, 2, 2, false),
-(126, 13, 'Starry Night', 'A star-filled sky over a quiet landscape', 210.0, 10, 'REJECTED', '2025-06-26', 'INITIAL', NULL, 1, 0, true);
+(126, 13, 'Starry Night', 'A star-filled sky over a quiet landscape', 210.0, 10, 'ENDED', '2025-06-26', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 14 (ID 14)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
 (127, 14, 'Sunset Beach', 'A sunset view over the beach', 250.0, 1, 'REQUESTED', '2025-06-27', 'FIFTYFIFTY', NULL, 2, 0, true),
 (128, 14, 'Autumn Colors', 'A scenic view of autumn leaves', 240.0, 2, 'REQUESTED', '2025-06-28', 'INITIAL', NULL, 1, 0, true),
-(129, 14, 'Desert Dawn', 'A tranquil desert scene at dawn', 270.0, 3, 'CANCELED', '2025-06-29', 'FIFTYFIFTY', NULL, 2, 0, true),
+(129, 14, 'Desert Dawn', 'A tranquil desert scene at dawn', 270.0, 3, 'ENDED', '2025-06-29', 'FIFTYFIFTY', NULL, 2, 0, true),
 (130, 14, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'ACCEPTED', '2025-03-01', 'INITIAL', 59, 1, 0, true),
 (131, 14, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', '2025-03-02', 'FINAL', 60, 1, 0, false),
 (132, 14, 'Snowy Hills', 'Snow-covered hills under the soft light', 230.0, 6, 'IN_WAIT_LIST', '2025-06-30', 'FIFTYFIFTY', NULL, 2, 0, true),
 (133, 14, 'Night Sky', 'A clear night sky filled with stars', 250.0, 7, 'IN_WAIT_LIST', '2025-07-01', 'MODERATOR', NULL, 3, 0, false),
 (134, 14, 'Spring Meadow', 'A fresh spring meadow with flowers', 220.0, 8, 'ENDED', '2025-07-02', 'FINAL', NULL, 1, 1, false),
 (135, 14, 'Tropical Escape', 'A tropical beach escape under the sun', 230.0, 9, 'ENDED', '2025-07-03', 'FIFTYFIFTY', NULL, 2, 2, false),
-(136, 14, 'Golden Valley', 'A golden valley with rays of sunlight', 210.0, 10, 'REJECTED', '2025-07-04', 'INITIAL', NULL, 1, 0, true);
+(136, 14, 'Golden Valley', 'A golden valley with rays of sunlight', 210.0, 10, 'ENDED', '2025-07-04', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 15 (ID 15)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -412,12 +412,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (138, 15, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 63, 1, 0, true),
 (139, 15, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 64, 1, 0, false),
 (140, 15, 'Mountain Ridge', 'A view of a mountain ridge at sunset', 240.0, 4, 'REQUESTED', '2025-07-06', 'INITIAL', NULL, 1, 0, true),
-(141, 15, 'Ocean Waves', 'Waves crashing on the shore', 250.0, 5, 'CANCELED', '2025-07-07', 'FIFTYFIFTY', NULL, 2, 0, true),
+(141, 15, 'Ocean Waves', 'Waves crashing on the shore', 250.0, 5, 'ENDED', '2025-07-07', 'FIFTYFIFTY', NULL, 2, 0, true),
 (142, 15, 'River Reflection', 'A river reflecting the surrounding trees', 220.0, 6, 'IN_WAIT_LIST', '2025-07-08', 'FIFTYFIFTY', NULL, 2, 0, true),
 (143, 15, 'Desert Moon', 'A desert under the moonlight', 270.0, 7, 'IN_WAIT_LIST', '2025-07-09', 'MODERATOR', NULL, 3, 0, false),
 (144, 15, 'Golden Meadow', 'A meadow filled with golden light', 230.0, 8, 'ENDED', '2025-07-10', 'FINAL', NULL, 1, 1, false),
 (145, 15, 'Tropical Oasis', 'A peaceful oasis in the tropics', 240.0, 9, 'ENDED', '2025-07-11', 'FIFTYFIFTY', NULL, 2, 2, false),
-(146, 15, 'City Sunset', 'A city skyline at sunset', 210.0, 10, 'REJECTED', '2025-07-12', 'INITIAL', NULL, 1, 0, true);
+(146, 15, 'City Sunset', 'A city skyline at sunset', 210.0, 10, 'ENDED', '2025-07-12', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 16 (ID 16)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -425,25 +425,25 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (148, 16, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 67, 1, 0, true),
 (149, 16, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 68, 1, 0, false),
 (150, 16, 'Tropical Rainforest', 'A lush tropical rainforest', 220.0, 4, 'REQUESTED', '2025-07-14', 'INITIAL', NULL, 1, 0, true),
-(151, 16, 'City at Dusk', 'A city skyline at dusk', 230.0, 5, 'CANCELED', '2025-07-15', 'FIFTYFIFTY', NULL, 2, 0, true),
+(151, 16, 'City at Dusk', 'A city skyline at dusk', 230.0, 5, 'ENDED', '2025-07-15', 'FIFTYFIFTY', NULL, 2, 0, true),
 (152, 16, 'Mountain Summit', 'The summit of a tall mountain', 300.0, 6, 'IN_WAIT_LIST', '2025-07-16', 'FIFTYFIFTY', NULL, 2, 0, true),
 (153, 16, 'Autumn Leaves', 'Leaves falling in autumn', 260.0, 7, 'IN_WAIT_LIST', '2025-07-17', 'MODERATOR', NULL, 3, 0, false),
 (154, 16, 'Starry Night', 'A starry night sky over the sea', 240.0, 8, 'ENDED', '2025-07-18', 'FINAL', NULL, 1, 1, false),
 (155, 16, 'Beach Horizon', 'A beautiful beach at the horizon', 230.0, 9, 'ENDED', '2025-07-19', 'FIFTYFIFTY', NULL, 2, 2, false),
-(156, 16, 'Desert View', 'A view of the vast desert', 220.0, 10, 'REJECTED', '2025-07-20', 'INITIAL', NULL, 1, 0, true);
+(156, 16, 'Desert View', 'A view of the vast desert', 220.0, 10, 'ENDED', '2025-07-20', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 17 (ID 17)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
 (157, 17, 'Golden Horizon', 'A beautiful golden horizon over the ocean', 260.0, 1, 'REQUESTED', '2025-07-21', 'FINAL', NULL, 1, 0, false),
 (158, 17, 'Snowy Mountain', 'A majestic snow-covered mountain', 240.0, 2, 'REQUESTED', '2025-07-22', 'INITIAL', NULL, 1, 0, true),
-(159, 17, 'City at Night', 'A city skyline illuminated at night', 250.0, 3, 'CANCELED', '2025-07-23', 'FIFTYFIFTY', NULL, 2, 0, true),
+(159, 17, 'City at Night', 'A city skyline illuminated at night', 250.0, 3, 'ENDED', '2025-07-23', 'FIFTYFIFTY', NULL, 2, 0, true),
 (160, 17, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 4, 'ACCEPTED', '2025-03-01', 'INITIAL', 71, 1, 0, true),
 (161, 17, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 5, 'ACCEPTED', '2025-03-02', 'FINAL', 72, 1, 0, false),
 (162, 17, 'River Valley', 'A river winding through a green valley', 220.0, 6, 'IN_WAIT_LIST', '2025-07-24', 'FIFTYFIFTY', NULL, 2, 0, true),
 (163, 17, 'Desert Dawn', 'The first light hitting the desert landscape', 270.0, 7, 'IN_WAIT_LIST', '2025-07-25', 'MODERATOR', NULL, 3, 0, false),
 (164, 17, 'Autumn Walk', 'A peaceful walk through an autumn forest', 230.0, 8, 'ENDED', '2025-07-26', 'FINAL', NULL, 1, 1, false),
 (165, 17, 'Beach Sunset', 'A stunning sunset over the beach', 240.0, 9, 'ENDED', '2025-07-27', 'FIFTYFIFTY', NULL, 2, 2, false),
-(166, 17, 'Starry Sky', 'A brilliant starry sky over the mountains', 210.0, 10, 'REJECTED', '2025-07-28', 'INITIAL', NULL, 1, 0, true);
+(166, 17, 'Starry Sky', 'A brilliant starry sky over the mountains', 210.0, 10, 'ENDED', '2025-07-28', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 18 (ID 18)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -451,12 +451,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (168, 18, 'Autumn Forest', 'A forest with colorful autumn leaves', 230.0, 2, 'REQUESTED', '2025-07-30', 'INITIAL', NULL, 1, 0, true),
 (169, 18, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 75, 1, 0, true),
 (170, 18, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 76, 1, 0, false),
-(171, 18, 'Mountain Peak', 'A snow-covered mountain peak under the sun', 300.0, 5, 'CANCELED', '2025-07-31', 'FIFTYFIFTY', NULL, 2, 0, true),
+(171, 18, 'Mountain Peak', 'A snow-covered mountain peak under the sun', 300.0, 5, 'ENDED', '2025-07-31', 'FIFTYFIFTY', NULL, 2, 0, true),
 (172, 18, 'Desert Night', 'A starry night in the desert', 270.0, 6, 'IN_WAIT_LIST', '2025-08-01', 'FIFTYFIFTY', NULL, 2, 0, true),
 (173, 18, 'Tropical Paradise', 'A tropical beach with turquoise waters', 220.0, 7, 'IN_WAIT_LIST', '2025-08-02', 'MODERATOR', NULL, 3, 0, false),
 (174, 18, 'River Sunset', 'A beautiful sunset over a calm river', 230.0, 8, 'ENDED', '2025-08-03', 'FINAL', NULL, 1, 1, false),
 (175, 18, 'Golden Wheat', 'A field of golden wheat under the setting sun', 240.0, 9, 'ENDED', '2025-08-04', 'FIFTYFIFTY', NULL, 2, 2, false),
-(176, 18, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'REJECTED', '2025-08-05', 'INITIAL', NULL, 1, 0, true);
+(176, 18, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'ENDED', '2025-08-05', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 19 (ID 19)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -464,12 +464,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (178, 19, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 2, 'ACCEPTED', '2025-03-01', 'INITIAL', 79, 1, 0, true),
 (179, 19, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 3, 'ACCEPTED', '2025-03-02', 'FINAL', 80, 1, 0, false),
 (180, 19, 'Forest Path', 'A peaceful path through a forest', 220.0, 4, 'REQUESTED', '2025-08-07', 'INITIAL', NULL, 1, 0, true),
-(181, 19, 'Desert Mirage', 'A mirage in the desert', 240.0, 5, 'CANCELED', '2025-08-08', 'FIFTYFIFTY', NULL, 2, 0, true),
+(181, 19, 'Desert Mirage', 'A mirage in the desert', 240.0, 5, 'ENDED', '2025-08-08', 'FIFTYFIFTY', NULL, 2, 0, true),
 (182, 19, 'Autumn Leaves', 'Colorful autumn leaves falling', 230.0, 6, 'IN_WAIT_LIST', '2025-08-09', 'FIFTYFIFTY', NULL, 2, 0, true),
 (183, 19, 'Starry Night', 'A starry night sky over a calm lake', 250.0, 7, 'IN_WAIT_LIST', '2025-08-10', 'MODERATOR', NULL, 3, 0, false),
 (184, 19, 'Golden Field', 'A field of golden wheat under the sun', 240.0, 8, 'ENDED', '2025-08-11', 'FINAL', NULL, 1, 1, false),
 (185, 19, 'Tropical Beach', 'A tropical beach with clear waters', 220.0, 9, 'ENDED', '2025-08-12', 'FIFTYFIFTY', NULL, 2, 2, false),
-(186, 19, 'Mountain View', 'A breathtaking view of the mountains', 210.0, 10, 'REJECTED', '2025-08-13', 'INITIAL', NULL, 1, 0, true);
+(186, 19, 'Mountain View', 'A breathtaking view of the mountains', 210.0, 10, 'ENDED', '2025-08-13', 'INITIAL', NULL, 1, 0, true);
 
 -- Comisiones para el Artista 20 (ID 20)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment) VALUES
@@ -477,12 +477,12 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 (188, 20, 'Autumn Forest', 'A forest with colorful autumn leaves', 230.0, 2, 'REQUESTED', '2025-08-15', 'INITIAL', NULL, 1, 0, true),
 (189, 20, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 83, 1, 0, true),
 (190, 20, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 84, 1, 0, false),
-(191, 20, 'Mountain Peak', 'A snow-covered mountain peak under the sun', 300.0, 5, 'CANCELED', '2025-08-16', 'FIFTYFIFTY', NULL, 2, 0, true),
+(191, 20, 'Mountain Peak', 'A snow-covered mountain peak under the sun', 300.0, 5, 'ENDED', '2025-08-16', 'FIFTYFIFTY', NULL, 2, 0, true),
 (192, 20, 'Desert Night', 'A starry night in the desert', 270.0, 6, 'IN_WAIT_LIST', '2025-08-17', 'FIFTYFIFTY', NULL, 2, 0, true),
 (193, 20, 'Tropical Paradise', 'A tropical beach with turquoise waters', 220.0, 7, 'IN_WAIT_LIST', '2025-08-18', 'MODERATOR', NULL, 3, 0, false),
 (194, 20, 'River Sunset', 'A beautiful sunset over a calm river', 230.0, 8, 'ENDED', '2025-08-19', 'FINAL', NULL, 1, 1, false),
 (195, 20, 'Golden Wheat', 'A field of golden wheat under the setting sun', 240.0, 9, 'ENDED', '2025-08-20', 'FIFTYFIFTY', NULL, 2, 2, false),
-(196, 20, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'REJECTED', '2025-08-21', 'INITIAL', NULL, 1, 0, true);
+(196, 20, 'Ocean Breeze', 'A peaceful ocean breeze with gentle waves', 210.0, 10, 'ENDED', '2025-08-21', 'INITIAL', NULL, 1, 0, true);
 
 INSERT INTO artist_category(id,artist_id,category_id) VALUES
 (1, 1, 1),
