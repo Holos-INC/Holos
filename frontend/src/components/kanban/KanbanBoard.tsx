@@ -168,6 +168,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   maxIndex={columns.length - 1}
                   onMoveBack={() => onMoveBack(commission.id)}
                   onMoveForward={() => onMoveForward(commission.id)}
+                  token={token}
                 />
               ))}
             </ScrollView>

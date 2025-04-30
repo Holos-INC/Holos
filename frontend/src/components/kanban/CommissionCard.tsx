@@ -8,6 +8,7 @@ import Icon from "react-native-vector-icons/Feather";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import colors from "@/src/constants/colors";
+import { updateCommisionImage } from "@/src/services/commisionApi";
 
 interface CommissionCardProps {
   commission: StatusKanbanWithCommissionsDTO;
@@ -15,6 +16,7 @@ interface CommissionCardProps {
   maxIndex: number;
   onMoveBack: () => void;
   onMoveForward: () => void;
+  token: string;
 }
 
 export const CommissionCard: React.FC<CommissionCardProps> = ({
@@ -23,6 +25,7 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
   maxIndex,
   onMoveBack,
   onMoveForward,
+  token,
 }) => {
   const canMoveBack = statusIndex > 0;
   const isLastColumn = statusIndex === maxIndex;
@@ -47,13 +50,20 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
     showDialog();
   };
 
-  const confirmMoveForward = () => {
-    if (selectedImage) {
+  const confirmMoveForward = async () => {
+    if (!selectedImage) {
+      setError("Please upload an image of the completed artwork.");
+      return;
+    }
+
+    try {
+      await updateCommisionImage(commission.id, selectedImage, token);
       onMoveForward();
       setError(null);
       hideDialog();
-    } else {
-      setError("Please upload an image of the completed artwork.");
+    } catch (err) {
+      setError("Error uploading image. Please try again.");
+      console.error(err);
     }
   };
 
@@ -136,12 +146,24 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
           onDismiss={hideDialog}
           style={dialogStyles.dialogContainer}
         >
-          <Dialog.Title>¿Listo para avanzar?</Dialog.Title>
+          <Dialog.Title>
+            {isLastColumn
+              ? "¿Finalizar y archivar la comisión?"
+              : "¿Listo para avanzar?"}
+          </Dialog.Title>
           <Dialog.Content>
-            <Text>
-              Solo falta una foto para pasar al siguiente estado, ¡a capturar
-              esa obra maestra!
-            </Text>
+            {isLastColumn ? (
+              <Text>
+                Al confirmar, esta comisión será archivada y aparecerá en la
+                pestaña de "Pedidos". ¡No olvides subir la imagen final de la
+                obra maestra!
+              </Text>
+            ) : (
+              <Text>
+                Solo falta una foto para pasar al siguiente estado, ¡a capturar
+                esa obra maestra!
+              </Text>
+            )}
 
             {selectedImage && (
               <Image
