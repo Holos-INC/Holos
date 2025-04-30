@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { StatusKanbanWithCommissionsDTO } from "@/src/constants/kanbanTypes";
 import { cardStyles } from "@/src/styles/Kanban.styles";
 import { getImageSource } from "@/src/utils/getImageSource";
+import { useRouter } from "expo-router";
 
 interface CommissionCardProps {
   commission: StatusKanbanWithCommissionsDTO;
@@ -22,19 +23,29 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
 }) => {
   const canMoveBack = statusIndex > 0;
   const isLastColumn = statusIndex === maxIndex;
-
+  const router = useRouter();
+  const goToCommissionDetails = () => {
+    router.push(`/commissions/${commission.id}/details`);
+  };
+  const goToUserProfile = () => {
+    router.push(`/profile/${commission.clientUsername}`);
+  };
   return (
     <View style={cardStyles.card}>
       {commission.image && (
-        <Image
-          source={getImageSource(commission.image)}
-          style={cardStyles.image}
-          onError={() => console.log("Error loading image:", commission.image)}
-        />
+        <TouchableOpacity onPress={goToCommissionDetails}>
+          <Image
+            source={getImageSource(commission.image)}
+            style={cardStyles.image}
+            onError={() =>
+              console.log("Error loading image:", commission.image)
+            }
+          />
+        </TouchableOpacity>
       )}
 
       <View style={cardStyles.content}>
-        <View style={[cardStyles.topRow, { marginBlockEnd: 6 }]}>
+        <View style={[cardStyles.topRow, { marginBlockEnd: 3 }]}>
           <Text style={cardStyles.title} numberOfLines={1} ellipsizeMode="tail">
             {commission.name}
           </Text>
@@ -49,7 +60,12 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            Ordered by @{commission.clientUsername}
+            Pedido de{" "}
+            <TouchableOpacity onPress={goToUserProfile}>
+              <Text style={cardStyles.username}>
+                @{commission.clientUsername}
+              </Text>
+            </TouchableOpacity>
           </Text>
 
           <View style={cardStyles.buttonRow}>

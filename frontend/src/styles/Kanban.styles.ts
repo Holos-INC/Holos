@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import colors from "../constants/colors";
 
 export const cardStyles = StyleSheet.create({
   card: {
@@ -43,7 +44,7 @@ export const cardStyles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 100,
+    height: 80,
   },
   content: {
     padding: 12,
@@ -77,5 +78,8 @@ export const cardStyles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     color: "#00",
+  },
+  username: {
+    fontWeight: "600",
   },
 });
