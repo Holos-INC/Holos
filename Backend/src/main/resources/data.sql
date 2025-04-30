@@ -284,17 +284,17 @@ INSERT INTO commisions (id, artist_id, name, description, price, client_id, stat
 
 
 -- Comisiones para el Artista 6 (ID 6)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
-(47, 6, 'Desert Oasis', 'A tranquil desert oasis', 260.0, 1, 'REQUESTED', '2025-04-23', 'FINAL', NULL),
-(48, 6, 'Sunset Beach', 'A sunset over a calm beach', 230.0, 2, 'REQUESTED', '2025-04-24', 'INITIAL', NULL),
-(49, 6, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 27),
-(50, 6, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 28),
-(51, 6, 'Mountain Range', 'A panoramic view of a mountain range', 320.0, 5, 'IN_WAIT_LIST', '2025-04-25', 'FIFTYFIFTY', NULL),
-(52, 6, 'Tropical Lagoon', 'A peaceful tropical lagoon', 280.0, 6, 'IN_WAIT_LIST', '2025-04-26', 'FIFTYFIFTY', NULL),
-(53, 6, 'Autumn Park', 'A beautiful park in autumn', 300.0, 7, 'IN_WAIT_LIST', '2025-04-27', 'MODERATOR', NULL),
-(54, 6, 'Evening Sky', 'A sky filled with evening stars', 220.0, 8, 'ENDED', '2025-04-28', 'FINAL', NULL),
-(55, 6, 'River Falls', 'A beautiful waterfall in a river', 250.0, 9, 'ENDED', '2025-04-29', 'FIFTYFIFTY', NULL),
-(56, 6, 'Rocky Shore', 'A rocky shore with crashing waves', 240.0, 10, 'IN_WAIT_LIST', '2025-04-30', 'INITIAL', NULL);
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, image) VALUES
+(47, 6, 'Desert Oasis', 'A tranquil desert oasis', 260.0, 1, 'REQUESTED', '2025-04-23', 'FINAL', NULL, '/images/sunset_painting.jpg'),
+(48, 6, 'Sunset Beach', 'A sunset over a calm beach', 230.0, 2, 'REQUESTED', '2025-04-24', 'INITIAL', NULL, '/images/sunset_painting.jpg'),
+(49, 6, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 3, 'ACCEPTED', '2025-03-01', 'INITIAL', 27, '/images/sunset_painting.jpg'),
+(50, 6, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 4, 'ACCEPTED', '2025-03-02', 'FINAL', 28, '/images/sunset_painting.jpg'),
+(51, 6, 'Mountain Range', 'A panoramic view of a mountain range', 320.0, 5, 'IN_WAIT_LIST', '2025-04-25', 'FIFTYFIFTY', NULL, '/images/sunset_painting.jpg'),
+(52, 6, 'Tropical Lagoon', 'A peaceful tropical lagoon', 280.0, 6, 'IN_WAIT_LIST', '2025-04-26', 'FIFTYFIFTY', NULL, '/images/sunset_painting.jpg'),
+(53, 6, 'Autumn Park', 'A beautiful park in autumn', 300.0, 7, 'IN_WAIT_LIST', '2025-04-27', 'MODERATOR', NULL, '/images/sunset_painting.jpg'),
+(54, 6, 'Evening Sky', 'A sky filled with evening stars', 220.0, 8, 'ENDED', '2025-04-28', 'FINAL', NULL, '/images/sunset_painting.jpg'),
+(55, 6, 'River Falls', 'A beautiful waterfall in a river', 250.0, 9, 'ENDED', '2025-04-29', 'FIFTYFIFTY', NULL, '/images/sunset_painting.jpg'),
+(56, 6, 'Rocky Shore', 'A rocky shore with crashing waves', 240.0, 10, 'IN_WAIT_LIST', '2025-04-30', 'INITIAL', NULL, '/images/sunset_painting.jpg');
 
 -- Comisiones para el Artista 7 (ID 7)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id) VALUES
