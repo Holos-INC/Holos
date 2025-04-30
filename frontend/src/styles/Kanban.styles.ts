@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-import colors from "../constants/colors";
 
 export const cardStyles = StyleSheet.create({
   card: {
@@ -81,5 +80,47 @@ export const cardStyles = StyleSheet.create({
   },
   username: {
     fontWeight: "600",
+  },
+});
+
+export const dialogStyles = StyleSheet.create({
+  dialogContainer: {
+    width: "33%",
+    alignSelf: "center",
+  },
+  icon: {
+    margin: 0,
+    padding: 0,
+    alignSelf: "center",
+  },
+  previewImage: {
+    width: "100%",
+    maxWidth: "100%",
+    maxHeight: 300,
+    aspectRatio: 1,
+    resizeMode: "contain",
+    marginBlock: 24,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+  },
+  dialogActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  selectButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    margin: 0,
+    padding: 0,
+    gap: 0,
   },
 });
