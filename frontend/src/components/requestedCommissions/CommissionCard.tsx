@@ -14,6 +14,7 @@ type CommissionCardProps = {
   artistUsername: string;
   totalSteps: number;
   currentStep: number;
+  waitingPayment: boolean;
 };
 
 export const CommissionCard: React.FC<CommissionCardProps> = ({
@@ -23,10 +24,10 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
   artistUsername,
   totalSteps,
   currentStep,
+  waitingPayment,
 }) => {
   const router = useRouter();
 
-  /** IMPORTANTE: usamos el placeholder [commissionId] en pathname */
   const goToDetails = () =>
     router.push({
       pathname: "/commissions/[commissionId]/details",
@@ -37,7 +38,6 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
       },
     });
 
-  /** idem para el chat (si tuvieras tipos estrictos también)  */
   const goToChat = () => router.push(`/chats/${id}`);
 
   return (
@@ -49,6 +49,12 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.artist}>por @{artistUsername}</Text>
         </View>
+
+        {waitingPayment && (
+          <Text style={{ color: "red", fontWeight: "bold", marginBottom: 8 }}>
+            ¡Pago pendiente!
+          </Text>
+        )}
 
         <ProgressDots totalSteps={totalSteps} currentStep={currentStep} />
         <Text style={styles.counter}>

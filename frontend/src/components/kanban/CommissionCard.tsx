@@ -103,6 +103,10 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
           <View style={cardStyles.priceWrapper}>
             <Text style={cardStyles.price}>{commission.price}€</Text>
           </View>
+          {commission.isWaitingPayment && (
+        <Text style={[cardStyles.client, { color: 'red', fontWeight: 'bold' }]}>
+          Pendiente de pago
+        </Text>)}
         </View>
 
         <View style={cardStyles.bottomRow}>

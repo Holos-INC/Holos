@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import colors from "@/src/constants/colors";
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
 import TERMS_TEXT from "@/src/constants/terms";
+import { Button } from "react-native-paper";
 
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
@@ -48,7 +49,7 @@ export default function SignupScreen() {
       setAcceptTerms(false);
       setReachedBottom(false);
       setTermsModalVisible(false);
-      return () => {};
+      return () => { };
     }, [])
   );
 
@@ -209,6 +210,20 @@ export default function SignupScreen() {
   return (
     <>
       <ScrollView style={styles.screenBackground}>
+        <Button
+          icon="arrow-left"
+          onPress={() => router.push(`/login`)}
+          style={{
+            position: "absolute",
+            top: 24,
+            left: 16,
+            zIndex: 10,
+            backgroundColor: "transparent",
+          }}
+          labelStyle={{ color: "grey" }}
+        >
+          ATRÁS
+        </Button>
         <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
 
         <Text style={styles.pageTitle}>

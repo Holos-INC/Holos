@@ -123,53 +123,68 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           {user?.description || "No hay descripción disponible."}
         </Text>
       </View>
-      <Pressable
-        style={{
-          flex: 1,
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-        }}
-        onPress={() => setModalVisible(true)}
-      >
-        <Image
-          style={{
-            width: "100%",
-            height: "100%",
-            aspectRatio: 3, // or leave it out for dynamic scaling
-            resizeMode: "contain",
-          }}
-          source={tableCommisionsPrice}
-          onError={() =>
-            console.log("Error cargando imagen:", tableCommisionsPrice)
-          }
-        />
-      </Pressable>
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.9)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          onPress={() => setModalVisible(false)}
-        >
-          <Image
-            source={tableCommisionsPrice}
+
+      {user ? (
+        "tableCommisionsPrice" in user ? (
+          <>
+            <Pressable
+              style={{
+                flex: 1,
+                height: "100%",
+                width: "100%",
+                alignItems: "center",
+              }}
+              onPress={() => setModalVisible(true)}
+            >
+              <Image
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+                source={tableCommisionsPrice}
+                onError={() =>
+                  console.log("Error cargando imagen:", tableCommisionsPrice)
+                }
+              />
+            </Pressable>
+
+            <Modal
+              visible={modalVisible}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setModalVisible(false)}
+            >
+              <Pressable
+                style={{
+                  flex: 1,
+                  backgroundColor: "rgba(0,0,0,0.9)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => setModalVisible(false)}
+              >
+                <Image
+                  source={tableCommisionsPrice}
+                  style={{
+                    width: "90%",
+                    height: "70%",
+                    resizeMode: "contain",
+                  }}
+                />
+              </Pressable>
+            </Modal>
+          </>
+        ) : (
+          <View
             style={{
-              width: "90%",
-              height: "70%",
-              resizeMode: "contain",
+              flex: 1,
+              width: "100%",
+              alignItems: "center",
             }}
           />
-        </Pressable>
-      </Modal>
+        )
+      ) : null}
     </View>
   );
 };

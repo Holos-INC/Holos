@@ -12,8 +12,8 @@ import {
   getAbilityPost,
 } from "@/src/services/uploadNewWorkArtist";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { useRouter, useNavigation } from "expo-router";
-import { styles } from "@/src/styles/UploadNewWorkArtist";
+import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
+import {styles} from "@/src/styles/UploadNewWorkArtist";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { object, string } from "yup";
@@ -22,15 +22,20 @@ import * as ImagePicker from "expo-image-picker";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { useFocusEffect } from "@react-navigation/native";
 import { Button } from "react-native-paper";
+import { Commission, PaymentArrangement } from "@/src/constants/CommissionTypes";
 
 const cameraIcon = "photo-camera";
 
 export default function UploadWorkArtist() {
+  const { commissionId } = useLocalSearchParams();
   const { isArtist, loggedInUser } = useContext(AuthenticationContext);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
   const navigation = useNavigation();
+  const [inputValue, setInputValue] = useState<string>("");
   const [abilityPost, setAbilityPost] = useState<Boolean>(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     navigation.setOptions("Subir una nueva obra al portafolio");
@@ -92,12 +97,12 @@ export default function UploadWorkArtist() {
         return;
       }
       const uploadWork = {
-        name: values.name,
-        description: values.description,
-        price: parseFloat(values.price.replace(",", ".")),
-      };
-      await postWorkdone(uploadWork, selectedImage, loggedInUser.token);
-      popUpMovilWindows("Éxito", "Enviado correctamente");
+              name: values.name,
+              description: values.description,
+              price: values.price
+            };
+      await postWorkdone(uploadWork, selectedImage, loggedInUser.token );
+      popUpMovilWindows("Éxito", " Enviado correctamente");
       resetForm();
       setSelectedImage(null);
       router.push({ pathname: "/" });
@@ -113,8 +118,10 @@ export default function UploadWorkArtist() {
   const enableUpload = () => {
     return (
       <Formik
-        initialValues={{ name: "", description: "", price: "", image: "" }}
-        onSubmit={(values, { resetForm }) => sendWork(values, resetForm)}
+        initialValues={{ name: "", description: "", price: 0, image: "" }}
+        onSubmit={(values, { resetForm }) => {
+          sendWork({ ...values}, resetForm);
+        }}
         validationSchema={uploadNewWorkValidationSchema}
       >
         {({
@@ -193,7 +200,9 @@ export default function UploadWorkArtist() {
                 </Text>
               )}
 
-              <Text style={styles.formLabel}>Imagen de la obra</Text>
+            {errors.price && touched.price && (<Text style={styles.errorText}>Por favor, inserte un valor</Text>)}
+            <Text style={styles.formLabel}>Imagen de la obra</Text>
+              {/* Image Preview */}
               <View style={styles.previewImageContainer}>
                 {values.image ? (
                   <Image
@@ -256,6 +265,8 @@ export default function UploadWorkArtist() {
       </Formik>
     );
   };
+
+  
 
   const unableUpload = () => {
     return (

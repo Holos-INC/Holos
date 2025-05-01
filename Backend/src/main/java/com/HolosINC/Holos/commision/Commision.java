@@ -7,7 +7,6 @@ import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,8 +36,13 @@ public class Commision extends Work{
     @Temporal(TemporalType.DATE)    
     private Date milestoneDate;
 
-    @Column(unique = true)
-    private String paymentIntentId;
+    private Integer totalPayments;
+
+    private Integer currentPayments;
+
+    private boolean isWaitingPayment;
+
+    private String setupIntentId;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private StatusKanbanOrder statusKanbanOrder;
@@ -46,4 +50,29 @@ public class Commision extends Work{
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(nullable = false)
     private Client client;
+
+    public void configurePaymentArrangementValues(int kanbanStages) {
+        switch (this.paymentArrangement) {
+            case INITIAL:
+                this.isWaitingPayment = true;
+                this.totalPayments = 1;
+                break;
+            case FINAL:
+                this.isWaitingPayment = false;
+                this.totalPayments = 1;
+                break;
+            case FIFTYFIFTY:
+                this.isWaitingPayment = true;
+                this.totalPayments = 2;
+                break;
+            case MODERATOR:
+                this.isWaitingPayment = false;
+                this.totalPayments = kanbanStages-1;
+                break;
+            default:
+                throw new IllegalStateException("Tipo de pago no reconocido: " + this.paymentArrangement);
+        }
+    }
+    
+    
 }

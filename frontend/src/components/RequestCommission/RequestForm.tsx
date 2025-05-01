@@ -10,9 +10,10 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { styles } from "@/src/styles/RequestCommissionUserScreen.styles";
 import { Formik } from "formik";
+import { Picker } from "@react-native-picker/picker";
 import { object, string, number, date } from "yup";
 import * as ImagePicker from "expo-image-picker";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createCommission } from "@/src/services/formService";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { Artist, PaymentArrangement } from "@/src/constants/CommissionTypes";
@@ -22,6 +23,7 @@ import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
 import { getImageSource } from "@/src/utils/getImageSource";
+import { API_URL } from "@/src/constants/api";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -32,7 +34,8 @@ interface RequestFormProps {
 type FormValues = {
   name: string;
   description: string;
-  price: string;
+  price: number;
+  paymentArrangement: PaymentArrangement;
   image: string;
   milestoneDate: Date | null;
 };
@@ -40,6 +43,9 @@ type FormValues = {
 export default function RequestForm({ artist }: RequestFormProps) {
   const { loggedInUser } = useContext(AuthenticationContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [kanbanColumnsCount, setKanbanColumnsCount] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   const commissionValidationSchema = object({
     name: string().required("El título es necesario"),
@@ -57,6 +63,9 @@ export default function RequestForm({ artist }: RequestFormProps) {
         new Date(new Date().setDate(new Date().getDate() + 1)),
         "La fecha debe ser posterior a la actual (más de un día)"
       ),
+      paymentArrangement: string().oneOf(Object.values(PaymentArrangement)),
+
+     
   });
 
   const pickImage = async (
@@ -83,8 +92,8 @@ export default function RequestForm({ artist }: RequestFormProps) {
       const commissionData = {
         name: values.name,
         description: values.description,
-        price: parseFloat(values.price.replace(",", ".")),
-        paymentArrangement: PaymentArrangement.INITIAL,
+        price: values.price,
+        paymentArrangement: values.paymentArrangement,
         image: values.image,
         milestoneDate: values.milestoneDate?.toISOString().slice(0, 10),
       };
@@ -101,6 +110,32 @@ export default function RequestForm({ artist }: RequestFormProps) {
       Alert.alert("Error", "Failed to create commission.");
     }
   };
+
+useEffect(() => {
+  if (artist?.username) {
+    fetch(`${API_URL}/status-kanban-order/count/${artist.username}`, {
+      headers: {
+        Authorization: `Bearer ${loggedInUser.token}`,
+      },
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(error => {
+            throw new Error(error.message);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        setKanbanColumnsCount(data);
+      })
+      .catch(error => {
+        console.error("Error fetching data: ", error);
+        setErrorMessage(error.message);
+      });
+
+  }
+}, [artist.username]);
 
   return (
     <View
@@ -142,7 +177,8 @@ export default function RequestForm({ artist }: RequestFormProps) {
         initialValues={{
           name: "",
           description: "",
-          price: "",
+          price: 0,
+          paymentArrangement: PaymentArrangement.INITIAL,
           image: "",
           milestoneDate: null,
         }}
@@ -215,8 +251,39 @@ export default function RequestForm({ artist }: RequestFormProps) {
               onBlur={handleBlur("price")}
             />
             {errors.price && touched.price && (
-              <Text style={styles.errorText}>{errors.price}</Text>
+              <Text style={styles.errorText}></Text>
             )}
+
+            {/* Payment Arrangement Selector */}
+<Text style={styles.label}>Tipo de Pago:</Text>
+<View style={{ 
+  backgroundColor: COLORS.brandPrimary, 
+  borderRadius: 12, 
+  borderWidth: 1, 
+  borderColor: "#ccc", 
+  marginBottom: 12, 
+  overflow: "hidden" 
+}}>
+  <Picker
+    selectedValue={values.paymentArrangement}
+    onValueChange={(itemValue) =>
+      setFieldValue("paymentArrangement", itemValue)
+    }
+    style={{
+      height: 50,
+      paddingHorizontal: 20,
+      color: "#333", // texto oscuro
+    }}
+    dropdownIconColor="#666"
+  >
+    <Picker.Item label="Pago Inicial (Realiza 1 solo pago al principio)" value={PaymentArrangement.INITIAL} />
+    <Picker.Item label="Pago Final (Realiza 1 solo pago al final)" value={PaymentArrangement.FINAL} />
+    <Picker.Item label="50/50 (Realiza 1 pago al principio y otro al final)" value={PaymentArrangement.FIFTYFIFTY} />
+    <Picker.Item label={`Moderador (Realiza 1 pago por cada una de las ${kanbanColumnsCount} etapas de trabajo del artista)`}value={PaymentArrangement.MODERATOR}
+/>
+  </Picker>
+</View>
+
 
             {/* Delivery date */}
             <Text style={styles.label}>Fecha de Entrega de la Obra:</Text>

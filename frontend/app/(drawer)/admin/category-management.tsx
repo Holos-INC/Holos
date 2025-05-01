@@ -212,12 +212,6 @@ interface Category {
               value={newCategory.description}
               onChangeText={(text) => setNewCategory({ ...newCategory, description: text })}
             />
-            <TextInput
-              style={styles.input}
-              placeholder="URL de Imagen"
-              value={newCategory.image}
-              onChangeText={(text) => setNewCategory({ ...newCategory, image: text })}
-            />
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.smallButton} onPress={handleAddCategory}>
                 <Text style={styles.buttonText}>Agregar</Text>
@@ -247,12 +241,6 @@ interface Category {
               placeholder="Descripción"
               value={editingCategory?.description || ""}
               onChangeText={(text) => setEditingCategory((prev) => prev ? { ...prev, description: text } : null)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="URL de Imagen"
-              value={editingCategory?.image || ""}
-              onChangeText={(text) => setEditingCategory((prev) => prev ? { ...prev, image: text } : null)}
             />
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.smallButton} onPress={handleEditCategory}>

@@ -1,7 +1,11 @@
+import { PaymentArrangement } from "./CommissionTypes";
+
 export interface newWorkArtist {
     name: string;
     description: string;
     price: number;
+    paymentArrangement: PaymentArrangement;
+    totalPayments: number;
   }
 
   export interface newWorkUploadArtist {
