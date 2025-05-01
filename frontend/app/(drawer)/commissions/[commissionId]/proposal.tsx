@@ -373,108 +373,106 @@ const handleSaveChanges = async () => {
                   ¡Precio total con tarifa incluida!
                 </Text>
 
-          <View style={[styles.card, { alignItems: "center" }]}>
-          {(isArtistTurn||isClientTurn)&&
-            <Text style={styles.label}>Selecciona el tipo de pago:</Text>}
-              
-              <Text style={{ color: 'gray' , marginTop: 20, marginBottom: 10 }}>
-                Método de pago establecido hasta ahora: {""} <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10, fontWeight: 'bold' }}>{initialPaymentArrangement} </Text>.
-              </Text>
+                <View style={[styles.card, { alignItems: "center" }]}>
+                {(isArtistTurn||isClientTurn)&&
+            yourTurn && <Text style={styles.label}>Selecciona el tipo de pago:</Text>}
+  
+  <Text style={{ color: 'gray' , marginTop: 20, marginBottom: 10 }}>
+    Método de pago establecido hasta ahora: {""} <Text style={{ color: 'gray', marginTop: 10, marginBottom: 10, fontWeight: 'bold' }}>{initialPaymentArrangement} </Text>.
+  </Text>
 
-          {(isArtistTurn||isClientTurn)&&
+  {(isArtistTurn||isClientTurn)&& yourTurn &&
             <Text style={{ color: 'gray' , marginTop: 10, marginBottom: 10 }}>
                 Para aceptar la comisión no modifique el precio ni el método de pago establecido. Si lo hace, podrá modificar la comisión y seguir negociando.
               </Text>}
 
-              {/* Solo permite seleccionar si es su turno */}
-              {yourTurn && 
-              (isArtistTurn||isClientTurn) &&(<Pressable
-                style={[styles.button,]}
-                onPress={() => !isButtonDisabled && setIsDropdownVisible(!isDropdownVisible)}
-                disabled={!yourTurn}
-              >
-                <Text style={styles.buttonText}>
-                  {paymentArrangement === "INITIAL" && "Pago Inicial"}
-                  {paymentArrangement === "FINAL" && "Pago Final"}
-                  {paymentArrangement === "FIFTYFIFTY" && "50/50"}
-                  {paymentArrangement === "MODERATOR" && "Moderador"}
-                </Text>
-                <Feather name="chevron-down" size={20} color="white" />
-              </Pressable>)}
+  {/* Solo permite seleccionar si es su turno */}
+  {yourTurn &&
+  (isArtistTurn||isClientTurn) &&(<Pressable
+    style={[styles.button,]}
+    onPress={() => !isButtonDisabled && setIsDropdownVisible(!isDropdownVisible)}
+    disabled={!yourTurn}
+  >
+    <Text style={styles.buttonText}>
+      {paymentArrangement === "INITIAL" && "Pago Inicial"}
+      {paymentArrangement === "FINAL" && "Pago Final"}
+      {paymentArrangement === "FIFTYFIFTY" && "50/50"}
+      {paymentArrangement === "MODERATOR" && "Moderador"}
+    </Text>
+    <Feather name="chevron-down" size={20} color="white" />
+  </Pressable>)}
 
-              {isDropdownVisible && yourTurn && !hasAccepted &&(
-                <View style={styles.dropdownOptions}>
-                  <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
-                    <Text style={styles.option}>Pago Inicial</Text>
-                  </Pressable>
-                  <Pressable onPress={() => { setPaymentArrangement("FINAL"); setIsDropdownVisible(false); }}>
-                    <Text style={styles.option}>Pago Final</Text>
-                  </Pressable>
-                  <Pressable onPress={() => { setPaymentArrangement("FIFTYFIFTY"); setIsDropdownVisible(false); }}>
-                    <Text style={styles.option}>50/50</Text>
-                  </Pressable>
-                  <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
-                  <Text style={styles.option}>Moderador</Text>
-                  </Pressable>
-                </View>
-              )}
+  {isDropdownVisible && yourTurn && !hasAccepted &&(
+    <View style={styles.dropdownOptions}>
+      <Pressable onPress={() => { setPaymentArrangement("INITIAL"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>Pago Inicial</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("FINAL"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>Pago Final</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("FIFTYFIFTY"); setIsDropdownVisible(false); }}>
+        <Text style={styles.option}>50/50</Text>
+      </Pressable>
+      <Pressable onPress={() => { setPaymentArrangement("MODERATOR"); setIsDropdownVisible(false); }}>
+      <Text style={styles.option}>Moderador</Text>
+      </Pressable>
+    </View>
+  )}
 
-                {/* Descripciones */}
+    {/* Descripciones */}
 
-              {paymentArrangement === "INITIAL" && !isButtonDisabled &&(
-                <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
-              )}
-              {paymentArrangement === "FINAL" && !isButtonDisabled &&(
-                <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
-              )}
-              {paymentArrangement === "FIFTYFIFTY" && !isButtonDisabled &&(
-                <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
-              )}
-              {paymentArrangement === "MODERATOR" && !isButtonDisabled &&(
-                <Text style={styles.description}>
-                  Moderador: Se realiza el un pago por cada etapa de trabajo del artista
-                  </Text>
-              )}
+    {paymentArrangement === "INITIAL" && !isButtonDisabled &&(
+    <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
+  )}
+  {paymentArrangement === "FINAL" && !isButtonDisabled &&(
+    <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
+  )}
+  {paymentArrangement === "FIFTYFIFTY" && !isButtonDisabled &&(
+    <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
+  )}
+  {paymentArrangement === "MODERATOR" && !isButtonDisabled &&(
+    <Text style={styles.description}>
+      Moderador: Se realiza el un pago por cada etapa de trabajo del artista
+      </Text>
+  )}
 
-              {paymentArrangement === "INITIAL" && isButtonDisabled &&(
-                <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
-              )}
-              {paymentArrangement === "FINAL" && isButtonDisabled &&(
-                <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
-              )}
-              {paymentArrangement === "FIFTYFIFTY" && isButtonDisabled &&(
-                <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
-              )}
-              {paymentArrangement === "MODERATOR" && isButtonDisabled &&(
-                <Text style={styles.description}>
-                  Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
-                </Text>
-              )}
+{paymentArrangement === "INITIAL" && isButtonDisabled &&(
+    <Text style={styles.description}>Inicial: Se realiza un solo pago al principio</Text>
+  )}
+  {paymentArrangement === "FINAL" && isButtonDisabled &&(
+    <Text style={styles.description}>Final: Se realiza un solo pago al final</Text>
+  )}
+  {paymentArrangement === "FIFTYFIFTY" && isButtonDisabled &&(
+    <Text style={styles.description}>50/50: Se realizan dos pagos, uno al principio y otro al final</Text>
+  )}
+  {paymentArrangement === "MODERATOR" && isButtonDisabled &&(
+    <Text style={styles.description}>
+      Moderador: Se realiza el número de pagos que escribas (Mínimo 2 - Máximo 10)
+    </Text>
+  )}
 
-              {paymentArrangement === "MODERATOR" && yourTurn && !hasAccepted && (
-                <Text
-                  style={{
-                    backgroundColor: "transparent",
-                    padding: 10,
-                    borderWidth: 1,
-                    borderColor: colors.brandPrimary,
-                    borderRadius: 5,
-                    marginBottom: 15,
-                    color: 'black',
-                    textAlign: 'center',
-                  }}
-                >
-                Número de etapas: {kanbanColumnsCount}
-                </Text>
-              )}
+  {paymentArrangement === "MODERATOR" && yourTurn && !hasAccepted && (
+    <Text
+      style={{
+        backgroundColor: "transparent",
+        padding: 10,
+        borderWidth: 1,
+        borderColor: colors.brandPrimary,
+        borderRadius: 5,
+        marginBottom: 15,
+        color: 'black',
+        textAlign: 'center',
+      }}
+    >
+    Número de etapas: {kanbanColumnsCount}
+    </Text>
+  )}
  
-              {commission.status === StatusCommission.WAITING_ARTIST &&
-              <Text style={styles.description}>
-                {calculateAmountToPayIPArtist()}
-              </Text>}
-            </View>
-              {commission.status === StatusCommission.NOT_PAID_YET &&
-                isClient && (
+  <Text style={styles.description}>
+    {calculateAmountToPayIPArtist()}
+  </Text>
+</View>
+              {yourTurn && (
                 <View style={{ marginTop: 10 }}>
                   {commission.status === StatusCommission.NOT_PAID_YET ? (
                     <PayButton
