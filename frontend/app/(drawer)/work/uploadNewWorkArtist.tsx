@@ -22,12 +22,6 @@ import * as ImagePicker from "expo-image-picker";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { useFocusEffect } from "@react-navigation/native";
 import { Button } from "react-native-paper";
-import {newWorkArtist } from "@/src/constants/uploadNewWorkArtist";
-import { useFocusEffect } from '@react-navigation/native';
-import { Feather } from "@expo/vector-icons";
-import colors from "@/src/constants/colors";
-import { useCommissionDetails } from "@/src/hooks/useCommissionDetails";
-import { createCommission } from "@/src/services/commisionApi";
 import { Commission, PaymentArrangement } from "@/src/constants/CommissionTypes";
 
 const cameraIcon = "photo-camera";
@@ -39,7 +33,7 @@ export default function UploadWorkArtist() {
   const router = useRouter();
   const navigation = useNavigation();
   const [inputValue, setInputValue] = useState<string>("");
-  const [abilityPost, setabilityPost] = useState<Boolean>(false);
+  const [abilityPost, setAbilityPost] = useState<Boolean>(false);
   const [paymentArrangement, setPaymentArrangement] = useState("INITIAL");
   const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
