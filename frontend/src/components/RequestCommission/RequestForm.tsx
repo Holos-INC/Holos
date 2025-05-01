@@ -13,7 +13,7 @@ import { Formik } from "formik";
 import { Picker } from "@react-native-picker/picker";
 import { object, string, number, date } from "yup";
 import * as ImagePicker from "expo-image-picker";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createCommission } from "@/src/services/formService";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
 import { Artist, PaymentArrangement } from "@/src/constants/CommissionTypes";
@@ -23,6 +23,7 @@ import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
 import { getImageSource } from "@/src/getImageSource";
+import { API_URL } from "@/src/constants/api";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -42,6 +43,9 @@ type FormValues = {
 export default function RequestForm({ artist }: RequestFormProps) {
   const { loggedInUser } = useContext(AuthenticationContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [kanbanColumnsCount, setKanbanColumnsCount] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   const commissionValidationSchema = object({
     name: string().required("El título es necesario"),
@@ -106,6 +110,32 @@ export default function RequestForm({ artist }: RequestFormProps) {
       Alert.alert("Error", "Failed to create commission.");
     }
   };
+
+useEffect(() => {
+  if (artist?.username) {
+    fetch(`${API_URL}/status-kanban-order/count/${artist.username}`, {
+      headers: {
+        Authorization: `Bearer ${loggedInUser.token}`,
+      },
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(error => {
+            throw new Error(error.message);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        setKanbanColumnsCount(data);
+      })
+      .catch(error => {
+        console.error("Error fetching data: ", error);
+        setErrorMessage(error.message);
+      });
+
+  }
+}, [artist.username]);
 
   return (
     <View
@@ -249,7 +279,8 @@ export default function RequestForm({ artist }: RequestFormProps) {
     <Picker.Item label="Pago Inicial (Realiza 1 solo pago al principio)" value={PaymentArrangement.INITIAL} />
     <Picker.Item label="Pago Final (Realiza 1 solo pago al final)" value={PaymentArrangement.FINAL} />
     <Picker.Item label="50/50 (Realiza 1 pago al principio y otro al final)" value={PaymentArrangement.FIFTYFIFTY} />
-    <Picker.Item label="Moderador (Realiza el mismo número de pagos que etapas del kanban)" value={PaymentArrangement.MODERATOR} />
+    <Picker.Item label={`Moderador (Realiza 1 pago por cada una de las ${kanbanColumnsCount} etapas de trabajo del artista)`}value={PaymentArrangement.MODERATOR}
+/>
   </Picker>
 </View>
 
