@@ -34,8 +34,6 @@ export default function UploadWorkArtist() {
   const navigation = useNavigation();
   const [inputValue, setInputValue] = useState<string>("");
   const [abilityPost, setAbilityPost] = useState<Boolean>(false);
-  const [paymentArrangement, setPaymentArrangement] = useState("INITIAL");
-  const [totalPayments, setTotalPayments] = useState("4");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
@@ -101,9 +99,7 @@ export default function UploadWorkArtist() {
       const uploadWork = {
               name: values.name,
               description: values.description,
-              price: values.price,
-              paymentArrangement: values.paymentArrangement,
-              totalPayments: values.totalPayments,
+              price: values.price
             };
       await postWorkdone(uploadWork, selectedImage, loggedInUser.token );
       popUpMovilWindows("Éxito", " Enviado correctamente");
@@ -124,8 +120,7 @@ export default function UploadWorkArtist() {
       <Formik
         initialValues={{ name: "", description: "", price: 0, image: "" }}
         onSubmit={(values, { resetForm }) => {
-          const parsedTotalPayments = totalPayments ? parseInt(totalPayments) : 0;  // Si es null o undefined, asignamos 0
-          sendWork({ ...values, paymentArrangement: paymentArrangement as PaymentArrangement, totalPayments: parsedTotalPayments }, resetForm);
+          sendWork({ ...values}, resetForm);
         }}
         validationSchema={uploadNewWorkValidationSchema}
       >
