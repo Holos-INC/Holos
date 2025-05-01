@@ -5,9 +5,11 @@ import {
   ClientCommissionDTO,
   Commission,
   CommissionDTO,
+  CommissionImageUpdateDTO,
   CommissionProtected,
   HistoryCommisionsDTO,
 } from "@/src/constants/CommissionTypes";
+import { WorksDoneDTO } from "../constants/ExploreTypes";
 
 const COMMISSION_URL = `${API_URL}/commisions`;
 
@@ -40,9 +42,39 @@ export const getAllRequestedCommissions = async (
   }
 };
 
+export const getAllRequestedCommissionsDone = async (
+  username: string,
+  token: string
+): Promise<CommissionDTO[]> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/ordered/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return response.data.filter(
+      (comm: CommissionDTO) => comm.status === "ENDED"
+    );
+  } catch (error) {
+    handleError(error, "Error fetching requested commissions");
+    throw error;
+  }
+};
+
 export const getCommissionById = async (id: number): Promise<CommissionDTO> => {
   try {
     const response = await api.get(`${COMMISSION_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error fetching commission by ID");
+    throw error;
+  }
+};
+
+export const getCommissionDoneById = async (
+  id: number
+): Promise<CommissionDTO> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/${id}/done`);
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching commission by ID");
@@ -106,6 +138,23 @@ export async function reject(id: number, token: string) {
       if (typeof raw === "object" && raw.message) throw new Error(raw.message);
     }
     throw new Error("Hubo un error al rechazar la comisión");
+  }
+}
+
+// Rechazar un pago de una comisión
+export async function declinePayment(id: number, token: string) {
+  try {
+    return await api.put(`${COMMISSION_URL}/${id}/decline-payment`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error: any) {
+    if (error.response?.data) {
+      const raw = error.response.data;
+      if (typeof raw === "string")
+        throw new Error(raw.replace(/^Error:\s*/, ""));
+      if (typeof raw === "object" && raw.message) throw new Error(raw.message);
+    }
+    throw new Error("Hubo un error al rechazar el pago de la comisión");
   }
 }
 
@@ -177,6 +226,32 @@ export const requestChangesCommission = async (
   }
 };
 
+export const updateCommisionImage = async (
+  commisionId: number,
+  newImageUri: string,
+  token: string
+) => {
+  const commissionImageUpdateDTO = {
+    image: newImageUri,
+  };
+
+  try {
+    await api.put(
+      `${COMMISSION_URL}/${commisionId}/updateImage`,
+      commissionImageUpdateDTO,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    handleError(error, "Error requesting changes to commission");
+    throw error;
+  }
+};
+
 export const getAcceptedCommissions = async (
   token: string
 ): Promise<ClientCommissionDTO[]> => {
@@ -191,6 +266,31 @@ export const getAcceptedCommissions = async (
     return response.data.accepted;
   } catch (error) {
     handleError(error, "Error fetching accepted commissions");
+    throw error;
+  }
+
+}
+
+  // Actualizar el arreglo de pagos de una comisión
+export const updatePayment = async (
+  commisionId: number,
+  paymentArrangement: string, // Se asume que es un string por el enum en el backend
+  totalPayments: number,       // En el frontend es un número
+  token: string
+): Promise<void> => {
+  try {
+    // Creando el objeto de datos a enviar al backend
+    const data = {
+      paymentArrangement,
+      totalPayments,
+    };
+
+    // Enviando la solicitud PUT al backend
+    await api.put(`${COMMISSION_URL}/${commisionId}/updatePayment`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    handleError(error, "Error updating payment arrangement");
     throw error;
   }
 };

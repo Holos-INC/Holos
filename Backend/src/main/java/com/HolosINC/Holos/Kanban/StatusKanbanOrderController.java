@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +16,8 @@ import com.HolosINC.Holos.Kanban.DTOs.StatusKanbanUpdateDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
+import com.HolosINC.Holos.model.BaseUser;
+import com.HolosINC.Holos.model.BaseUserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,11 +30,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class StatusKanbanOrderController {
 
     private final StatusKanbanOrderService statusKanbanOrderService;
+    private final BaseUserService baseUserService;
 
-    @Autowired
-	public StatusKanbanOrderController(StatusKanbanOrderService statusKanbanOrderService) {
-		this.statusKanbanOrderService = statusKanbanOrderService;
-	}
+    public StatusKanbanOrderController(StatusKanbanOrderService statusKanbanOrderService,
+            BaseUserService baseUserService) {
+        this.statusKanbanOrderService = statusKanbanOrderService;
+        this.baseUserService = baseUserService;
+    }
 
     @PostMapping
     @Operation(summary = "Crea un nuevo estado Kanban para el artista autenticado")
@@ -57,7 +60,7 @@ public class StatusKanbanOrderController {
     public ResponseEntity<?> updateStatusKanban(@RequestBody StatusKanbanUpdateDTO dto) {
         try {
             statusKanbanOrderService.updateStatusKanban(dto);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
             throw new BadRequestException("Error inesperado al actualizar el estado Kanban: " + e.getMessage());
         }
@@ -65,7 +68,7 @@ public class StatusKanbanOrderController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Elimina un estado Kanban si no está asignado a ninguna comisión")
-    public ResponseEntity<?> deleteStatusKanbanOrder(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteStatusKanbanOrder(@PathVariable Long id) {
         try {
             statusKanbanOrderService.deleteStatusKanbanOrder(id);
             return ResponseEntity.noContent().build();
@@ -74,7 +77,7 @@ public class StatusKanbanOrderController {
         } catch (Exception e) {
             throw new BadRequestException("No se pudo eliminar el estado Kanban: " + e.getMessage());
         }
-    }    
+    }
 
     @GetMapping
     @Operation(summary = "Obtiene todos los estados Kanban del artista junto con sus comisiones asociadas")
@@ -90,7 +93,7 @@ public class StatusKanbanOrderController {
     @PutMapping("/{id}/next")
     @Operation(summary = "Avanza una comisión al siguiente estado Kanban")
     public ResponseEntity<Void> advanceCommisionToNextStatus(@PathVariable Long id) {
-        try{
+        try {
             statusKanbanOrderService.nextStatusOfCommision(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
@@ -101,19 +104,32 @@ public class StatusKanbanOrderController {
     @PutMapping("/{id}/previous")
     @Operation(summary = "Retrocede la comisión al estado anterior Kanban")
     public ResponseEntity<Void> moveCommisionToPreviousStatus(@PathVariable Long id) {
-        try{
+        try {
             statusKanbanOrderService.previousStatusOfCommision(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtiene un estado Kanban por su ID")
-    public ResponseEntity<StatusKanbanDTO> getStatusKanban(@PathVariable Integer id) {
+    public ResponseEntity<StatusKanbanDTO> getStatusKanban(@PathVariable Long id) {
         StatusKanbanDTO dto = statusKanbanOrderService.getStatusKanbanById(id);
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/count/{artistUsername}")
+    @Operation(summary = "Obtiene el número de pagos que se debe realizar en el modo moderador a partir del username del artista")
+    public ResponseEntity<Integer> getNumberOfPaymentsByArtistUsername(@PathVariable String artistUsername)
+            throws Exception {
+        try {
+            Integer numberOfStatusKanban = statusKanbanOrderService.countByArtistUsername(artistUsername);
+            return ResponseEntity.ok(numberOfStatusKanban - 1);
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     @PutMapping("/reorder")

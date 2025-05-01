@@ -1,66 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, FlatList, Alert } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList } from "react-native";
 import { useRouter } from "expo-router";
-import { getAllReports, acceptReport, rejectReport, deleteReport } from "@/src/services/reportApi"; 
+import { getAllReports, acceptReport, deleteReport } from "@/src/services/reportApi";
+import { Report, ReportStatus } from "@/src/constants/ReportTypes";
 import styles from "@/src/styles/Admin.styles";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-
-export enum ReportStatus {
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  PENDING = 'PENDING',
-}
-
-export interface ReportType {
-  id: number;
-  type: string;
-}
-
-export interface BaseUser {
-  id: number;
-  name: string;
-  username: string;
-  password: string;
-  email: string;
-  phoneNumber?: string;
-  imageProfile?: string;
-  createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
-}
-
-export interface Artist {
-  id: number;
-  numSlotsOfWork: number;
-  tableCommissionsPrice: string;
-  baseUser: BaseUser;
-  name: string;
-  username: string;
-  email: string;
-}
-
-export interface Work {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  artist: Artist;
-}
-
-export interface Report {
-  id: number;
-  name: string;
-  description: string;
-  status: ReportStatus;
-  madeBy: BaseUser;
-  reportedUser?: Artist;
-  work?: Work;
-  reportType?: ReportType;
-}
 
 export default function ReportManagement() {
   const router = useRouter();
@@ -106,8 +51,7 @@ export default function ReportManagement() {
     try {
       if (newStatus === ReportStatus.ACCEPTED) {
         await acceptReport(selectedReport.id, loggedInUser.token);
-      } else if (newStatus === ReportStatus.REJECTED) {
-        await rejectReport(selectedReport.id, loggedInUser.token);
+        closeModal();
       }
   
       setReports((prevReports) =>
@@ -147,6 +91,7 @@ export default function ReportManagement() {
       setReports((prevReports) => prevReports.filter((report) => report.id !== selectedReport.id));
       setErrorMessage(null); // Limpiar error si la eliminación es exitosa
       closeModal();
+      router.reload();
     } catch (error: any) {
       let formattedMessage = "Error al eliminar el reporte. Inténtalo de nuevo.";
   
@@ -211,9 +156,6 @@ export default function ReportManagement() {
         <TouchableOpacity style={styles.filterButton} onPress={() => setFilter(ReportStatus.ACCEPTED)}>
           <Text style={styles.filterButtonText}>Aceptados</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton} onPress={() => setFilter(ReportStatus.REJECTED)}>
-          <Text style={styles.filterButtonText}>Rechazados</Text>
-        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -242,7 +184,7 @@ export default function ReportManagement() {
             <Text style={styles.modalTitle}>Detalles del Reporte</Text>
             <Text style={styles.errorText}>{errorMessage}</Text>
 
-            <Text style={styles.modalText}>Título: {selectedReport.name}</Text>
+            <Text style={styles.modalText} testID="title">Título: {selectedReport.name}</Text>
             <Text style={styles.modalText}>Descripción: {selectedReport.description}</Text>
             <Text style={styles.modalText}>Tipo de Reporte: {selectedReport.reportType?.type}</Text>
             <Text style={styles.modalText}>Trabajo: {selectedReport.work?.name}</Text>
@@ -257,19 +199,14 @@ export default function ReportManagement() {
                   <Text style={styles.buttonText}>✅ Aceptar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.deleteButton} onPress={() => handleStatusChange(ReportStatus.REJECTED)}>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteReport()}>
                   <Text style={styles.buttonText}>❌ Rechazar</Text>
                 </TouchableOpacity>
               </View>
             )}
 
-
             <TouchableOpacity style={styles.button} onPress={closeModal}>
               <Text style={styles.buttonText}>Cerrar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={handleDeleteReport}>
-              <Text style={styles.buttonText}>Eliminar Reporte</Text>
             </TouchableOpacity>
           </View>
         </View>

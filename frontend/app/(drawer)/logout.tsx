@@ -9,25 +9,38 @@ export default function LogoutScreen() {
   const router = useRouter();
 
   const handleLogout = () => {
-    signOut(() => console.log("Logged out!"));
     router.replace("/login");
+    signOut(() => console.log("Logged out!"));
   };
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.heading}>¿Vas a salir ya?</Text>
-      <Text style={styles.subtext}>Te vamos a extrañar...</Text>
-
       <Button
-        mode="contained"
-        onPress={handleLogout}
-        style={styles.logoutButton}
-        labelStyle={styles.logoutLabel}
+        onPress={() => router.back()}
+        icon="arrow-left"
+        labelStyle={{ color: "grey" }}
+        style={{ alignSelf: "flex-start", margin: 16 }}
       >
-        Cerrar sesión 😿
+        ATRÁS
       </Button>
+
+      <View style={styles.centerContent}>
+        <Text style={styles.heading}>¿Vas a salir ya?</Text>
+        <Text style={styles.subtext}>Te vamos a extrañar...</Text>
+
+        <Button
+          mode="contained"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+          labelStyle={styles.logoutLabel}
+        >
+          Cerrar sesión 😿
+        </Button>
+      </View>
     </View>
+
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -58,5 +71,17 @@ const styles = StyleSheet.create({
   logoutLabel: {
     fontSize: 16,
     color: "#fff",
+  },
+  topLeftContainer: {
+    position: "absolute",
+    top: 24,
+    left: 24,
+  },
+
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
   },
 });

@@ -3,12 +3,13 @@ package com.HolosINC.Holos.client;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.HolosINC.Holos.commision.Commision;
+import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUserRepository;
@@ -21,13 +22,16 @@ public class ClientService {
 	private final ClientRepository clientRepository;
 	private BaseUserRepository baseUserRepository;
 	private ReportRepository reportRepository;
+	private CommisionRepository commisionRepository;
 
-	@Autowired
-	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository,ReportRepository reportRepository) {
+	public ClientService(ClientRepository clientRepository, BaseUserRepository baseUserRepository, ReportRepository reportRepository, CommisionRepository commisionRepository) {
+
 		this.clientRepository = clientRepository;
-		this.baseUserRepository = baseUserRepository;
 		this.reportRepository = reportRepository;
+		this.commisionRepository = commisionRepository;
+		this.baseUserRepository = baseUserRepository;
 	}
+
 
 	@Transactional
 	public Client saveClient(Client client) throws DataAccessException {
@@ -69,6 +73,8 @@ public class ClientService {
 				throw new AccessDeniedException("No se puede eliminar el cliente " + client.getBaseUser().getUsername()+ 
 												" porque tiene comisiones activas.");
 			}
+			List<Commision> commissions = commisionRepository.findAllByClientId(clientId);
+			commisionRepository.deleteAll(commissions);
 	
 			List<Report> reportsReceived = reportRepository.findAllByReportedUserId(clientId);
 			reportRepository.deleteAll(reportsReceived);
@@ -90,7 +96,7 @@ public class ClientService {
 			throw new RuntimeException("No se puede eliminar el cliente con ID " + userId + 
 									" porque tiene datos relacionados.");
 		} catch (Exception e) {
-			throw new RuntimeException("Error interno al eliminar el cliente con ID " + userId);
+			throw new RuntimeException(e.getMessage());
 		} 
 	}
 }

@@ -7,7 +7,6 @@ import com.stripe.exception.StripeException;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,23 +22,39 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @Autowired
     public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
-
-    @PostMapping("/create/{commissionId}")
-    public ResponseEntity<?> createPayment(@RequestBody PaymentDTO paymentDTO, @PathVariable long commissionId) throws Exception {
+    @PostMapping("/setup-intent/{commissionId}")
+    public ResponseEntity<?> createSetupIntent(@PathVariable long commissionId) {
         try {
-            String paymentIntent = paymentService.createPayment(paymentDTO, commissionId);
-            return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
+            String clientSecret = paymentService.createSetupIntent(commissionId);
+            return new ResponseEntity<>(clientSecret, HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
+            throw new ResourceNotFoundException("Comisión no encontrada: " + e.getMessage());
         } catch (AccessDeniedException e) {
             throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
+        } catch (StripeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/payment-from-setup/{commissionId}")
+    public ResponseEntity<?> createPaymentFromSetupIntent(@PathVariable long commissionId) {
+        try {
+            String paymentIntentStatus = paymentService.createPaymentFromSetupIntent(commissionId);
+            return new ResponseEntity<>(paymentIntentStatus, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
+        } catch (AccessDeniedException e) {
+            throw new AccessDeniedException(e.getMessage());
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (StripeException e) { 
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
         } catch (Exception e) {

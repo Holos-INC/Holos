@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClientCommissionDTO {//Cambio Backend: he añadido id y el client username(lo necesitaba para acceder al chat)
+public class ClientCommissionDTO {
     
     private Long id;
     private byte[] image;
@@ -18,19 +18,19 @@ public class ClientCommissionDTO {//Cambio Backend: he añadido id y el client u
     private Integer totalSteps;
     private byte[] imageProfileArtist;
     private byte[] imageProfileClient;
+    private boolean isWaitingPayment;
 
     public ClientCommissionDTO(byte[] image, String name, String artistUsername,
                                 int currentStep, int totalSteps,
-                                byte[] imageProfileArtist, byte[] imageProfileClient) {
-        this.id = id;
+                                byte[] imageProfileArtist, byte[] imageProfileClient, boolean isWaitingPayment) {
         this.image = image;
         this.name = name;
         this.artistUsername = artistUsername;
         this.currentStep = currentStep;
-        this.totalSteps = totalSteps;
-        this.clientUsername = clientUsername; 
+        this.totalSteps = totalSteps; 
         this.imageProfileArtist = imageProfileArtist;
         this.imageProfileClient = imageProfileClient;
+        this.isWaitingPayment = isWaitingPayment;
     }
 
     public ClientCommissionDTO(Commision c) {
@@ -43,5 +43,6 @@ public class ClientCommissionDTO {//Cambio Backend: he añadido id y el client u
         this.clientUsername = c.getClient().getBaseUser().getUsername(); 
         this.imageProfileArtist = c.getArtist().getBaseUser().getImageProfile();
         this.imageProfileClient = c.getClient().getBaseUser().getImageProfile();
+        this.isWaitingPayment = c.isWaitingPayment();
     }
 }

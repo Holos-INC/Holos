@@ -19,8 +19,11 @@ public class BaseUserDTO {
     @Size(max = 15)
     protected String phoneNumber;
 
+    @Size(max = 500)
+    private String description;
+
     private byte[] imageProfile;
 
-    private byte[] tableCommissionsPrice;
+    private String authority;
 
 }

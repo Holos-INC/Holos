@@ -1,7 +1,6 @@
 package com.HolosINC.Holos.report;
 
 import com.HolosINC.Holos.artist.Artist;
-import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
@@ -10,6 +9,7 @@ import com.HolosINC.Holos.reports.ReportService;
 import com.HolosINC.Holos.reports.ReportStatus;
 import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
+import com.HolosINC.Holos.worksdone.WorksDoneService;
 import com.HolosINC.Holos.reports.Report;
 
 import com.HolosINC.Holos.reports.ReportDTO;
@@ -26,8 +26,6 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import org.springframework.http.HttpStatus;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
@@ -42,6 +40,9 @@ public class ReportServiceTest {
 
     @Mock
     private WorkService workService;
+
+    @Mock
+    private WorksDoneService wdService;
 
     @Mock
     private BaseUserService baseUserService;
@@ -118,8 +119,10 @@ public class ReportServiceTest {
     @Test
     public void testAcceptReportSuccess() throws Exception {
         // Mockear el reporte y su aceptación
+        Work work = new Work();
+        work.setId(123L); // or whatever id is needed
         Report report = new Report();
-        report.setId(REPORT_ID);
+        report.setWork(work);
         report.setStatus(ReportStatus.PENDING); // Asegúrate de que el estado inicial sea PENDING
 
         // Asegurarse de que el mock de reportRepository devuelva el reporte
@@ -156,48 +159,11 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void testRejectReportSuccess() throws Exception {
-        // Crear el reporte con estado PENDING
+    public void testDeleteReportAcceptedStatus() {
+        // Mockear el reporte con estado ACCEPTED
         Report report = new Report();
         report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.PENDING);
-
-        // Mockear el comportamiento del repositorio
-        when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
-        when(reportRepository.save(any(Report.class))).thenReturn(report); // Mockear la respuesta de save()
-
-        // Ejecutar el servicio
-        Report result = reportService.rejectReport(REPORT_ID);
-
-        // Verificar que el reporte haya sido rechazado
-        assertEquals(ReportStatus.REJECTED, result.getStatus());
-
-        // Verificar que el reporte se haya guardado una vez
-        verify(reportRepository, times(1)).save(any(Report.class));
-    }
-
-    @Test
-    public void testDeleteReportSuccess() throws Exception {
-        // Mockear el reporte con estado REJECTED
-        Report report = new Report();
-        report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.REJECTED);
-
-        when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
-
-        // Ejecutar el servicio
-        reportService.deleteReport(REPORT_ID);
-
-        // Verificar que el reporte haya sido eliminado
-        verify(reportRepository, times(1)).delete(report);
-    }
-
-    @Test
-    public void testDeleteReportInvalidStatus() {
-        // Mockear el reporte con estado no REJECTED
-        Report report = new Report();
-        report.setId(REPORT_ID);
-        report.setStatus(ReportStatus.PENDING);
+        report.setStatus(ReportStatus.ACCEPTED);
 
         when(reportRepository.findById(REPORT_ID)).thenReturn(Optional.of(report));
 

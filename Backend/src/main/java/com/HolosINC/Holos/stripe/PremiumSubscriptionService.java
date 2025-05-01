@@ -1,12 +1,12 @@
 package com.HolosINC.Holos.stripe;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -36,8 +36,6 @@ public class PremiumSubscriptionService {
     private final BaseUserService userService;
     private final ArtistRepository artistRepository;
     
-
-    @Autowired
     public PremiumSubscriptionService(BaseUserService userService, ArtistRepository artistRepository) {
         this.userService = userService;
         this.artistRepository = artistRepository;
@@ -74,6 +72,7 @@ public class PremiumSubscriptionService {
 
         Subscription subscription = Subscription.create(subscriptionParams);
         artist.setSubscriptionId(subscription.getId());
+        artist.getBaseUser().setAuthority(Auth.ARTIST_PREMIUM);
         artistRepository.save(artist);
         return subscription.getId();
     }
@@ -94,6 +93,9 @@ public class PremiumSubscriptionService {
         }
 
         Subscription subscription = Subscription.retrieve(subscriptionId);
+        // Devuelve el artista a ser Artista
+        artist.getBaseUser().setAuthority(Auth.ARTIST);
+        artist.setSubscriptionId(null);
         return subscription.cancel();
     }
 

@@ -7,7 +7,5 @@ public enum StatusCommision {
     NOT_PAID_YET,
     IN_WAIT_LIST,
     ACCEPTED,
-    REJECTED,
-    CANCELED,
     ENDED;
 }

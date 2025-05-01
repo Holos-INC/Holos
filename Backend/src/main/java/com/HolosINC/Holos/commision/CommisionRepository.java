@@ -5,9 +5,11 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
+import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 
@@ -39,5 +41,17 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
 
     @Query("SELECT COUNT(c) > 0 FROM Commision c WHERE c.statusKanbanOrder = :status")
     boolean existsByStatusKanban(StatusKanbanOrder status);
+
+
+    // Buscar la comisión más antigua en IN_WAIT_LIST
+    Optional<Commision> findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision status, Artist artist);
+
+
+    @Query("SELECT COUNT(c) FROM Commision c WHERE c.artist.id = :artistId AND c.status = 'ACCEPTED'")
+    Long countByStatusAcceptedAndArtist(@Param("artistId") Long artistId);
+    
+    @Query("SELECT new com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO(c) " + "FROM Commision c " + 
+    "WHERE c.client.baseUser.id = :clientId AND c.status = com.HolosINC.Holos.commision.StatusCommision.ENDED")
+    List<ClientCommissionDTO> findEndedCommissionsByClientId(Long clientId);
 
 }

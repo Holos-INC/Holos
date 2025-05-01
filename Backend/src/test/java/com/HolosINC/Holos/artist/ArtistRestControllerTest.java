@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.HolosINC.Holos.Profile.ProfileService;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserDTO;
@@ -49,15 +50,14 @@ public class ArtistRestControllerTest {
         Artist artist = new Artist();
         artist.setId(1L);
         artist.setNumSlotsOfWork(5);
-        artist.setDescription("Artista especializado en retratos");
 
         BaseUser baseUser = new BaseUser();
         baseUser.setName("Artista 1");
         baseUser.setUsername("artista1");
         baseUser.setEmail("artista1@example.com");
         baseUser.setPhoneNumber("123456789");
+        baseUser.setAuthority(Auth.ARTIST);
         baseUser.setImageProfile(new byte[0]);
-        baseUser.setTableCommissionsPrice(new byte[0]);
 
         artist.setBaseUser(baseUser);
 
@@ -67,7 +67,6 @@ public class ArtistRestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.artistId").value(1))
                 .andExpect(jsonPath("$.numSlotsOfWork").value(5))
-                .andExpect(jsonPath("$.description").value("Artista especializado en retratos"))
                 .andExpect(jsonPath("$.username").value("artista1"));
 
         verify(artistService, times(1)).findArtist(1L);
@@ -87,14 +86,17 @@ public class ArtistRestControllerTest {
     public void testFindByUsernameSuccess() throws Exception {
         Artist artist = new Artist();
         artist.setId(1L);
-        artist.setBaseUser(new BaseUser());
-        artist.getBaseUser().setUsername("artistUsername");
+
+        BaseUser baseUser = new BaseUser();
+        baseUser.setUsername("artistUsername");
+        baseUser.setAuthority(Auth.ARTIST); 
+        artist.setBaseUser(baseUser);
 
         when(artistService.findArtistByUsername("artistUsername")).thenReturn(artist);
 
         mockMvc.perform(get("/api/v1/artists/username/artistUsername"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.baseUser.username").value("artistUsername"));
+                .andExpect(jsonPath("$.username").value("artistUsername"));
 
         verify(artistService, times(1)).findArtistByUsername("artistUsername");
     }

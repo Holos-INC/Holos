@@ -5,18 +5,17 @@ export interface artistUser {
     phoneNumber: string;
     description: string;
     linkToSocialMedia: string |  null ;
-    tableCommissionsPrice: string;
+    tableCommisionsPrice: string;
     imageProfile: string;
-  
+    numSlotsOfWork: number;
   }
 
-  export interface clientUser {
+export interface clientUser {
     firstName: string;
     username: string;
     email: string;
     phoneNumber: string ;
     description: string |  null ;
     linkToSocialMedia: string |  null ;
-    tableCommissionsPrice: null;
     imageProfile: string | undefined;  
   }

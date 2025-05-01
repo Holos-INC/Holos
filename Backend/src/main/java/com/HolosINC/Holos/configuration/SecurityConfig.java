@@ -43,16 +43,21 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/reports/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/report-types/admin/**").hasAuthority("ADMIN")
-            .requestMatchers("/api/v1/status-kanban-order/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.GET, "/api/v1/status-kanban-order/count/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM", "CLIENT") // Acceder a esta api solo si es ARTIST o ARTIST_PREMIUM o CLIENT
+            .requestMatchers("/api/v1/status-kanban-order/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM") // Acceder a esta api solo si es ARTIST o ARTIST_PREMIUM
             .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.POST,"/api/v1/commisions/request-payment/{commisionId}").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/commisions/**").authenticated()
             .requestMatchers("/api/v1/messages/**").authenticated()
             .requestMatchers("/api/v1/payment/{paymentIntentId}", "/api/v1/payment/all").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/stripe-account/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/payment/**").authenticated()
-            .requestMatchers(HttpMethod.POST,"/api/v1/worksdone/**").hasAnyAuthority("ADMIN", "ARTIST")
-            .requestMatchers("/api/v1/stripe-subsciption/create**").hasAuthority("ARTIST")
-            .requestMatchers("/api/v1/stripe-subsciption/delete**").hasAuthority("ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.POST,"/api/v1/worksdone/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers("/api/v1/stripe-subsciption/create").hasAuthority("ARTIST")
+            .requestMatchers("/api/v1/stripe-subsciption/delete").hasAuthority("ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/*/close").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers(HttpMethod.PUT, "/api/v1/commisions/*/updateImage").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
+            .requestMatchers("/api/v1/status-kanban-order/api/test-role").authenticated()
             .anyRequest().permitAll()
         )
         .addFilterBefore(authTokenFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class); // 🔥 Register Filter
@@ -62,17 +67,17 @@ public class SecurityConfig {
 
 
     @Bean
-	public AuthTokenFilter authenticationJwtTokenFilter() {
+	AuthTokenFilter authenticationJwtTokenFilter() {
 		return new AuthTokenFilter();
 	}
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
-	public PasswordEncoder passwordEncoder() {
+	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 }

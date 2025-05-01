@@ -8,6 +8,7 @@ type Props = {
   commission: CommissionDTO;
 };
 const FEE = 0.06;
+const STRIPE_FEE = 0.015;
 
 const PaymentDetails = ({ commission }: Props) => {
   const isBase64Path = (base64: string): boolean => {
@@ -68,7 +69,7 @@ const PaymentDetails = ({ commission }: Props) => {
       <View style={styles.row}>
         <Text style={styles.label}>Precio bruto:</Text>
         <View style={styles.dots} />
-        <Text style={styles.value}> {commission.price.toFixed(2)}€</Text>
+        <Text style={styles.value}> {(commission.price).toFixed(2)}€</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Tarifa de Holos (6%):</Text>
@@ -77,12 +78,19 @@ const PaymentDetails = ({ commission }: Props) => {
           {(Math.round(FEE * commission.price * 100) / 100).toFixed(2)}€
         </Text>
       </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Tarifa de Stripe (1,5%):</Text>
+        <View style={styles.dots} />
+        <Text style={styles.value}>
+        {( Math.round((0.015 * commission.price + 0.25) * 100) / 100 ).toFixed(2)}€
+        </Text>
+      </View>
       <View style={styles.separator} />
       <View style={styles.row}>
         <Text style={styles.label}>Precio neto:</Text>
         <View style={styles.dots} />
         <Text style={[styles.value]}>
-          {(commission.price + FEE * commission.price).toFixed(2)}€
+          {((Math.round(commission.price * (1-FEE-STRIPE_FEE)*100) / 100)-0.25).toFixed(2)}€
         </Text>
       </View>
     </View>

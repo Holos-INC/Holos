@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +23,6 @@ public class SearchService {
     private final ArtistRepository artistRepository;
     private final WorkRepository workRepository;
 
-    @Autowired
     public SearchService(ArtistRepository artistRepository, WorkRepository workRepository) {
         this.artistRepository = artistRepository;
         this.workRepository = workRepository;

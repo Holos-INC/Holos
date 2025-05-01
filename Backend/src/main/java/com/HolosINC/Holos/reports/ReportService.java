@@ -2,7 +2,6 @@ package com.HolosINC.Holos.reports;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
@@ -11,6 +10,7 @@ import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 import com.HolosINC.Holos.work.Work;
 import com.HolosINC.Holos.work.WorkService;
+import com.HolosINC.Holos.worksdone.WorksDoneService;
 
 import jakarta.transaction.Transactional;
 
@@ -20,10 +20,12 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final ReportTypeRepository reportTypeRepository;
     private final WorkService worskService;
+    private final WorksDoneService wdService;
+
     private final BaseUserService baseUserService;
 
-    @Autowired
-    public ReportService(ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
+    public ReportService(WorksDoneService wdService, ReportRepository reportRepository, ReportTypeRepository reportTypeRepository, WorkService worskService, BaseUserService baseUserService) {
+        this.wdService = wdService;
         this.reportRepository = reportRepository;
         this.reportTypeRepository = reportTypeRepository;
         this.worskService = worskService;
@@ -77,29 +79,16 @@ public class ReportService {
             }
     
             report.setStatus(ReportStatus.ACCEPTED);
-    
+            wdService.deleteWorksDone(report.getWork().getId());
+            
             return reportRepository.save(report);  
-    }
-    
-    
-    public Report rejectReport(Long reportId) throws Exception{
-        Report report = getReportByIdOrThrow(reportId);
-    
-        if (report.getStatus() != ReportStatus.PENDING) {
-            throw new IllegalStateException("Solo se pueden rechazar reportes en estado PENDING.");
-        }
-    
-        report.setStatus(ReportStatus.REJECTED);
-        return reportRepository.save(report);
     }
 
     public void deleteReport(Long reportId) throws Exception{
         Report report = getReportByIdOrThrow(reportId);
-    
-        if (report.getStatus() != ReportStatus.REJECTED) {
-            throw new IllegalStateException("Solo se pueden eliminar reportes que hayan sido rechazados.");
+        if (report.getStatus() == ReportStatus.ACCEPTED) {
+            throw new IllegalStateException("No se puede eliminar un reporte aceptado.");
         }
-    
         reportRepository.delete(report);
     }
     

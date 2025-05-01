@@ -4,6 +4,7 @@ import java.util.Base64;
 import java.util.Date;
 
 import com.HolosINC.Holos.commision.Commision;
+import com.HolosINC.Holos.commision.EnumPaymentArrangement;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,12 +25,16 @@ public class CommisionRequestDTO {
 
     private Double price;
 
+    private EnumPaymentArrangement paymentArrangement;
+
+
     public Commision createCommision() {
         Commision commision = new Commision();
         commision.setName(this.getName());
         commision.setDescription(this.getDescription());
         commision.setMilestoneDate(this.getMilestoneDate());
         commision.setPrice(this.getPrice());
+        commision.setPaymentArrangement(this.getPaymentArrangement());
 
         if (image != null && image.contains(",")) {
             String base64Data = image.split(",")[1];

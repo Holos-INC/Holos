@@ -1,3 +1,10 @@
+export enum Authority {
+  ADMIN = "ADMIN",
+  CLIENT = "CLIENT",
+  ARTIST = "ARTIST",
+  ARTIST_PREMIUM = "ARTIST_PREMIUM",
+}
+
 export interface BaseUser {
   id: number;
   name: string;
@@ -7,10 +14,7 @@ export interface BaseUser {
   phoneNumber?: string;
   imageProfile?: string;
   createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
+  authority: Authority;
 }
 
 export interface Client {
@@ -21,14 +25,14 @@ export interface Client {
 export interface Artist {
   id: number;
   numSlotsOfWork: number;
-  tableCommissionsPrice: string;
+  tableCommisionsPrice: string;
   baseUser: BaseUser;
   name: string;
   username: string;
   email: string;
   description: string;
   location: string;
-  subscriptionId: string|null;
+  subscriptionId: string | null;
 }
 
 export type User = Client | Artist;
@@ -39,12 +43,10 @@ export enum StatusCommission {
   REQUESTED = "REQUESTED",
   WAITING_CLIENT = "WAITING_CLIENT",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  CANCELED = "CANCELED",
   WAITING_ARTIST = "WAITING_ARTIST",
   NOT_PAID_YET = "NOT_PAID_YET",
   IN_WAIT_LIST = "IN_WAIT_LIST",
-  ENDED = "Finalizado",
+  ENDED = "ENDED",
 }
 
 export enum PaymentArrangement {
@@ -77,6 +79,7 @@ export interface Commission extends Work {
   milestoneDate: String;
   acceptedDateByArtist: string; // Stored as ISO date string
   paymentArrangement: PaymentArrangement;
+  totalPayments: number;
   statusKanbanOrder: StatusKanbanOrder;
   client: Client;
 }
@@ -93,7 +96,7 @@ export interface Category {
 export interface HistoryCommisionsDTO {
   requested: CommissionProtected[];
 
-  accepted: CommissionDTO[];
+  accepted: CommissionInProgress[];
 
   history: CommissionProtected[];
 
@@ -103,7 +106,9 @@ export interface HistoryCommisionsDTO {
 export interface CommissionProtected {
   image?: string;
 
-  imageProfile?: string;
+  imageProfileA?: string;
+
+  imageProfileC?: string;
 
   id: number;
 
@@ -122,6 +127,8 @@ export interface CommissionProtected {
   artistUsername: string;
 
   clientUsername: string;
+
+  acceptedDateByArtist: Date;
 }
 
 export interface CommissionInProgress {
@@ -132,6 +139,7 @@ export interface CommissionInProgress {
   artistUsername: string;
   currentStep: number;
   totalSteps: number;
+  waitingPayment: boolean;
 }
 
 export interface BaseUserDTO {
@@ -139,8 +147,17 @@ export interface BaseUserDTO {
   username: string;
   email: string;
   phoneNumber: string;
+  description: string;
   imageProfile: string;
-  tableCommissionsPrice: string;
+  authority: string;
+}
+
+export interface ArtistDTO extends BaseUserDTO {
+  artistId: number;
+  baseUserId: number;
+  numSlotsOfWork: number;
+  tableCommisionsPrice: string;
+  linkToSocialMedia: string;
 }
 
 export interface CommissionDTO {
@@ -150,21 +167,29 @@ export interface CommissionDTO {
   price: number;
   status: StatusCommission;
   paymentArrangement: PaymentArrangement;
+  totalPayments: string;
+  currentPayments: number;
   milestoneDate: Date;
   artistUsername: string;
   clientUsername: string;
   image: string;
   imageProfileA: string;
   imageProfileC: string;
+  isWaitingPayment: boolean;
 }
 
 export interface ClientCommissionDTO {
-    id: number;
-    image: string | null;
-    imageProfile: string | null;
-    name: string;
-    artistUsername: string;
-    clientUsername: string;   
-    currentStep: number;
-    totalSteps: number;
-  }
+  id: number;
+  image: string | null;
+  imageProfile: string | null;
+  name: string;
+  artistUsername: string;
+  clientUsername: string;
+  currentStep: number;
+  totalSteps: number;
+  waitingPayment: boolean;
+}
+
+export interface CommissionImageUpdateDTO {
+  image: string;
+}

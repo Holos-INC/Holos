@@ -49,12 +49,21 @@ export const getAllWorksDoneDTO = async (): Promise<WorksDoneDTO[]> => {
 
 export const getWorksDoneByArtist = async (
   username: string
-): Promise<WorksDone[]> => {
+): Promise<WorksDoneDTO[]> => {
   try {
     const response = await api.get(`${WORKS_DONE_URL}/artist/${username}`);
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching works done by artist");
+    throw error;
+  }
+};
+
+export const deleteWorksDone = async (worksDoneId: number): Promise<void> => {
+  try {
+    await api.delete(`${WORKS_DONE_URL}/${worksDoneId}`);
+  } catch (error) {
+    handleError(error, "Error deleting the work done");
     throw error;
   }
 };
