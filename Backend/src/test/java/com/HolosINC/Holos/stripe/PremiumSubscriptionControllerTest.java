@@ -41,7 +41,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCreateSubscriptionSuccess() throws Exception {
         when(stripeService.createSubscription(any(String.class))).thenReturn("sub_123");
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/create")
+        mockMvc.perform(post("/api/v1/stripe-subscription/create")
                 .param("paymentMethod", "pm_123"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("sub_123"));
@@ -53,7 +53,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCreateSubscriptionNoSubscriptionFound() throws Exception {
         when(stripeService.createSubscription(any(String.class))).thenThrow(new ResourceNotFoundException("No subscription found"));
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/create"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/create"))
                 .andExpect(status().isBadRequest());
 
                 verify(stripeService, times(0)).createSubscription(any(String.class));
@@ -65,7 +65,7 @@ public class PremiumSubscriptionControllerTest {
 
         when(stripeService.createSubscription(any(String.class))).thenThrow(stripeException);
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/create"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/create"))
         .andExpect(status().isBadRequest());
 
         verify(stripeService, times(0)).createSubscription(any(String.class));
@@ -74,7 +74,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCreateSubscriptionBadRequest() throws Exception {
         when(stripeService.createSubscription(any(String.class))).thenThrow(new BadRequestException("Payment method is invalid"));
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/create")
+        mockMvc.perform(post("/api/v1/stripe-subscription/create")
                 .param("paymentMethod", ""))
                 .andExpect(status().isBadRequest());
 
@@ -85,7 +85,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCancelSubscriptionSuccess() throws Exception {
         when(stripeService.cancelSubscription()).thenReturn(subscription);
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/delete"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/delete"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("sub_123"));
 
@@ -96,7 +96,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCancelSubscriptionNoSubscriptionFound() throws Exception {
         when(stripeService.cancelSubscription()).thenThrow(new ResourceNotFoundException("No subscription found"));
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/delete"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/delete"))
                 .andExpect(status().isNotFound());
 
         verify(stripeService, times(1)).cancelSubscription();
@@ -106,7 +106,7 @@ public class PremiumSubscriptionControllerTest {
     public void testCancelSubscriptionBadRequest() throws Exception {
         when(stripeService.cancelSubscription()).thenThrow(new BadRequestException("Payment method is invalid"));
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/delete"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/delete"))
                 .andExpect(status().isBadRequest());
 
                 verify(stripeService, times(1)).cancelSubscription();
@@ -118,7 +118,7 @@ public class PremiumSubscriptionControllerTest {
 
         when(stripeService.cancelSubscription()).thenThrow(stripeException);
 
-        mockMvc.perform(post("/api/v1/stripe-subsciption/delete"))
+        mockMvc.perform(post("/api/v1/stripe-subscription/delete"))
             .andExpect(status().isBadGateway());
 
             verify(stripeService, times(1)).cancelSubscription();

@@ -136,9 +136,9 @@ export default function ArtistDetailScreen() {
           onEditPress={() => setShowEditDialog(true)}
         />
         <ActionButtons
-          isClient={isClient}
+          isClient={isArtist(user) ? false : true}
           isCurrentUser={isCurrentUser}
-          username={user?.username}
+          user={user}
         />
       </View>
 
