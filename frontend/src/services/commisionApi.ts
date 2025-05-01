@@ -8,6 +8,7 @@ import {
   CommissionProtected,
   HistoryCommisionsDTO,
 } from "@/src/constants/CommissionTypes";
+import { WorksDoneDTO } from "../constants/ExploreTypes";
 
 const COMMISSION_URL = `${API_URL}/commisions`;
 
@@ -33,6 +34,22 @@ export const getAllRequestedCommissions = async (
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error fetching requested commissions");
+    throw error;
+  }
+};
+
+// Obtener el historial de comisiones
+export const getAllRequestedCommissionsDone = async (
+  username: string,
+  token: string
+): Promise<CommissionDTO[]> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/ordered/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching requested commissions");

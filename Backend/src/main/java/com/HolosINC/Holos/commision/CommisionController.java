@@ -69,6 +69,16 @@ public class CommisionController {
         }
     }
 
+    @GetMapping("/ordered/{username}")
+    public ResponseEntity<?> getClientCommissionsDone(@PathVariable String username) throws Exception {
+        try {
+            List<CommissionDTO> commissions = commisionService.getCommissionsDone(username);
+            return ResponseEntity.ok(commissions);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getCommisionById(@PathVariable Long id) {
         try {

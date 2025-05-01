@@ -294,6 +294,24 @@ public class CommisionService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<CommissionDTO> getCommissionsDone(String username) throws Exception {
+        try {
+            BaseUser user = userService.getUserByUsername(username);
+            HistoryCommisionsDTO historyCommisionsDTO = new HistoryCommisionsDTO();
+
+            if (user.getAuthority() == Auth.CLIENT)
+                fillDataForClient(user.getId(), historyCommisionsDTO);
+            else
+                throw new IllegalAccessException("Error al intentar acceder al historial. Primero tienes que iniciar sesión");
+
+
+            return historyCommisionsDTO.getHistory();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     private void fillDataForArtist(Long userId, HistoryCommisionsDTO historyCommisionsDTO) {
         historyCommisionsDTO.setRequested(
                 commisionRepository.findCommisionsFilteredByArtistIdAndPermittedStatus(
