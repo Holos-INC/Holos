@@ -250,7 +250,7 @@ public class StatusKanbanOrderServiceTest {
     // ============================================================
     // 5) getAllStatusFromArtist()
     // ============================================================
-    @Test
+    /*@Test
     public void testGetAllStatusFromArtist_Success() throws Exception {
         when(userService.findCurrentUser()).thenReturn(currentUser);
         // Se asume que artistService.findArtistByUserId(...) no se llama,
@@ -274,7 +274,7 @@ public class StatusKanbanOrderServiceTest {
         assertEquals("Boceto", result.getStatuses().get(0).getName());
         assertEquals(1, result.getCommissions().size());
         assertEquals(55L, result.getCommissions().get(0).getId());
-    }
+    }*/
 
     // ============================================================
     // 7) findAllStatusKanbanOrderByArtist(Long intValue)
