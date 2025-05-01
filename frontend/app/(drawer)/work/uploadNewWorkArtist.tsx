@@ -21,6 +21,7 @@ import { Formik } from "formik";
 import * as ImagePicker from "expo-image-picker";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import { useFocusEffect } from "@react-navigation/native";
+import { Button } from "react-native-paper";
 
 const cameraIcon = "photo-camera";
 
@@ -130,6 +131,20 @@ export default function UploadWorkArtist() {
             style={{ flex: 1, backgroundColor: "transparent" }}
             contentContainerStyle={{ paddingBottom: 40 }}
           >
+            <Button
+              icon="arrow-left"
+              onPress={() => router.back()}
+              style={{
+                position: "absolute",
+                top: 24,
+                left: 16,
+                zIndex: 10,
+                backgroundColor: "transparent",
+              }}
+              labelStyle={{ color: "grey" }}
+            >
+              ATRÁS
+            </Button>
             <View style={styles.formWrapper}>
               <Text style={styles.uploadTitle}>Sube una nueva obra</Text>
 
