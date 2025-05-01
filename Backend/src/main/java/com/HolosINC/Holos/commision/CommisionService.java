@@ -70,6 +70,7 @@ public class CommisionService {
             commision.setArtist(artist);
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
+            commision.setCurrentPayments(0);
             commision.setPaymentArrangement(commisionDTO.getPaymentArrangement()); 
             Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(artist.getBaseUser().getUsername());
             commision.configurePaymentArrangementValues(kanbanColumnsNumber);
