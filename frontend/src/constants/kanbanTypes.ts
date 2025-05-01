@@ -11,6 +11,7 @@ export type StatusKanbanWithCommissionsDTO = {
     name: string;
     description: string;
     price: number;
+    isWaitingPayment: boolean;
     numMilestones: number;
     paymentArrangement: string;
     statusKanbanName: string;

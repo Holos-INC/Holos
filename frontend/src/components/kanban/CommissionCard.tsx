@@ -47,6 +47,11 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
       <Text style={cardStyles.client}>{commission.description}</Text>
       <Text style={cardStyles.client}>Ordered by @{commission.clientUsername}</Text>
       <Text style={cardStyles.client}>{commission.price}€</Text>
+      {commission.isWaitingPayment && (
+        <Text style={[cardStyles.client, { color: 'red', fontWeight: 'bold' }]}>
+          Pendiente de pago
+        </Text>
+      )}
 
       <View style={cardStyles.buttonRow}>
         {canMoveBack && (

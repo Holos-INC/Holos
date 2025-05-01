@@ -23,4 +23,6 @@ public class StatusKanbanWithCommisionsDTO {
     private String statusKanbanName;
 
     private String clientUsername;
+
+    private Boolean isWaitingPayment;
 }
