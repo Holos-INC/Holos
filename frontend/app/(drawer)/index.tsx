@@ -27,7 +27,7 @@ import {
   WorksDoneDTO,
   BaseUser,
 } from "@/src/constants/ExploreTypes";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 import { BASE_URL } from "@/src/constants/api";
 import { Icon } from "react-native-paper";
 
