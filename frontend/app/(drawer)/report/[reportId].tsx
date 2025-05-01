@@ -185,6 +185,13 @@ export default function ReportScreen() {
           Reportar obra del artista: {work?.artistName}
         </Text>
 
+        <TouchableOpacity
+          onPress={() => router.push(`/work/${numberWorkId}`)}
+          style={styles.backButton}
+        >
+          <Text style={styles.backText}>← ATRÁS</Text>
+        </TouchableOpacity>
+
         <View style={{ position: "relative" }}>
           {work.image ? (
             <Image

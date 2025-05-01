@@ -1,22 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 import { getWorksDoneByArtist } from "@/src/services/WorksDoneApi";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import { decodeImagePath } from "@/src/services/ExploreWorkHelpers";
 import styles from "@/src/styles/ArtistDetail.styles";
 import { Button } from "react-native-paper";
 import { useAuth } from "@/src/hooks/useAuth";
 import { getUserByUsername } from "@/src/services/userApi";
-import { BaseUserDTO, ArtistDTO } from "@/src/constants/CommissionTypes";
+import {
+  BaseUserDTO,
+  ArtistDTO,
+  CommissionDTO,
+} from "@/src/constants/CommissionTypes";
 import ProfileHeader from "@/src/components/profile/ProfileHeader";
 import ActionButtons from "@/src/components/profile/ActionButtons";
 import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
 import { getArtistByUsername } from "@/src/services/artistApi";
-import { getImageSource } from "@/src/utils/getImageSource";
-
+import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
+import { MasonryGallery } from "@/src/components/profile/MasonryGallery";
+import { getAllRequestedCommissionsDone } from "@/src/services/commisionApi";
 interface Artwork {
   id: number;
   name: string;
@@ -31,7 +35,7 @@ export default function ArtistDetailScreen() {
   const { loggedInUser } = useAuth();
   const { username } = useLocalSearchParams<{ username: string }>();
   const [user, setUser] = useState<BaseUserDTO | ArtistDTO | null>(null);
-  const [works, setWorks] = useState<Artwork[]>([]);
+  const [works, setWorks] = useState<WorksDoneDTO[] | CommissionDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   function isBaseUser(
     user: BaseUserDTO | ArtistDTO | null
@@ -76,7 +80,7 @@ export default function ArtistDetailScreen() {
     try {
       const artistData: ArtistDTO = await getArtistByUsername(username);
       setUser(artistData);
-      const worksData: Artwork[] = await getWorksDoneByArtist(username);
+      const worksData: WorksDoneDTO[] = await getWorksDoneByArtist(username);
       setWorks(worksData);
     } catch (error) {
       console.error(error);
@@ -90,6 +94,11 @@ export default function ArtistDetailScreen() {
         loggedInUser.token
       );
       setUser(clientData);
+      const worksData: CommissionDTO[] = await getAllRequestedCommissionsDone(
+        username,
+        loggedInUser.token
+      );
+      setWorks(worksData);
     } catch (error) {
       console.error(error);
     }
@@ -107,15 +116,6 @@ export default function ArtistDetailScreen() {
   if (!fontsLoaded || loading) {
     return <LoadingScreen />;
   }
-
-  const isBase64Path = (base64: string): boolean => {
-    try {
-      const decoded = atob(base64);
-      return decoded.startsWith("/images/");
-    } catch {
-      return false;
-    }
-  };
 
   return (
     <ScrollView style={styles.container}>
@@ -136,44 +136,15 @@ export default function ArtistDetailScreen() {
           onEditPress={() => setShowEditDialog(true)}
         />
         <ActionButtons
-          isClient={isClient}
+          isClient={isArtist(user) ? false : true}
           isCurrentUser={isCurrentUser}
-          username={user?.username}
+          user={user}
         />
       </View>
 
       <View style={styles.divider} />
+      <MasonryGallery works={works} />
 
-      <View style={styles.bottomContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.worksScrollContainer}
-        >
-          {works.map((work) => (
-            <TouchableOpacity
-              key={work.id}
-              style={styles.workItem}
-              onPress={() =>
-                router.push({
-                  pathname: "/work/[workId]",
-                  params: { workId: String(work.id) },
-                })
-              }
-            >
-              <Image
-                style={styles.workImage}
-                source={getImageSource(work.image)}
-              />
-
-              <View style={styles.workTextContainer}>
-                <Text style={styles.workTitle}>{work.name}</Text>
-                <Text style={styles.workArtist}>{work.artistName}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
       {user && (
         <ArtistProfileDialog
           visible={showEditDialog}
