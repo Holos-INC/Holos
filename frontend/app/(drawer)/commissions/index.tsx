@@ -334,6 +334,21 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
                         <Text style={styles.text}>Precio: {comm.price}€</Text>
                       </View>
                       <View style={styles.actions}>
+                        <TouchableOpacity
+                          style={styles.detailsButton}
+                          onPress={() =>
+                            router.push({
+                              pathname: `/commissions/[commissionId]/proposal`,
+                              params: { commissionId: comm.id },
+                            })
+                          }
+                        >
+                          <Text style={styles.detailsButtonText}>
+                            VER DETALLE
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.actions}>
                         <Text style={styles.responseText}>
                           {getStatusText(comm.status)}
                         </Text>
@@ -445,6 +460,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#183771",
     fontWeight: "bold",
+    marginInlineStart: 12,
   },
   separator: {
     height: 2,

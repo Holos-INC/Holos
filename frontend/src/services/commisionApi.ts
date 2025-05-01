@@ -5,6 +5,7 @@ import {
   ClientCommissionDTO,
   Commission,
   CommissionDTO,
+  CommissionImageUpdateDTO,
   CommissionProtected,
   HistoryCommisionsDTO,
 } from "@/src/constants/CommissionTypes";
@@ -171,6 +172,32 @@ export const requestChangesCommission = async (
     await api.put(`${COMMISSION_URL}/${id}/requestChanges`, updatedCommission, {
       headers: { Authorization: `Bearer ${token}` },
     });
+  } catch (error) {
+    handleError(error, "Error requesting changes to commission");
+    throw error;
+  }
+};
+
+export const updateCommisionImage = async (
+  commisionId: number,
+  newImageUri: string,
+  token: string
+) => {
+  const commissionImageUpdateDTO = {
+    image: newImageUri,
+  };
+
+  try {
+    await api.put(
+      `${COMMISSION_URL}/${commisionId}/updateImage`,
+      commissionImageUpdateDTO,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     handleError(error, "Error requesting changes to commission");
     throw error;
