@@ -49,7 +49,7 @@ export const getAllWorksDoneDTO = async (): Promise<WorksDoneDTO[]> => {
 
 export const getWorksDoneByArtist = async (
   username: string
-): Promise<WorksDone[]> => {
+): Promise<WorksDoneDTO[]> => {
   try {
     const response = await api.get(`${WORKS_DONE_URL}/artist/${username}`);
     return response.data;
@@ -59,16 +59,14 @@ export const getWorksDoneByArtist = async (
   }
 };
 
-export const deleteWorksDone = async (
-  worksDoneId: number
-): Promise<void> => {
+export const deleteWorksDone = async (worksDoneId: number): Promise<void> => {
   try {
     await api.delete(`${WORKS_DONE_URL}/${worksDoneId}`);
   } catch (error) {
     handleError(error, "Error deleting the work done");
     throw error;
   }
-}
+};
 
 export const createWorksDone = async (
   worksDone: Partial<WorksDone>
