@@ -97,6 +97,7 @@ public class PaymentService {
         }
     }
     
+    @Transactional
     public String createPaymentFromSetupIntent(long commisionId) throws StripeException {
         Stripe.apiKey = secretKey;
     
@@ -136,7 +137,6 @@ public class PaymentService {
             }
             
             SetupIntent setupIntent = SetupIntent.retrieve(setupIntentId);
-            setupIntent.setPaymentMethod("pm_card_visa");
             String paymentMethodId = setupIntent.getPaymentMethod();
 
             long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
@@ -183,83 +183,6 @@ public class PaymentService {
             throw new RuntimeException("Error inesperado al crear el pago: " + e.getMessage(), e);
         }
     }
-
-    @Transactional
-    public String createPayment(long commisionId) throws StripeException, Exception {
-        Stripe.apiKey = secretKey;
-        try {
-            Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commison", "id", commisionId));
-
-            Artist artist = commision.getArtist();
-            Client client = commision.getClient();
-            BaseUser activeUser = userService.findCurrentUser();
-            String email = activeUser.getEmail();
-
-            if (commision.getPrice() == null || commision.getPrice() <= 0) {
-                throw new BadRequestException("La cantidad del pago no puede ser nulo o 0");
-            }
-
-            if (commision.getClient()==null || !client.getBaseUser().equals(activeUser)){
-                throw new AccessDeniedException("No puedes acceder a este recurso");
-            }
-
-            if (artist==null){
-                throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
-            }
-
-            if (commision.getTotalPayments()<=commision.getCurrentPayments()){
-                throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
-            }
-
-            if (!(commision.isWaitingPayment())){
-                throw new BadRequestException("Esta comisión no espera un nuevo pago");
-            }
-            
-            long totalAmount = Math.round((commision.getPrice() * 100)/commision.getTotalPayments());
-            long commissionAmount = Math.round(totalAmount * commisionPercentage);
-
-/*             RequestOptions requestOptions = RequestOptions.builder()
-                .setIdempotencyKey("some-unique-key-per-user-action")
-                .build(); */
-
-            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                .setAmount(totalAmount) 
-                .setCurrency(currency)
-                .setReceiptEmail(email)
-                .setDescription(commision.getDescription())
-                .setCurrency(currency)
-                .setReceiptEmail(activeUser.getEmail())
-                .setApplicationFeeAmount(commissionAmount) // Comisión de nuestra aplicación
-                .setTransferData(
-                            PaymentIntentCreateParams.TransferData.builder()
-                                .setDestination(artist.getSellerAccountId()) // Enviar dinero al vendedor
-                                .build())
-                .build();
-            PaymentIntent paymentIntent = PaymentIntent.create(params);
-            if (commision.getCurrentPayments()==null){
-                commision.setCurrentPayments(1);
-            }
-            else{
-                commision.setCurrentPayments(commision.getCurrentPayments()+1);
-            }
-            commision.setWaitingPayment(false);
-            commisionRepository.save(commision);
-            return paymentIntent.getClientSecret();
-
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        } catch (AccessDeniedException e) {
-            throw new AccessDeniedException(e.getMessage());
-        } catch (StripeException e) { 
-            throw new RuntimeException("Error al procesar el pago: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new Exception("Error inesperado al crear el pago: " + e.getMessage());
-        }
-    }
-
 
     @Transactional
     public void processPayment(Long commissionId, PaymentIntent paymentIntent) {

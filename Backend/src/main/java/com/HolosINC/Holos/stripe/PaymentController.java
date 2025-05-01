@@ -44,7 +44,7 @@ public class PaymentController {
         }
     }
 
-    @PostMapping("/payment/{commissionId}")
+    @PostMapping("/payment-from-setup/{commissionId}")
     public ResponseEntity<?> createPaymentFromSetupIntent(@PathVariable long commissionId) {
         try {
             String paymentIntentStatus = paymentService.createPaymentFromSetupIntent(commissionId);
@@ -55,26 +55,6 @@ public class PaymentController {
             throw new AccessDeniedException(e.getMessage());
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
-        } catch (StripeException e) { 
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-
-    @PostMapping("/create/{commissionId}")
-    public ResponseEntity<?> createPayment(@PathVariable long commissionId) throws Exception {
-        try {
-            String paymentIntent = paymentService.createPayment(commissionId);
-            return new ResponseEntity<>(paymentIntent, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Comisión o artista no encontrado: " + e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        } catch (AccessDeniedException e) {
-            throw new AccessDeniedException(e.getMessage());
         } catch (StripeException e) { 
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_GATEWAY);
         } catch (Exception e) {
