@@ -176,6 +176,7 @@ export interface CommissionDTO {
   image: string;
   imageProfileA: string;
   imageProfileC: string;
+  isWaitingPayment: boolean;
 }
 
 export interface ClientCommissionDTO {
