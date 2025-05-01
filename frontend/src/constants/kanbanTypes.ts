@@ -16,6 +16,7 @@ export type StatusKanbanWithCommissionsDTO = {
     paymentArrangement: string;
     statusKanbanName: string;
     clientUsername: string;
+    image: string;
 };
   
 export type StatusWithCommissions = {

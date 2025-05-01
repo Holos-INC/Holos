@@ -1,5 +1,5 @@
 import { BaseUser } from "@/src/constants/CommissionTypes";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -34,7 +34,7 @@ export default function CustomDrawer(props: CustomDrawerProps) {
           }}
         >
           <Image
-            source={ getImageSource(user?.imageProfile)}
+            source={getImageSource(user?.imageProfile)}
             style={{ width: 65, height: 65, borderRadius: 100 }}
           />
           <View style={{ justifyContent: "center", gap: 10 }}>

@@ -22,7 +22,7 @@ import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 import { API_URL } from "@/src/constants/api";
 
 const commissionTablePrice = "@/assets/images/image.png";
@@ -103,7 +103,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
         commissionData,
         loggedInUser.token
       );
-        router.push(`/commissions`);
+      router.push(`/commissions`);
 
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {

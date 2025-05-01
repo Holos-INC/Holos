@@ -120,6 +120,22 @@ public class CommisionService {
     }
 
     @Transactional
+    public CommissionDTO getCommisionDoneById(Long commisionId) throws Exception {
+        try {
+            Commision commision = commisionRepository.findById(commisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe la comisión con el ID proporcionado"));
+
+            if (!commision.getStatus().equals(StatusCommision.ENDED)) {
+                throw new IllegalStateException("La comisión aún no ha finalizado");
+            }
+
+            return new CommissionDTO(commision);
+        } catch (Exception e) {
+            throw new Exception("Error al obtener la comisión: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
     public void waitingCommission(CommissionDTO updatedCommissionDTO, Long commisionId) throws Exception {
         try{
             Commision commision = commisionRepository.findById(commisionId)
@@ -336,6 +352,24 @@ public class CommisionService {
             }
 
             return historyCommisionsDTO;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommissionDTO> getCommissionsDone(String username) throws Exception {
+        try {
+            BaseUser user = userService.getUserByUsername(username);
+            HistoryCommisionsDTO historyCommisionsDTO = new HistoryCommisionsDTO();
+
+            if (user.getAuthority() == Auth.CLIENT)
+                fillDataForClient(user.getId(), historyCommisionsDTO);
+            else
+                throw new IllegalAccessException("Error al intentar acceder al historial. Primero tienes que iniciar sesión");
+
+
+            return historyCommisionsDTO.getHistory();
         } catch (Exception e) {
             throw e;
         }
