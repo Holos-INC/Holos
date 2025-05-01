@@ -18,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 
 import org.springframework.dao.DataAccessException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

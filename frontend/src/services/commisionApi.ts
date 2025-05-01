@@ -5,9 +5,11 @@ import {
   ClientCommissionDTO,
   Commission,
   CommissionDTO,
+  CommissionImageUpdateDTO,
   CommissionProtected,
   HistoryCommisionsDTO,
 } from "@/src/constants/CommissionTypes";
+import { WorksDoneDTO } from "../constants/ExploreTypes";
 
 const COMMISSION_URL = `${API_URL}/commisions`;
 
@@ -40,9 +42,39 @@ export const getAllRequestedCommissions = async (
   }
 };
 
+export const getAllRequestedCommissionsDone = async (
+  username: string,
+  token: string
+): Promise<CommissionDTO[]> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/ordered/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return response.data.filter(
+      (comm: CommissionDTO) => comm.status === "ENDED"
+    );
+  } catch (error) {
+    handleError(error, "Error fetching requested commissions");
+    throw error;
+  }
+};
+
 export const getCommissionById = async (id: number): Promise<CommissionDTO> => {
   try {
     const response = await api.get(`${COMMISSION_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error fetching commission by ID");
+    throw error;
+  }
+};
+
+export const getCommissionDoneById = async (
+  id: number
+): Promise<CommissionDTO> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/${id}/done`);
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching commission by ID");
@@ -171,6 +203,32 @@ export const requestChangesCommission = async (
     await api.put(`${COMMISSION_URL}/${id}/requestChanges`, updatedCommission, {
       headers: { Authorization: `Bearer ${token}` },
     });
+  } catch (error) {
+    handleError(error, "Error requesting changes to commission");
+    throw error;
+  }
+};
+
+export const updateCommisionImage = async (
+  commisionId: number,
+  newImageUri: string,
+  token: string
+) => {
+  const commissionImageUpdateDTO = {
+    image: newImageUri,
+  };
+
+  try {
+    await api.put(
+      `${COMMISSION_URL}/${commisionId}/updateImage`,
+      commissionImageUpdateDTO,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     handleError(error, "Error requesting changes to commission");
     throw error;

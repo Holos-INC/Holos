@@ -1,4 +1,5 @@
 import { BaseUser } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/utils/getImageSource";
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -33,17 +34,14 @@ export default function CustomDrawer(props: CustomDrawerProps) {
           }}
         >
           <Image
-            source={
-              user?.imageProfile
-                ? { uri: `data:image/jpeg;base64,${user.imageProfile}` }
-                : undefined
-            }
+            source={getImageSource(user?.imageProfile)}
             style={{ width: 65, height: 65, borderRadius: 100 }}
           />
           <View style={{ justifyContent: "center", gap: 10 }}>
             <Text style={{ fontWeight: "bold" }}>
               {user?.name ?? "Invitado"}
             </Text>
+            <Text>@{user?.username ?? "invitado"}</Text>
           </View>
         </TouchableOpacity>
       )}

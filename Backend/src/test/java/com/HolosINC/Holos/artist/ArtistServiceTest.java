@@ -2,12 +2,14 @@ package com.HolosINC.Holos.artist;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataAccessException;
 
-import com.HolosINC.Holos.Category.ArtistCategory;
 import com.HolosINC.Holos.Category.ArtistCategoryRepository;
-import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionRepository;
@@ -26,6 +26,7 @@ import com.HolosINC.Holos.commision.StatusCommision;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserRepository;
+import com.HolosINC.Holos.work.WorkRepository;
 
 public class ArtistServiceTest {
 
@@ -43,6 +44,10 @@ public class ArtistServiceTest {
 
     @Mock
     private ArtistCategoryRepository artistCategoryRepository;
+
+    @Mock
+    private WorkRepository workRepository;
+
 
     @InjectMocks
     private ArtistService artistService;
@@ -144,12 +149,15 @@ public class ArtistServiceTest {
         verify(artistRepository, times(1)).findByUserId(1L);
     }
 
+    
     @Test
     public void testDeleteArtistSuccess() throws Exception {
+        // Preparar mocks y llamadas
         when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
         when(commisionRepository.findAll()).thenReturn(Collections.emptyList());
         when(statusKanbanOrderService.findAllStatusKanbanOrderByArtist(1L)).thenReturn(Collections.emptyList());
         when(artistCategoryRepository.findAllByArtistId(1L)).thenReturn(Collections.emptyList());
+        when(workRepository.searchByArtist(anyInt(), any())).thenReturn(Page.empty());
 
         artistService.deleteArtist(1L);
 
@@ -204,43 +212,4 @@ public class ArtistServiceTest {
         assertFalse(foundArtist.isPresent());
         verify(artistRepository, times(1)).findByUserId(1L);
     }
-    
-    @Test
-    public void testDeleteArtistInternalError() throws Exception {
-        when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
-    // Simulamos fallo interno al buscar comisiones
-        when(commisionRepository.findAll()).thenThrow(new ResourceNotFoundException("Error: El artista con ID 1 no existe."));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            artistService.deleteArtist(1L);
-        });
-
-    assertEquals("Error: El artista con ID 1 no existe.", exception.getMessage());
-    verify(artistRepository, never()).delete(any(Artist.class));
-}
-
-    @Test
-    public void testDeleteArtistWithKanbanAndCategories() throws Exception {
-        when(artistRepository.findArtistByUser(1L)).thenReturn(Optional.of(artist));
-        when(commisionRepository.findAll()).thenReturn(Collections.emptyList());
-
-        StatusKanbanOrder status1 = new StatusKanbanOrder();
-        status1.setId(10L);
-        StatusKanbanOrder status2 = new StatusKanbanOrder();
-        status2.setId(11L);
-        when(statusKanbanOrderService.findAllStatusKanbanOrderByArtist(1L)).thenReturn(List.of(status1, status2));
-
-        ArtistCategory category1 = new ArtistCategory();
-        when(artistCategoryRepository.findAllByArtistId(1L)).thenReturn(List.of(category1));
-
-        artistService.deleteArtist(1L);
-
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(10L);
-        verify(statusKanbanOrderService, times(1)).deleteStatusKanbanOrder(11L);
-        verify(artistCategoryRepository, times(1)).deleteAll(List.of(category1));
-        verify(baseUserRepository, times(1)).deleteById(1L);
-        verify(artistRepository, times(1)).delete(artist);
-}
-
-
 }

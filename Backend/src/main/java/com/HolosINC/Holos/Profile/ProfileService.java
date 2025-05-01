@@ -24,7 +24,7 @@ public class ProfileService {
     @Transactional
     public BaseUserDTO updateProfile(BaseUserDTO baseUserDTO) throws Exception {
         BaseUser currentUser = baseUserService.findCurrentUser();
-        Artist artist = artistService.findArtistByUserId(currentUser.getId());
+        Artist artist = artistService.findArtist(currentUser.getId());
 
         if (artist != null) {
             artist.getBaseUser().setName(baseUserDTO.getName());

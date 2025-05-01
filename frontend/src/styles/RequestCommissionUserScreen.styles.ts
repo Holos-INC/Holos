@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
   priceTableImage: {
     width: "100%",
     maxWidth: 400,
-    paddingHorizontal: 750,
+    paddingHorizontal: 10,
     aspectRatio: 1.5,
     resizeMode: "contain",
   },

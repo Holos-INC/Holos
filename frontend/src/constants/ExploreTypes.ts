@@ -6,6 +6,7 @@ export interface BaseUser {
   email: string;
   phoneNumber?: string;
   imageProfile?: string;
+  authority: string;
 }
 
 export interface Artist {
@@ -17,22 +18,6 @@ export interface Artist {
   tableCommisionsPrice?: string;
   numSlotsOfWork: number;
   baseUser?: BaseUser;
-}
-
-export interface ArtistDTO {
-  artistId: number;
-  baseUserId: number;
-
-  name: string;
-  username: string;
-  email: string;
-  phoneNumber: string;
-
-  imageProfile: string;
-  numSlotsOfWork: number;
-  tableCommissionsPrice: string;
-  description: string;
-  linkToSocialMedia: string;
 }
 
 export interface Work {

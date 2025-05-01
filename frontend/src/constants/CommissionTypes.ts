@@ -1,3 +1,10 @@
+export enum Authority {
+  ADMIN = "ADMIN",
+  CLIENT = "CLIENT",
+  ARTIST = "ARTIST",
+  ARTIST_PREMIUM = "ARTIST_PREMIUM",
+}
+
 export interface BaseUser {
   id: number;
   name: string;
@@ -7,10 +14,7 @@ export interface BaseUser {
   phoneNumber?: string;
   imageProfile?: string;
   createdUser: string;
-  authority: {
-    id: number;
-    authority: string;
-  };
+  authority: Authority;
 }
 
 export interface Client {
@@ -21,7 +25,7 @@ export interface Client {
 export interface Artist {
   id: number;
   numSlotsOfWork: number;
-  tableCommissionsPrice: string;
+  tableCommisionsPrice: string;
   baseUser: BaseUser;
   name: string;
   username: string;
@@ -39,12 +43,10 @@ export enum StatusCommission {
   REQUESTED = "REQUESTED",
   WAITING_CLIENT = "WAITING_CLIENT",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  CANCELED = "CANCELED",
   WAITING_ARTIST = "WAITING_ARTIST",
   NOT_PAID_YET = "NOT_PAID_YET",
   IN_WAIT_LIST = "IN_WAIT_LIST",
-  ENDED = "Finalizado",
+  ENDED = "ENDED",
 }
 
 export enum PaymentArrangement {
@@ -103,7 +105,9 @@ export interface HistoryCommisionsDTO {
 export interface CommissionProtected {
   image?: string;
 
-  imageProfile?: string;
+  imageProfileA?: string;
+
+  imageProfileC?: string;
 
   id: number;
 
@@ -122,6 +126,8 @@ export interface CommissionProtected {
   artistUsername: string;
 
   clientUsername: string;
+
+  acceptedDateByArtist: Date;
 }
 
 export interface CommissionInProgress {
@@ -141,7 +147,15 @@ export interface BaseUserDTO {
   phoneNumber: string;
   description: string;
   imageProfile: string;
-  authorityName: string;
+  authority: string;
+}
+
+export interface ArtistDTO extends BaseUserDTO {
+  artistId: number;
+  baseUserId: number;
+  numSlotsOfWork: number;
+  tableCommisionsPrice: string;
+  linkToSocialMedia: string;
 }
 
 export interface CommissionDTO {
@@ -168,4 +182,8 @@ export interface ClientCommissionDTO {
   clientUsername: string;
   currentStep: number;
   totalSteps: number;
+}
+
+export interface CommissionImageUpdateDTO {
+  image: string;
 }

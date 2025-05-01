@@ -86,6 +86,12 @@ public class ChatMessageService {
         return conversations;
     }
 
+    @Transactional
+    public void deleteConversationByCommisionId(Long commisionId) {
+        List<ChatMessage> messages = chatMessageRepository.findConversationByCommisionId(commisionId);
+        chatMessageRepository.deleteAll(messages);
+    }
+
     public List<ChatMessageResponseDTO> getConversation(Long commisionId) throws Exception {
         BaseUser user = baseUserService.findCurrentUser();
         Commision commision = commisionRepository.findById(commisionId)

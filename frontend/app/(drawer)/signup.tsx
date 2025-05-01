@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,18 @@ import {
   Alert,
   StyleSheet,
   Image,
-  Linking,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from "react-native";
 import { useNavigation, useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import { API_URL } from "@/src/constants/api";
 import { ScrollView } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
 import colors from "@/src/constants/colors";
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
+import TERMS_TEXT from "@/src/constants/terms";
 
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
@@ -23,13 +27,31 @@ export default function SignupScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [imageProfile, setImageProfile] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
   const [role, setRole] = useState("client");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
+  const [reachedBottom, setReachedBottom] = useState(false);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
   const navigation = useNavigation();
+
+  const [tableCommisionsPrice, settableCommisionsPrice] = useState("");
+
   const router = useRouter();
-  const [tableCommissionsPrice, setTableCommissionsPrice] = useState("");
-  const [linkToSocialMedia, setLinkToSocialMedia] = useState("");
+
+  useFocusEffect(
+    useCallback(() => {
+      setAcceptTerms(false);
+      setReachedBottom(false);
+      setTermsModalVisible(false);
+      return () => {};
+    }, [])
+  );
+
   useEffect(() => {
     if (confirmPassword.length > 0 && password !== confirmPassword) {
       setPasswordError("Las contraseñas no coinciden");
@@ -37,6 +59,76 @@ export default function SignupScreen() {
       setPasswordError("");
     }
   }, [password, confirmPassword]);
+
+  useEffect(() => {
+    if (contentHeight && scrollViewHeight && contentHeight <= scrollViewHeight) {
+      setReachedBottom(true);
+    }
+  }, [contentHeight, scrollViewHeight]);
+
+  const handleSignup = async () => {
+    if (!acceptTerms) {
+      Alert.alert("Debes aceptar los Términos y Condiciones");
+      return;
+    }
+    if (passwordError) {
+      Alert.alert("Las contraseñas no coinciden");
+      return;
+    }
+    if (!password || !confirmPassword) {
+      Alert.alert("Debes ingresar y confirmar la contraseña");
+      return;
+    }
+    if (!selectedImage) {
+      Alert.alert("Selecciona una foto de perfil");
+      return;
+    }
+    if (
+      (role === "artist" || role === "artist_premium") &&
+      !tableCommisionsPrice
+    ) {
+      Alert.alert("Selecciona una imagen del tablero de comisiones");
+      return;
+    }
+
+    const userPayload = {
+      firstName,
+      username,
+      email,
+      password,
+      authority: role.toUpperCase(),
+      phoneNumber: "123456789",
+    };
+
+    const formData = new FormData();
+    formData.append("user", JSON.stringify(userPayload));
+    formData.append("imageProfile", base64ToFile(selectedImage, "image.png"));
+
+    if (role === "artist" || role === "artist_premium") {
+      formData.append(
+        "tableCommisionsPrice",
+        base64ToFile(tableCommisionsPrice, "image.png")
+      );
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/auth/signup`, {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        Alert.alert("Error", result.message || "Registro fallido");
+        return;
+      }
+
+      Alert.alert("Registro exitoso", "Usuario registrado correctamente");
+      router.push("/login");
+    } catch (error) {
+      Alert.alert("Error", String(error));
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -49,10 +141,11 @@ export default function SignupScreen() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setSelectedImage(uri);
+      setImageProfile(uri);
     }
   };
 
-  const pickTableCommissionsPrice = async () => {
+  const picktableCommisionsPrice = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -62,88 +155,7 @@ export default function SignupScreen() {
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-      setTableCommissionsPrice(uri);
-    }
-  };
-
-  const handleSignup = async () => {
-    if (!acceptTerms) {
-      Alert.alert("Debes aceptar los Términos y Condiciones");
-      return;
-    }
-
-    if (passwordError) {
-      Alert.alert("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (!password || !confirmPassword) {
-      Alert.alert("Debes ingresar y confirmar la contraseña");
-      return;
-    }
-
-    if (!selectedImage) {
-      Alert.alert("Selecciona una foto de perfil");
-      return;
-    }
-
-    if (
-      (role === "artist" || role === "artist_premium") &&
-      !tableCommissionsPrice
-    ) {
-      Alert.alert(
-        "Selecciona una imagen para el precio del tablero de comisiones"
-      );
-      return;
-    }
-
-    const userPayload: any = {
-      firstName,
-      username,
-      email,
-      password,
-      authority: role.toUpperCase(),
-      phoneNumber: "123456789",
-      linkToSocialMedia:
-        role === "artist" || role === "artist_premium"
-          ? linkToSocialMedia
-          : undefined,
-    };
-
-    const formData = new FormData();
-    formData.append("user", JSON.stringify(userPayload));
-    formData.append("imageProfile", base64ToFile(selectedImage, "image.png"));
-
-    if (role === "artist" || role === "artist_premium") {
-      formData.append(
-        "tableCommissionsPrice",
-        base64ToFile(tableCommissionsPrice, "image.png")
-      );
-    }
-
-    try {
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        console.error("Error en el registro:", result);
-        Alert.alert("Error", result.message || "Registro fallido");
-        return;
-      }
-
-      Alert.alert("Registro exitoso", "Usuario registrado correctamente");
-      router.push("/login");
-    } catch (error) {
-      console.error("Error en la petición:", error);
-      Alert.alert("Error", String(error));
+      settableCommisionsPrice(uri);
     }
   };
 
@@ -151,246 +163,283 @@ export default function SignupScreen() {
     navigation.setOptions({ title: "👤 Registro de usuario" });
   }, [navigation]);
 
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+    const isBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+    if (isBottom) setReachedBottom(true);
+  };
+
+  const handleContentSizeChange = (_: number, h: number) => {
+    setContentHeight(h);
+  };
+
+  const handleLayout = (e: any) => {
+    setScrollViewHeight(e.nativeEvent.layout.height);
+  };
+
+  const renderTerms = () =>
+    TERMS_TEXT.split("\n").map((line, idx) => {
+      if (line.startsWith("### "))
+        return (
+          <Text key={idx} style={styles.heading3}>
+            {line.replace("### ", "")}
+          </Text>
+        );
+      if (line.startsWith("## "))
+        return (
+          <Text key={idx} style={styles.heading2}>
+            {line.replace("## ", "")}
+          </Text>
+        );
+      if (line.startsWith("# "))
+        return (
+          <Text key={idx} style={styles.heading1}>
+            {line.replace("# ", "")}
+          </Text>
+        );
+      return (
+        <Text key={idx} style={styles.modalText}>
+          {line}
+        </Text>
+      );
+    });
+
   return (
-    <ScrollView style={styles.screenBackground}>
-      <Image
-        source={require("@/assets/images/logo.png")}
-        style={styles.logo}
-      />
+    <>
+      <ScrollView style={styles.screenBackground}>
+        <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
 
-      <Text style={styles.pageTitle}>
-        Nuevo {role === "client" ? "Cliente" : "Artista"}
-      </Text>
+        <Text style={styles.pageTitle}>
+          Nuevo {role === "client" ? "Cliente" : "Artista"}
+        </Text>
 
-      <View style={styles.cardContainer}>
-        <View style={styles.formRow}>
-          {/* Nombre */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nombre</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ej. Roberto"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
+        {/* ---------------- Tarjeta principal ---------------- */}
+        <View style={styles.cardContainer}>
+          {/* Nombre / Apellidos */}
+          <View style={styles.formRow}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nombre</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Ej. Roberto"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Apellidos</Text>
+              <TextInput style={styles.input} placeholder="Ej. Pérez López" />
+            </View>
           </View>
-          {/* Apellidos (si aplicase) */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Apellidos</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ej. Pérez López"
-            />
-          </View>
-        </View>
 
-        <View style={styles.formRow}>
-          {/* Correo */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Correo</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="correo@ejemplo.com"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-            />
+          {/* Correo / Usuario */}
+          <View style={styles.formRow}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Correo</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="correo@ejemplo.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nombre de usuario</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="UsuarioEjemplo"
+                value={username}
+                onChangeText={setUsername}
+              />
+            </View>
           </View>
-          {/* Nombre de usuario */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nombre de usuario</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="UsuarioEjemplo"
-              value={username}
-              onChangeText={setUsername}
-            />
-          </View>
-        </View>
 
-        <View style={styles.formRow}>
-          {/* Nueva contraseña */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nueva contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="********"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
+          {/* Contraseñas */}
+          <View style={styles.formRow}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nueva contraseña</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="********"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirma contraseña</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="********"
+                secureTextEntry
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+              {passwordError && (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              )}
+            </View>
           </View>
-          {/* Confirmar contraseña */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirma contraseña</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="********"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-            />
-            {passwordError ? (
-              <Text style={styles.errorText}>{passwordError}</Text>
-            ) : null}
-          </View>
-        </View>
 
-        <View style={styles.formRow}>
           {/* Foto de perfil */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Foto de perfil</Text>
-            <TouchableOpacity
-              onPress={pickImage}
-              style={[
-                styles.input,
-                { justifyContent: "center", alignItems: "center" },
-              ]}
-            >
-              <Text style={{ color: "#888" }}>
-                {selectedImage ? "Imagen seleccionada" : "Seleccionar imagen"}
-              </Text>
-            </TouchableOpacity>
-            {selectedImage ? (
-              <>
-                <Image
-                  source={{ uri: selectedImage }}
-                  style={styles.previewImage}
-                />
-                <TouchableOpacity
-                  style={styles.removeButton}
-                  onPress={() => setSelectedImage("")}
-                >
-                  <Text style={styles.removeButtonText}>
-                    Quitar imagen
-                  </Text>
-                </TouchableOpacity>
-              </>
-            ) : null}
-          </View>
-        </View>
-
-        {(role === "artist" || role === "artist_premium") && (
-          <>
-            <View style={styles.formRow}>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>
-                  Precio del tablero de comisiones
-                </Text>
-                <TouchableOpacity
-                  onPress={pickTableCommissionsPrice}
-                  style={[
-                    styles.input,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]}
-                >
-                  <Text style={{ color: "#888" }}>
-                    {tableCommissionsPrice
-                      ? "Imagen seleccionada"
-                      : "Seleccionar imagen"}
-                  </Text>
-                </TouchableOpacity>
-                {tableCommissionsPrice ? (
-                  <>
-                    <Image
-                      source={{ uri: tableCommissionsPrice }}
-                      style={styles.previewImage}
-                    />
-                    <TouchableOpacity
-                      style={styles.removeButton}
-                      onPress={() => setTableCommissionsPrice("")}
-                    >
-                      <Text style={styles.removeButtonText}>
-                        Quitar imagen
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                ) : null}
-              </View>
-            </View>
-
-            {/* NUEVO: Enlace a Instagram */}
-            <View style={styles.formRow}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Enlace a Instagram</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="https://instagram.com/usuario"
-                  value={linkToSocialMedia}
-                  onChangeText={setLinkToSocialMedia}
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
-          </>
-        )}
-
-        <View style={styles.roleContainer}>
-          <Text style={styles.label}>Que quieres ser?</Text>
-          <View style={styles.roleButtonsRow}>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === "client" && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole("client")}
-            >
-              <Text style={styles.roleButtonText}>cliente</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === "artist" && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole("artist")}
-            >
-              <Text style={styles.roleButtonText}>artista</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.checkboxContainer}>
-          <TouchableOpacity
-            style={styles.checkboxRow}
-            onPress={() => setAcceptTerms(!acceptTerms)}
-          >
-            <View
-              style={[styles.checkbox, acceptTerms && styles.checkboxChecked]}
-            />
-            <Text style={styles.checkboxLabel}>
-              Acepto los{" "}
-              <Text
-                style={styles.link}
-                onPress={() =>
-                  Linking.openURL(
-                    "https://holos-doc.vercel.app/docs/Documentacion/S2/Terminos%20y%20Condiciones"
-                  )
-                }
+          <View style={styles.formRow}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Foto de perfil</Text>
+              <TouchableOpacity
+                onPress={pickImage}
+                style={[styles.input, { justifyContent: "center", alignItems: "center" }]}
               >
-                Términos y Condiciones
+                <Text style={{ color: "#888" }}>
+                  {selectedImage ? "Imagen seleccionada" : "Seleccionar imagen"}
+                </Text>
+              </TouchableOpacity>
+
+              {selectedImage !== "" && (
+                <>
+                  <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => setSelectedImage("")}
+                  >
+                    <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+
+          {/* Campos de artista */}
+          {role !== "client" && (
+            <>
+              <View style={styles.formRow}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Precio del tablero de comisiones</Text>
+                  <TouchableOpacity
+                    onPress={picktableCommisionsPrice}
+                    style={[styles.input, { justifyContent: "center", alignItems: "center" }]}
+                  >
+                    <Text style={{ color: "#888" }}>
+                      {tableCommisionsPrice
+                        ? "Imagen seleccionada"
+                        : "Seleccionar imagen"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {tableCommisionsPrice !== "" && (
+                    <>
+                      <Image
+                        source={{ uri: tableCommisionsPrice }}
+                        style={styles.previewImage}
+                      />
+                      <TouchableOpacity
+                        style={styles.removeButton}
+                        onPress={() => settableCommisionsPrice("")}
+                      >
+                        <Text style={styles.removeButtonText}>Quitar imagen</Text>
+                      </TouchableOpacity>
+                    </>
+                  )}
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* Roles */}
+          <View style={styles.roleContainer}>
+            <Text style={styles.label}>Rol actual: {role}</Text>
+            <View style={styles.roleButtonsRow}>
+              {[
+                ["client", "CLIENT"],
+                ["artist", "ARTIST"],
+              ].map(([value, label]) => (
+                <TouchableOpacity
+                  key={value}
+                  style={[
+                    styles.roleButton,
+                    role === value && styles.roleButtonActive,
+                  ]}
+                  onPress={() => setRole(value as any)}
+                >
+                  <Text style={styles.roleButtonText}>{label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Términos */}
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                setReachedBottom(false);
+                setTermsModalVisible(true);
+              }}
+            >
+              <Text style={styles.link}>
+                {acceptTerms
+                  ? "Términos y Condiciones aceptados ✓"
+                  : "Leer y aceptar Términos y Condiciones"}
               </Text>
-            </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Botón crear */}
+          <TouchableOpacity style={styles.createButton} onPress={handleSignup}>
+            <Text style={styles.createButtonText}>Crear cuenta</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={handleSignup}
-        >
-          <Text style={styles.createButtonText}>Crear cuenta</Text>
-        </TouchableOpacity>
-      </View>
+        <Text style={styles.link} onPress={() => router.push("/login")}>
+          ¿Ya tienes cuenta? ¡Inicia sesión!
+        </Text>
+      </ScrollView>
 
-      <Text
-        style={styles.link}
-        onPress={() => {
-          router.push("/login");
-        }}
+      {/* ---------------- Modal Términos ---------------- */}
+      <Modal
+        visible={termsModalVisible}
+        animationType="slide"
+        onRequestClose={() => setTermsModalVisible(false)}
       >
-        ¿Ya tienes cuenta? ¡Inicia sesión!
-      </Text>
-    </ScrollView>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Términos y Condiciones</Text>
+          <ScrollView
+            style={styles.modalScroll}
+            onLayout={handleLayout}
+            onContentSizeChange={handleContentSizeChange}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            ref={scrollRef}
+          >
+            {renderTerms()}
+          </ScrollView>
+
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[
+                styles.acceptButton,
+                !reachedBottom && styles.acceptButtonDisabled,
+              ]}
+              disabled={!reachedBottom}
+              onPress={() => {
+                setAcceptTerms(true);
+                setTermsModalVisible(false);
+              }}
+            >
+              <Text style={styles.acceptButtonText}>Aceptar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setTermsModalVisible(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -421,6 +470,11 @@ const styles = StyleSheet.create({
     borderColor: colors.brandPrimary,
     borderRadius: 10,
     padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     marginBottom: 15,
   },
   formRow: {
@@ -474,30 +528,21 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "bold",
   },
+  createButton: {
+    backgroundColor: colors.brandSecondary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    marginTop: 12,
+    alignItems: "center",
+  },
+  createButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   checkboxContainer: {
     marginTop: 16,
     marginBottom: 16,
-  },
-  checkboxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: colors.brandPrimary,
-    borderRadius: 4,
-    marginRight: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  checkboxChecked: {
-    backgroundColor: colors.brandPrimary,
-  },
-  checkboxLabel: {
-    fontSize: 14,
-    color: colors.contentStrong,
   },
   link: {
     color: colors.brandPrimary,
@@ -523,16 +568,79 @@ const styles = StyleSheet.create({
     color: colors.brandPrimary,
     fontWeight: "600",
   },
-  createButton: {
-    backgroundColor: colors.brandSecondary,
-    borderRadius: 8,
-    paddingVertical: 12,
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 10,
+    color: colors.contentStrong,
+  },
+  modalScroll: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  modalText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: colors.contentStrong,
+    marginBottom: 2,
+  },
+  heading1: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.brandPrimary,
     marginTop: 12,
+    marginBottom: 6,
+  },
+  heading2: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.brandPrimary,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  heading3: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.brandPrimary,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  acceptButton: {
+    backgroundColor: colors.brandSecondary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 10,
     alignItems: "center",
   },
-  createButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
+  acceptButtonDisabled: {
+    backgroundColor: `${colors.brandSecondary}60`,
+  },
+  acceptButtonText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
+  cancelButton: {
+    backgroundColor: `${colors.brandPrimary}20`,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: colors.brandPrimary,
     fontWeight: "600",
   },
 });

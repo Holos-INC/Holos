@@ -112,8 +112,14 @@ public class AuthoritiesService {
 			artist.setLinkToSocialMedia(request.getLinkToSocialMedia() != null ? request.getLinkToSocialMedia()
 					: artist.getLinkToSocialMedia());
 			artist.setTableCommisionsPrice(
-					request.getTableCommissionsPrice() != null ? request.getTableCommissionsPrice().getBytes()
+					request.getTableCommisionsPrice() != null ? request.getTableCommisionsPrice().getBytes()
 							: artist.getTableCommisionsPrice());
+			artistService.saveArtist(artist);
+		}
+		if (user.getAuthority() == Auth.ARTIST_PREMIUM) {
+			Artist artist = artistService.findArtistByUserId(user.getId());
+			artist.setNumSlotsOfWork(request.getNumSlotsOfWork() != null ? request.getNumSlotsOfWork()
+					: artist.getNumSlotsOfWork());
 			artistService.saveArtist(artist);
 		}
 	}

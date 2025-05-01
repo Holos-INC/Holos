@@ -20,7 +20,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import UserPanel from "./UserPanel";
 import COLORS from "@/src/constants/colors";
-import { ArtistDTO } from "@/src/constants/ExploreTypes";
+import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { getImageSource } from "@/src/utils/getImageSource";
 
 const commissionTablePrice = "@/assets/images/image.png";
 
@@ -93,9 +94,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
         commissionData,
         loggedInUser.token
       );
-      setTimeout(() => {
-        router.push(`/commissions`);
-      }, 2000);
+      router.push(`/commissions`);
 
       Alert.alert("Success", "Commission request sent!");
     } catch (error) {
@@ -131,7 +130,7 @@ export default function RequestForm({ artist }: RequestFormProps) {
 
         <View style={styles.imageWrapper}>
           <Image
-            source={require(commissionTablePrice)}
+            source={getImageSource(artist.tableCommisionsPrice)}
             style={styles.priceTableImage}
             resizeMode="contain"
           />

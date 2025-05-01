@@ -22,6 +22,7 @@ public class EntityToDTOMapper {
         artistDTO.setArtistId(artist.getId());
         artistDTO.setSellerAccountId(artist.getSellerAccountId());
         artistDTO.setNumSlotsOfWork(artist.getNumSlotsOfWork());
+        artistDTO.setAuthority(artist.getBaseUser().getAuthority().toString());
         return artistDTO;
     }
 
@@ -33,7 +34,7 @@ public static BaseUserDTO toBaseUserDTO(BaseUser baseUser) {
         baseUserDTO.setPhoneNumber(baseUser.getPhoneNumber());
         baseUserDTO.setDescription(baseUser.getDescription());
         baseUserDTO.setImageProfile(baseUser.getImageProfile());
-        baseUserDTO.setAuthorityName(baseUser.getAuthority().toString());
+        baseUserDTO.setAuthority(baseUser.getAuthority().toString());
         return baseUserDTO;
     }
 }

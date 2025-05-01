@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 
+/* ─────────────  DESKTOP  ───────────── */
 export const desktopStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -63,28 +64,10 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather-Regular",
     color: "#878582",
   },
-  infoLabel: {
-    fontWeight: "bold",
-  },
   artistText: {
     fontFamily: "Merriweather-Regular",
     marginBottom: 45,
     fontSize: 18,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  notFoundContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   separator: {
     height: 0.5,
@@ -95,7 +78,37 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather-Bold",
     fontSize: 16,
     color: "#000",
-    marginTop: 10,
+  },
+
+  /* --- NUEVO: fila precio + botón --- */
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  reportButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    backgroundColor: "#e53935",
+    borderRadius: 4,
+  },
+  reportButtonText: {
+    fontFamily: "Merriweather-Bold",
+    fontSize: 14,
+    color: "#fff",
+  },
+
+  /* ---- Estados ---- */
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   reportContainer: {
@@ -103,19 +116,9 @@ export const desktopStyles = StyleSheet.create({
     top: 20,
     right: 20,
   },
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  reportButtonText: {
-    fontFamily: "Merriweather-Bold",
-    fontSize: 16,
-    marginTop: 10,
-  },
 });
 
+/* ─────────────  MOBILE  ───────────── */
 export const mobileStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -195,8 +198,26 @@ export const mobileStyles = StyleSheet.create({
     fontFamily: "Merriweather-Bold",
     fontSize: 16,
     color: "#000",
-    marginTop: 10,
   },
+
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  reportButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: "#e53935",
+    borderRadius: 4,
+  },
+  reportButtonText: {
+    fontFamily: "Merriweather-Bold",
+    fontSize: 14,
+    color: "#fff",
+  },
+
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -212,16 +233,5 @@ export const mobileStyles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
-  },
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  reportButtonText: {
-    fontFamily: "Merriweather-Bold",
-    fontSize: 16,
-    marginTop: 10,
   },
 });

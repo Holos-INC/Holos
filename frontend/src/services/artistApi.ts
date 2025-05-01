@@ -4,7 +4,7 @@ import { API_URL } from "../constants/api";
 const ARTIST_URL = `${API_URL}/artists`;
 import { base64ToFile } from "@/src/components/convertionToBase64Image";
 import { artistUser } from "@/src/constants/user";
-import { ArtistDTO } from "../constants/ExploreTypes";
+import { ArtistDTO } from "../constants/CommissionTypes";
 
 export const getArtistById = async (id: number) => {
   try {
@@ -56,21 +56,18 @@ export const updateUserArtist = async (
 ): Promise<artistUser> => {
   const formData = new FormData();
 
-  const { imageProfile, tableCommissionsPrice, ...restOfUser } = user;
+  const { imageProfile, tableCommisionsPrice, ...restOfUser } = user;
 
   formData.append("updateUser", JSON.stringify(restOfUser));
 
   if (imageProfile && imageProfile.length > 0) {
-    const imageProfileData = base64ToFile(imageProfile, "image.png");
+    const imageProfileData = base64ToFile(imageProfile, "imageProfile.png");
     formData.append("imageProfile", imageProfileData);
   }
 
-  if (tableCommissionsPrice && tableCommissionsPrice.length > 0) {
-    const tableCommissionsPriceData = base64ToFile(
-      tableCommissionsPrice,
-      "image.png"
-    );
-    formData.append("tableCommissionsPrice", tableCommissionsPriceData);
+  if (tableCommisionsPrice && tableCommisionsPrice.length > 0) {
+    const tableCommisionsPriceData = base64ToFile(tableCommisionsPrice, "tableCommisionsPrice.png");
+    formData.append("tableCommisionsPrice", tableCommisionsPriceData);
   }
 
   const response = await api.put(`${API_URL}/auth/update`, formData, {
