@@ -90,9 +90,9 @@ INSERT INTO artists (id, num_slots_of_work, table_commisions_price, base_user_id
 (21, 2, '/images/tc17.jpg', 44, 'acct_1RAYPc06rGA4SaEh', 'sub_1RK0HRP7ypDsDd4Vd4EgStNp');
 
 INSERT INTO categories (id, name, description, image) VALUES
-(1, 'Painting', 'Artworks created using paint on a surface', '/images/painting_category.jpg'),
-(2, 'Digital Art', 'Artworks made using digital tools', '/images/digital_art_category.jpg'),
-(3, 'Sculpture', 'Three-dimensional artworks created by shaping materials', '/images/sculture_art_category.jpg');
+(1, 'Painting', 'Artworks created using paint on a surface'),
+(2, 'Digital Art', 'Artworks made using digital tools'),
+(3, 'Sculpture', 'Three-dimensional artworks created by shaping materials');
 
 
 INSERT INTO works_done(id, artist_id, name, description, price, image) VALUES 

@@ -5,8 +5,8 @@ interface CategoryModalProps {
   visible: boolean;
   onClose: () => void;
   category: any;
-  newCategory: { name: string; description: string; image: string };
-  setNewCategory: (category: { name: string; description: string; image: string }) => void;
+  newCategory: { name: string; description: string };
+  setNewCategory: (category: { name: string; description: string}) => void;
   onSave: () => void;
 }
 
@@ -37,12 +37,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             value={newCategory.description}
             onChangeText={(text) => setNewCategory({ ...newCategory, description: text })}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="URL de imagen"
-            value={newCategory.image}
-            onChangeText={(text) => setNewCategory({ ...newCategory, image: text })}
-          />
+          
           <TouchableOpacity style={styles.saveButton} onPress={onSave}>
             <Text style={styles.saveButtonText}>Guardar</Text>
           </TouchableOpacity>
