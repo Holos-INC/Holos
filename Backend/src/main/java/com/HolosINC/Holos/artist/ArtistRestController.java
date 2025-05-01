@@ -71,15 +71,15 @@ class ArtistRestController {
         }
 	}
     
-    @DeleteMapping("/administrator/artists/{id}")
-    public ResponseEntity<?> deleteArtist(@PathVariable Long id) {
-        try {
-            artistService.deleteArtist(id);
-            return ResponseEntity.ok().body(new MessageResponse("Artista eliminado con exito"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+    // @DeleteMapping("/administrator/artists/{id}")
+    // public ResponseEntity<?> deleteArtist(@PathVariable Long id) {
+    //     try {
+    //         artistService.deleteArtist(id);
+    //         return ResponseEntity.ok().body(new MessageResponse("Artista eliminado con exito"));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.badRequest().body(e.getMessage());
+    //     }
+    // }
 
 	@GetMapping(value = "/username/{username}")
 	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")

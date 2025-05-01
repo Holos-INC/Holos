@@ -29,14 +29,14 @@ export const getArtistByBaseId = async (baseUserId: number) => {
   }
 };
 
-export const deleteArtist = async (
-  id: number,
-  token: string
-): Promise<void> => {
-  await api.delete(`${ARTIST_URL}/administrator/artists/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};
+// export const deleteArtist = async (
+//   id: number,
+//   token: string
+// ): Promise<void> => {
+//   await api.delete(`${ARTIST_URL}/administrator/artists/${id}`, {
+//     headers: { Authorization: `Bearer ${token}` },
+//   });
+// };
 
 export const getArtistByUsername = async (
   username: string
@@ -66,7 +66,10 @@ export const updateUserArtist = async (
   }
 
   if (tableCommisionsPrice && tableCommisionsPrice.length > 0) {
-    const tableCommisionsPriceData = base64ToFile(tableCommisionsPrice, "tableCommisionsPrice.png");
+    const tableCommisionsPriceData = base64ToFile(
+      tableCommisionsPrice,
+      "tableCommisionsPrice.png"
+    );
     formData.append("tableCommisionsPrice", tableCommisionsPriceData);
   }
 
