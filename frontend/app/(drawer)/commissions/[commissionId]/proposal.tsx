@@ -150,6 +150,20 @@ export default function CommissionDetailsScreen() {
         gap: isTwoColumn ? 0 : 500,
       }}
     >
+      <Button
+        icon="arrow-left"
+        onPress={() => router.push(`/commissions`)}
+        style={{
+          position: "absolute",
+          top: 24,
+          left: 16,
+          zIndex: 10,
+          backgroundColor: "transparent",
+        }}
+        labelStyle={{ color: "grey" }}
+      >
+        ATRÁS
+      </Button>
       <View
         style={{
           flexDirection: isTwoColumn ? "row" : "column",
