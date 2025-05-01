@@ -111,7 +111,11 @@ export default function ExploreScreen() {
           page,
           PAGE_SIZE
         );
-        setWorks(content);
+        const taggedWorks = content.map((item) => ({
+          ...item,
+          __type: "work",
+        }));
+        setWorks(taggedWorks);
         setTotalPages(totalPages);
       } catch (err) {
         console.error("Error fetching works:", err);

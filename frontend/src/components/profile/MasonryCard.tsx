@@ -34,7 +34,7 @@ const MasonryCard: React.FC<MasonryCardProps> = ({ item, index }) => {
   return (
     <TouchableOpacity
       onPress={() => {
-        if ("artistSurname" in item) {
+        if ((item as any).__type === "work") {
           router.push({
             pathname: "/work/[workId]",
             params: { workId: String(item.id) },

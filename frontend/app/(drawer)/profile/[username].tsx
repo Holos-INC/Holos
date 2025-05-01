@@ -74,7 +74,11 @@ export default function ArtistDetailScreen() {
       const artistData: ArtistDTO = await getArtistByUsername(username);
       setUser(artistData);
       const worksData: WorksDoneDTO[] = await getWorksDoneByArtist(username);
-      setWorks(worksData);
+      const taggedWorks = worksData.map((item) => ({
+        ...item,
+        __type: "work",
+      }));
+      setWorks(taggedWorks);
     } catch (error) {
       console.error(error);
     }
