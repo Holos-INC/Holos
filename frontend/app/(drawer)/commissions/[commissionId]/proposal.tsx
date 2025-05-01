@@ -84,7 +84,7 @@ export default function CommissionDetailsScreen() {
     try {
       const parsedPrice = parseFloat(newPrice);
       const price = isClient
-        ? parseFloat((parsedPrice / 1.06).toFixed(2))
+        ? parseFloat((parsedPrice).toFixed(2))
         : parsedPrice;
   
       await priceValidationSchema.validate({ newPrice });
@@ -108,7 +108,7 @@ const handleSaveChanges = async () => {
   try {
     const parsedPrice = parseFloat(newPrice);
     const price = isClient
-      ? parseFloat((parsedPrice / 1.06).toFixed(2))
+      ? parseFloat((parsedPrice).toFixed(2))
       : parsedPrice;
 
     await priceValidationSchema.validate({ newPrice });
@@ -159,7 +159,7 @@ const handleSaveChanges = async () => {
     if (commission) {
       const basePrice = commission.price;
       const displayedPrice = isClient
-        ? (basePrice * 1.06).toFixed(2)
+        ? (basePrice).toFixed(2)
         : basePrice.toFixed(2);
 
       setNewPrice(displayedPrice);
@@ -211,7 +211,7 @@ const handleSaveChanges = async () => {
 
   const basePrice = commission.price;
   const displayedPrice = isClient
-    ? (basePrice * 1.06).toFixed(2)
+    ? (basePrice).toFixed(2)
     : basePrice.toFixed(2);
 
   const parsedInput = parseInt(newPrice);
@@ -541,7 +541,7 @@ const handleSaveChanges = async () => {
               <View>
                 <Text style={{ color: colors.brandPrimary, fontSize: 16 }}>
                   💰 Cliente paga:{" "}
-                  {(parseFloat(newPrice || "0") * 1.06).toFixed(2)}€
+                  {(parseFloat(newPrice || "0")).toFixed(2)}€
                 </Text>
                 <Text
                   style={{ color: colors.contentStrong, fontStyle: "italic" }}
