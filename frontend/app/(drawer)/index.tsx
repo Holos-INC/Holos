@@ -30,6 +30,7 @@ import {
 import { getImageSource } from "@/src/utils/getImageSource";
 import { BASE_URL } from "@/src/constants/api";
 import { Icon } from "react-native-paper";
+import OfficialCollaborators from "@/src/components/OfficialCollaborators";
 
 export default function ExploreScreen() {
   const [works, setWorks] = useState<WorksDoneDTO[]>([]);
@@ -247,6 +248,8 @@ export default function ExploreScreen() {
           ))}
         </View>
       </View>
+
+      <OfficialCollaborators />
     </>
   );
 
