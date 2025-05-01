@@ -1,5 +1,13 @@
-import React from "react";
-import { View, Text, Image, useWindowDimensions } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  useWindowDimensions,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { Icon, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
@@ -19,8 +27,14 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   isPremium,
   onEditPress,
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
   const { width } = useWindowDimensions();
   const isCompact = width < 750;
+
+  const tableCommisionsPrice =
+    user && "tableCommisionsPrice" in user
+      ? getImageSource(user.tableCommisionsPrice || "")
+      : getImageSource("");
 
   return (
     <View
@@ -56,10 +70,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
       <View
         style={{
-          flex: isCompact ? 1 : 3,
+          flex: isCompact ? 1 : 2,
           gap: 20,
           alignItems: isCompact ? "center" : "flex-start",
-          marginTop: isCompact ? 20 : 0,
+          marginTop: isCompact ? 50 : 0,
           width: "100%",
         }}
       >
@@ -109,6 +123,68 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           {user?.description || "No hay descripción disponible."}
         </Text>
       </View>
+
+      {user ? (
+        "tableCommisionsPrice" in user ? (
+          <>
+            <Pressable
+              style={{
+                flex: 1,
+                height: "100%",
+                width: "100%",
+                alignItems: "center",
+              }}
+              onPress={() => setModalVisible(true)}
+            >
+              <Image
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "contain",
+                }}
+                source={tableCommisionsPrice}
+                onError={() =>
+                  console.log("Error cargando imagen:", tableCommisionsPrice)
+                }
+              />
+            </Pressable>
+
+            <Modal
+              visible={modalVisible}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setModalVisible(false)}
+            >
+              <Pressable
+                style={{
+                  flex: 1,
+                  backgroundColor: "rgba(0,0,0,0.9)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={() => setModalVisible(false)}
+              >
+                <Image
+                  source={tableCommisionsPrice}
+                  style={{
+                    width: "90%",
+                    height: "70%",
+                    resizeMode: "contain",
+                  }}
+                />
+              </Pressable>
+            </Modal>
+          </>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              width: "100%",
+              alignItems: "center",
+            }}
+          />
+        )
+      ) : null}
     </View>
   );
 };

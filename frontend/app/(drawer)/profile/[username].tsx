@@ -21,13 +21,6 @@ import { getArtistByUsername } from "@/src/services/artistApi";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { MasonryGallery } from "@/src/components/profile/MasonryGallery";
 import { getAllRequestedCommissionsDone } from "@/src/services/commisionApi";
-interface Artwork {
-  id: number;
-  name: string;
-  image: string;
-  artistName?: string;
-  description?: string;
-}
 
 export default function ArtistDetailScreen() {
   const router = useRouter();
