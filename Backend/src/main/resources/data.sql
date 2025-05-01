@@ -94,7 +94,6 @@ INSERT INTO categories (id, name, description) VALUES
 (2, 'Digital Art', 'Artworks made using digital tools'),
 (3, 'Sculpture', 'Three-dimensional artworks created by shaping materials');
 
-
 INSERT INTO works_done(id, artist_id, name, description, price, image) VALUES 
 (200, 1, 'Sunset Serenity', 'A tranquil sunset over a calm landscape', 150.0, '/images/819.jpg'), 
 (201, 1, 'VIKTOR', 'viktor from arcane', 200.0, '/images/viktor.jpg'), 
