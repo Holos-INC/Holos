@@ -39,7 +39,6 @@ export default function SignupScreen() {
 
   const navigation = useNavigation();
 
-  const [numSlotsOfWork, setNumSlotsOfWork] = useState("");
   const [tableCommisionsPrice, settableCommisionsPrice] = useState("");
 
   const router = useRouter();
@@ -99,8 +98,6 @@ export default function SignupScreen() {
       password,
       authority: role.toUpperCase(),
       phoneNumber: "123456789",
-      numSlotsOfWork:
-        role === "artist" || role === "artist_premium" ? numSlotsOfWork : undefined,
     };
 
     const formData = new FormData();
@@ -319,19 +316,6 @@ export default function SignupScreen() {
             <>
               <View style={styles.formRow}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Slots de trabajo (1-8)</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Número entre 1 y 8"
-                    value={numSlotsOfWork}
-                    onChangeText={setNumSlotsOfWork}
-                    keyboardType="numeric"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={styles.inputGroup}>
                   <Text style={styles.label}>Precio del tablero de comisiones</Text>
                   <TouchableOpacity
                     onPress={picktableCommisionsPrice}
@@ -370,7 +354,6 @@ export default function SignupScreen() {
               {[
                 ["client", "CLIENT"],
                 ["artist", "ARTIST"],
-                ["artist_premium", "ARTIST PREMIUM"],
               ].map(([value, label]) => (
                 <TouchableOpacity
                   key={value}

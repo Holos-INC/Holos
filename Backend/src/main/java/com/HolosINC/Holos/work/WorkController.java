@@ -1,6 +1,7 @@
 package com.HolosINC.Holos.work;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +23,19 @@ public class WorkController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Work> getWorkById(@PathVariable Long id) throws Exception{
+    public ResponseEntity<Work> getWorkById(@PathVariable Long id) throws Exception {
         Work work = workService.getWorkById(id);
         return work != null ? ResponseEntity.ok(work) : ResponseEntity.notFound().build();
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWorkById(@PathVariable Long id) throws Exception {
+        try{
+            workService.deleteWork(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

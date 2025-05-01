@@ -127,7 +127,7 @@ export interface CommissionProtected {
 
   clientUsername: string;
 
-  acceptedDateByArtist: Date; 
+  acceptedDateByArtist: Date;
 }
 
 export interface CommissionInProgress {
@@ -151,7 +151,6 @@ export interface BaseUserDTO {
 }
 
 export interface ArtistDTO extends BaseUserDTO {
-  
   artistId: number;
   baseUserId: number;
   numSlotsOfWork: number;
@@ -183,4 +182,8 @@ export interface ClientCommissionDTO {
   clientUsername: string;
   currentStep: number;
   totalSteps: number;
+}
+
+export interface CommissionImageUpdateDTO {
+  image: string;
 }

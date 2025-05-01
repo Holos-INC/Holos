@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import colors from "../constants/colors";
 
 /* -------------------------  MOBILE  ------------------------- */
 export const mobileStyles = StyleSheet.create({
@@ -145,6 +146,77 @@ export const mobileStyles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
   },
+  suggestionsContainer: {
+    position: "absolute",
+    top: 85,
+    left: 16,
+    right: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    zIndex: 999,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  suggestionText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  collabCard: {
+    flexDirection: "row",
+    // backgroundColor: colors.surfaceMuted,
+    borderRadius: 12,
+    padding: 24,
+    marginHorizontal: 16,
+    marginTop: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  collabImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+
+  collabTextContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+
+  collabName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    // color: colors.contentStrong,
+  },
+
+  collabRole: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 2,
+  },
+
+  collabDescription: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
+  },
+  collabFallback: {
+    backgroundColor: "#8ACE00",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 /* ------------------------  DESKTOP  ------------------------ */
@@ -239,7 +311,7 @@ export const desktopStyles = StyleSheet.create({
     backgroundColor: "#F4F4F2",
     paddingVertical: 10,
     alignItems: "center",
-    margin: 10,
+    // margin: 10,
   },
   bottomSectionHeader: {
     flexDirection: "row",
@@ -293,5 +365,77 @@ export const desktopStyles = StyleSheet.create({
     fontFamily: "Merriweather-Italic",
     fontSize: 12,
     color: "#666",
+  },
+  suggestionsContainer: {
+    position: "absolute",
+    top: 120, // ajusta según el input
+    left: 250,
+    right: 250,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5, // para Android
+    zIndex: 999, // para iOS y web
+  },
+
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  suggestionText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  collabCard: {
+    flexDirection: "row",
+    // backgroundColor: colors.surfaceMuted,
+    borderRadius: 12,
+    padding: 24,
+    marginHorizontal: 16,
+    marginTop: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  collabImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+
+  collabTextContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+
+  collabName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    // color: colors.contentStrong,
+  },
+
+  collabRole: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 2,
+  },
+
+  collabDescription: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
+  },
+  collabFallback: {
+    backgroundColor: "#8ACE00",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

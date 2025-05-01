@@ -1,4 +1,3 @@
-// -------------------------  ExploreScreen.tsx  -------------------------
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,6 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
+import colors from "@/src/constants/colors";
 
 import { desktopStyles, mobileStyles } from "@/src/styles/Explore.styles";
 import SearchScreen from "@/src/components/search/SearchScreen";
@@ -22,35 +22,41 @@ import {
   getTopThreeArtists,
   ArtistMin,
 } from "@/src/services/ExploreWorkHelpers";
-import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
-import { getImageSource } from "@/src/getImageSource";
+import {
+  SearchWorkDTO,
+  WorksDoneDTO,
+  BaseUser,
+} from "@/src/constants/ExploreTypes";
+import { getImageSource } from "@/src/utils/getImageSource";
+import { BASE_URL } from "@/src/constants/api";
+import { Icon } from "react-native-paper";
+import OfficialCollaborators from "@/src/components/OfficialCollaborators";
 
 export default function ExploreScreen() {
-  /* ---------------------------   STATE   --------------------------- */
   const [works, setWorks] = useState<WorksDoneDTO[]>([]);
   const [topThreeArtists, setTopThreeArtists] = useState<ArtistMin[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [confirmedQuery, setConfirmedQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState<(SearchWorkDTO | ArtistMin)[]>(
+    []
+  );
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [skipSuggestions, setSkipSuggestions] = useState(false);
 
-  /* ------------------------   HOOKS & HELPERS   ------------------------ */
   const { loggedInUser } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width > 768;
   const styles = isDesktop ? desktopStyles : mobileStyles;
-
-  // grid helpers for paginated works list
   const numColumns = isDesktop ? 3 : width > 500 ? 2 : 1;
   const margin = isDesktop ? 24 : 12;
   const cardWidth = (width - (numColumns + 1) * margin) / numColumns;
-
-  // pagination helpers
   const PAGE_SIZE = 9;
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(works.length / PAGE_SIZE);
   const paginatedWorks = works.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  /* ---------------------------   FONTS   --------------------------- */
   const [fontsLoaded] = useFonts({
     "Merriweather-Regular": require("../../assets/fonts/Merriweather_24pt-Regular.ttf"),
     "Merriweather-Italic": require("../../assets/fonts/Merriweather_24pt-Italic.ttf"),
@@ -58,7 +64,44 @@ export default function ExploreScreen() {
     "Merriweather-BoldItalic": require("../../assets/fonts/Merriweather_24pt-BoldItalic.ttf"),
   });
 
-  /* ---------------------------   DATA   --------------------------- */
+  /* ----------- fetch suggestions ----------- */
+  useEffect(() => {
+    if (skipSuggestions) return;
+
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        const worksRes = await fetch(
+          `${BASE_URL}/api/v1/search/works?query=${encodeURIComponent(
+            searchQuery
+          )}`
+        ).then((r) => r.json());
+
+        const artistRes = await fetch(
+          `${BASE_URL}/api/v1/search/artists?query=${encodeURIComponent(
+            searchQuery
+          )}`
+        ).then((r) => r.json());
+
+        setSuggestions([
+          ...(worksRes?.content ?? []),
+          ...(artistRes?.content ?? []),
+        ]);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.error("Error fetching suggestions", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery, skipSuggestions]);
+
+  /* ----------- initial data ----------- */
   useEffect(() => {
     (async () => {
       try {
@@ -81,18 +124,44 @@ export default function ExploreScreen() {
     })();
   }, []);
 
-  // reset pagination when works change
   useEffect(() => setPage(0), [works]);
 
-  /* ------------------------   HANDLERS   ------------------------ */
+  /* ----------- handlers ----------- */
   const handleNextPage = () => setPage((p) => Math.min(p + 1, totalPages - 1));
   const handlePrevPage = () => setPage((p) => Math.max(p - 1, 0));
-  const handleSearchSubmit = () => {
-    if (searchQuery.trim()) setIsSearching(true);
-  };
-  const closeSearch = () => setIsSearching(false);
 
-  /* ------------------------   RENDERERS   ------------------------ */
+  const confirmSearch = (value: string) => {
+    setConfirmedQuery(value);
+    setIsSearching(true);
+    setShowSuggestions(false);
+    setSkipSuggestions(false);
+  };
+
+  const handleSearchSubmit = () => {
+    if (searchQuery.trim()) {
+      confirmSearch(searchQuery.trim());
+    } else {
+      closeSearch();
+    }
+  };
+
+  const closeSearch = () => {
+    setIsSearching(false);
+    setShowSuggestions(false);
+    setSkipSuggestions(false);
+    setConfirmedQuery("");
+  };
+
+  const handleScreenPress = () => {
+    if (isSearching) return;
+    if (showSuggestions) {
+      setShowSuggestions(false);
+      return;
+    }
+    closeSearch();
+  };
+
+  /* ----------- renderers ----------- */
   const renderWorkItem = ({ item }: { item: WorksDoneDTO }) => (
     <TouchableOpacity
       style={[styles.workItem, { width: cardWidth, margin }]}
@@ -112,14 +181,8 @@ export default function ExploreScreen() {
     </TouchableOpacity>
   );
 
-  /**
-   * Footer with pagination controls (chevrons) + Featured Artists section.
-   * This way the artist list siempre aparece al final de la lista de obras
-   * y hereda el scroll del FlatList.
-   */
   const renderListFooter = () => (
     <>
-      {/* ------------ Pagination ------------ */}
       {totalPages > 1 && (
         <View style={styles.paginationContainer}>
           <TouchableOpacity
@@ -145,7 +208,6 @@ export default function ExploreScreen() {
         </View>
       )}
 
-      {/* ------------ Featured artists ------------ */}
       <View style={styles.bottomSection}>
         <View style={styles.bottomSectionHeader}>
           <Text style={styles.bottomSectionHeaderText}>
@@ -164,7 +226,20 @@ export default function ExploreScreen() {
                 style={styles.artistImage}
               />
               <View style={styles.artistTextContainer}>
-                <Text style={styles.artistName}>{artist.name}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text style={styles.artistName}>{artist.name}</Text>
+
+                  {artist.isPremium && (
+                    <View style={{ marginLeft: 4 }}>
+                      <Icon
+                        source="check-decagram" // material-community
+                        size={30}
+                        color={colors.brandSecondary}
+                      />
+                    </View>
+                  )}
+                </View>
+
                 {artist.location && (
                   <Text style={styles.artistLocation}>{artist.location}</Text>
                 )}
@@ -173,39 +248,74 @@ export default function ExploreScreen() {
           ))}
         </View>
       </View>
+
+      <OfficialCollaborators />
     </>
   );
 
-  /* ---------------------------   MAIN JSX   --------------------------- */
   if (!fontsLoaded) return null;
 
   return (
-    <TouchableWithoutFeedback onPress={closeSearch}>
+    <TouchableWithoutFeedback
+      onPress={handleScreenPress}
+      disabled={isSearching}
+    >
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
-        {/* -------------------- Search bar -------------------- */}
-        <TextInput
-          style={[styles.searchBar, { marginTop: isDesktop ? 50 : 25 }]}
-          placeholder="Buscar trabajos o artistas…"
-          placeholderTextColor="#999"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearchSubmit}
-          returnKeyType="search"
-        />
+        <View style={{ position: "relative", zIndex: 10 }}>
+          <TextInput
+            style={[styles.searchBar, { marginTop: isDesktop ? 50 : 25 }]}
+            placeholder="Buscar trabajos o artistas…"
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              setSkipSuggestions(false);
+            }}
+            onSubmitEditing={handleSearchSubmit}
+            returnKeyType="search"
+          />
+
+          {showSuggestions && suggestions.length > 0 && (
+            <View style={styles.suggestionsContainer}>
+              {suggestions.slice(0, 5).map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    const name =
+                      "baseUser" in item
+                        ? (item.baseUser as BaseUser)?.name ||
+                          ("username" in item ? item.username : "")
+                        : item.name;
+                    setSearchQuery(name);
+                    confirmSearch(name);
+                    setSkipSuggestions(true);
+                  }}
+                  style={styles.suggestionItem}
+                >
+                  <Text style={styles.suggestionText}>
+                    {"baseUser" in item
+                      ? `🎨 ${
+                          (item.baseUser as BaseUser)?.name ||
+                          ("username" in item ? item.username : "")
+                        }`
+                      : `🖼️ ${item.name}`}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
 
         {isSearching ? (
-          <SearchScreen query={searchQuery} />
+          <SearchScreen query={confirmedQuery} />
         ) : (
           <>
-            {/* -------------------- Obras header -------------------- */}
             <View style={styles.topSection}>
               <Text style={styles.topSectionText}>Obras</Text>
             </View>
-
-            {/* -------------------- Works list -------------------- */}
             <FlatList
               data={paginatedWorks}
-              key={numColumns} // force re‑render cuando cambia numColumns
+              key={numColumns}
               keyExtractor={(item) => item.id.toString()}
               numColumns={numColumns}
               renderItem={renderWorkItem}

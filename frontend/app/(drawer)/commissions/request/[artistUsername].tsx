@@ -3,12 +3,14 @@ import { ScrollView } from "react-native";
 import RequestForm from "@/src/components/RequestCommission/RequestForm";
 import { getArtistById, getArtistByUsername } from "@/src/services/artistApi";
 import { Artist } from "@/src/constants/CommissionTypes";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
 import LoadingScreen from "@/src/components/LoadingScreen";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
+import { Button } from "react-native-paper";
 
 export default function RequestCommissionUserScreen() {
+  const router = useRouter();
   const { artistUsername } = useLocalSearchParams();
   const [artist, setArtist] = useState<ArtistDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,25 @@ export default function RequestCommissionUserScreen() {
 
   return (
     <ProtectedRoute allowedRoles={["CLIENT"]}>
-      <ScrollView>{artist && <RequestForm artist={artist} />}</ScrollView>
+      <ScrollView>
+        <Button
+          icon="arrow-left"
+          onPress={() => router.push(`/profile/${artistUsername}`)}
+          style={{
+            position: "absolute",
+            top: 24,
+            left: 16,
+            zIndex: 10,
+            backgroundColor: "transparent",
+          }}
+          labelStyle={{ color: "grey" }}
+        >
+          ATRÁS
+        </Button>
+
+        {artist && <RequestForm artist={artist} />}
+      </ScrollView>
     </ProtectedRoute>
   );
+
 }
