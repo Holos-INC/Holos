@@ -47,6 +47,7 @@ export interface ArtistMin {
   baseUserid?: number;
   location?: string;
   imageProfile?: string;
+  isPremium?: boolean;
 }
 
 /**
@@ -62,6 +63,7 @@ export async function getTopThreeArtists(): Promise<ArtistMin[]> {
         imageProfile: artist?.baseUser?.imageProfile,
         name: artist.baseUser?.name,
         username: artist.baseUser?.username,
+        isPremium: artist.baseUser.authority == "ARTIST_PREMIUM" ? true : false,
       })
     );
     return artists;

@@ -6,6 +6,7 @@ export interface BaseUser {
   email: string;
   phoneNumber?: string;
   imageProfile?: string;
+  authority: string;
 }
 
 export interface Artist {

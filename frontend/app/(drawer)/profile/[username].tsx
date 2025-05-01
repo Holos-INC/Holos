@@ -18,11 +18,9 @@ import ProfileHeader from "@/src/components/profile/ProfileHeader";
 import ActionButtons from "@/src/components/profile/ActionButtons";
 import ArtistProfileDialog from "@/src/components/profile/ProfileEditDialog";
 import { getArtistByUsername } from "@/src/services/artistApi";
-import { getImageSource } from "@/src/getImageSource";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { MasonryGallery } from "@/src/components/profile/MasonryGallery";
 import { getAllRequestedCommissionsDone } from "@/src/services/commisionApi";
-
 interface Artwork {
   id: number;
   name: string;

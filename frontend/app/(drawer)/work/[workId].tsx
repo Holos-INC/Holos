@@ -15,7 +15,7 @@ import { getWorksDoneById } from "@/src/services/WorksDoneApi";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkDetail.styles";
 import { useFonts } from "expo-font";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 import ReportDropdown from "@/src/components/report/ReportDropDown";
 
 export default function WorkDetailScreen() {
