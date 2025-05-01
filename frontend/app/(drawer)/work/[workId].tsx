@@ -95,22 +95,11 @@ export default function WorkDetailScreen() {
               <Text>Sin imagen</Text>
             </View>
           )}
-          {/* >>> Aquí se muestra el botón/desplegable de reporte <<< */}
-          {work.image && (
-            <View style={{ position: "absolute", top: 10, right: 10 }}>
-              <ReportDropdown
-                work={work}
-                menuVisibleId={menuVisibleId}
-                setMenuVisibleId={setMenuVisibleId}
-                isBigScreen={width > 768}
-              />
-            </View>
-          )}
         </View>
 
         <ScrollView style={styles.rightColumn}>
           <TouchableOpacity
-            onPress={() => router.push(`/`)}
+            onPress={() => router.back()}
             style={styles.backButton}
           >
             <Text style={styles.backArrow}>←</Text>
