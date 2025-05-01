@@ -27,8 +27,4 @@ public class Category{
 
     private String name;
     private String description;
-
-    @Lob
-    @Column(name = "image", columnDefinition = "LONGBLOB")
-    private byte[] image;
 }
