@@ -72,6 +72,7 @@ public class PremiumSubscriptionService {
 
         Subscription subscription = Subscription.create(subscriptionParams);
         artist.setSubscriptionId(subscription.getId());
+        artist.getBaseUser().setAuthority(Auth.ARTIST_PREMIUM);
         artistRepository.save(artist);
         return subscription.getId();
     }
