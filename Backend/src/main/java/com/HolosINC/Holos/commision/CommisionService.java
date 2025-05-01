@@ -1,5 +1,6 @@
 package com.HolosINC.Holos.commision;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
+import com.HolosINC.Holos.Kanban.StatusKanbanOrderRepository;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderService;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistService;
@@ -21,7 +23,6 @@ import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
 
@@ -33,12 +34,14 @@ public class CommisionService {
     private final ArtistService artistService;
     private final BaseUserService userService;
     private final StatusKanbanOrderService statusKanbanOrderService;
+    private final StatusKanbanOrderRepository statusKanbanOrderRepository;
     private final ClientService clientService;
     private final ChatMessageService chatMessageService;
 
     public CommisionService(CommisionRepository commisionRepository, ArtistService artistService,
             BaseUserService userService, ClientRepository clientRepository, ClientService clientService,
-            StatusKanbanOrderService statusKanbanOrderService, ChatMessageService chatMessageService) {
+            StatusKanbanOrderService statusKanbanOrderService, ChatMessageService chatMessageService,
+            StatusKanbanOrderRepository statusKanbanOrderRepository) {
         this.commisionRepository = commisionRepository;
         this.artistService = artistService;
         this.userService = userService;
@@ -46,6 +49,7 @@ public class CommisionService {
         this.clientService = clientService;
         this.statusKanbanOrderService = statusKanbanOrderService;
         this.chatMessageService = chatMessageService;
+        this.statusKanbanOrderRepository = statusKanbanOrderRepository;
     }
 
     public List<Commision> getAllCommisions() {
@@ -150,36 +154,6 @@ public class CommisionService {
                 }
             }
             commisionRepository.save(commision);
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public void requestPayment(Long commisionId) throws Exception {
-        try{
-            Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-            Long id = userService.findCurrentUser().getId();
-            if (artistService.isArtist(id)) {
-                if (!commision.getArtist().getBaseUser().getId().equals(id)) {
-                    throw new ResourceNotOwnedException("El artista no tiene permisos para poner en espera esta comisión.");
-                }
-                if (commision.getStatus()!=StatusCommision.ACCEPTED){
-                    throw new BadRequestException("No puedes solicitar el pago de una comisión que no está aceptada");
-                }
-                if (commision.isWaitingPayment()){
-                    throw new BadRequestException("Esta comisión ya está esperando un pago");
-                }
-                if (commision.getPaymentArrangement()!=EnumPaymentArrangement.MODERATOR){
-                    throw new BadRequestException("No puedes solicitar un pago de una comisión cuyo tipo de pago no es moderador");
-                }
-                if (commision.getTotalPayments()<=commision.getCurrentPayments()){
-                    throw new BadRequestException("Esta comisión ya está completamente pagada");
-                }
-                commision.setWaitingPayment(true);
-                commisionRepository.save(commision);
-            }
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -431,4 +405,43 @@ public class CommisionService {
 
         return commisionRepository.findEndedCommissionsByClientId(currentUser.getId());
     }
+
+    @Transactional
+    public void declinePayment(Long commisionId) {
+        try {
+            BaseUser currentUser = userService.findCurrentUser();
+    
+            Commision commision = commisionRepository.findById(commisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+    
+            if (!commision.getClient().getBaseUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("No puedes rechazar el pago de una comisión que no te pertenece.");
+            }
+    
+            if (commision.getStatus() != StatusCommision.ACCEPTED) {
+                throw new BadRequestException("No puedes rechazar el pago de una comisión que no está aceptada.");
+            }
+    
+            if (!commision.isWaitingPayment()) {
+                throw new BadRequestException("No puedes rechazar el pago de una comisión que no está esperando un pago.");
+            }
+    
+            StatusKanbanOrder previousStatus = statusKanbanOrderRepository
+                .statusKanbanOfOrder(commision.getArtist().getId(), commision.getStatusKanbanOrder().getOrder() - 1)
+                .orElse(null);
+            if(previousStatus!=null){
+                commision.setStatusKanbanOrder(previousStatus);
+            }
+            commision.setWaitingPayment(false);
+            commisionRepository.save(commision);
+    
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (BadRequestException e) {
+            throw e;
+        } catch (AccessDeniedException e) {
+            throw new RuntimeException("Acceso denegado: " + e.getMessage(), e);
+        }
+    }
+    
 }

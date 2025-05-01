@@ -109,6 +109,23 @@ export async function reject(id: number, token: string) {
   }
 }
 
+// Rechazar un pago de una comisión
+export async function declinePayment(id: number, token: string) {
+  try {
+    return await api.put(`${COMMISSION_URL}/${id}/decline-payment`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error: any) {
+    if (error.response?.data) {
+      const raw = error.response.data;
+      if (typeof raw === "string")
+        throw new Error(raw.replace(/^Error:\s*/, ""));
+      if (typeof raw === "object" && raw.message) throw new Error(raw.message);
+    }
+    throw new Error("Hubo un error al rechazar el pago de la comisión");
+  }
+}
+
 // Cambiar el estado de la comisión a 'espera' (waiting)
 export async function waiting(
   id: number,

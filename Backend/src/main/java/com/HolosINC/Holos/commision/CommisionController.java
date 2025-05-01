@@ -19,8 +19,8 @@ import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionImageUpdateDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
-import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -196,17 +196,19 @@ public class CommisionController {
                      .collect(Collectors.toList());
     }
 
-    @PostMapping("/request-payment/{commisionId}")
-    public ResponseEntity<?> requestPayment(@PathVariable Long commisionId) {
+    @PutMapping("/{id}/decline-payment")
+    public ResponseEntity<?> declinePayment(@PathVariable Long id) {
         try {
-            commisionService.requestPayment(commisionId);
-            return ResponseEntity.ok("Solicitud de pago realizada correctamente.");
-        } catch (IllegalArgumentException | ResourceNotOwnedException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            commisionService.declinePayment(id);
+            return ResponseEntity.ok("Pago rechazado correctamente.");
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(403).body("Acceso denegado: " + e.getMessage());
         } catch (ResourceNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body("Recurso no encontrado: " + e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body("Solicitud inválida: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al rechazar el pago: " + e.getMessage());
         }
-    }
+    }    
 }

@@ -26,7 +26,7 @@ public class Client {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entity_seq")
     protected Long id;
 
-    @Column(unique = true)
+    //@Column(unique = true)
     private String stripeCustomerId;
     
     @OneToOne(optional = true)
