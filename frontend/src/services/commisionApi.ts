@@ -42,7 +42,6 @@ export const getAllRequestedCommissions = async (
   }
 };
 
-// Obtener el historial de comisiones
 export const getAllRequestedCommissionsDone = async (
   username: string,
   token: string
@@ -51,7 +50,10 @@ export const getAllRequestedCommissionsDone = async (
     const response = await api.get(`${COMMISSION_URL}/ordered/${username}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data;
+
+    return response.data.filter(
+      (comm: CommissionDTO) => comm.status === "ENDED"
+    );
   } catch (error) {
     handleError(error, "Error fetching requested commissions");
     throw error;
@@ -61,6 +63,18 @@ export const getAllRequestedCommissionsDone = async (
 export const getCommissionById = async (id: number): Promise<CommissionDTO> => {
   try {
     const response = await api.get(`${COMMISSION_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error fetching commission by ID");
+    throw error;
+  }
+};
+
+export const getCommissionDoneById = async (
+  id: number
+): Promise<CommissionDTO> => {
+  try {
+    const response = await api.get(`${COMMISSION_URL}/${id}/done`);
     return response.data;
   } catch (error) {
     handleError(error, "Error fetching commission by ID");

@@ -108,6 +108,22 @@ public class CommisionService {
     }
 
     @Transactional
+    public CommissionDTO getCommisionDoneById(Long commisionId) throws Exception {
+        try {
+            Commision commision = commisionRepository.findById(commisionId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe la comisión con el ID proporcionado"));
+
+            if (!commision.getStatus().equals(StatusCommision.ENDED)) {
+                throw new IllegalStateException("La comisión aún no ha finalizado");
+            }
+
+            return new CommissionDTO(commision);
+        } catch (Exception e) {
+            throw new Exception("Error al obtener la comisión: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
     public void waitingCommission(CommissionDTO priceChanged, Long commisionId) throws Exception {
         try{
             Commision commision = commisionRepository.findById(commisionId)

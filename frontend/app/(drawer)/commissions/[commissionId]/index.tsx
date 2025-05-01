@@ -13,7 +13,7 @@ import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkDetail.styles";
 import { useFonts } from "expo-font";
 import { getImageSource } from "@/src/utils/getImageSource";
-import { getCommissionById } from "@/src/services/commisionApi";
+import { getCommissionDoneById } from "@/src/services/commisionApi";
 import { CommissionDTO } from "@/src/constants/CommissionTypes";
 
 export default function WorkDetailScreen() {
@@ -39,7 +39,7 @@ export default function WorkDetailScreen() {
   useEffect(() => {
     const fetchWork = async () => {
       try {
-        const data = (await getCommissionById(
+        const data = (await getCommissionDoneById(
           Number(commissionId)
         )) as CommissionDTO;
         setCommission(data);
@@ -135,19 +135,10 @@ export default function WorkDetailScreen() {
               <Text style={styles.price}>
                 {commission.price ? `${commission.price} €` : "No disponible"}
               </Text>
-
-              <TouchableOpacity
-                style={styles.reportButton}
-                onPress={() =>
-                  router.push({
-                    pathname: "/report/[reportId]",
-                    params: { reportId: String(commission.id) },
-                  })
-                }
-              >
-                <Text style={styles.reportButtonText}>Reportar</Text>
-              </TouchableOpacity>
             </View>
+            <Text style={styles.price}>
+              {commission.status ? `${commission.status} €` : "No disponible"}
+            </Text>
           </View>
         </ScrollView>
       </View>

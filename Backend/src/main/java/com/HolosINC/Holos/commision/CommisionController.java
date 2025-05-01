@@ -99,6 +99,25 @@ public class CommisionController {
         }
     }
 
+    @GetMapping("/{id}/done")
+    public ResponseEntity<?> getCommisionDoneById(@PathVariable Long id) {
+        try {
+            // Llamamos al servicio para obtener la comisión por ID
+            CommissionDTO commision = commisionService.getCommisionDoneById(id);
+            
+            // Devolvemos la comisión si existe
+            return ResponseEntity.ok(commision);
+        } catch (ResourceNotFoundException e) {
+            // Si la comisión no se encuentra, respondemos con un 404
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            // Si el usuario no tiene acceso a la comisión, respondemos con un 403
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            // Si ocurre un error inesperado, respondemos con un 500
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @PutMapping("/{commissionId}/waiting")
     public ResponseEntity<?> waitingCommission(@Valid @RequestBody CommissionDTO commission,
