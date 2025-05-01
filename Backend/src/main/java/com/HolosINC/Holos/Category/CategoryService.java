@@ -58,7 +58,6 @@ public class CategoryService {
 
             category.setName(updatedCategory.getName());
             category.setDescription(updatedCategory.getDescription());
-            category.setImage(updatedCategory.getImage());
 
             Category savedCategory = categoryRepository.save(category);
             return savedCategory;
