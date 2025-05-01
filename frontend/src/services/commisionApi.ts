@@ -141,6 +141,23 @@ export async function reject(id: number, token: string) {
   }
 }
 
+// Rechazar un pago de una comisión
+export async function declinePayment(id: number, token: string) {
+  try {
+    return await api.put(`${COMMISSION_URL}/${id}/decline-payment`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error: any) {
+    if (error.response?.data) {
+      const raw = error.response.data;
+      if (typeof raw === "string")
+        throw new Error(raw.replace(/^Error:\s*/, ""));
+      if (typeof raw === "object" && raw.message) throw new Error(raw.message);
+    }
+    throw new Error("Hubo un error al rechazar el pago de la comisión");
+  }
+}
+
 // Cambiar el estado de la comisión a 'espera' (waiting)
 export async function waiting(
   id: number,
@@ -249,6 +266,31 @@ export const getAcceptedCommissions = async (
     return response.data.accepted;
   } catch (error) {
     handleError(error, "Error fetching accepted commissions");
+    throw error;
+  }
+
+}
+
+  // Actualizar el arreglo de pagos de una comisión
+export const updatePayment = async (
+  commisionId: number,
+  paymentArrangement: string, // Se asume que es un string por el enum en el backend
+  totalPayments: number,       // En el frontend es un número
+  token: string
+): Promise<void> => {
+  try {
+    // Creando el objeto de datos a enviar al backend
+    const data = {
+      paymentArrangement,
+      totalPayments,
+    };
+
+    // Enviando la solicitud PUT al backend
+    await api.put(`${COMMISSION_URL}/${commisionId}/updatePayment`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    handleError(error, "Error updating payment arrangement");
     throw error;
   }
 };

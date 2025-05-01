@@ -261,7 +261,7 @@ public class StatusKanbanOrderServiceTest {
         // Asumimos que userId es el "artistId" en tu repos, adáptalo si no es así.
 
         List<StatusKanbanDTO> statuses = List.of(new StatusKanbanDTO(statusKanbanOrder));
-        StatusKanbanWithCommisionsDTO commisionsDTO = new StatusKanbanWithCommisionsDTO(55L,"Boceto","Algo",3.,EnumPaymentArrangement.INITIAL,"Prueba","client1");
+        StatusKanbanWithCommisionsDTO commisionsDTO = new StatusKanbanWithCommisionsDTO(55L,"Boceto","Algo",3.,EnumPaymentArrangement.INITIAL,"Prueba","client1", false, null);
         List<StatusKanbanWithCommisionsDTO> commisions = List.of(commisionsDTO);
 
         when(statusKanbanOrderRepository.getAllStatusOrdererOfArtist(100L)).thenReturn(statuses);

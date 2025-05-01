@@ -79,6 +79,7 @@ export interface Commission extends Work {
   milestoneDate: String;
   acceptedDateByArtist: string; // Stored as ISO date string
   paymentArrangement: PaymentArrangement;
+  totalPayments: number;
   statusKanbanOrder: StatusKanbanOrder;
   client: Client;
 }
@@ -138,6 +139,7 @@ export interface CommissionInProgress {
   artistUsername: string;
   currentStep: number;
   totalSteps: number;
+  waitingPayment: boolean;
 }
 
 export interface BaseUserDTO {
@@ -165,12 +167,15 @@ export interface CommissionDTO {
   price: number;
   status: StatusCommission;
   paymentArrangement: PaymentArrangement;
+  totalPayments: string;
+  currentPayments: number;
   milestoneDate: Date;
   artistUsername: string;
   clientUsername: string;
   image: string;
   imageProfileA: string;
   imageProfileC: string;
+  isWaitingPayment: boolean;
 }
 
 export interface ClientCommissionDTO {
@@ -182,6 +187,7 @@ export interface ClientCommissionDTO {
   clientUsername: string;
   currentStep: number;
   totalSteps: number;
+  waitingPayment: boolean;
 }
 
 export interface CommissionImageUpdateDTO {

@@ -2,11 +2,6 @@ import axios from "axios";
 import { API_URL, BASE_URL } from "../constants/api";
 import api from "./axiosInstance";
 
-export type PaymentDTO = {
-  amount: number;
-  description: string;
-};
-
 export const createStripeAccount = async (token: string) => {
   const res = await axios.post("/stripe-account/create", null, {
     headers: { Authorization: `Bearer ${token}` },
@@ -19,15 +14,30 @@ export const getStripeAccountLink = async () => {
   return res.data as string;
 };
 
-export const createPaymentIntent = async (
-  paymentDTO: PaymentDTO,
+export const createSetupIntent = async (
+  commissionId : number,
+  token : string
+) => {
+  const res = await axios.post(
+    `${API_URL}/payment/setup-intent/${commissionId}`,
+    null,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data;
+};
+
+export const payCommissionFromSetupIntent = async (
   commissionId: number,
   token: string
 ) => {
-  console.log(paymentDTO);
   const res = await axios.post(
-    `${API_URL}/payment/create/${commissionId}`,
-    paymentDTO,
+    `${API_URL}/payment/payment-from-setup/${commissionId}`,
+    null,
     {
       headers: {
         "Content-Type": "application/json",

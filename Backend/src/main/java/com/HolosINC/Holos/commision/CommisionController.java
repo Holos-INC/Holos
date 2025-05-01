@@ -1,6 +1,8 @@
 package com.HolosINC.Holos.commision;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,7 @@ import com.HolosINC.Holos.commision.DTOs.CommissionDTO;
 import com.HolosINC.Holos.commision.DTOs.CommissionImageUpdateDTO;
 import com.HolosINC.Holos.commision.DTOs.HistoryCommisionsDTO;
 import com.HolosINC.Holos.exceptions.AccessDeniedException;
+import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -213,4 +216,28 @@ public class CommisionController {
             return ResponseEntity.badRequest().body("Error al obtener las comisiones finalizadas: " + e.getMessage());
         }
     }
+
+    @GetMapping("/payment-arrangements")
+    public List<String> getPaymentArrangements() {
+        // Devuelve los valores del enum como una lista de cadenas
+        return Arrays.stream(EnumPaymentArrangement.values())
+                     .map(EnumPaymentArrangement::name)  // .name() convierte el valor en una cadena
+                     .collect(Collectors.toList());
+    }
+
+    @PutMapping("/{id}/decline-payment")
+    public ResponseEntity<?> declinePayment(@PathVariable Long id) {
+        try {
+            commisionService.declinePayment(id);
+            return ResponseEntity.ok("Pago rechazado correctamente.");
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(403).body("Acceso denegado: " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(404).body("Recurso no encontrado: " + e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body("Solicitud inválida: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al rechazar el pago: " + e.getMessage());
+        }
+    }    
 }

@@ -25,7 +25,9 @@ import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.commision.Commision;
 import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
+import com.HolosINC.Holos.commision.EnumPaymentArrangement;
 import com.HolosINC.Holos.commision.StatusCommision;
+import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -187,6 +189,12 @@ public class StatusKanbanOrderService {
         if (commisionService.isStatusKanbanInUse(status)) {
             throw new BadRequestException("No se puede eliminar un estado que está asignado a una o más comisiones.");
         }
+
+        List<ClientCommissionDTO> acceptedCommisions = commisionRepository.findCommissionsInProgressByArtist(artist.getId());
+
+        if (acceptedCommisions!=null|| !(acceptedCommisions.isEmpty())){
+            throw new BadRequestException("No se puede eliminar un estado cuando existen comisiones activas.");
+        }
     
         statusKanbanOrderRepository.delete(status);
     }
@@ -232,6 +240,10 @@ public class StatusKanbanOrderService {
         if (c.getImage() == null || c.getImage().length == 0) {
             throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
         }
+
+        if (c.isWaitingPayment()){
+            throw new BadRequestException("No puedes mover esta comisión en el kanban porque está esperando un pago");
+        }
         Optional<StatusKanbanOrder> nextStatus = statusKanbanOrderRepository.statusKanbanOfOrder(
             thisStatus.getArtist().getId(), thisStatus.getOrder() + 1);
 
@@ -259,6 +271,16 @@ public class StatusKanbanOrderService {
             // Si no hay slots, simplemente no se cambia el estado de la comisión en IN_WAIT_LIST
             }
         } else {
+            //Cuando es moderador, se pide el pago siempre que va hacia adelante
+            if (c.getPaymentArrangement()==EnumPaymentArrangement.MODERATOR){
+                requestPayment(c);
+            }
+            //Cuando es final o 50/50, se pide el pago siempre que la siguiente sea la última columna
+            else if ((c.getPaymentArrangement()==EnumPaymentArrangement.FIFTYFIFTY||
+                    c.getPaymentArrangement()==EnumPaymentArrangement.FINAL) &&
+                    nextStatus.get().getOrder()==countByArtistUsername(c.getArtist().getBaseUser().getUsername())){
+                requestPayment(c);
+            }
             c.setStatusKanbanOrder(nextStatus.get());
         }
         commisionRepository.save(c);
@@ -274,6 +296,14 @@ public class StatusKanbanOrderService {
     
         if (!currentArtist.getId().equals(c.getArtist().getId())) {
             throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
+        }
+
+        if (c.isWaitingPayment()){
+            throw new BadRequestException("No puedes mover esta comisión en el kanban porque está esperando un pago");
+        }
+
+        if (c.getPaymentArrangement()==EnumPaymentArrangement.MODERATOR){
+            throw new BadRequestException("No puedes mover esta comisión hacia atrás en el kanban porque es tipo moderador");
         }
     
         StatusKanbanOrder currentStatus = c.getStatusKanbanOrder();
@@ -352,6 +382,19 @@ public class StatusKanbanOrderService {
             estado.setOrder(i + 1);
             estado.setDescription("Estado por defecto: " + estados[i][0]);
             statusKanbanOrderRepository.save(estado);
+        }
+    }
+
+    @Transactional
+    private void requestPayment(Commision commision) throws Exception {
+        try{
+            if (commision.getTotalPayments()<=commision.getCurrentPayments()){
+                throw new BadRequestException("Esta comisión ya está completamente pagada");
+            }
+            commision.setWaitingPayment(true);
+            commisionRepository.save(commision);
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
