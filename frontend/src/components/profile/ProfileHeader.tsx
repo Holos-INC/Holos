@@ -4,7 +4,7 @@ import { Icon, IconButton } from "react-native-paper";
 import colors from "@/src/constants/colors";
 import { BaseUserDTO } from "@/src/constants/CommissionTypes";
 import { ArtistDTO } from "@/src/constants/CommissionTypes";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 
 type ProfileHeaderProps = {
   user: BaseUserDTO | ArtistDTO | null;
