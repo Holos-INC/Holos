@@ -160,7 +160,16 @@ INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, descripti
 
 -- Comisiones para el Artista 1(ID 1)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(1, 1, 'Golden Sunset', 'A breathtaking golden sunset over a serene landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/sunset.jpg');
+(1, 1, 'Golden Sunset', 'A breathtaking golden sunset over a serene landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/sunset.jpg'),
+(20, 1, 'Tropical Beach', 'A relaxing tropical beach scene', 270.0, 13, 'REQUESTED', '2025-03-15', 'INITIAL', NULL, 1, 0, true, NULL, '/images/nobita.jpg'),
+(30, 1, 'Sunset Painting', 'A beautiful sunset painting', 150.0, 1, 'ACCEPTED', '2025-03-01', 'INITIAL', 1, 1, 0, true, "seti_1RJlA6P7ypDsDd4VRtCR5yy1", '/images/nobita.jpg'),
+(40, 1, 'Ocean Waves', 'A calming ocean scene with waves', 200.0, 1, 'ACCEPTED', '2025-03-02', 'FINAL', 1, 1, 0, false, "seti_1RJlA6P7ypDsDd4VRtCR5yy1", '/images/nobita.jpg'),
+(50, 1, 'City Skyline', 'A modern city skyline at night', 320.0, 1, 'IN_WAIT_LIST', '2025-03-16', 'FIFTYFIFTY', NULL, 2, 0, true, "seti_1RJlA6P7ypDsDd4VRtCR5yy1", '/images/nobita.jpg'),
+(60, 1, 'Vintage Car', 'A classic vintage car painting', 180.0, 1, 'IN_WAIT_LIST', '2025-03-17', 'FINAL', NULL, 1, 0, false, NULL, '/images/nobita.jpg'),
+(70, 1, 'River Bend', 'A calm river meandering through the countryside', 250.0, 16, 'IN_WAIT_LIST', '2025-03-18', 'INITIAL', NULL, 1, 0, true, NULL, '/images/nobita.jpg'),
+(80, 1, 'Starry Night', 'A beautiful rendition of the night sky', 200.0, 17, 'ENDED', '2025-03-19', 'FIFTYFIFTY', NULL, 2, 2, false, NULL, '/images/nobita.jpg'),
+(90, 1, 'Mountain View', 'A scenic mountain landscape', 270.0, 18, 'ENDED', '2025-03-20', 'FINAL', NULL, 1, 1, false, NULL, '/images/nobita.jpg'),
+(100, 1, 'Peaceful Waters', 'A peaceful lake surrounded by mountains', 230.0, 19, 'ENDED', '2025-03-21', 'INITIAL', NULL, 1, 0, true, NULL, '/images/nobita.jpg');
 
 -- Comisiones para el Artista 2(ID 2)
 INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
