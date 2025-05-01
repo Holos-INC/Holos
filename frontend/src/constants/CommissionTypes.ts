@@ -139,6 +139,7 @@ export interface CommissionInProgress {
   artistUsername: string;
   currentStep: number;
   totalSteps: number;
+  waitingPayment: boolean;
 }
 
 export interface BaseUserDTO {
@@ -186,4 +187,5 @@ export interface ClientCommissionDTO {
   clientUsername: string;
   currentStep: number;
   totalSteps: number;
+  waitingPayment: boolean;
 }

@@ -18,10 +18,11 @@ public class ClientCommissionDTO {
     private Integer totalSteps;
     private byte[] imageProfileArtist;
     private byte[] imageProfileClient;
+    private boolean isWaitingPayment;
 
     public ClientCommissionDTO(byte[] image, String name, String artistUsername,
                                 int currentStep, int totalSteps,
-                                byte[] imageProfileArtist, byte[] imageProfileClient) {
+                                byte[] imageProfileArtist, byte[] imageProfileClient, boolean isWaitingPayment) {
         this.image = image;
         this.name = name;
         this.artistUsername = artistUsername;
@@ -29,6 +30,7 @@ public class ClientCommissionDTO {
         this.totalSteps = totalSteps; 
         this.imageProfileArtist = imageProfileArtist;
         this.imageProfileClient = imageProfileClient;
+        this.isWaitingPayment = isWaitingPayment;
     }
 
     public ClientCommissionDTO(Commision c) {
@@ -41,5 +43,6 @@ public class ClientCommissionDTO {
         this.clientUsername = c.getClient().getBaseUser().getUsername(); 
         this.imageProfileArtist = c.getArtist().getBaseUser().getImageProfile();
         this.imageProfileClient = c.getClient().getBaseUser().getImageProfile();
+        this.isWaitingPayment = c.isWaitingPayment();
     }
 }

@@ -104,7 +104,7 @@ export default function ArtistRequestOrders({ route, navigation }: any) {
     );
   }
 
-  
+  console.log("Primera comisión aceptada:", commissions.accepted[0])
 
   return (
     <ProtectedRoute allowedRoles={["ARTIST", "ARTIST_PREMIUM", "CLIENT"]}>
