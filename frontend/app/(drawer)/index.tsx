@@ -31,9 +31,12 @@ import { getImageSource } from "@/src/utils/getImageSource";
 import { BASE_URL } from "@/src/constants/api";
 import { Icon } from "react-native-paper";
 import OfficialCollaborators from "@/src/components/OfficialCollaborators";
+import { MasonryGallery } from "@/src/components/profile/MasonryGallery";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function ExploreScreen() {
   const [works, setWorks] = useState<WorksDoneDTO[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [topThreeArtists, setTopThreeArtists] = useState<ArtistMin[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [confirmedQuery, setConfirmedQuery] = useState("");
@@ -54,8 +57,6 @@ export default function ExploreScreen() {
   const cardWidth = (width - (numColumns + 1) * margin) / numColumns;
   const PAGE_SIZE = 9;
   const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(works.length / PAGE_SIZE);
-  const paginatedWorks = works.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const [fontsLoaded] = useFonts({
     "Merriweather-Regular": require("../../assets/fonts/Merriweather_24pt-Regular.ttf"),
@@ -105,13 +106,22 @@ export default function ExploreScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await fetchWorksAndTransform(loggedInUser?.token);
-        setWorks(data);
+        const { content, totalPages } = await fetchWorksAndTransform(
+          loggedInUser?.token,
+          page,
+          PAGE_SIZE
+        );
+        const taggedWorks = content.map((item) => ({
+          ...item,
+          __type: "work",
+        }));
+        setWorks(taggedWorks);
+        setTotalPages(totalPages);
       } catch (err) {
         console.error("Error fetching works:", err);
       }
     })();
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     (async () => {
@@ -124,13 +134,12 @@ export default function ExploreScreen() {
     })();
   }, []);
 
-  useEffect(() => setPage(0), [works]);
-
   /* ----------- handlers ----------- */
   const handleNextPage = () => setPage((p) => Math.min(p + 1, totalPages - 1));
   const handlePrevPage = () => setPage((p) => Math.max(p - 1, 0));
 
   const confirmSearch = (value: string) => {
+    setPage(0);
     setConfirmedQuery(value);
     setIsSearching(true);
     setShowSuggestions(false);
@@ -263,7 +272,7 @@ export default function ExploreScreen() {
       <View style={{ flex: 1, backgroundColor: "#fff" }}>
         <View style={{ position: "relative", zIndex: 10 }}>
           <TextInput
-            style={[styles.searchBar, { marginTop: isDesktop ? 50 : 25 }]}
+            style={[styles.searchBar, { marginTop: 25 }]}
             placeholder="Buscar trabajos o artistas…"
             placeholderTextColor="#999"
             value={searchQuery}
@@ -310,18 +319,19 @@ export default function ExploreScreen() {
           <SearchScreen query={confirmedQuery} />
         ) : (
           <>
-            <View style={styles.topSection}>
-              <Text style={styles.topSectionText}>Obras</Text>
-            </View>
-            <FlatList
-              data={paginatedWorks}
-              key={numColumns}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={numColumns}
-              renderItem={renderWorkItem}
-              contentContainerStyle={styles.worksContainer}
-              ListFooterComponent={renderListFooter}
-            />
+            <ScrollView
+              contentContainerStyle={{
+                paddingBottom: 32,
+                paddingTop: 8,
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.topSection}>
+                <Text style={styles.topSectionText}>Obras</Text>
+              </View>
+              <MasonryGallery works={works} />
+              {renderListFooter()}
+            </ScrollView>
           </>
         )}
       </View>
