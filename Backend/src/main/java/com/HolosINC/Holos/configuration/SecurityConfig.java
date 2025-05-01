@@ -43,8 +43,8 @@ public class SecurityConfig {
             .requestMatchers("/api/v1/categories/administrator/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/reports/admin/**").hasAuthority("ADMIN")
             .requestMatchers("/api/v1/report-types/admin/**").hasAuthority("ADMIN")
-/*             .requestMatchers(HttpMethod.GET, "/api/v1/status-kanban-order/count/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM", "ADMIN", "CLIENT") 
-            .requestMatchers("/api/v1/status-kanban-order/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM") */
+            .requestMatchers("/api/v1/status-kanban-order/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM") // Acceder a esta api solo si es ARTIST o ARTIST_PREMIUM
+            .requestMatchers(HttpMethod.GET, "/api/v1/status-kanban-order/count/**").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM", "CLIENT") // Acceder a esta api solo si es ARTIST o ARTIST_PREMIUM o CLIENT
             .requestMatchers(HttpMethod.PUT,"/api/v1/commisions/{id}/status").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers(HttpMethod.POST,"/api/v1/commisions/request-payment/{commisionId}").hasAnyAuthority("ARTIST", "ARTIST_PREMIUM")
             .requestMatchers("/api/v1/commisions/**").authenticated()
