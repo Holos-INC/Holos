@@ -3,6 +3,7 @@ package com.HolosINC.Holos.commision;
 import java.nio.file.AccessDeniedException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -263,25 +264,54 @@ public class CommisionService {
     }
 
     @Transactional
-    public void cancelCommission(Long commisionId) throws Exception{
-        try{
-            Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-            Long id = userService.findCurrentUser().getId();
-            if (!commision.getClient().getBaseUser().getId().equals(id) &&
-                    !commision.getArtist().getBaseUser().getId().equals(id)) {
+    public void cancelCommission(Long commissionId) throws Exception {
+        BaseUser currentUser = userService.findCurrentUser();
+        Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
+
+        try {
+            Commision commission = commisionRepository.findById(commissionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commissionId));
+
+            Long userId = currentUser.getId();
+
+            boolean isClient = commission.getClient().getBaseUser().getId().equals(userId);
+            boolean isArtist = commission.getArtist().getBaseUser().getId().equals(userId);
+            if (!isClient && !isArtist) {
                 throw new IllegalArgumentException("Usted no tiene permisos para cancelar esta comisión.");
             }
-            if (!(commision.getStatus() == StatusCommision.IN_WAIT_LIST ||
-                    commision.getStatus() == StatusCommision.ACCEPTED)) {
+
+            if (commission.getStatus() != StatusCommision.IN_WAIT_LIST &&
+                commission.getStatus() != StatusCommision.ACCEPTED) {
                 throw new IllegalStateException("La comisión no puede ser cancelada en su estado actual.");
             }
-            commisionRepository.deleteById(commisionId);
-                    return;
+
+            boolean wasAccepted = commission.getStatus() == StatusCommision.ACCEPTED;
+            commisionRepository.deleteById(commissionId);
+            if (wasAccepted) {
+                Long acceptedCount = commisionRepository.countByStatusAcceptedAndArtist(currentArtist.getId());
+                if (acceptedCount < currentArtist.getNumSlotsOfWork()) {
+                    Optional<Commision> nextInWaitList = commisionRepository
+                        .findFirstByStatusAndArtistOrderByAcceptedDateByArtistAsc(StatusCommision.IN_WAIT_LIST, currentArtist);
+
+                    if (nextInWaitList.isPresent()) {
+                        Commision toAccept = nextInWaitList.get();
+                        Optional<StatusKanbanOrder> firstKanbanStatus = commisionRepository
+                            .getFirstStatusKanbanOfArtist(currentArtist.getId());
+
+                        if (firstKanbanStatus.isPresent()) {
+                            toAccept.setStatus(StatusCommision.ACCEPTED);
+                            toAccept.setStatusKanbanOrder(firstKanbanStatus.get());
+                            commisionRepository.save(toAccept);
+                        }
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Error al cancelar la comisión: " + e.getMessage(), e);
         }
     }
+
 
     @Transactional(readOnly = true)
     public HistoryCommisionsDTO getHistoryOfCommissions() throws Exception {

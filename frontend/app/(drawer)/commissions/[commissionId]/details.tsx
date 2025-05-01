@@ -13,6 +13,7 @@ import { getCommissionById, declinePayment } from "@/src/services/commisionApi";
 import { styles } from "@/src/styles/CommissionAcceptedDetails.styles";
 import { payCommissionFromSetupIntent } from "@/src/services/stripeApi";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
+import { cancelCommission } from "@/src/services/commisionApi";
 
 export default function CommissionAcceptedDetailsScreen() {
   const { commissionId, currentStep, totalSteps } = useLocalSearchParams<{
@@ -110,6 +111,21 @@ export default function CommissionAcceptedDetailsScreen() {
     }
   };
 
+  const handleCancelCommission = async () => {
+    try {
+      if (!token || isNaN(numericId)) {
+        setError("No se puede cancelar la comisión.");
+        return;
+      }
+      await cancelCommission(numericId, token);
+      alert("Comisión cancelada correctamente.");
+      router.back(); // o usa fetchCommission() si quieres recargar la pantalla en lugar de volver
+    } catch (err: any) {
+      setError(err.message || "Error al cancelar la comisión.");
+    }
+  };
+  
+
   const step = Number(currentStep) || 0;
   const steps = Number(totalSteps) || 0;
   const isClient = commission.clientUsername === loggedInUser?.username;
@@ -142,6 +158,17 @@ export default function CommissionAcceptedDetailsScreen() {
         >
           Ir al chat
         </Button>
+
+        <Button
+          mode="outlined"
+          buttonColor="#FF4444"
+          textColor="white"
+          style={{ marginTop: 12 }}
+          onPress={handleCancelCommission}
+        >
+          Cancelar comisión
+        </Button>
+
 
         {commission.isWaitingPayment && isClient && (
           <View style={{ flexDirection: "row", marginTop: 12, gap: 12 }}>
