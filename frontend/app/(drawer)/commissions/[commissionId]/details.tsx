@@ -124,7 +124,7 @@ export default function CommissionAcceptedDetailsScreen() {
       setError(err.message || "Error al cancelar la comisión.");
     }
   };
-  
+
 
   const step = Number(currentStep) || 0;
   const steps = Number(totalSteps) || 0;
@@ -138,6 +138,20 @@ export default function CommissionAcceptedDetailsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.card}>
+        <Button
+          icon="arrow-left"
+          onPress={() => router.push(`/kanban`)}
+          style={{
+            position: "absolute",
+            top: 24,
+            left: 16,
+            zIndex: 10,
+            backgroundColor: "transparent",
+          }}
+          labelStyle={{ color: "grey" }}
+        >
+          ATRÁS
+        </Button>
         <PaymentDetails commission={commission} />
 
         {steps > 0 && (
@@ -211,11 +225,11 @@ export default function CommissionAcceptedDetailsScreen() {
               {confirmType === "pay"
                 ? <Text>
                   Esta acción corresponde al pago {!commission.currentPayments ? 1 : commission.currentPayments + 1} de {commission.totalPayments} de la comisión.
-                  Se abonarán {((Number(commission.price) || 0) /(Number(commission.totalPayments) || 1)).toFixed(2)}€ al artista.
+                  Se abonarán {((Number(commission.price) || 0) / (Number(commission.totalPayments) || 1)).toFixed(2)}€ al artista.
                 </Text>
                 : <Text>
-                Esta acción cancelará el pago pendiente
-              </Text>}
+                  Esta acción cancelará el pago pendiente
+                </Text>}
             </Text>
             <View style={stylesModal.buttons}>
               <TouchableOpacity onPress={() => setConfirmType(null)}>
