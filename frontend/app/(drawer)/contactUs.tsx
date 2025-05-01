@@ -7,13 +7,15 @@ import emailjs from '@emailjs/browser';
 import { Platform } from 'react-native';
 import { useFonts } from "expo-font";
 import LoadingScreen from "@/src/components/LoadingScreen";
-import {styles} from "@/src/styles/contactUs.styles";
+import { styles } from "@/src/styles/contactUs.styles";
+import { Button } from "react-native-paper";
+import { useRouter } from "expo-router";
 
 
 const defaultPlaceholderColor = "#888";
 const colorIncon = "#16366E";
 const sizeIcon = 30;
-const maxShotLenthInput= 50;
+const maxShotLenthInput = 50;
 const maxLongLenthInput = 600;
 const isWeb = Platform.OS === 'web'
 
@@ -22,6 +24,7 @@ const templateId = process.env.EXPO_PUBLIC_EMAILJS_TEMPLATE_ID;
 const publicKey = process.env.EXPO_PUBLIC_EMAILJS_PUBLIC_KEY;
 
 export default function ContactUs() {
+  const router = useRouter();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -54,24 +57,32 @@ export default function ContactUs() {
       reply_to: email,
       message: message,
     }, publicKey!)
-    .then(() => {
-      popUpMovilWindows("Éxito", "¡Tu mensaje ha sido enviado correctamente!");
-      setName('');
-      setEmail('');
-      setMessage('');
-    })
-    .catch(() => {
-      popUpMovilWindows("Error", "Hubo un problema al enviar el mensaje.");
-    });
+      .then(() => {
+        popUpMovilWindows("Éxito", "¡Tu mensaje ha sido enviado correctamente!");
+        setName('');
+        setEmail('');
+        setMessage('');
+      })
+      .catch(() => {
+        popUpMovilWindows("Error", "Hubo un problema al enviar el mensaje.");
+      });
   };
 
-   if (!fontsLoaded && serviceId && templateId && publicKey) {
-      return <LoadingScreen />;
-    }
+  if (!fontsLoaded && serviceId && templateId && publicKey) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ScrollView style={styles.container}>
       <View style={[styles.contentWrapper]}>
+        <Button
+          onPress={() => router.push("/")}
+          icon={"arrow-left"}
+          style={{ alignSelf: "flex-start" }}
+          labelStyle={{ color: "grey" }}
+        >
+          ATRÁS
+        </Button>
         <Text style={styles.title}>¡¡No dudes en ponerte en contacto con nosotros!!</Text>
         <Text style={styles.subtitle}>¿Tienes dudas, ideas o simplemente quieres decir hola? ¡Escríbenos!</Text>
         <View style={styles.infoSection}>
@@ -139,14 +150,14 @@ export default function ContactUs() {
         <View style={styles.socialMediaWrapper}>
           <Text style={styles.sectionHeader}>¡Síguenos y únete a la aventura!</Text>
           <View style={styles.socialIconsRow}>
-          <TouchableOpacity
+            <TouchableOpacity
               style={styles.socialIconButton}
               onPress={() => Linking.openURL("https://www.instagram.com/holosapp/")}
             >
               <Icon name="instagram" size={sizeIcon} color={colorIncon} />
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          <TouchableOpacity
+            <TouchableOpacity
               style={styles.socialIconButton}
               onPress={() => Linking.openURL("https://www.tiktok.com/@holosapp")}
             >
@@ -159,8 +170,8 @@ export default function ContactUs() {
             >
               <Icon name="youtube" size={sizeIcon} color={colorIncon} />
             </TouchableOpacity>
-            
-           
+
+
             <TouchableOpacity
               style={styles.socialIconButton}
               onPress={() => Linking.openURL("https://sites.google.com/view/holos/inicio")}

@@ -52,7 +52,7 @@ export const createSubscription = async (
   paymentMethodId: string,
   token: string
 ) => {
-  const res = await axios.post(`${API_URL}/stripe-subsciption/create`, null, {
+  const res = await axios.post(`${API_URL}/stripe-subscription/create`, null, {
     params: { paymentMethod: paymentMethodId },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ export const createSubscription = async (
 };
 
 export const cancelSubscription = async (token: string) => {
-  const res = await axios.post(`${API_URL}/stripe-subsciption/delete`, null, {
+  const res = await axios.post(`${API_URL}/stripe-subscription/delete`, null, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.artist.ArtistRepository;
+import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -91,6 +92,9 @@ public class PremiumSubscriptionService {
         }
 
         Subscription subscription = Subscription.retrieve(subscriptionId);
+        // Devuelve el artista a ser Artista
+        artist.getBaseUser().setAuthority(Auth.ARTIST);
+        artist.setSubscriptionId(null);
         return subscription.cancel();
     }
 
