@@ -84,7 +84,7 @@ export default function CommissionDetailsScreen() {
     try {
       const parsedPrice = parseFloat(newPrice);
       const price = isClient
-        ? parseFloat((parsedPrice / 1.06).toFixed(2))
+        ? parseFloat((parsedPrice).toFixed(2))
         : parsedPrice;
   
       await priceValidationSchema.validate({ newPrice });
@@ -108,7 +108,7 @@ const handleSaveChanges = async () => {
   try {
     const parsedPrice = parseFloat(newPrice);
     const price = isClient
-      ? parseFloat((parsedPrice / 1.06).toFixed(2))
+      ? parseFloat((parsedPrice).toFixed(2))
       : parsedPrice;
 
     await priceValidationSchema.validate({ newPrice });
@@ -159,7 +159,7 @@ const handleSaveChanges = async () => {
     if (commission) {
       const basePrice = commission.price;
       const displayedPrice = isClient
-        ? (basePrice * 1.06).toFixed(2)
+        ? (basePrice).toFixed(2)
         : basePrice.toFixed(2);
 
       setNewPrice(displayedPrice);
@@ -211,7 +211,7 @@ const handleSaveChanges = async () => {
 
   const basePrice = commission.price;
   const displayedPrice = isClient
-    ? (basePrice * 1.06).toFixed(2)
+    ? (basePrice).toFixed(2)
     : basePrice.toFixed(2);
 
   const parsedInput = parseInt(newPrice);
@@ -472,46 +472,43 @@ const handleSaveChanges = async () => {
     {calculateAmountToPayIPArtist()}
   </Text>
 </View>
-              {yourTurn && (
-                <View style={{ marginTop: 10 }}>
-                  {commission.status === StatusCommission.NOT_PAID_YET ? (
-                    <PayButton
-                      onPress={() =>
-                        router.push(`/commissions/${commission.id}/checkout`)
-                      }
-                    />
-                  ) : (
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                      {paymentArrangement === initialPaymentArrangement && basePrice === parseFloat(initialPrice) &&yourTurn && !isButtonDisabled &&
-                      (<Button
-                        onPress={handleAccept}
-                        buttonColor={colors.contentStrong}
-                        textColor="white"
-                      >
-                        Aceptar
-                      </Button>)}
-                  <Button
-                    onPress={handleReject}
-                    buttonColor={colors.brandPrimary}
-                    textColor="white"
-                  >
-                    Rechazar
-                  </Button>
-                  <Button
-                    onPress={handleSaveChanges}
-                    buttonColor={colors.surfaceBase} 
-                    textColor={colors.contentStrong} 
-                  >
-                    Guardar cambios
-                  </Button>
-                </View>
-                  )}
-                </View>
-              )}
-
-              <Text style={styles.errorText}>{errorMessage}</Text>
+              <View style={{ marginTop: 10 }}>
+                {commission.status === StatusCommission.NOT_PAID_YET ? (
+                  <PayButton
+                    onPress={() =>
+                      router.push(`/commissions/${commission.id}/checkout`)
+                    }
+                  />
+                ) : (
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                  {paymentArrangement === initialPaymentArrangement && basePrice === parseFloat(initialPrice) &&yourTurn && !isButtonDisabled &&
+                    (<Button
+                      onPress={handleAccept}
+                      buttonColor={colors.contentStrong}
+                      textColor="white"
+                    >
+                      Aceptar
+                    </Button>)}
+                {yourTurn&&(<Button
+                  onPress={handleReject}
+                  buttonColor={colors.brandPrimary}
+                  textColor="white"
+                >
+                  Rechazar
+                </Button>)}
+                {yourTurn&&(<Button
+                  onPress={handleSaveChanges}
+                  buttonColor={colors.surfaceBase} 
+                  textColor={colors.contentStrong} 
+                >
+                  Guardar cambios
+                </Button>)}
+              </View>
+                )}
+              </View>
+            <Text style={styles.errorText}>{errorMessage}</Text>
             </View>
-          )}
+            )}
           {isClient ? (
             <View style={[styles.card, { gap: 20 }]}>
               <View>
@@ -541,7 +538,7 @@ const handleSaveChanges = async () => {
               <View>
                 <Text style={{ color: colors.brandPrimary, fontSize: 16 }}>
                   💰 Cliente paga:{" "}
-                  {(parseFloat(newPrice || "0") * 1.06).toFixed(2)}€
+                  {(parseFloat(newPrice || "0")).toFixed(2)}€
                 </Text>
                 <Text
                   style={{ color: colors.contentStrong, fontStyle: "italic" }}

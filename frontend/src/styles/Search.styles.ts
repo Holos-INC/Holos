@@ -1,106 +1,50 @@
 import { StyleSheet } from "react-native";
+import {
+  mobileStyles as exploreMobile,
+  desktopStyles as exploreDesktop,
+} from "@/src/styles/Explore.styles";
 
-/* =========================================================
- *  MOBILE — mismos tamaños y tipografías que Explore
- * =======================================================*/
+import { ViewStyle } from "react-native";
+
+const headerBase: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
 export const mobileStyles = StyleSheet.create({
-  /* ---------- layout ---------- */
-  container: {
-    flex: 1,
+  ...exploreMobile,
+
+  /* ---------- cabeceras de sección ---------- */
+  sectionWrapper: {
     backgroundColor: "#FFFFFF",
   },
-
-  /* ---------- encabezado ---------- */
-  topSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  sectionHeader: {
+    ...headerBase,
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 10,
     marginBottom: 10,
   },
-  topSectionText: {
-    fontSize: 22,
+  sectionHeaderText: {
+    fontSize: 16,
     fontWeight: "600",
-    color: "#000",
+    color: "#333",
     fontFamily: "Merriweather-Bold",
     paddingLeft: 26,
   },
 
-  /* ---------- OBRAS (idéntico a Explore) ---------- */
-  worksScrollContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    paddingHorizontal: 16,
-    marginTop: 18,
+  /* ---------- fondo gris artistas (reuse Explore) ---------- */
+  bottomSection: {
+    ...exploreMobile.bottomSection,
   },
-  workItem: {
-    width: 260,
-    marginRight: 35,
+  bottomSectionHeader: {
+    ...exploreMobile.bottomSectionHeader,
   },
-  workImage: {
-    width: "100%",
-    height: 200,
-    resizeMode: "contain",
-    marginBottom: 20,
-  },
-  workTextContainer: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-  workTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#222",
-    fontFamily: "Merriweather-Bold",
-    marginBottom: 2,
-  },
-  workArtist: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#555",
-    fontFamily: "Merriweather-Bold",
-    marginBottom: 2,
-  },
-  workSubtitle: {
-    fontSize: 12,
-    fontWeight: "400",
-    color: "#777",
-    fontFamily: "Merriweather-Italic",
+  bottomSectionHeaderText: {
+    ...exploreMobile.bottomSectionHeaderText,
   },
 
-  /* ---------- ARTISTAS (idéntico a Explore) ---------- */
-  artistsContainer: {
-    flexDirection: "column",
-    paddingHorizontal: 50,
-    marginVertical: 10,
-  },
-  artistCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F4F4F2",
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
-  artistImage: {
-    width: 80,
-    height: 80,
-    resizeMode: "cover",
-    marginRight: 16,
-    backgroundColor: "#DDD",
-  },
-  artistTextContainer: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  artistName: {
-    fontFamily: "Merriweather-Regular",
-    fontSize: 16,
-    color: "#222",
-  },
-
-  /* ---------- mensajes vacío ---------- */
+  /* ---------- mensaje vacío ---------- */
   noResultsText: {
     textAlign: "center",
     marginTop: 20,
@@ -109,109 +53,35 @@ export const mobileStyles = StyleSheet.create({
   },
 });
 
-/* =========================================================
- *  DESKTOP — mismos estilos que Explore desktop
- * =======================================================*/
 export const desktopStyles = StyleSheet.create({
-  /* ---------- layout ---------- */
-  container: {
-    flex: 1,
+  ...exploreDesktop,
+
+  sectionWrapper: {
     backgroundColor: "#FFFFFF",
   },
-  topSection: {
-    height: "10%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  sectionHeader: {
+    ...headerBase,
     paddingHorizontal: 250,
-    marginTop: 50,
+    paddingTop: 10,
+    marginBottom: 10,
   },
-  topSectionText: {
-    fontSize: 28,
+  sectionHeaderText: {
+    fontSize: 18,
     fontWeight: "600",
     color: "#333",
-    fontFamily: "Merriweather",
-  },
-
-  /* ---------- OBRAS ---------- */
-  worksScrollContainer: {
-    alignItems: "center",
-    paddingHorizontal: 40,
-  },
-  workItem: {
-    width: 220,
-    height: "100%",
-    marginRight: 90,
-    backgroundColor: "#FFF",
-    overflow: "hidden",
-  },
-  workImage: {
-    width: "auto",
-    height: "80%",
-    padding: 10,
-    resizeMode: "contain",
-  },
-  workTextContainer: {
-    marginBottom: 60,
-  },
-  workTitle: {
-    fontSize: 16,
-    fontWeight: "700",
     fontFamily: "Merriweather-Bold",
-    color: "#222",
-    marginBottom: 4,
-    paddingHorizontal: 4,
-  },
-  workArtist: {
-    fontSize: 14,
-    fontWeight: "500",
-    fontFamily: "Merriweather",
-    color: "#555",
-    marginBottom: 2,
-    paddingHorizontal: 4,
-  },
-  workSubtitle: {
-    fontSize: 12,
-    fontWeight: "400",
-    color: "#777",
-    paddingHorizontal: 4,
   },
 
-  /* ---------- ARTISTAS ---------- */
-  artistsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
+  bottomSection: {
+    ...exploreDesktop.bottomSection,
   },
-  artistCard: {
-    width: 280,
-    height: 70,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F4F4F2",
-    marginBottom: 25,
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-    marginHorizontal: 10,
+  bottomSectionHeader: {
+    ...exploreDesktop.bottomSectionHeader,
   },
-  artistImage: {
-    width: 70,
-    height: 70,
-    resizeMode: "cover",
-    marginRight: 16,
-    backgroundColor: "#DDD",
-  },
-  artistTextContainer: {
-    flex: 1,
-  },
-  artistName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  bottomSectionHeaderText: {
+    ...exploreDesktop.bottomSectionHeaderText,
   },
 
-  /* ---------- mensajes vacío ---------- */
   noResultsText: {
     fontSize: 16,
     color: "#888",
