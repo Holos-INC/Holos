@@ -136,9 +136,6 @@ export default function WorkDetailScreen() {
                 {commission.price ? `${commission.price} €` : "No disponible"}
               </Text>
             </View>
-            <Text style={styles.price}>
-              {commission.status ? `${commission.status} €` : "No disponible"}
-            </Text>
           </View>
         </ScrollView>
       </View>
