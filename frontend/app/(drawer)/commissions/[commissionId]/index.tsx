@@ -10,13 +10,9 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useNavigation, useLocalSearchParams, useRouter } from "expo-router";
-
-import { getWorksDoneById } from "@/src/services/WorksDoneApi";
-import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { mobileStyles, desktopStyles } from "@/src/styles/WorkDetail.styles";
 import { useFonts } from "expo-font";
-import { getImageSource } from "@/src/getImageSource";
-import ReportDropdown from "@/src/components/report/ReportDropDown";
+import { getImageSource } from "@/src/utils/getImageSource";
 import { getCommissionById } from "@/src/services/commisionApi";
 import { CommissionDTO } from "@/src/constants/CommissionTypes";
 

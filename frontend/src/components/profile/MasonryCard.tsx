@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { getImageSource } from "@/src/getImageSource";
+import { getImageSource } from "@/src/utils/getImageSource";
 import { useRouter } from "expo-router";
 import { WorksDoneDTO } from "@/src/constants/ExploreTypes";
 import { CommissionDTO } from "@/src/constants/CommissionTypes";
