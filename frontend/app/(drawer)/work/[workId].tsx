@@ -140,6 +140,7 @@ export default function WorkDetailScreen() {
               <TouchableOpacity
                 style={styles.reportButton}
                 onPress={() =>
+                  work?.id &&
                   router.push({
                     pathname: "/report/[reportId]",
                     params: { reportId: String(work.id) },
@@ -149,17 +150,17 @@ export default function WorkDetailScreen() {
                 <Text style={styles.reportButtonText}>Reportar</Text>
               </TouchableOpacity>
               {/*Boton para eliminar una obra si es mia*/}
-              {work.baseUserId == loggedInUser.id && (
+              {work?.baseUserId === loggedInUser?.id && work?.id && (
                 <TouchableOpacity
                   style={styles.reportButton}
                   onPress={async () => {
                     try {
-                      await deleteWorksDone(work.id);
+                      await deleteWorksDone(work.id!);
                       console.log("Obra eliminada exitosamente");
                       router.back();
-                      } catch (error) {
+                    } catch (error) {
                       console.error("Error al eliminar la obra:", error);
-                      }
+                    }
                   }}
                 >
                   <Text style={styles.reportButtonText}>Eliminar</Text>
