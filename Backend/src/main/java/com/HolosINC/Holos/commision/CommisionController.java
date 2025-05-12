@@ -22,9 +22,14 @@ import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/v1/commisions")
@@ -38,8 +43,18 @@ public class CommisionController {
         this.commisionService = commisionService;
     }
 
+    @Operation(
+        summary = "Create a new commission",
+        description = "Creates a new commission for an artist.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Commission created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommissionDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or error creating commission", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping("/{artistId}")
-    public ResponseEntity<?> createCommision(@Valid @RequestBody CommisionRequestDTO commision, @PathVariable Long artistId) {
+    public ResponseEntity<?> createCommision(
+            @Valid @RequestBody @Parameter(description = "Commission details to create") CommisionRequestDTO commision, 
+            @PathVariable Long artistId) {
         try {
             CommissionDTO createdCommision = commisionService.createCommision(commision, artistId);
             return ResponseEntity.ok(createdCommision);
@@ -48,8 +63,18 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Request changes to a commission",
+        description = "Request changes for an existing commission.",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Changes requested successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or error requesting changes", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PutMapping("/{commisionId}/requestChanges")
-    public ResponseEntity<?> changeRequestedCommision(@Valid @RequestBody CommissionDTO commision, @PathVariable Long commisionId) {
+    public ResponseEntity<?> changeRequestedCommision(
+            @Valid @RequestBody @Parameter(description = "Updated commission details") CommissionDTO commision, 
+            @PathVariable Long commisionId) {
         try {
             commisionService.requestChangesCommision(commision, commisionId);
             return ResponseEntity.noContent().build();
@@ -60,6 +85,14 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Get history of commissions",
+        description = "Retrieve the history of commissions for the logged-in client.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "History of commissions fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = HistoryCommisionsDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Error fetching commission history", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/historyOfCommisions/mine")
     public ResponseEntity<HistoryCommisionsDTO> getClientCommissions() throws Exception {
         try {
@@ -72,6 +105,14 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Get commissions done by client",
+        description = "Retrieve all commissions completed by a specific client.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Commissions fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommissionDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Error fetching commissions", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/ordered/{username}")
     public ResponseEntity<?> getClientCommissionsDone(@PathVariable String username) throws Exception {
         try {
@@ -82,121 +123,41 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Get commission by ID",
+        description = "Retrieve the details of a commission by its ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Commission details fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CommissionDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Commission not found", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Access denied or error fetching commission", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> getCommisionById(@PathVariable Long id) {
         try {
-            // Llamamos al servicio para obtener la comisión por ID
             CommissionDTO commision = commisionService.getCommisionById(id);
-            
-            // Devolvemos la comisión si existe
             return ResponseEntity.ok(commision);
         } catch (ResourceNotFoundException e) {
-            // Si la comisión no se encuentra, respondemos con un 404
             return ResponseEntity.notFound().build();
         } catch (AccessDeniedException e) {
-            // Si el usuario no tiene acceso a la comisión, respondemos con un 403
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // Si ocurre un error inesperado, respondemos con un 500
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/{id}/done")
-    public ResponseEntity<?> getCommisionDoneById(@PathVariable Long id) {
-        try {
-            // Llamamos al servicio para obtener la comisión por ID
-            CommissionDTO commision = commisionService.getCommisionDoneById(id);
-            
-            // Devolvemos la comisión si existe
-            return ResponseEntity.ok(commision);
-        } catch (ResourceNotFoundException e) {
-            // Si la comisión no se encuentra, respondemos con un 404
-            return ResponseEntity.notFound().build();
-        } catch (AccessDeniedException e) {
-            // Si el usuario no tiene acceso a la comisión, respondemos con un 403
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            // Si ocurre un error inesperado, respondemos con un 500
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @Operation(
+        summary = "Update commission image",
+        description = "Update the image associated with a commission.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Commission image updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Error updating commission image", content = @Content(mediaType = "application/json"))
         }
-    }
-
-    @PutMapping("/{commissionId}/waiting")
-    public ResponseEntity<?> waitingCommission(@Valid @RequestBody CommissionDTO commission,
-            @PathVariable Long commissionId) {
-        try {
-            commisionService.waitingCommission(commission, commissionId);
-            return ResponseEntity.ok("En espera de confirmación del precio.");
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{commissionId}/toPay")
-    public ResponseEntity<?> toPayCommission(
-            @PathVariable Long commissionId) {
-        try {
-            commisionService.toPayCommission(commissionId);
-            return ResponseEntity.ok("Se aceptó el precio correctamente.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{commissionId}/reject")
-    public ResponseEntity<?> rejectCommission(
-            @PathVariable Long commissionId) {
-        try {
-            commisionService.rejectCommission(commissionId);
-            return ResponseEntity.ok("Comisión rechazada correctamente.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{commissionId}/accept")
-    public ResponseEntity<?> acceptCommission(
-            @PathVariable Long commissionId) {
-        try {
-            commisionService.acceptCommission(commissionId);
-            return ResponseEntity.ok("Comisión pagada correctamente.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{commissionId}/cancel")
-    public ResponseEntity<?> cancelCommision(
-            @PathVariable Long commissionId) {
-        try {
-            commisionService.cancelCommission(commissionId);
-            return ResponseEntity.ok("Comisión cancelada correctamente.");
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }
-
-    @PutMapping("/{commissionId}/close")
-    public ResponseEntity<?> closeCommission(@PathVariable Long commissionId) {
-        try {
-            commisionService.closeCommission(commissionId);
-            return ResponseEntity.ok("Comisión cerrada correctamente.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("⚠ Error interno: " + e.getMessage());
-        }
-    }    
-  
+    )
     @PutMapping("/{commisionId}/updateImage")
     public ResponseEntity<?> updateCommisionImage(
             @PathVariable Long commisionId,
-            @RequestBody CommissionImageUpdateDTO dto) {
+            @RequestBody @Parameter(description = "New image details") CommissionImageUpdateDTO dto) {
         try {
             commisionService.updateImage(commisionId, dto.getImage());
             return ResponseEntity.ok().body("Imagen actualizada correctamente.");
@@ -205,6 +166,14 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Get all ended commissions for client",
+        description = "Fetch all ended commissions for a specific client.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Ended commissions fetched successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientCommissionDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Error fetching ended commissions", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/ended/client")
     public ResponseEntity<?> getEndedCommissionsForClient() {
         try {
@@ -217,14 +186,30 @@ public class CommisionController {
         }
     }
 
+    @Operation(
+        summary = "Get payment arrangement types",
+        description = "Retrieve the available payment arrangements types for commissions.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Payment arrangements fetched successfully", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/payment-arrangements")
     public List<String> getPaymentArrangements() {
-        // Devuelve los valores del enum como una lista de cadenas
         return Arrays.stream(EnumPaymentArrangement.values())
-                     .map(EnumPaymentArrangement::name)  // .name() convierte el valor en una cadena
+                     .map(EnumPaymentArrangement::name)
                      .collect(Collectors.toList());
     }
 
+    @Operation(
+        summary = "Decline payment for commission",
+        description = "Decline a payment for a commission by its ID.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Payment declined successfully"),
+            @ApiResponse(responseCode = "400", description = "Error declining payment", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "403", description = "Access denied", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PutMapping("/{id}/decline-payment")
     public ResponseEntity<?> declinePayment(@PathVariable Long id) {
         try {
