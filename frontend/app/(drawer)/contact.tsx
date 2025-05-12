@@ -1,13 +1,7 @@
 import ContactUsTextInput from "@/src/components/ContactUsTextInput";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import React, { useState } from "react";
-import {
-  Linking,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Linking, ScrollView, Text,  TouchableOpacity,  View, } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import emailjs from "@emailjs/browser";
 import { Platform } from "react-native";
@@ -53,7 +47,6 @@ export default function ContactUs() {
       return;
     }
 
-    console.log(serviceId);
     emailjs
       .send(
         serviceId!,
