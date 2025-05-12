@@ -237,9 +237,11 @@ public class StatusKanbanOrderService {
             throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
         }
     
-        if (c.getImage() == null || c.getImage().length == 0) {
-            throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
+        if (c.getArtistOldImage() == null || c.getArtistNewImage() == null ||
+            !java.util.Arrays.equals(c.getArtistOldImage(), c.getArtistNewImage())) {
+            throw new BadRequestException("No puedes avanzar en el kanban hasta que el cliente haya aceptado la última imagen subida.");
         }
+
 
         if (c.isWaitingPayment()){
             throw new BadRequestException("No puedes mover esta comisión en el kanban porque está esperando un pago");
@@ -290,43 +292,41 @@ public class StatusKanbanOrderService {
     public void previousStatusOfCommision(Long id) throws Exception {
         BaseUser currentUser = userService.findCurrentUser();
         Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
-    
+
         Commision c = commisionRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
-    
+
         if (!currentArtist.getId().equals(c.getArtist().getId())) {
             throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
         }
 
-        if (c.isWaitingPayment()){
+        if (c.isWaitingPayment()) {
             throw new BadRequestException("No puedes mover esta comisión en el kanban porque está esperando un pago");
         }
 
-        if (c.getPaymentArrangement()==EnumPaymentArrangement.MODERATOR){
+        if (c.getPaymentArrangement() == EnumPaymentArrangement.MODERATOR) {
             throw new BadRequestException("No puedes mover esta comisión hacia atrás en el kanban porque es tipo moderador");
         }
-    
+
+        if (c.getArtistNewImage() == null) {
+            throw new BadRequestException("No puedes cambiar el estado si el artista no ha subido ninguna imagen.");
+        }
+
         StatusKanbanOrder currentStatus = c.getStatusKanbanOrder();
         if (currentStatus == null) {
             throw new ResourceNotFoundException("La comisión con ID " + id + " no tiene un estado asignado.");
         }
-    
-        if (c.getImage() == null || c.getImage().length == 0) {
-            throw new BadRequestException("No puedes mover esta comisión en el kanban porque no tiene imagen asociada.");
-        }
-    
+
         Optional<StatusKanbanOrder> previousStatus = statusKanbanOrderRepository
             .statusKanbanOfOrder(currentArtist.getId(), currentStatus.getOrder() - 1);
-    
+
         if (previousStatus.isEmpty()) {
             throw new BadRequestException("No existe un estado anterior a este.");
         }
-    
+
         c.setStatusKanbanOrder(previousStatus.get());
         commisionRepository.save(c);    
     }
-    
-    
 
     @Transactional
     public void reorderStatuses(List<Long> orderedIds) throws Exception {
