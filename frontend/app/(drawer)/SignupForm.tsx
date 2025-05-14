@@ -451,13 +451,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalText: {
-    fontSize: 14,
+    fontSize: 18,
     lineHeight: 22,
     color: colors.contentStrong,
     marginBottom: 2,
   },
   heading1: {
-    fontSize: 22,
+    fontSize: 42,
     fontWeight: "700",
     color: colors.brandPrimary,
     marginTop: 12,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heading3: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: "600",
     color: colors.brandPrimary,
     marginTop: 8,
