@@ -14,26 +14,32 @@ export default function ClientCommissionsScreen({
   const { loggedInUser } = useContext(AuthenticationContext);
   const router = useRouter();
 
-  const commissionsWithPaymentPending = commissions.filter((c) => c.waitingPayment);
-  const commissionsWithoutPaymentPending = commissions.filter((c) => !c.waitingPayment);
+  const commissionsWithPaymentPending = commissions.filter(
+    (c) => c.waitingPayment
+  );
+  const commissionsWithoutPaymentPending = commissions.filter(
+    (c) => !c.waitingPayment
+  );
 
   return (
     <ScrollView contentContainerStyle={indexStyles.container}>
       <View style={indexStyles.cardGrid}>
-        {[...commissionsWithPaymentPending, ...commissionsWithoutPaymentPending].map(
-          (commission: CommissionInProgress, index: number) => (
-            <CommissionCard
-              key={index}
-              title={commission.name}
-              image={commission.image ?? ""}
-              artistUsername={commission.artistUsername}
-              totalSteps={commission.totalSteps}
-              currentStep={commission.currentStep}
-              id={commission.id}
-              waitingPayment={commission.waitingPayment}
-            />
-          )
-        )}
+        {[
+          ...commissionsWithPaymentPending,
+          ...commissionsWithoutPaymentPending,
+        ].map((commission: CommissionInProgress, index: number) => (
+          <CommissionCard
+            key={index}
+            title={commission.name}
+            image={commission.newImage ?? ""}
+            artistUsername={commission.artistUsername}
+            totalSteps={commission.totalSteps}
+            currentStep={commission.currentStep}
+            id={commission.id}
+            waitingPayment={commission.waitingPayment}
+            lastUpdateStatus={commission.lastUpdateStatus}
+          />
+        ))}
       </View>
     </ScrollView>
   );

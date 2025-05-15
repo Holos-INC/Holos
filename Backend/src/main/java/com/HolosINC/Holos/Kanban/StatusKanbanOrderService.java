@@ -223,12 +223,13 @@ public class StatusKanbanOrderService {
     @Transactional
     public void nextStatusOfCommision(Long id) throws Exception {
         BaseUser currentUser = userService.findCurrentUser();
-        Artist currentArtist = artistService.findArtistByUserId(currentUser.getId());
     
         Commision c = commisionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comisión no encontrada"));
+
+        Artist currentArtist = c.getArtist();
     
-        if (!currentArtist.getId().equals(c.getArtist().getId())) {
+        if (!currentUser.getId().equals(c.getClient().getId())) {
             throw new ResourceNotOwnedException("No tienes permisos para modificar una comisión que no te pertenece.");
         }  
     

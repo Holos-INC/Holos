@@ -1,6 +1,13 @@
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { ScrollView, View, Text, Modal, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Button } from "react-native-paper";
 
 import LoadingScreen from "@/src/components/LoadingScreen";
@@ -34,7 +41,9 @@ export default function CommissionAcceptedDetailsScreen() {
   const { loggedInUser } = useContext(AuthenticationContext);
   const token = loggedInUser?.token;
 
-  const [confirmType, setConfirmType] = useState<"pay" | "decline" | null>(null);
+  const [confirmType, setConfirmType] = useState<"pay" | "decline" | null>(
+    null
+  );
 
   const fetchCommission = async () => {
     try {
@@ -119,12 +128,11 @@ export default function CommissionAcceptedDetailsScreen() {
       }
       await cancelCommission(numericId, token);
       alert("Comisión cancelada correctamente.");
-      router.back(); // o usa fetchCommission() si quieres recargar la pantalla en lugar de volver
+      router.back();
     } catch (err: any) {
       setError(err.message || "Error al cancelar la comisión.");
     }
   };
-
 
   const step = Number(currentStep) || 0;
   const steps = Number(totalSteps) || 0;
@@ -133,14 +141,20 @@ export default function CommissionAcceptedDetailsScreen() {
   const showDeclineButton =
     commission.paymentArrangement === "MODERATOR" ||
     commission.paymentArrangement === "FINAL" ||
-    (commission.paymentArrangement === "FIFTYFIFTY" && commission.currentPayments === 1);
+    (commission.paymentArrangement === "FIFTYFIFTY" &&
+      commission.currentPayments === 1);
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.card}>
         <Button
           icon="arrow-left"
-          onPress={() => router.push(`/kanban`)}
+          onPress={() =>
+            router.push({
+              pathname: "/chats/[commisionId]",
+              params: { commisionId: commissionId.toString() },
+            })
+          }
           style={{
             position: "absolute",
             top: 24,
@@ -183,7 +197,6 @@ export default function CommissionAcceptedDetailsScreen() {
           Cancelar comisión
         </Button>
 
-
         {commission.isWaitingPayment && isClient && (
           <View style={{ flexDirection: "row", marginTop: 12, gap: 12 }}>
             <Button
@@ -222,14 +235,22 @@ export default function CommissionAcceptedDetailsScreen() {
               {confirmType === "pay" ? "Confirmar pago" : "Rechazar pago"}
             </Text>
             <Text style={stylesModal.message}>
-              {confirmType === "pay"
-                ? <Text>
-                  Esta acción corresponde al pago {!commission.currentPayments ? 1 : commission.currentPayments + 1} de {commission.totalPayments} de la comisión.
-                  Se abonarán {((Number(commission.price) || 0) / (Number(commission.totalPayments) || 1)).toFixed(2)}€ al artista.
+              {confirmType === "pay" ? (
+                <Text>
+                  Esta acción corresponde al pago{" "}
+                  {!commission.currentPayments
+                    ? 1
+                    : commission.currentPayments + 1}{" "}
+                  de {commission.totalPayments} de la comisión. Se abonarán{" "}
+                  {(
+                    (Number(commission.price) || 0) /
+                    (Number(commission.totalPayments) || 1)
+                  ).toFixed(2)}
+                  € al artista.
                 </Text>
-                : <Text>
-                  Esta acción cancelará el pago pendiente
-                </Text>}
+              ) : (
+                <Text>Esta acción cancelará el pago pendiente</Text>
+              )}
             </Text>
             <View style={stylesModal.buttons}>
               <TouchableOpacity onPress={() => setConfirmType(null)}>
@@ -283,4 +304,3 @@ const stylesModal = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-

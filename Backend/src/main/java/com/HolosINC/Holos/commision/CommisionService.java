@@ -459,7 +459,7 @@ public class CommisionService {
         } else {
             throw new IllegalArgumentException("Formato de imagen no válido.");
         }
-
+        commision.setLastUpdateStatus(UpdateStatus.PENDING);
         commisionRepository.save(commision);
     }
   
@@ -541,6 +541,7 @@ public class CommisionService {
         commission.setArtistOldImage(commission.getArtistNewImage());
 
         statusKanbanOrderService.nextStatusOfCommision(commissionId);
+        commission.setLastUpdateStatus(UpdateStatus.APPROVED);
         commisionRepository.save(commission);
     }
 
@@ -548,6 +549,7 @@ public class CommisionService {
         Commision commission = findByIdOrThrow(commissionId);
         validateClientOwnership(commission);
         commission.setArtistNewImage(commission.getArtistOldImage());
+        commission.setLastUpdateStatus(UpdateStatus.REJECTED);
         commisionRepository.save(commission);
     }
     

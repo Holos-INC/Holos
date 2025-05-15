@@ -58,6 +58,9 @@ public class Commision extends Work{
     @ManyToOne(cascade = CascadeType.PERSIST)
     private StatusKanbanOrder statusKanbanOrder;
 
+    @Enumerated(EnumType.STRING)
+    private UpdateStatus lastUpdateStatus = UpdateStatus.NONE;
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(nullable = false)
     private Client client;

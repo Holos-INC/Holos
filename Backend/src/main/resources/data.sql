@@ -158,56 +158,56 @@ INSERT INTO status_kanban_order (id, artist_id, name, order_in_kanban, descripti
 (35, 10, 'Final Review', 4, 'Final review before publishing', '#3357FF');
 
 -- Comisiones para el Artista 1(ID 1)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(1, 1, 'Golden Sunset', 'A breathtaking golden sunset over a serene landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/sunset.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(1, 1, 'Golden Sunset', 'A breathtaking golden sunset over a serene landscape', 220.0, 12, 'REQUESTED', '2025-03-14', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/sunset.jpg', '/images/sunset.jpg', '/images/sunset.jpg', 'NONE');
 
 -- Comisiones para el Artista 2(ID 2)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(2, 2, 'Zelda Tribute', 'A tribute artwork inspired by the Zelda universe', 180.0, 1, 'ENDED', '2025-03-01', 'INITIAL', 11, 1, 1, false, NULL, '/images/zelda.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(2, 2, 'Zelda Tribute', 'A tribute artwork inspired by the Zelda universe', 180.0, 1, 'ENDED', '2025-03-01', 'INITIAL', 11, 1, 1, false, NULL, '/images/zelda.jpg', '/images/zelda.jpg', '/images/zelda.jpg', 'NONE');
 
 -- Comisiones para el Artista 3(ID 3)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(3, 3, 'Avatar Aang', 'A vibrant depiction of Avatar Aang in action', 230.0, 1, 'REQUESTED', '2025-03-30', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/avatarAang.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(3, 3, 'Avatar Aang', 'A vibrant depiction of Avatar Aang in action', 230.0, 1, 'REQUESTED', '2025-03-30', 'FIFTYFIFTY', NULL, 2, 0, true, NULL, '/images/avatarAang.jpg', '/images/avatarAang.jpg', '/images/avatarAang.jpg', 'NONE');
 
 -- Comisiones para el Artista 4(ID 4)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(4, 4, 'Chicken Portrait', 'A detailed and artistic portrait of a chicken', 210.0, 1, 'REQUESTED', '2025-04-07', 'FINAL', NULL, 1, 0, false, NULL, '/images/chicken.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(4, 4, 'Chicken Portrait', 'A detailed and artistic portrait of a chicken', 210.0, 1, 'REQUESTED', '2025-04-07', 'FINAL', NULL, 1, 0, false, NULL, '/images/chicken.jpg', '/images/chicken.jpg', '/images/chicken.jpg', 'NONE');
 
 -- Comisiones para el Artista 5 (ID 5)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(5, 5, 'Environmental Awareness', 'An artwork highlighting environmental contamination', 240.0, 1, 'REQUESTED', '2025-04-15', 'FINAL', NULL, 1, 0, false, NULL, '/images/contamination.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(5, 5, 'Environmental Awareness', 'An artwork highlighting environmental contamination', 240.0, 1, 'REQUESTED', '2025-04-15', 'FINAL', NULL, 1, 0, false, NULL, '/images/contamination.jpg', '/images/contamination.jpg', '/images/contamination.jpg', 'NONE');
 
 -- Comisiones para el Artista 6 (ID 6)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(6, 6, 'Creative Drafts', 'A collection of creative drafts and sketches', 260.0, 1, 'REQUESTED', '2025-04-23', 'FINAL', NULL, 1, 0, false, NULL, '/images/drafts.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(6, 6, 'Creative Drafts', 'A collection of creative drafts and sketches', 260.0, 1, 'REQUESTED', '2025-04-23', 'FINAL', NULL, 1, 0, false, NULL, '/images/drafts.jpg', '/images/drafts.jpg', '/images/drafts.jpg', 'NONE');
 
 -- Comisiones para el Artista 7 (ID 7)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(7, 7, 'Jinx Fanart', 'A dynamic fanart of Jinx from Arcane', 240.0, 1, 'REQUESTED', '2025-05-01', 'FIFTYFIFTY', NULL, 2, 0, false, NULL,'/images/jinx.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(7, 7, 'Jinx Fanart', 'A dynamic fanart of Jinx from Arcane', 240.0, 1, 'REQUESTED', '2025-05-01', 'FIFTYFIFTY', NULL, 2, 0, false, NULL,'/images/jinx.jpg', '/images/jinx.jpg', '/images/jinx.jpg', 'NONE');
 
 -- Comisiones para el Artista 8 (ID 8)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(8, 8, 'Astronaut Adventure', 'An imaginative depiction of an astronaut exploring space', 270.0, 1, 'REQUESTED', '2025-05-09', 'FINAL', NULL, 1, 0, false, NULL, '/images/astronaut.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(8, 8, 'Astronaut Adventure', 'An imaginative depiction of an astronaut exploring space', 270.0, 1, 'REQUESTED', '2025-05-09', 'FINAL', NULL, 1, 0, false, NULL, '/images/astronaut.jpg','/images/astronaut.jpg','/images/astronaut.jpg','NONE');
 
 -- Comisiones para el Artista 9 (ID 9)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(9, 9, 'Majestic Peaks', 'A stunning view of snow-capped mountain peaks', 320.0, 1, 'REQUESTED', '2025-05-17', 'FINAL', NULL, 1, 0, false, NULL, '/images/pic44.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(9, 9, 'Majestic Peaks', 'A stunning view of snow-capped mountain peaks', 320.0, 1, 'REQUESTED', '2025-05-17', 'FINAL', NULL, 1, 0, false, NULL, '/images/pic44.jpg','/images/pic44.jpg','/images/pic44.jpg','NONE');
 
 -- Comisiones para el Artista 10 (ID 10)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(10, 10, 'Tropical Paradise', 'A serene tropical beach with crystal-clear waters', 280.0, 1, 'REQUESTED', '2025-05-25', 'FINAL', NULL, 1, 0, false, NULL, '/images/pic45.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(10, 10, 'Tropical Paradise', 'A serene tropical beach with crystal-clear waters', 280.0, 1, 'REQUESTED', '2025-05-25', 'FINAL', NULL, 1, 0, false, NULL, '/images/pic45.jpg', '/images/pic45.jpg','/images/pic45.jpg', 'NONE');
 
 -- Comisiones para el Artista 11 (ID 11)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(11, 11, 'Miles Morales Tribute', 'A tribute artwork of Miles Morales from Spider-Man', 240.0, 1, 'REQUESTED', '2025-06-03', 'FIFTYFIFTY', NULL, 1, 0, false, NULL, '/images/miles.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(11, 11, 'Miles Morales Tribute', 'A tribute artwork of Miles Morales from Spider-Man', 240.0, 1, 'REQUESTED', '2025-06-03', 'FIFTYFIFTY', NULL, 1, 0, false, NULL, '/images/miles.jpg','/images/miles.jpg','/images/miles.jpg', 'NONE');
 
 -- Comisiones para el Artista 12 (ID 12)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(12, 12, 'Gumball Fanart', 'A fun and colorful fanart of Gumball', 280.0, 1, 'REQUESTED', '2025-06-11', 'FINAL', NULL, 1, 0, false, NULL, '/images/gumball.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(12, 12, 'Gumball Fanart', 'A fun and colorful fanart of Gumball', 280.0, 1, 'REQUESTED', '2025-06-11', 'FINAL', NULL, 1, 0, false, NULL, '/images/gumball.jpg','/images/gumball.jpg','/images/gumball.jpg','NONE');
 
 -- Comisiones para el Artista 13 (ID 13)
-INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image) VALUES
-(13, 13, 'Lilo & Stitch Tribute', 'A heartwarming tribute to Lilo & Stitch', 240.0, 1, 'REQUESTED', '2025-06-19', 'FINAL', NULL, 1, 0, false, NULL, '/images/lilo.jpg');
+INSERT INTO commisions (id, artist_id, name, description, price, client_id, status, accepted_date_by_artist, payment_arrangement, status_kanban_order_id, total_payments, current_payments, is_waiting_payment, setup_intent_id,image,artist_old_image,artist_new_image,last_update_status) VALUES
+(13, 13, 'Lilo & Stitch Tribute', 'A heartwarming tribute to Lilo & Stitch', 240.0, 1, 'REQUESTED', '2025-06-19', 'FINAL', NULL, 1, 0, false, NULL, '/images/lilo.jpg', '/images/lilo.jpg','/images/lilo.jpg','NONE');
 
 INSERT INTO artist_category(id,artist_id,category_id) VALUES
 (1, 1, 1),

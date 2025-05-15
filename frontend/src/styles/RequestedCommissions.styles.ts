@@ -31,7 +31,6 @@ export const commissionCardstyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginBottom: 16,
-    paddingHorizontal: 8,
     paddingBottom: 16,
   },
   image: {
