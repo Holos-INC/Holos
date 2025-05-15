@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 
 @RestController
@@ -28,7 +32,14 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // Para el administrador
+    @Operation(
+        summary = "Get all reports for admin",
+        description = "Retrieve all reports in the system (admin only)",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Reports retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Report.class))),
+            @ApiResponse(responseCode = "400", description = "Error retrieving reports", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/admin")
     public ResponseEntity<?> getAllReports() {
         try {
@@ -39,6 +50,14 @@ public class ReportController {
         }
     }
 
+    @Operation(
+        summary = "Create a new report",
+        description = "Create a new report from the provided data",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Report created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Report.class))),
+            @ApiResponse(responseCode = "400", description = "Error creating report", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping
     public ResponseEntity<?> createReport(@Valid @RequestBody ReportDTO reportDTO) {
         try {
@@ -49,7 +68,14 @@ public class ReportController {
         }
     }
 
-    
+    @Operation(
+        summary = "Accept a report",
+        description = "Admin accepts a report by its ID",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Report accepted successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Report.class))),
+            @ApiResponse(responseCode = "400", description = "Error accepting report", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PutMapping("/admin/accept/{id}")
     public ResponseEntity<?> acceptReport(@PathVariable Long id) {
         try {
@@ -60,6 +86,14 @@ public class ReportController {
         }
     }
 
+    @Operation(
+        summary = "Delete a rejected report",
+        description = "Admin deletes a rejected report by its ID",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Report deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Error deleting report", content = @Content(mediaType = "application/json"))
+        }
+    )
     @DeleteMapping("/admin/delete/{id}")
     public ResponseEntity<?> deleteRejectedReport(@PathVariable Long id) {
         try {
@@ -70,6 +104,14 @@ public class ReportController {
         }
     }
 
+    @Operation(
+        summary = "Get all report types",
+        description = "Retrieve all report types",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Report types retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReportType.class))),
+            @ApiResponse(responseCode = "400", description = "Error retrieving report types", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/types")
     public ResponseEntity<?> getReportTypes() {
         try {
@@ -80,6 +122,14 @@ public class ReportController {
         }
     }
 
+    @Operation(
+        summary = "Add a new report type",
+        description = "Add a new report type to the system",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Report type added successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReportType.class))),
+            @ApiResponse(responseCode = "400", description = "Error adding report type", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping("/admin/types")
     public ResponseEntity<?> addReportType(@RequestBody ReportType reportType) {
         try {

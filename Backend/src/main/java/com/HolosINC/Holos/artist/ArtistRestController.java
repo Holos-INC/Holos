@@ -1,7 +1,6 @@
 package com.HolosINC.Holos.artist;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,6 +14,7 @@ import com.HolosINC.Holos.model.BaseUserDTO;
 import com.HolosINC.Holos.util.EntityToDTOMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -25,72 +25,57 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 class ArtistRestController {
 
     private final ArtistService artistService;
-    
     private final ProfileService profileService;
-	
-	public ArtistRestController(ArtistService artistService, ProfileService profileService) {
+    
+    public ArtistRestController(ArtistService artistService, ProfileService profileService) {
         this.artistService = artistService;
         this.profileService = profileService;
-	}
-	
-
+    }
+    
+    @Operation(summary = "Update artist profile", description = "Update the profile of the artist with the provided information.")
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody BaseUserDTO baseUserDTO) {
-        try{
+    public ResponseEntity<?> updateProfile(@RequestBody @Parameter(description = "Updated profile data for the artist") BaseUserDTO baseUserDTO) {
+        try {
             BaseUserDTO updatedUserDTO = profileService.updateProfile(baseUserDTO);
             return ResponseEntity.ok(updatedUserDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-    
-	}
-	
-	@GetMapping(value = "/{id}")
-	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-	public ResponseEntity<?> findById(@PathVariable Long id) {
-		try{
+    }
+
+    @Operation(summary = "Get artist by ID", description = "Retrieve a specific artist's details using their ID.")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> findById(@PathVariable @Parameter(description = "ID of the artist to retrieve") Long id) {
+        try {
             Artist artist = artistService.findArtist(id);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
             return ResponseEntity.ok().body(artistDTO);
-
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-	}
+    }
 
+    @Operation(summary = "Get artist by base user ID", description = "Retrieve an artist's details using the ID of their associated base user.")
     @GetMapping(value = "/byBaseUser/{baseUserId}")
-	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-	public ResponseEntity<?> findByBaseUserId(@PathVariable Long id) {
-		try{
-            Artist artist = artistService.findArtistByUserId(id);
+    public ResponseEntity<?> findByBaseUserId(@PathVariable @Parameter(description = "ID of the base user associated with the artist") Long baseUserId) {
+        try {
+            Artist artist = artistService.findArtistByUserId(baseUserId);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
             return ResponseEntity.ok().body(artistDTO);
-
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-	}
-    
-    // @DeleteMapping("/administrator/artists/{id}")
-    // public ResponseEntity<?> deleteArtist(@PathVariable Long id) {
-    //     try {
-    //         artistService.deleteArtist(id);
-    //         return ResponseEntity.ok().body(new MessageResponse("Artista eliminado con exito"));
-    //     } catch (Exception e) {
-    //         return ResponseEntity.badRequest().body(e.getMessage());
-    //     }
-    // }
+    }
 
-	@GetMapping(value = "/username/{username}")
-	@Operation(summary = "Get artist", description = "Retrieve a list of all artists")
-    public ResponseEntity<?> findByUsername(@PathVariable String username) {
-        try{
+    @Operation(summary = "Get artist by username", description = "Retrieve an artist's details using their username.")
+    @GetMapping(value = "/username/{username}")
+    public ResponseEntity<?> findByUsername(@PathVariable @Parameter(description = "Username of the artist to retrieve") String username) {
+        try {
             Artist artist = artistService.findArtistByUsername(username);
             ArtistDTO artistDTO = EntityToDTOMapper.toArtistDTO(artist);
             return ResponseEntity.ok(artistDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-	}
-
+    }
 }

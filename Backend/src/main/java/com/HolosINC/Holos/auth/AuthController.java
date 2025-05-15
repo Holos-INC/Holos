@@ -34,107 +34,115 @@ import com.HolosINC.Holos.configuration.jwt.JwtUtils;
 import com.HolosINC.Holos.configuration.service.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "The Authentication API based on JWT")
+@SecurityRequirement(name = "bearerAuth")
 public class AuthController {
-	private final AuthenticationManager authenticationManager;
-	private final JwtUtils jwtUtils;
-	private final AuthoritiesService authService;
-	
-	public AuthController(AuthenticationManager authenticationManager,
-			JwtUtils jwtUtils, PasswordEncoder encoder,
-			AuthoritiesService authService) {
-		this.jwtUtils = jwtUtils;
-		this.authenticationManager = authenticationManager;
-		this.authService = authService;
-	}
 
-	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		try {
-			Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final AuthoritiesService authService;
+    
+    public AuthController(AuthenticationManager authenticationManager,
+            JwtUtils jwtUtils, PasswordEncoder encoder,
+            AuthoritiesService authService) {
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.authService = authService;
+    }
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-			String jwt = jwtUtils.generateJwtToken(authentication);
+    @Operation(summary = "Sign in", description = "Authenticate the user and return a JWT token.")
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody @Parameter(description = "User login credentials") LoginRequest loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-					.collect(Collectors.toList());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-			return ResponseEntity.ok()
-					.body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
-		} catch (BadCredentialsException exception) {
-			return ResponseEntity.badRequest().body("Credenciales incorrectas!");
-		} catch (Exception exception) {
-			return ResponseEntity.badRequest().body("Fallo de autenticacion!");
-		}
-	}
-	
-	@GetMapping("/validate")
-	public ResponseEntity<Boolean> validateToken(@RequestParam String token) {
-		Boolean isValid = jwtUtils.validateJwtToken(token);
-		return ResponseEntity.ok(isValid);
-	}
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-	@PostMapping(value = "/signup", consumes = { "multipart/form-data" })
-	public ResponseEntity<MessageResponse> registerUser(
-			@RequestPart("user") String signupRequestJson,
-			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommisionsPrice", required = false) MultipartFile tableCommisionsPrice) {
+            return ResponseEntity.ok()
+                    .body(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+        } catch (BadCredentialsException exception) {
+            return ResponseEntity.badRequest().body("Credenciales incorrectas!");
+        } catch (Exception exception) {
+            return ResponseEntity.badRequest().body("Fallo de autenticacion!");
+        }
+    }
 
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			SignupRequest signupRequest = objectMapper.readValue(signupRequestJson, SignupRequest.class);
+    @Operation(summary = "Validate JWT token", description = "Validate a JWT token to check if it's still valid.")
+    @GetMapping("/validate")
+    public ResponseEntity<Boolean> validateToken(@RequestParam @Parameter(description = "JWT token to validate") String token) {
+        Boolean isValid = jwtUtils.validateJwtToken(token);
+        return ResponseEntity.ok(isValid);
+    }
 
-			if (imageProfile != null && !imageProfile.isEmpty()) 
-				signupRequest.setImageProfile(imageProfile);
+    @Operation(summary = "Sign up", description = "Register a new user with optional profile image and commission price table.")
+    @PostMapping(value = "/signup", consumes = { "multipart/form-data" })
+    public ResponseEntity<MessageResponse> registerUser(
+            @RequestPart("user") @Parameter(description = "Signup request data") String signupRequestJson,
+            @RequestPart(value = "imageProfile", required = false) @Parameter(description = "Profile image for the user") MultipartFile imageProfile,
+            @RequestPart(value = "tableCommisionsPrice", required = false) @Parameter(description = "Table of commission prices for the user") MultipartFile tableCommisionsPrice) {
 
-			if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty()) {
-				signupRequest.setTableCommisionsPrice(tableCommisionsPrice);
-			}
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            SignupRequest signupRequest = objectMapper.readValue(signupRequestJson, SignupRequest.class);
 
-			authService.createUser(signupRequest);
-			return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error during registration: " + e.getMessage()));
-		}
-	}
+            if (imageProfile != null && !imageProfile.isEmpty()) 
+                signupRequest.setImageProfile(imageProfile);
 
-	@PutMapping(
-			path = "/update", 
-			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<MessageResponse> updateUser(@RequestPart("updateUser") String updateRequestform,
-			@RequestPart(value = "imageProfile", required = false) MultipartFile imageProfile,
-			@RequestPart(value = "tableCommisionsPrice", required = false) MultipartFile tableCommisionsPrice) {
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			UpdateRequest updateRequest = objectMapper.readValue(updateRequestform, UpdateRequest.class);
+            if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty()) {
+                signupRequest.setTableCommisionsPrice(tableCommisionsPrice);
+            }
 
-			if (imageProfile != null && !imageProfile.isEmpty())
-				updateRequest.setImageProfile(imageProfile);
+            authService.createUser(signupRequest);
+            return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error during registration: " + e.getMessage()));
+        }
+    }
 
-			if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty())
-				updateRequest.setTableCommisionsPrice(tableCommisionsPrice);
+    @Operation(summary = "Update user profile", description = "Update an existing user's profile with optional profile image and commission price table.")
+    @PutMapping(path = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponse> updateUser(@RequestPart("updateUser") @Parameter(description = "User update request data") String updateRequestform,
+            @RequestPart(value = "imageProfile", required = false) @Parameter(description = "Profile image for the user") MultipartFile imageProfile,
+            @RequestPart(value = "tableCommisionsPrice", required = false) @Parameter(description = "Table of commission prices for the user") MultipartFile tableCommisionsPrice) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            UpdateRequest updateRequest = objectMapper.readValue(updateRequestform, UpdateRequest.class);
 
-			authService.updateUser(updateRequest);
-			return ResponseEntity.ok().body(new MessageResponse("succesfully updated: " + updateRequest.getUsername()));
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-		}
-	}
-	
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<MessageResponse> deleteUser(@RequestParam Long id) {
-		try {
-			authService.deleteUser(id);
-			return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));
-		}catch (Exception e) {
-			return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-		}
-	}
+            if (imageProfile != null && !imageProfile.isEmpty())
+                updateRequest.setImageProfile(imageProfile);
+
+            if (tableCommisionsPrice != null && !tableCommisionsPrice.isEmpty())
+                updateRequest.setTableCommisionsPrice(tableCommisionsPrice);
+
+            authService.updateUser(updateRequest);
+            return ResponseEntity.ok().body(new MessageResponse("successfully updated: " + updateRequest.getUsername()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @Operation(summary = "Delete user", description = "Delete a user by their ID.")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<MessageResponse> deleteUser(@RequestParam @Parameter(description = "ID of the user to delete") Long id) {
+        try {
+            authService.deleteUser(id);
+            return ResponseEntity.ok(new MessageResponse("User deleted successfully!"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
 
 }

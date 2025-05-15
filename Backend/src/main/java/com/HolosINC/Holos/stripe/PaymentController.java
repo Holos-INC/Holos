@@ -6,13 +6,15 @@ import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.stripe.exception.StripeException;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -26,6 +28,16 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    @Operation(
+        summary = "Create Setup Intent",
+        description = "Creates a Stripe Setup Intent for a commission.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Setup intent created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Commission not found", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping("/setup-intent/{commissionId}")
     public ResponseEntity<?> createSetupIntent(@PathVariable long commissionId) {
         try {
@@ -44,6 +56,16 @@ public class PaymentController {
         }
     }
 
+    @Operation(
+        summary = "Create Payment from Setup Intent",
+        description = "Creates a payment from a Setup Intent for a commission.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Payment intent created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Commission or artist not found", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json"))
+        }
+    )
     @PostMapping("/payment-from-setup/{commissionId}")
     public ResponseEntity<?> createPaymentFromSetupIntent(@PathVariable long commissionId) {
         try {

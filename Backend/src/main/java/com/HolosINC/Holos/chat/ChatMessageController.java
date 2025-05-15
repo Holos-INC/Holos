@@ -17,6 +17,7 @@ import com.HolosINC.Holos.commision.Commision;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,8 +43,8 @@ public class ChatMessageController {
     )
     @PostMapping
     public ResponseEntity<?> createChatMessage(
-            @RequestPart("chatMessage") String chatMessageJson,
-            @RequestPart(value = "imageProfile", required = false) MultipartFile imageFile) {
+            @RequestPart("chatMessage") @Parameter(description = "Chat message content") String chatMessageJson,
+            @RequestPart(value = "imageProfile", required = false) @Parameter(description = "Optional image to attach with the message") MultipartFile imageFile) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ChatMessageRequestDTO messageDTO = mapper.readValue(chatMessageJson, ChatMessageRequestDTO.class);
@@ -75,7 +76,7 @@ public class ChatMessageController {
         }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteChatMessage(@PathVariable Long id) {
+    public ResponseEntity<?> deleteChatMessage(@PathVariable @Parameter(description = "ID of the chat message to delete") Long id) {
         try {
             service.deleteMessage(id);
             return ResponseEntity.ok().build();
@@ -94,9 +95,9 @@ public class ChatMessageController {
     )
     @GetMapping("/chat/{commisionId}")
     public ResponseEntity<?> getConversation(
-            @PathVariable Long commisionId,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @PathVariable @Parameter(description = "ID of the commission to fetch conversation for") Long commisionId,
+            @RequestParam(required = false) @Parameter(description = "Page number for pagination") Integer page,
+            @RequestParam(required = false) @Parameter(description = "Size of the page for pagination") Integer size) {
         try {
             if (page != null && size != null) {
                 return ResponseEntity.ok(service.getPagedConversation(commisionId, page, size).getContent());
@@ -125,10 +126,18 @@ public class ChatMessageController {
         }
     }
 
+    @Operation(
+        summary = "Get new messages since last message",
+        description = "Fetches new messages from a specific commission's conversation since the last message date.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "New messages fetched successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Error fetching new messages", content = @Content(mediaType = "application/json"))
+        }
+    )
     @GetMapping("/chat/{commisionId}/since")
     public ResponseEntity<?> getNewMessages(
-            @PathVariable Long commisionId,
-            @RequestParam("lastMessageDate") String lastMessageDateStr) {
+            @PathVariable @Parameter(description = "Commission ID to fetch new messages for") Long commisionId,
+            @RequestParam("lastMessageDate") @Parameter(description = "The date of the last message to fetch new messages after") String lastMessageDateStr) {
         try {
             LocalDateTime lastDate = LocalDateTime.parse(lastMessageDateStr);
             return ResponseEntity.ok(service.getNewMessages(commisionId, lastDate));

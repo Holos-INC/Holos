@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api/v1/search")
 @SecurityRequirement(name = "bearerAuth")
@@ -33,12 +34,11 @@ public class SearchController {
 
     @Operation(
         summary = "Search for works",
-        description = "Performs a search for artworks based on text query and optional price range."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Page of matching works",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = SearchWorkDTO.class))
+        description = "Performs a search for artworks based on text query and optional price range.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Page of matching works", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SearchWorkDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or error during search", content = @Content(mediaType = "application/json"))
+        }
     )
     @GetMapping("/works")
     public ResponseEntity<Page<SearchWorkDTO>> searchWorks(
@@ -54,12 +54,11 @@ public class SearchController {
 
     @Operation(
         summary = "Search for artists",
-        description = "Search artists by text query and/or minimum number of works done."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Page of matching artists",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = Artist.class))
+        description = "Search artists by text query and/or minimum number of works done.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Page of matching artists", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Artist.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input or error during search", content = @Content(mediaType = "application/json"))
+        }
     )
     @GetMapping("/artists")
     public ResponseEntity<Page<Artist>> searchArtists(
@@ -74,12 +73,11 @@ public class SearchController {
 
     @Operation(
         summary = "Get works by artist",
-        description = "Returns a paginated list of works made by a specific artist."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Page of works by artist",
-        content = @Content(mediaType = "application/json", schema = @Schema(implementation = SearchWorkDTO.class))
+        description = "Returns a paginated list of works made by a specific artist.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Page of works by artist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SearchWorkDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Error retrieving works", content = @Content(mediaType = "application/json"))
+        }
     )
     @GetMapping("/artists/{artistId}/works")
     public ResponseEntity<Page<SearchWorkDTO>> searchWorksByArtist(
@@ -93,12 +91,11 @@ public class SearchController {
 
     @Operation(
         summary = "Global search for works and artists",
-        description = "Performs a combined search on works and artists with multiple filters."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "Page of combined search results (works and artists)",
-        content = @Content(mediaType = "application/json")
+        description = "Performs a combined search on works and artists with multiple filters.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Page of combined search results (works and artists)", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Error performing search", content = @Content(mediaType = "application/json"))
+        }
     )
     @GetMapping("/all")
     public ResponseEntity<Page<Object>> searchAll(
