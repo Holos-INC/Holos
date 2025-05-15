@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -239,5 +240,19 @@ public class CommisionController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al rechazar el pago: " + e.getMessage());
         }
-    }    
+    }
+    
+    @PutMapping("/next/accept/{id}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<?> acceptArtistImage(@PathVariable Long id) throws Exception {
+        commisionService.acceptArtistImageAndAdvanceStatus(id);
+        return ResponseEntity.ok("Imagen aceptada y comisión actualizada");
+    }
+    
+    @PutMapping("/next/deny/{id}")
+    @PreAuthorize("hasAuthority('CLIENT')")
+    public ResponseEntity<?> denyArtistImage(@PathVariable Long id) throws Exception {
+        commisionService.denyArtistImageAndKeepStatus(id);
+        return ResponseEntity.ok("Imagen denegada y revertida");
+    }
 }

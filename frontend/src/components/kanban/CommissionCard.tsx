@@ -3,12 +3,19 @@ import { getImageSource } from "@/src/utils/getImageSource";
 import { cardStyles, dialogStyles } from "@/src/styles/Kanban.styles";
 import { useRouter } from "expo-router";
 import { View, TouchableOpacity, Image, Text } from "react-native";
-import { Dialog, Portal, Button, IconButton } from "react-native-paper";
+import {
+  Dialog,
+  Portal,
+  Button,
+  IconButton,
+  Snackbar,
+} from "react-native-paper";
 import Icon from "react-native-vector-icons/Feather";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import colors from "@/src/constants/colors";
 import { updateCommisionImage } from "@/src/services/commisionApi";
+import { UpdateStatusBadge } from "../UpdateStatusBadge";
 
 interface CommissionCardProps {
   commission: StatusKanbanWithCommissionsDTO;
@@ -34,7 +41,7 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const goToCommissionDetails = () => {
-    router.push(`/commissions/${commission.id}/details`);
+    router.push(`/chats/${commission.id}`);
   };
   const goToUserProfile = () => {
     router.push(`/profile/${commission.clientUsername}`);
@@ -43,7 +50,9 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
   const showDialog = () => setVisible(true);
   const hideDialog = () => {
     setVisible(false);
-    setSelectedImage(null);
+    setTimeout(() => {
+      setSelectedImage(null);
+    }, 300);
   };
 
   const handleMoveForward = () => {
@@ -58,9 +67,9 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
 
     try {
       await updateCommisionImage(commission.id, selectedImage, token);
-      onMoveForward();
       setError(null);
       hideDialog();
+      onMoveForward();
     } catch (err) {
       setError("Error uploading image. Please try again.");
       console.error(err);
@@ -83,13 +92,14 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
 
   return (
     <View style={cardStyles.card}>
+      <UpdateStatusBadge status={commission.lastUpdateStatus} />
       {commission.image && (
         <TouchableOpacity onPress={goToCommissionDetails}>
           <Image
-            source={getImageSource(commission.image)}
+            source={getImageSource(commission.newImage)}
             style={cardStyles.image}
             onError={() =>
-              console.log("Error loading image:", commission.image)
+              console.log("Error loading image:", commission.newImage)
             }
           />
         </TouchableOpacity>
@@ -104,9 +114,12 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
             <Text style={cardStyles.price}>{commission.price}€</Text>
           </View>
           {commission.isWaitingPayment && (
-        <Text style={[cardStyles.client, { color: 'red', fontWeight: 'bold' }]}>
-          Pendiente de pago
-        </Text>)}
+            <Text
+              style={[cardStyles.client, { color: "red", fontWeight: "bold" }]}
+            >
+              Pendiente de pago
+            </Text>
+          )}
         </View>
 
         <View style={cardStyles.bottomRow}>

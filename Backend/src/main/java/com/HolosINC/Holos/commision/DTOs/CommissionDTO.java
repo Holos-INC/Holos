@@ -1,6 +1,7 @@
 package com.HolosINC.Holos.commision.DTOs;
 
 import com.HolosINC.Holos.commision.StatusCommision;
+import com.HolosINC.Holos.commision.UpdateStatus;
 
 import java.util.Date;
 
@@ -48,10 +49,15 @@ public class CommissionDTO {
 
     private byte[] image;
 
+    private byte[] oldImage;
+
+    private byte[] newImage;
+
     private byte[] imageProfileA;
 
     private byte[] imageProfileC;
 
+    private UpdateStatus lastUpdateStatus;
 
     public CommissionDTO(Commision commision){
         this.id = commision.getId();
@@ -67,11 +73,13 @@ public class CommissionDTO {
         this.artistUsername = commision.getArtist().getBaseUser().getUsername();
         this.clientUsername = commision.getClient().getBaseUser().getUsername();
         this.image = commision.getImage();
+        this.oldImage = commision.getArtistOldImage();
+        this.newImage = commision.getArtistNewImage();
         this.imageProfileA = commision.getArtist().getBaseUser().getImageProfile();
         this.imageProfileC = commision.getClient().getBaseUser().getImageProfile();
         this.isWaitingPayment = commision.isWaitingPayment();
         this.setupIntentId = commision.getSetupIntentId();
-
+        this.lastUpdateStatus = commision.getLastUpdateStatus();
     }
 
     public Commision createCommision() {
@@ -86,7 +94,10 @@ public class CommissionDTO {
         commision.setMilestoneDate(this.milestoneDate);
         commision.setAcceptedDateByArtist(this.acceptedDateByArtist);
         commision.setImage(this.image);
+        commision.setArtistOldImage(this.oldImage);
+        commision.setArtistNewImage(this.newImage);
         commision.setWaitingPayment(this.isWaitingPayment);
+        commision.setLastUpdateStatus(this.lastUpdateStatus);
         return commision;
     }
 }

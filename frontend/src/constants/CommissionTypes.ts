@@ -56,6 +56,20 @@ export enum PaymentArrangement {
   MODERATOR = "MODERATOR",
 }
 
+export enum UpdateStatus {
+  NONE = "NONE",
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
+export const UpdateStatusColors: Record<UpdateStatus, string> = {
+  [UpdateStatus.NONE]: "#D3D3D3",
+  [UpdateStatus.PENDING]: "#FFC107",
+  [UpdateStatus.APPROVED]: "#4CAF50",
+  [UpdateStatus.REJECTED]: "#F44336",
+};
+
 export interface Work {
   id: number;
   name: string;
@@ -106,6 +120,10 @@ export interface HistoryCommisionsDTO {
 export interface CommissionProtected {
   image?: string;
 
+  oldImage?: string;
+
+  newImage?: string;
+
   imageProfileA?: string;
 
   imageProfileC?: string;
@@ -129,6 +147,8 @@ export interface CommissionProtected {
   clientUsername: string;
 
   acceptedDateByArtist: Date;
+
+  lastUpdateStatus: UpdateStatus;
 }
 
 export interface CommissionInProgress {
@@ -140,6 +160,9 @@ export interface CommissionInProgress {
   currentStep: number;
   totalSteps: number;
   waitingPayment: boolean;
+  oldImage?: string;
+  newImage?: string;
+  lastUpdateStatus: UpdateStatus;
 }
 
 export interface BaseUserDTO {
@@ -173,9 +196,12 @@ export interface CommissionDTO {
   artistUsername: string;
   clientUsername: string;
   image: string;
+  oldImage?: string;
+  newImage?: string;
   imageProfileA: string;
   imageProfileC: string;
   isWaitingPayment: boolean;
+  lastUpdateStatus: UpdateStatus;
 }
 
 export interface ClientCommissionDTO {

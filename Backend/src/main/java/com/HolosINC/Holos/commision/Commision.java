@@ -7,10 +7,12 @@ import com.HolosINC.Holos.client.Client;
 import com.HolosINC.Holos.work.Work;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -23,6 +25,15 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Commision extends Work{
+
+    @Lob
+    @Column(name = "artist_old_image", columnDefinition = "LONGBLOB")
+    private byte[] artistOldImage;
+
+    @Lob
+    @Column(name = "artist_new_image", columnDefinition = "LONGBLOB")
+    private byte[] artistNewImage;
+
 
     @Enumerated(EnumType.STRING)
     private StatusCommision status;
@@ -46,6 +57,9 @@ public class Commision extends Work{
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private StatusKanbanOrder statusKanbanOrder;
+
+    @Enumerated(EnumType.STRING)
+    private UpdateStatus lastUpdateStatus = UpdateStatus.NONE;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(nullable = false)

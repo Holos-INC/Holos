@@ -1,11 +1,14 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
-import { Button } from "react-native-paper";
+import { View, Text, Image, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-
 import { ProgressDots } from "@/src/components/requestedCommissions/ProgressDots";
 import { commissionCardstyles as styles } from "@/src/styles/RequestedCommissions.styles";
 import { getImageSource } from "@/src/utils/getImageSource";
+import {
+  UpdateStatus,
+  UpdateStatusColors,
+} from "@/src/constants/CommissionTypes";
+import { UpdateStatusBadge } from "../UpdateStatusBadge";
 
 type CommissionCardProps = {
   id: number;
@@ -15,6 +18,7 @@ type CommissionCardProps = {
   totalSteps: number;
   currentStep: number;
   waitingPayment: boolean;
+  lastUpdateStatus: UpdateStatus;
 };
 
 export const CommissionCard: React.FC<CommissionCardProps> = ({
@@ -25,24 +29,18 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
   totalSteps,
   currentStep,
   waitingPayment,
+  lastUpdateStatus,
 }) => {
   const router = useRouter();
-
-  const goToDetails = () =>
-    router.push({
-      pathname: "/commissions/[commissionId]/details",
-      params: {
-        commissionId: id.toString(),
-        currentStep,
-        totalSteps,
-      },
-    });
 
   const goToChat = () => router.push(`/chats/${id}`);
 
   return (
     <View style={styles.card}>
-      <Image source={getImageSource(image)} style={styles.image} />
+      <Pressable onPress={goToChat} style={{ position: "relative" }}>
+        <Image source={getImageSource(image)} style={styles.image} />
+        <UpdateStatusBadge status={lastUpdateStatus} />
+      </Pressable>
 
       <View style={styles.content}>
         <View style={styles.titleContainer}>
@@ -60,27 +58,6 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
         <Text style={styles.counter}>
           {currentStep}/{totalSteps}
         </Text>
-
-        <View style={styles.buttonRow}>
-          <Button
-            mode="contained"
-            buttonColor="#183771"
-            textColor="#FECEF1"
-            onPress={goToDetails}
-            style={{ flex: 1 }}
-          >
-            Detalles
-          </Button>
-          <View style={{ width: 12 }} />
-          <Button
-            mode="outlined"
-            textColor="#183771"
-            onPress={goToChat}
-            style={{ flex: 1 }}
-          >
-            Chat
-          </Button>
-        </View>
       </View>
     </View>
   );
