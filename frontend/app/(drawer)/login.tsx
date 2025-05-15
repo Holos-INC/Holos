@@ -1,14 +1,20 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, useWindowDimensions } from "react-native";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import colors from "@/src/constants/colors";
 import { useEffect } from "react";
 import { useNavigation } from "expo-router";
+import { useFonts, DancingScript_400Regular } from "@expo-google-fonts/dancing-script";
+
+
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 768;
+  const [fontsLoaded] = useFonts({DancingScript_400Regular});
 
   useEffect(() => {
     navigation.setOptions({
@@ -17,50 +23,51 @@ export default function AuthScreen() {
   }, [isLogin]);
 
   return (
-    <View style={styles.container}>
-      {/* Panel Izquierdo: Imagen y eslogan */}
-      <View style={styles.leftPanel}>
-        <Image
-          source={require("@/assets/images/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.slogan}>donde Artistas y Clientes se encuentran</Text>
-      </View>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={[styles.container, { flexDirection: isSmallScreen ? "column" : "row" }]}>
+        {/* Panel Izquierdo: Imagen y eslogan */}
+        <View style={styles.leftPanel}>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.slogan, { fontFamily: "DancingScript_400Regular", fontSize: isSmallScreen ? 36 : 60 }]}>donde Artistas y Clientes se encuentran🎨</Text>
+        </View>
 
-      {/* Separador */}
-      <View style={styles.separator} />
+        {/* Separador */}
+        <View style={styles.separator} />
 
-      {/* Panel Derecho: Formulario */}
-      <View style={styles.rightPanel}>
-        {isLogin ? (
-          <>
-            <LoginForm />
-            <TouchableOpacity onPress={() => setIsLogin(false)}>
-              <Text style={styles.toggleText}>¿No tienes cuenta? Regístrate</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <SignupForm onSignupSuccess={() => setIsLogin(true)} />
-            <TouchableOpacity onPress={() => setIsLogin(true)}>
-              <Text style={styles.toggleText}>¿Ya tienes cuenta? Inicia sesión</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        {/* Panel Derecho: Formulario */}
+        <View style={styles.rightPanel}>
+          {isLogin ? (
+            <>
+              <LoginForm />
+              <TouchableOpacity onPress={() => setIsLogin(false)}>
+                <Text style={styles.toggleText}>¿No tienes cuenta? Regístrate</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <SignupForm onSignupSuccess={() => setIsLogin(true)} />
+              <TouchableOpacity onPress={() => setIsLogin(true)}>
+                <Text style={styles.toggleText}>¿Ya tienes cuenta? Inicia sesión</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
     backgroundColor: colors.surfaceBase,
   },
   leftPanel: {
-    flex: 1,
+    flex:1,
     backgroundColor: colors.brandPrimary,
     alignItems: "center",
     justifyContent: "center",
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc",
   },
   rightPanel: {
-    flex: 1,
+    flex:1, 
     paddingVertical: 40,
     paddingHorizontal: 50,
     justifyContent: "center",
