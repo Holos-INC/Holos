@@ -88,7 +88,7 @@ export default function Checkout() {
             <View style={[styles.container, isTwoColumn && styles.row]}>
               <View style={[styles.column, isTwoColumn && styles.column]}>
                 <PaymentForm
-                  amount={Math.round(commission.price * 1.06 * 100) / 100}
+                  amount={Math.round(commission.price * 100) / 100}
                   commissionId={commission.id}
                   description={commission.description}
                   status={commission.status}

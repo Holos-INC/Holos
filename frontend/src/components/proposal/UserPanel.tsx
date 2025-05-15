@@ -17,16 +17,16 @@ export default function UserPanel({ username, image }: RequestFormProps) {
     <View style={{ flex: 1, alignItems: "center" }}>
       <Image
         source={getImageSource(image || "")}
-        style={{ width: 65, height: 65, borderRadius: 100 }}
+        style={{ width: 60, height: 60, borderRadius: 100 }}
         resizeMode="cover"
       />
       <Pressable
         style={{
           backgroundColor: colors.brandPrimary,
-          paddingHorizontal: 12,
-          paddingVertical: 6,
+          paddingHorizontal: 10,
+          paddingVertical: 3,
           borderRadius: 999,
-          marginTop: 15,
+          marginTop: 5,
         }}
         onPress={() => router.push(`/profile/${username}`)}
       >
