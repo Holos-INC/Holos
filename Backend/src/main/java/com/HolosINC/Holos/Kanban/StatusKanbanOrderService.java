@@ -27,7 +27,6 @@ import com.HolosINC.Holos.commision.CommisionRepository;
 import com.HolosINC.Holos.commision.CommisionService;
 import com.HolosINC.Holos.commision.EnumPaymentArrangement;
 import com.HolosINC.Holos.commision.StatusCommision;
-import com.HolosINC.Holos.commision.DTOs.ClientCommissionDTO;
 import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.exceptions.ResourceNotOwnedException;
@@ -190,9 +189,10 @@ public class StatusKanbanOrderService {
             throw new BadRequestException("No se puede eliminar un estado que está asignado a una o más comisiones.");
         }
 
-        List<ClientCommissionDTO> acceptedCommisions = commisionRepository.findCommissionsInProgressByArtist(artist.getId());
+        List<Commision> commisionsOnStatus = commisionRepository.
+        findCommissionsByStatusAndArtist(status.getId(), artist.getId());
 
-        if (acceptedCommisions!=null|| !(acceptedCommisions.isEmpty())){
+        if (commisionsOnStatus.size() > 0) {
             throw new BadRequestException("No se puede eliminar un estado cuando existen comisiones activas.");
         }
     
