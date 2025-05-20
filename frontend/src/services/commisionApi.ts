@@ -294,3 +294,27 @@ export const updatePayment = async (
     throw error;
   }
 };
+
+export const acceptArtistImage = async (id: number, token: string) => {
+  try {
+    const response = await api.put(`${COMMISSION_URL}/next/accept/${id}`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error approving the image");
+    throw error;
+  }
+};
+
+export const denyArtistImage = async (id: number, token: string) => {
+  try {
+    const response = await api.put(`${COMMISSION_URL}/next/deny/${id}`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, "Error rejecting the image");
+    throw error;
+  }
+};

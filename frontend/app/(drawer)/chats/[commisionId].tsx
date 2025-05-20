@@ -1,50 +1,69 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { View, Button, Image, TouchableOpacity, Modal } from 'react-native';
-import { GiftedChat, IMessage, Message, Send } from 'react-native-gifted-chat';
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import { View, Button, Image, TouchableOpacity, Modal } from "react-native";
+import { GiftedChat, IMessage, Message, Send } from "react-native-gifted-chat";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
-import { getConversation, sendMessage, getNewMessages } from "@/src/services/chatService";
-import * as ImagePicker from 'expo-image-picker';
-import LoadingScreen from '@/src/components/LoadingScreen';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
+import {
+  getConversation,
+  sendMessage,
+  getNewMessages,
+} from "@/src/services/chatService";
+import * as ImagePicker from "expo-image-picker";
+import LoadingScreen from "@/src/components/LoadingScreen";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 import { MessageChat, MessageRecieved } from "@/src/constants/message";
 import { Platform } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import popUpMovilWindows from "@/src/components/PopUpAlertMovilWindows";
 import { styles } from "@/src/styles/Chat.styles";
 import { getCommissionById } from "@/src/services/commisionApi";
-import { Button as BackButton } from 'react-native-paper';
+import { Button as BackButton, IconButton } from "react-native-paper";
+import { useCommissionDetails } from "@/src/hooks/useCommissionDetails";
+import { AcceptDenyOverlay } from "@/src/components/AcceptDenyOverlay ";
+import { useAuth } from "@/src/hooks/useAuth";
 
+{
+  /*Variables de imagenes*/
+}
 
-{/*Variables de imagenes*/ }
+const isWeb = Platform.OS === "web";
+const icon = "📷";
 
-const isWeb = Platform.OS === "web"
-const icon = "📷"
-
-
-export default function IndividualChatScreen({ }) {
-
+export default function IndividualChatScreen({}) {
   const params = useLocalSearchParams() as {
     commisionId?: string;
   };
 
   const { commisionId } = params;
+  const {
+    commission,
+    loading: loadingComm,
+    refreshCommission,
+  } = useCommissionDetails(commisionId);
   const { loggedInUser } = useContext(AuthenticationContext);
   const router = useRouter();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(
+    undefined
+  );
   const [inputText, setInputText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [imageToPreview, setImageToPreview] = useState<string | null>(null);
-  const [lastFetchedDate, setLastFetchedDate] = useState<string>(new Date().toString());
+  const [lastFetchedDate, setLastFetchedDate] = useState<string>(
+    new Date().toString()
+  );
   const [canSendMessage, setcanSendMessage] = useState<boolean>();
   const navigation = useNavigation();
+  const [overlayDismissed, setOverlayDismissed] = useState(false);
+  const showOverlay =
+    commission?.lastUpdateStatus === "PENDING" && !overlayDismissed;
+  const { isClient } = useAuth();
 
-
-
-  {/*Obtención del historial del chat*/ }
+  {
+    /*Obtención del historial del chat*/
+  }
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -52,14 +71,14 @@ export default function IndividualChatScreen({ }) {
 
         const dataCommision = await getCommissionById(Number(commisionId));
 
-        const dataMessage = await getConversation(Number(commisionId), loggedInUser.token);
+        const dataMessage = await getConversation(
+          Number(commisionId),
+          loggedInUser.token
+        );
 
-        if (dataCommision.status == 'ACCEPTED') {
-          setcanSendMessage(true)
+        if (dataCommision.status == "ACCEPTED") {
+          setcanSendMessage(true);
         }
-
-
-
 
         if (dataMessage.length < 0) return;
 
@@ -73,15 +92,19 @@ export default function IndividualChatScreen({ }) {
                 _id: msg.senderId,
                 name: msg.senderName,
               },
-              image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
+              image: msg.image
+                ? `data:image/jpeg;base64,${msg.image}`
+                : undefined,
             };
           })
-          .sort((a: IMessage, b: IMessage) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          .sort(
+            (a: IMessage, b: IMessage) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
 
         setMessages(formattedMessages);
         setSelectedImage(undefined);
         setLastFetchedDate(dataMessage[0].creationDate);
-
       } catch (error) {
         console.error("Error obteniendo mensajes:", error);
       }
@@ -93,36 +116,34 @@ export default function IndividualChatScreen({ }) {
     navigation.setOptions({ title: "Chat" });
   }, [loggedInUser, commisionId]);
 
-
-
   useEffect(() => {
     if (!commisionId || !loggedInUser) return;
 
     const interval = setInterval(async () => {
       try {
-
         const newMessages = await getNewMessages(
           Number(commisionId),
           loggedInUser.token,
           lastFetchedDate
         );
 
-
-
-
         if (newMessages.length > 0) {
-          const formattedNewMessages: IMessage[] = newMessages.map((msg: MessageRecieved) => {
-            return {
-              _id: msg.id,
-              text: msg.text,
-              createdAt: new Date(msg.creationDate),
-              user: {
-                _id: msg.senderId,
-                name: msg.senderName,
-              },
-              image: msg.image ? `data:image/jpeg;base64,${msg.image}` : undefined,
-            };
-          });
+          const formattedNewMessages: IMessage[] = newMessages.map(
+            (msg: MessageRecieved) => {
+              return {
+                _id: msg.id,
+                text: msg.text,
+                createdAt: new Date(msg.creationDate),
+                user: {
+                  _id: msg.senderId,
+                  name: msg.senderName,
+                },
+                image: msg.image
+                  ? `data:image/jpeg;base64,${msg.image}`
+                  : undefined,
+              };
+            }
+          );
 
           setMessages((prevMessages) => {
             const nuevosSinDuplicados = formattedNewMessages.filter(
@@ -130,7 +151,8 @@ export default function IndividualChatScreen({ }) {
                 !prevMessages.some(
                   (m) =>
                     m.user._id === msg.user._id &&
-                    new Date(m.createdAt).getTime() === new Date(msg.createdAt).getTime()
+                    new Date(m.createdAt).getTime() ===
+                      new Date(msg.createdAt).getTime()
                 )
             );
 
@@ -139,21 +161,18 @@ export default function IndividualChatScreen({ }) {
               setLastFetchedDate(latestDate);
             }
 
-
-
-
             return GiftedChat.append(prevMessages, nuevosSinDuplicados);
           });
 
-          if (newMessages[0].statusCommision == 'ACCEPTED' && canSendMessage == true) {
-
-
+          if (
+            newMessages[0].statusCommision == "ACCEPTED" &&
+            canSendMessage == true
+          ) {
             setLastFetchedDate(newMessages[0].creationDate);
           } else {
             setcanSendMessage(false);
-            clearInterval(interval)
+            clearInterval(interval);
           }
-
         }
       } catch (err) {
         console.error(" Error al obtener nuevos mensajes:", err);
@@ -163,52 +182,65 @@ export default function IndividualChatScreen({ }) {
     return () => clearInterval(interval);
   }, [canSendMessage]);
 
+  {
+    /*Publicación de los mensajes*/
+  }
+  const onSend = useCallback(
+    async (newMessages: IMessage[] = []) => {
+      if (newMessages.length === 0 && !selectedImage) return;
+      const messageSend = newMessages[0];
+      const textContent = messageSend.text.replace(icon, "").trim();
 
+      if (textContent.trim().length === 0 && !selectedImage) {
+        popUpMovilWindows(
+          "Mensaje inválido",
+          "No se puede enviar un mensaje vacío."
+        );
+        return;
+      }
 
-  {/*Publicación de los mensajes*/ }
-  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
+      if (textContent.length > 125) {
+        popUpMovilWindows(
+          "Mensaje demasiado largo",
+          "El mensaje no puede tener más de 125 caracteres."
+        );
+        return;
+      }
 
-    if (newMessages.length === 0 && !selectedImage) return;
-    const messageSend = newMessages[0];
-    const textContent = messageSend.text.replace(icon, "").trim();
+      if (textContent.length > 125) {
+        popUpMovilWindows(
+          "Mensaje demasiado largo",
+          "El mensaje no puede tener más de 125 caracteres."
+        );
+        return;
+      }
 
+      {
+        /*Creación del mensaje para el backend*/
+      }
+      const formattedMessage: MessageChat = {
+        text: textContent,
+        createdAt: messageSend.createdAt.toString(),
+        image: selectedImage || undefined,
+        commision: commisionId,
+      };
 
+      {
+        /*Envío del mensajes al "backend" */
+      }
+      try {
+        await sendMessage(formattedMessage, loggedInUser.token);
+        setSelectedImage(undefined);
+      } catch (error) {
+        console.error("Error enviando mensaje:", error);
+      }
+    },
+    [selectedImage]
+  );
 
-    if (textContent.trim().length === 0 && !selectedImage) {
-      popUpMovilWindows("Mensaje inválido", "No se puede enviar un mensaje vacío.");
-      return;
-    }
-
-    if (textContent.length > 125) {
-      popUpMovilWindows("Mensaje demasiado largo", "El mensaje no puede tener más de 125 caracteres.");
-      return;
-    }
-
-    if (textContent.length > 125) {
-      popUpMovilWindows("Mensaje demasiado largo", "El mensaje no puede tener más de 125 caracteres.");
-      return;
-    }
-
-    {/*Creación del mensaje para el backend*/ }
-    const formattedMessage: MessageChat = {
-      text: textContent,
-      createdAt: messageSend.createdAt.toString(),
-      image: selectedImage || undefined,
-      commision: commisionId,
-    };
-
-    {/*Envío del mensajes al "backend" */ }
-    try {
-
-      await sendMessage(formattedMessage, loggedInUser.token);
-      setSelectedImage(undefined);
-
-    } catch (error) {
-      console.error("Error enviando mensaje:", error);
-    }
-  }, [selectedImage]);
-
-  {/*Permite seleccionar imagenes*/ }
+  {
+    /*Permite seleccionar imagenes*/
+  }
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -233,21 +265,20 @@ export default function IndividualChatScreen({ }) {
   const downloadImageMobile = async (uri: string) => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
 
-    if (status !== 'granted') {
+    if (status !== "granted") {
       alert("Se necesita permiso para guardar la imagen");
       return;
     }
 
-    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const filename = uri.substring(uri.lastIndexOf("/") + 1);
     const fileUri = FileSystem.documentDirectory + filename;
 
     const downloadResumable = await FileSystem.downloadAsync(uri, fileUri);
     const asset = await MediaLibrary.createAssetAsync(downloadResumable.uri);
-    await MediaLibrary.createAlbumAsync('ChatApp', asset, false);
+    await MediaLibrary.createAlbumAsync("ChatApp", asset, false);
 
     alert("Imagen guardada en la galería");
   };
-
 
   const downloadImage = (uri: string) => {
     if (isWeb) {
@@ -257,10 +288,13 @@ export default function IndividualChatScreen({ }) {
     }
   };
 
+  useEffect(() => {
+    navigation.setOptions({
+      title: commission?.name ? commission.name : "Chat",
+    });
+  }, [commission?.name, navigation]);
 
-
-
-  if (loading) return <LoadingScreen />;
+  if (loading || loadingComm) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
@@ -278,6 +312,41 @@ export default function IndividualChatScreen({ }) {
       >
         ATRÁS
       </BackButton>
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/commissions/[commissionId]/details",
+            params: {
+              commissionId: commisionId?.toString() ?? "",
+            },
+          })
+        }
+        style={{
+          position: "absolute",
+          top: 24,
+          right: 16,
+          zIndex: 10,
+          backgroundColor: "transparent",
+        }}
+      >
+        <Ionicons name="document-text-outline" size={26} color="grey" />
+      </TouchableOpacity>
+      {isClient &&
+        commission?.lastUpdateStatus === "PENDING" &&
+        overlayDismissed && (
+          <TouchableOpacity
+            onPress={() => setOverlayDismissed(false)}
+            style={{
+              position: "absolute",
+              top: 60,
+              right: 16,
+              zIndex: 10,
+              backgroundColor: "transparent",
+            }}
+          >
+            <Ionicons name="heart-half-outline" size={26} color="grey" />
+          </TouchableOpacity>
+        )}
 
       <GiftedChat
         key={`chat-${loggedInUser.id}`}
@@ -285,14 +354,20 @@ export default function IndividualChatScreen({ }) {
         onSend={(messages: IMessage[]) => onSend(messages)}
         user={{ _id: loggedInUser.id, name: loggedInUser.username }}
         renderAvatar={() => null}
-        text={canSendMessage
-          ? (((selectedImage && inputText !== icon) && inputText.length == 0) ? icon : inputText) : ""}
+        text={
+          canSendMessage
+            ? selectedImage && inputText !== icon && inputText.length == 0
+              ? icon
+              : inputText
+            : ""
+        }
         onInputTextChanged={(text) => setInputText(text)}
         textInputProps={{
-          placeholder: canSendMessage ? "Escribe un mensaje..." : "Ya no se puede enviar mensajes",
+          placeholder: canSendMessage
+            ? "Escribe un mensaje..."
+            : "Ya no se puede enviar mensajes",
           editable: true,
         }}
-
         renderSend={(props) => {
           return (
             <Send {...props}>
@@ -301,24 +376,22 @@ export default function IndividualChatScreen({ }) {
               </View>
             </Send>
           );
-
-
         }}
-
         renderMessage={(props) => {
-          const isCurrentUser = props.currentMessage?.user._id === loggedInUser.id;
+          const isCurrentUser =
+            props.currentMessage?.user._id === loggedInUser.id;
 
           return (
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: isCurrentUser ? 'flex-end' : 'flex-start',
+                flexDirection: "row",
+                justifyContent: isCurrentUser ? "flex-end" : "flex-start",
                 paddingHorizontal: 10, // Espacio entre burbuja y borde de pantalla
               }}
             >
               <View
                 style={{
-                  maxWidth: '80%',
+                  maxWidth: "80%",
                 }}
               >
                 <Message
@@ -332,14 +405,15 @@ export default function IndividualChatScreen({ }) {
             </View>
           );
         }}
-
         renderMessageImage={(props) => {
           const uri = props.currentMessage?.image;
           return (
-            <TouchableOpacity onPress={() => {
-              setImageToPreview(uri ?? null);
-              setModalVisible(true);
-            }}>
+            <TouchableOpacity
+              onPress={() => {
+                setImageToPreview(uri ?? null);
+                setModalVisible(true);
+              }}
+            >
               <Image
                 source={{ uri }}
                 style={{ width: 200, height: 200, borderRadius: 10, margin: 5 }}
@@ -348,7 +422,6 @@ export default function IndividualChatScreen({ }) {
             </TouchableOpacity>
           );
         }}
-
       />
       {canSendMessage && (
         <View style={styles.imagePickerContainer}>
@@ -364,7 +437,14 @@ export default function IndividualChatScreen({ }) {
 
       {modalVisible && imageToPreview && (
         <Modal visible={modalVisible} transparent={true}>
-          <View style={{ flex: 1, backgroundColor: "#000000cc", justifyContent: "center", alignItems: "center" }}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#000000cc",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <View style={styles.closeButtonContainer}>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={28} color="white" />
@@ -376,12 +456,23 @@ export default function IndividualChatScreen({ }) {
               style={{ width: 300, height: 300, borderRadius: 15 }}
               resizeMode="contain"
             />
-            <Button title="Descargar imagen" onPress={() => downloadImage(imageToPreview)} />
+            <Button
+              title="Descargar imagen"
+              onPress={() => downloadImage(imageToPreview)}
+            />
           </View>
         </Modal>
       )}
+      {isClient && showOverlay && commission && (
+        <AcceptDenyOverlay
+          commission={commission}
+          token={loggedInUser.token}
+          onDone={() => {
+            setOverlayDismissed(true);
+            refreshCommission();
+          }}
+        />
+      )}
     </View>
-
-
   );
 }

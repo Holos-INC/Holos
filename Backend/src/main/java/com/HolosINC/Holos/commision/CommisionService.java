@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.HolosINC.Holos.Kanban.StatusKanbanOrder;
 import com.HolosINC.Holos.Kanban.StatusKanbanOrderRepository;
@@ -26,6 +27,8 @@ import com.HolosINC.Holos.exceptions.BadRequestException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 import com.HolosINC.Holos.model.BaseUser;
 import com.HolosINC.Holos.model.BaseUserService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class CommisionService {
@@ -439,25 +442,26 @@ public class CommisionService {
     public void updateImage(Long commisionId, String base64Image) throws Exception {
         Commision commision = commisionRepository.findById(commisionId)
             .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
-    
+
         Long currentUserId = userService.findCurrentUser().getId();
-    
+
         if (!commision.getArtist().getBaseUser().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("Solo el artista puede actualizar la imagen de la comisión.");
         }
-    
+
         if (commision.getStatus() != StatusCommision.ACCEPTED) {
-            throw new IllegalStateException("La imagen solo se puede actualizar cuando la comisión está aceptada y en proceso.");
-        }    
+            throw new IllegalStateException("La imagen solo se puede actualizar cuando la comisión está aceptada.");
+        }
+
         if (base64Image != null && base64Image.contains(",")) {
             String base64Data = base64Image.split(",")[1];
-            commision.setImage(java.util.Base64.getDecoder().decode(base64Data));
+            commision.setArtistNewImage(java.util.Base64.getDecoder().decode(base64Data));
         } else {
             throw new IllegalArgumentException("Formato de imagen no válido.");
         }
-    
+        commision.setLastUpdateStatus(UpdateStatus.PENDING);
         commisionRepository.save(commision);
-    }    
+    }
   
     @Transactional(readOnly = true)
     public List<ClientCommissionDTO> getEndedCommissionsForClient() throws Exception {
@@ -506,6 +510,47 @@ public class CommisionService {
         } catch (AccessDeniedException e) {
             throw new RuntimeException("Acceso denegado: " + e.getMessage(), e);
         }
+    }
+
+    private void validateArtistOwnership(Commision commission) throws Exception {
+        BaseUser currentUser = userService.findCurrentUser();
+        if (!commission.getArtist().getBaseUser().getId().equals(currentUser.getId())) {
+            throw new IllegalAccessException("No tienes permiso para modificar esta comisión.");
+        }
+    }
+
+    private void validateClientOwnership(Commision commission) throws Exception {
+        BaseUser currentUser = userService.findCurrentUser();
+        if (!commission.getClient().getBaseUser().getId().equals(currentUser.getId())) {
+            throw new IllegalAccessException("No puedes gestionar esta comisión.");
+        }
+    }
+
+    private Commision findByIdOrThrow(Long id) {
+        return commisionRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Comisión no encontrada"));
+    }
+
+
+    public void acceptArtistImageAndAdvanceStatus(Long commissionId) throws Exception {
+        Commision commission = findByIdOrThrow(commissionId);
+        validateClientOwnership(commission);
+        if (commission.getArtistNewImage() == null) {
+            throw new IllegalStateException("No hay imagen del artista para aceptar.");
+        }
+        commission.setArtistOldImage(commission.getArtistNewImage());
+
+        statusKanbanOrderService.nextStatusOfCommision(commissionId);
+        commission.setLastUpdateStatus(UpdateStatus.APPROVED);
+        commisionRepository.save(commission);
+    }
+
+    public void denyArtistImageAndKeepStatus(Long commissionId) throws Exception {
+        Commision commission = findByIdOrThrow(commissionId);
+        validateClientOwnership(commission);
+        commission.setArtistNewImage(commission.getArtistOldImage());
+        commission.setLastUpdateStatus(UpdateStatus.REJECTED);
+        commisionRepository.save(commission);
     }
     
 }
