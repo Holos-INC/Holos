@@ -64,6 +64,9 @@ export default function ArtistDetailScreen() {
       }
     } catch (error) {
       console.error(error);
+      if (error instanceof Error && (error as any).response?.status === 403) {
+        router.push("../accessDenied");
+      }
     } finally {
       setLoading(false);
     }

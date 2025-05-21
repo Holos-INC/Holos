@@ -14,14 +14,11 @@ interface PaymentFormProps {
   status: string;
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({
-  commissionId,
-  status,
-}) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({ commissionId, status }) => {
   const router = useRouter();
   const [success, setSuccess] = useState(false);
   const { loggedInUser } = useContext(AuthenticationContext);
-  const { getPaymentMethod, error, loading, setError } = useStripePayment();
+  const { error, loading, setError } = useStripePayment();
 
   const handlePayPress = async (
     stripe: any,
@@ -44,10 +41,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       return;
     }
 
-    const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-    });
+    const { error: stripeError, paymentMethod } =
+      await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+      });
 
     if (stripeError || !paymentMethod) {
       setError(stripeError?.message || "Error al crear el método de pago 😿");
@@ -55,7 +53,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
 
     try {
-      const clientSecret = await createSetupIntent(commissionId, loggedInUser.token);
+      const clientSecret = await createSetupIntent(
+        commissionId,
+        loggedInUser.token
+      );
 
       const result = await stripe.confirmCardSetup(clientSecret, {
         payment_method: paymentMethod.id,
@@ -74,8 +75,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         }
       }
     } catch (e) {
-      console.log(e)
-      setError("No se pudo completar el proceso 😿");
+      console.log(e);
+      const message =
+        e instanceof Error
+          ? e.message
+          : typeof e === "string"
+          ? e
+          : "Ocurrió un error inesperado 😿";
+      setError(message);
     }
   };
 

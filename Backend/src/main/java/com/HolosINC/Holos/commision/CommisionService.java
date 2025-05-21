@@ -254,7 +254,10 @@ public class CommisionService {
     public void acceptCommission(Long commisionId) throws Exception{
         try{
             Commision commision = commisionRepository.findById(commisionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Commision", "id", commisionId));
+            if (commision.getArtist().getSellerAccountId() == null) {
+                throw new IllegalStateException("El artista no tiene stripe asociado.");
+            }
             Long id = userService.findCurrentUser().getId();
             Boolean slotsFull = commision.getArtist().getNumSlotsOfWork()
                     - commisionRepository.numSlotsCovered(commision.getArtist().getId()) <= 0;

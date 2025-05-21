@@ -54,4 +54,7 @@ public interface CommisionRepository extends JpaRepository<Commision, Long>{
     "WHERE c.client.baseUser.id = :clientId AND c.status = com.HolosINC.Holos.commision.StatusCommision.ENDED")
     List<ClientCommissionDTO> findEndedCommissionsByClientId(Long clientId);
 
+    // Buscar las comisiones de un satuskanbanorder de un artista
+    @Query("SELECT c FROM Commision c WHERE c.statusKanbanOrder.id = :statusId AND c.artist.id = :artistId")
+    List<Commision> findCommissionsByStatusAndArtist(Long statusId, Long artistId);
 }

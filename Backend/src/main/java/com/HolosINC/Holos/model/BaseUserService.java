@@ -10,14 +10,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.HolosINC.Holos.artist.Artist;
 import com.HolosINC.Holos.auth.Auth;
 import com.HolosINC.Holos.client.Client;
+import com.HolosINC.Holos.client.ClientService;
+import com.HolosINC.Holos.exceptions.AccessDeniedException;
 import com.HolosINC.Holos.exceptions.ResourceNotFoundException;
 
 
 @Service
 public class BaseUserService {
     private BaseUserRepository baseUserRepository;
+    private ClientService clientService;
 
-	public BaseUserService(BaseUserRepository baseUserRepository) {
+	public BaseUserService(BaseUserRepository baseUserRepository, ClientService clientService) {
+        this.clientService = clientService;
 		this.baseUserRepository = baseUserRepository;
 	}
 
@@ -78,8 +82,16 @@ public class BaseUserService {
 
     @Transactional(readOnly = true)
     public BaseUser getUserByUsername(String username) {
-        return baseUserRepository.findUserByUsername(username)
+        BaseUser currentUser = findCurrentUser();
+        BaseUser requestUser = baseUserRepository.findUserByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        if (clientService.isClient(currentUser.getId()) && (clientService.isClient(requestUser.getId()) && !currentUser.getUsername().equals(username))) {
+            throw new AccessDeniedException("No tienes permiso para acceder a este recurso.");
+        }
+        if (currentUser.getAuthority() != Auth.ADMIN && requestUser.getAuthority() == Auth.ADMIN) {
+            throw new AccessDeniedException("No tienes permiso para acceder a este recurso.");
+        }
+        return requestUser;
     }
 
     @Transactional

@@ -55,7 +55,6 @@ export default function DrawerLayout() {
         <Drawer.Screen name="admin/index" options={{ drawerLabel: "Panel Admin", drawerIcon: () => <Text style={{ fontSize: 22 }}>⚙️</Text>, drawerItemStyle: { display: isAdmin ? 'flex' : 'none', height: isAdmin ? 'auto' : 0 } }} />
         <Drawer.Screen name="commissions/index" options={{ drawerLabel: "Pedidos", title:"📦 Mis pedidos", drawerIcon: () => <Text style={{ fontSize: 22 }}>📦</Text>, drawerItemStyle: { display: isArtist || isClient ? 'flex' : 'none', height: isArtist || isClient ? 'auto' : 0 } }} />
         <Drawer.Screen name="work/new" options={{ drawerLabel: "Subir obra", title:"  Subir obra", drawerIcon: () => <Text style={{ fontSize: 22 }}>⬆️</Text>, drawerItemStyle: { display: isArtist ? 'flex' : 'none', height: isArtist ? 'auto' : 0 } }} />
-        <Drawer.Screen name="contact" options={{ drawerLabel: "Contáctanos", title: "📨 Contactanos", drawerIcon:() => <Text style={{ fontSize: 22 }}>📨</Text>, drawerItemStyle: { display: 'flex', height: 'auto' } }} />
       </Drawer>
       )}
     </Suspense>

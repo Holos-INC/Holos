@@ -59,3 +59,15 @@ export async function deleteStatusColumn(id: number, token: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export async function fetchKanbanColumnCount(
+  username: string,
+  token: string
+): Promise<number> {
+  const res = await api.get(`/status-kanban-order/count/${username}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+}
