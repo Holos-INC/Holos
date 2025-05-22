@@ -79,6 +79,7 @@ public class CommisionService {
             commision.setPaymentArrangement(commisionDTO.getPaymentArrangement()); 
             Integer kanbanColumnsNumber = statusKanbanOrderService.countByArtistUsername(artist.getBaseUser().getUsername());
             commision.configurePaymentArrangementValues(kanbanColumnsNumber);
+            commision.setCurrentPayments(0);
             commisionRepository.save(commision);
             return new CommissionDTO(commision);
         } catch (Exception e) {
