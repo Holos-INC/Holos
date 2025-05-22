@@ -70,6 +70,9 @@ public class CommisionService {
                             () -> new ResourceNotFoundException("Client", "id", userService.findCurrentUser().getId()));
             if (artist == null || (!(artist.getBaseUser().getAuthority() == Auth.ARTIST) && !(artist.getBaseUser().getAuthority() == Auth.ARTIST_PREMIUM)))
                 throw new IllegalArgumentException("Envíe la solicitud de comisión a un artista válido");
+            if (commisionDTO.getPrice()<=0){
+                throw new BadRequestException("El precio debe ser mayor que 1");
+            }
             commision.setArtist(artist);
             commision.setClient(client);
             commision.setStatus(StatusCommision.REQUESTED);
