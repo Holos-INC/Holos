@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import * as yup from "yup";
 import { useCommissionDetails } from "@/src/hooks/useCommissionDetails";
 import { AuthenticationContext } from "@/src/contexts/AuthContext";
@@ -64,8 +64,8 @@ export function useCommissionNegotiation() {
     if (!commission) return;
     try {
       await reject(commission.id, loggedInUser.token);
-      await refreshCommission();
       alert("Comisión rechazada");
+      router.push("/commissions");
     } catch (err: any) {
       setErrorMessage(err.message);
     }
