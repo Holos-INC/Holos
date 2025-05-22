@@ -83,12 +83,12 @@ export default function WorkDetailScreen() {
     >
       <View style={styles.container}>
         <View style={styles.leftColumn}>
-          {commission.image ? (
+          {commission.newImage ? (
             <Image
-              source={getImageSource(commission.image)}
+              source={getImageSource(commission.newImage)}
               style={styles.imageStyle}
               onError={() =>
-                console.log("Error cargando imagen:", commission.image)
+                console.log("Error cargando imagen:", commission.newImage)
               }
             />
           ) : (

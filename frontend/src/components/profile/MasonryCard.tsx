@@ -15,12 +15,14 @@ const MasonryCard: React.FC<MasonryCardProps> = ({ item, index }) => {
   const even = index % 2 === 0;
   const [aspectRatio, setAspectRatio] = React.useState(1);
 
-  React.useEffect(() => {
-    const uri = getImageSource(item.image).uri;
+  const imageToUse =
+    (item as any).__type === "work" ? item.image : item.newImage;
+  const imageSource = getImageSource(imageToUse);
 
-    if (uri) {
+  React.useEffect(() => {
+    if (imageSource.uri) {
       Image.getSize(
-        uri,
+        imageSource.uri,
         (width, height) => {
           setAspectRatio(width / height);
         },
@@ -29,7 +31,7 @@ const MasonryCard: React.FC<MasonryCardProps> = ({ item, index }) => {
         }
       );
     }
-  }, [item.image]);
+  }, [imageSource.uri]);
 
   return (
     <TouchableOpacity
@@ -50,8 +52,8 @@ const MasonryCard: React.FC<MasonryCardProps> = ({ item, index }) => {
     >
       <View style={styles.card}>
         <Image
-          source={{ uri: getImageSource(item.image).uri }}
-          style={[styles.image, { aspectRatio: aspectRatio }]}
+          source={{ uri: imageSource.uri }}
+          style={[styles.image, { aspectRatio }]}
         />
         <View style={styles.bottom}>
           <Text style={styles.title}>{item.name}</Text>
