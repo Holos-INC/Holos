@@ -122,7 +122,7 @@ public class PaymentService {
                 throw new ResourceNotFoundException("Esta comisión no tiene un artista asociado");
             }
 
-            if (commision.getTotalPayments()<=commision.getCurrentPayments()){
+            if (commision.getCurrentPayments()==null||commision.getTotalPayments()<=commision.getCurrentPayments()){
                 throw new BadRequestException("Se han realizado todos los pagos de esta comisión");
             }
 

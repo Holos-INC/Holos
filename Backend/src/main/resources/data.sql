@@ -87,7 +87,7 @@ INSERT INTO artists (id, num_slots_of_work, table_commisions_price, base_user_id
 (18, 2, '/images/tc10.jpg', 40, 'acct_1RAYLY09DOHMpTCn', NULL),
 (19, 2, '/images/tc16.jpg', 41, 'acct_1RAYNyP9Gll65TID', NULL),
 (20, 2, '/images/tc21.jpg', 42, 'acct_1RAYPc06rGA4SaEh', NULL),
-(21, 2, '/images/tc17.jpg', 44, 'acct_1RAYPc06rGA4SaEh', 'sub_1RK0HRP7ypDsDd4Vd4EgStNp');
+(21, 2, '/images/tc17.jpg', 44, 'acct_1RAYPc06rGA4SaEh', 'sub_1RRg14P7ypDsDd4VfsLILrJJ');
 
 INSERT INTO categories (id, name, description) VALUES
 (1, 'Painting', 'Artworks created using paint on a surface'),
